@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "889381416201",
+    "firebase_url": "https://mujdating-default-rtdb.asia-southeast1.firebasedatabase.app",
+    "project_id": "mujdating",
+    "storage_bucket": "mujdating.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:889381416201:android:c8d56855371ed6921cb7d8",
+        "android_client_info": {
+          "package_name": "com.example.demo"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBc3slZkIZeEx-LTp-ORB5YxoCqXDxe-Lk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -1,3 +1,4 @@
+import 'package:demo/test.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -83,7 +84,7 @@ Widget infotext(){
   );
 }
 
-Widget joinTodayButton(){
+Widget joinTodayButton(BuildContext context){
   return GestureDetector(
     onTap: () async {
       final provider = OAuthProvider("microsoft.com");
@@ -91,12 +92,20 @@ Widget joinTodayButton(){
       if (kIsWeb) {
         try {
           await FirebaseAuth.instance.signInWithRedirect(provider);
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => Test()),
+          );
         } catch (e) {
           print('Error signing in with redirect: $e');
         }
       } else {
         try {
           await FirebaseAuth.instance.signInWithProvider(provider);
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => Test()),
+          );
         } catch (e) {
           print('Error signing in with popup: $e');
         }

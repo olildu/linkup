@@ -1,6 +1,7 @@
 // ignore_for_file: unused_element, prefer_const_constructors, prefer_const_literals_to_create_immutables, non_constant_identifier_names
 
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 const Color tagColor = Color(0xFF0C192C);
 
@@ -65,7 +66,7 @@ Widget buildProfileImage(BuildContext context) {
                 children: [
                   Text(
                     'Ebin, 18',
-                    style: TextStyle(
+                    style: GoogleFonts.poppins(
                       color: Colors.white,
                       fontSize: 26,
                       fontWeight: FontWeight.bold,
@@ -77,7 +78,7 @@ Widget buildProfileImage(BuildContext context) {
                       SizedBox(width: 5),
                       Text(
                         'Doing B.Tech',
-                        style: TextStyle(
+                        style: GoogleFonts.poppins(
                           color: Colors.white,
                           fontSize: 16,
                         ),
@@ -129,7 +130,7 @@ Widget buildTag(String text, IconData iconData) {
         children: [
           Icon(iconData, color: Colors.white, size: 20),
           SizedBox(width: 5),
-          Text(text, style: TextStyle(color: Colors.white)),
+          Text(text, style: GoogleFonts.poppins(color: Colors.white)),
         ],
       ),
     ),
@@ -169,7 +170,7 @@ Widget aboutMeAndTags() {
                     child: Text(
                       "About Me",
                       textAlign: TextAlign.left,
-                      style: TextStyle(
+                      style: GoogleFonts.poppins(
                         color: Color.fromARGB(255, 255, 255, 255),
                         fontWeight: FontWeight.w600,
                         fontSize: 16,
@@ -185,7 +186,7 @@ Widget aboutMeAndTags() {
                     child: Text(
                       "This is my about me",
                       textAlign: TextAlign.left,
-                      style: TextStyle(
+                      style: GoogleFonts.poppins(
                         color: Color.fromARGB(255, 255, 255, 255),
                         fontSize: 20,
                       ),
@@ -203,7 +204,7 @@ Widget aboutMeAndTags() {
                           child: Text(
                             "My Basics",
                             textAlign: TextAlign.left,
-                            style: TextStyle(
+                            style: GoogleFonts.poppins(
                               color: Color.fromARGB(255, 255, 255, 255),
                               fontWeight: FontWeight.w600,
                               fontSize: 16,
@@ -233,17 +234,21 @@ Widget fromOrStreamDetails() {
     padding: const EdgeInsets.all(20.0),
     child: Column(
       children: [
+        // Candidate Name
         Align(
           alignment: Alignment.centerLeft,
           child: Text(
             "Ebin's from",
-            style: TextStyle(
+            style: GoogleFonts.poppins(
               color: Colors.white,
               fontSize: 20,
             ),
           ),
         ),
+
         SizedBox(height: 10),
+        
+        // Candidate HomeTown
         SizedBox(
           child: Container(
             child: Column(
@@ -253,7 +258,7 @@ Widget fromOrStreamDetails() {
                     alignment: Alignment.centerLeft,
                     child: Text(
                       "Kerala",
-                      style: TextStyle(
+                      style: GoogleFonts.poppins(
                         color: Colors.white,
                         fontSize: 16,
                       ),
@@ -263,6 +268,32 @@ Widget fromOrStreamDetails() {
               ],
             ),
           ),
+        ),
+
+        SizedBox(height: 30,),
+
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: Colors.white,
+              ),
+              padding: EdgeInsets.all(30), 
+              child: Icon(Icons.close_rounded, color: Colors.black, size: 40),
+            ),
+            SizedBox(width: 20,),
+            Container(
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: Colors.white, 
+              ),
+              padding: EdgeInsets.all(30),
+              child: Icon(Icons.favorite_rounded, color: Color.fromARGB(255, 226, 47, 47), size: 40),
+            ),
+          ],
         )
       ],
     ),

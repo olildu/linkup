@@ -1,19 +1,35 @@
-// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables
+// ignore_for_file: prefer_const_constructors, prefer_final_fields, sort_child_properties_last
 
 import 'package:demo/elements/chat_elements/elements.dart';
 import 'package:flutter/material.dart';
 
-class ChatPage extends StatefulWidget {
-  const ChatPage({Key? key}) : super(key: key);
+class ChatDetailsPage extends StatefulWidget {
+  final String appBarTitle;
+  final String imageUrl;
+
+  const ChatDetailsPage({super.key, required this.appBarTitle, required this.imageUrl});
 
   @override
-  State<ChatPage> createState() => _ChatPageState();
+  _ChatDetailsPageState createState() => _ChatDetailsPageState();
 }
 
-class _ChatPageState extends State<ChatPage> {
+class _ChatDetailsPageState extends State<ChatDetailsPage> {
+  TextEditingController _messageController = TextEditingController();
   late OverlayEntry _overlayEntry;
 
-  @override
+  List<Map<String, dynamic>> _messages = [
+    {"text": "Hello!", "sender": "user1"},
+    {"text": "How are you?", "sender": "user2"},
+    {"text": "I'm doing well, thank you.", "sender": "user1"},
+    {"text": "What about you?", "sender": "user2"},
+  ];
+
+  void _addMessage(Map<String, dynamic> message) {
+    setState(() {
+      _messages.add(message);
+    });
+  }
+
   void initState() {
     super.initState();
     _overlayEntry = _createOverlayEntry();
@@ -100,42 +116,62 @@ class _ChatPageState extends State<ChatPage> {
       onWillPop: () async {
         if (_overlayEntry.mounted) {
           _overlayEntry.remove();
-          return false;
+          return false; // Returning false prevents closing the app
         }
-        return true;
+        return true; // Returning true allows closing the app
       },
       child: Scaffold(
+
+      backgroundColor: Colors.white,
+      appBar: AppBar(
         backgroundColor: Colors.white,
-        body: Padding(
-          padding: EdgeInsets.only(top: 20),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Match Que Title
-              matchQueTitle(),
-
-              // Matches Que
-              GestureDetector(
-                onTap: () {
-                  _toggleOverlay();
-                },
-                child: matchedUser(),
-              ),
-
-              SizedBox(height: 20),
-              // Chats Title
-
-              chatTitle(),
-
-              // Chat Widgets
-
-              SizedBox(height: 5),
-
-              chatDetailsStructure(),
+        leading: InkWell(
+          onTap: () {
+            Navigator.of(context).pop();
+          },
+          child: Row(
+            children: const [
+              SizedBox(width: 20),
+              Icon(Icons.arrow_back_ios),
             ],
           ),
         ),
+        title: GestureDetector(
+          onTap: () {
+            _toggleOverlay();
+          },
+          child: Transform.translate(
+            offset: Offset(-22, 0),
+            child: Row(
+              children: [
+                CircleAvatar(
+                  backgroundImage: AssetImage(widget.imageUrl),
+                  radius: 20,
+                ),
+                SizedBox(width: 10),
+                Text(widget.appBarTitle),
+              ],
+            ),
+          ),
+        ),
+        actions: [
+          ActionWidget()
+        ],
+
       ),
-    );
+      body: Stack(
+        children: [
+          MessageContent(_messages),
+
+          TextFieldWithDynamicColor(sendMessage: _addMessage),
+        ],
+      ),
+    ));
+  }
+
+  @override
+  void dispose() {
+    _messageController.dispose();
+    super.dispose();
   }
 }

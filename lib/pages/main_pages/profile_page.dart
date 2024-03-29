@@ -1,22 +1,52 @@
 // ignore_for_file: use_super_parameters, prefer_const_constructors, prefer_const_literals_to_create_immutables
 
 import 'package:demo/elements/profile_elements/elements.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 
 class ProfilePage extends StatefulWidget {
-  const ProfilePage({Key? key}) : super(key: key);
+  final VoidCallback? aboutMeCallback; // Callback parameter
+  const ProfilePage({Key? key, this.aboutMeCallback}) : super(key: key);
 
   @override
   State<ProfilePage> createState() => _ProfilePageState();
 }
 
 class _ProfilePageState extends State<ProfilePage> {
+  dynamic Userdata;
+  bool isDataLoaded = false;
+
+  @override
+  void initState() {
+    super.initState();
+    fetchUserData();
+  }
+
+  void fetchUserData() async{
+    User? user = FirebaseAuth.instance.currentUser;
+    final ref = await FirebaseDatabase.instance.ref().child("/UsersMetaData/${user?.uid}/UserDetails");
+    
+    ref.onValue.listen((event) {
+      Userdata = event.snapshot.value;
+      setState(() {
+        isDataLoaded = true;
+      });
+    },);
+  }
+
   @override
   Widget build(BuildContext context) {
+    if (!isDataLoaded) {
+      return Scaffold(
+        body: Center(
+          child: CircularProgressIndicator(),
+        ),
+      );
+    }
     return Scaffold(
       backgroundColor: Colors.white,
       body: 
-      // Initialize Widget going down
       SingleChildScrollView(
         child: Container(
           padding: EdgeInsets.symmetric(horizontal: 20, vertical: 40),
@@ -29,7 +59,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 titleAndSubtitle("Your Photos", "Add photos that show your true self"),
                 
                 SizedBox(height: 30), 
-             
+
                 // Photos
                 photos(),
 
@@ -42,9 +72,9 @@ class _ProfilePageState extends State<ProfilePage> {
 
                 // About Me Container
 
-                aboutMeContainer(),
+                aboutMeContainer(initialValue: Userdata?["aboutMe"] ?? "", onPressed: (){}),
 
-                SizedBox(height: 40), 
+                SizedBox(height: 20), 
 
                 // More About Me Title
                 titleAndSubtitle("More about me", "Things most people are curious about"),
@@ -52,7 +82,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 SizedBox(height: 30), 
 
                 // More About Me Children
-                moreAboutMeChildren(context),
+                moreAboutMeChildren(context, Userdata),
 
                 SizedBox(height: 40), 
 
@@ -63,7 +93,7 @@ class _ProfilePageState extends State<ProfilePage> {
 
                 //My Basics Chilren
 
-                myBasicsChildren(context)
+                myBasicsChildren(context, Userdata)
 
               ],
             ),

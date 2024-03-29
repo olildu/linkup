@@ -1,50 +1,32 @@
-import 'package:demo/elements/about_me_edit_elements/elements.dart';
+// ignore_for_file: prefer_const_constructors
+
+import 'package:demo/api/firebase_calls.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 
-void main() {
-  runApp(MyApp());
+class Test extends StatefulWidget {
+  const Test({Key? key}) : super(key: key);
+
+  @override
+  State<Test> createState() => _TestState();
+
+  static data() {}
 }
 
-class MyApp extends StatelessWidget {
+class _TestState extends State<Test> {
+  
   @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Animated Position Demo',
-      home: EditAboutMe(),
-    );
+  void initState() {
+    super.initState();
   }
-}
-
-class EditAboutMe extends StatefulWidget {
-  @override
-  _EditAboutMeState createState() => _EditAboutMeState();
-}
-
-class _EditAboutMeState extends State<EditAboutMe> {
-  bool _moved = false;
 
   @override
   Widget build(BuildContext context) {
+    dynamic data = FirebaseCalls().data;
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Edit About Me'),
-      ),
-      body: Stack(
-        children: [
-          AnimatedPositioned(
-            duration: Duration(milliseconds: 200),
-            curve: Curves.easeInOut,
-            left: _moved ? 100 : 0,
-            child: GestureDetector(
-              onTap: () {
-                setState(() {
-                  _moved = !_moved;
-                });
-              },
-              child: HeightContainer(context)
-            ),
-          ),
-        ],
+      body: Center(
+        child: Text(data["name"]),
       ),
     );
   }

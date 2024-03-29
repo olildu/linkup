@@ -7,8 +7,9 @@ import 'package:google_fonts/google_fonts.dart';
 class EditGender extends StatefulWidget {
   final String title;
   final IconData type;
+  final String data;
 
-  const EditGender({Key? key, required this.title, required this.type}) : super(key: key);
+  const EditGender({Key? key, required this.title, required this.type, required this.data}) : super(key: key);
 
   @override
   State<EditGender> createState() => EditStreamState();

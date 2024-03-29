@@ -1,14 +1,13 @@
 import 'package:demo/elements/profile_elements/elements.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class EditStream extends StatefulWidget {
   final String title;
   final IconData type;
+  final String data;
 
-  const EditStream({Key? key, required this.title, required this.type}) : super(key: key);
+  const EditStream({Key? key, required this.title, required this.type, required this.data}) : super(key: key);
 
   @override
   State<EditStream> createState() => EditStreamState();
@@ -25,41 +24,11 @@ class GenderBuilder extends StatefulWidget {
 
 class _GenderBuilderState extends State<GenderBuilder> {
   bool _isSelected = false;
-  bool _isSelectedWoman = false;
-  bool _isSelectedMan = false;
-  bool _isSelectedOthers = false;
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        setState(() {
-          // Toggle the selected state if not already selected
-          _isSelected = !_isSelected;
-
-          // Uncheck other options based on the selected gender
-          switch (widget.gender) {
-            case "Woman":
-              _isSelectedWoman = _isSelected;
-              _isSelectedMan = false;
-              _isSelectedOthers = false;
-              break;
-            case "Man":
-              _isSelectedWoman = false;
-              _isSelectedMan = _isSelected;
-              _isSelectedOthers = false;
-              break;
-            case "Others":
-              _isSelectedWoman = false;
-              _isSelectedMan = false;
-              _isSelectedOthers = _isSelected;
-              setState(() {
-                
-              });
-              break;
-
-          }
-        });
       },
       child: Container(
         padding: EdgeInsets.all(20),
@@ -134,7 +103,7 @@ class EditStreamState extends State<EditStream> {
               onTap: () {
                 showSearch(context: context, delegate: CustomSearchDelegate());
               },
-              child: childrenBuilder(widget.type, widget.title)
+              child: childrenBuilder1(widget.type, widget.title, widget.data)
             ),
             const SizedBox(height: 30,),
 

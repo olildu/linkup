@@ -4,17 +4,17 @@ import 'package:demo/elements/home_elements/elements.dart';
 import 'package:flutter/material.dart';
 
 void main() {
-  runApp(const MyHomePage());
+  runApp(const LoginPage());
 }
 
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key});
+class LoginPage extends StatefulWidget {
+  const LoginPage({super.key});
 
   @override
-  _MyHomePageState createState() => _MyHomePageState();
+  _LoginPageState createState() => _LoginPageState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
+class _LoginPageState extends State<LoginPage> {
   bool isIconVisible = true;
 
   @override
@@ -54,7 +54,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
               // Join Today Button (Login logic make in this widget)
 
-              joinTodayButton(),
+              joinTodayButton(context),
 
               const SizedBox(height: 60),
 

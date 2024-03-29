@@ -22,6 +22,9 @@ class _FilterState extends State<Filter> {
         ),
         centerTitle: true,
       ),
+      body: Center(
+        child: Text("Coming Soon...", style: GoogleFonts.poppins(fontSize: 25, fontWeight: FontWeight.w300),)
+      ),
     );
   }
 }

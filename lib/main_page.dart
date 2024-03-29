@@ -1,11 +1,11 @@
 // ignore_for_file: camel_case_types, prefer_const_constructors, prefer_const_literals_to_create_immutables
 
 import 'package:demo/pages/basics_edit_page/edit_stream_page.dart';
-import 'package:demo/pages/filters_page.dart';
+import 'package:demo/pages/appbar_pages/filters_page.dart';
 import 'package:demo/pages/main_pages/candidate_page.dart';
 import 'package:demo/pages/main_pages/chat_page.dart';
 import 'package:demo/pages/main_pages/profile_page.dart';
-import 'package:demo/pages/setting_page.dart';
+import 'package:demo/pages/appbar_pages/settings_page.dart';
 import 'package:flutter/material.dart';
 import 'package:google_nav_bar/google_nav_bar.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -18,24 +18,30 @@ class mainPage extends StatefulWidget {
 }
 
 class _mainPageState extends State<mainPage> {
-  int bottomBarIndex = 1;
-  String appBarTitle = "Profile";
+  int bottomBarIndex = 2;
+  String appBarTitle = "MUJDating";
   IconData? type = Icons.tune_rounded;
 
-  void navigateActionButtons(BuildContext context) {
+  void changeActionsForAboutMe(){
+    setState(() {
+      type = Icons.abc_sharp;
+    });
+  }
 
+  void navigateActionButtons(BuildContext context) {
     switch (bottomBarIndex){
-      
       case 0:
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => settings()),
+          MaterialPageRoute(builder: (context) => Settings()),
         );
+        break;
       case 1:
         Navigator.push(
           context,
           MaterialPageRoute(builder: (context) => Filter()),
         );
+        break;
     }
 
   }
@@ -50,13 +56,13 @@ class _mainPageState extends State<mainPage> {
           break;
 
         case 1:
-          appBarTitle = "";
+          appBarTitle = "MUJDating";
           type = Icons.tune_rounded;
           break;
 
         case 2:
           appBarTitle = "";
-          // type = null;
+          type = null;
           break;
       }
     });
@@ -77,7 +83,6 @@ class _mainPageState extends State<mainPage> {
         scrolledUnderElevation: 0,
         elevation: 0,
         backgroundColor: Colors.white,
-        leading: Icon(Icons.menu),
         title: Center(
           child: Text(
             appBarTitle,
@@ -97,6 +102,62 @@ class _mainPageState extends State<mainPage> {
           ),
         ],
       ),
+      drawer: FractionallySizedBox(
+        widthFactor: 0.75,
+        child: Container(
+          padding: EdgeInsets.symmetric(vertical: 40, horizontal: 20),
+          color: Colors.white,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Center(child: Text("LOGO", style: GoogleFonts.poppins(fontSize: 40),)),
+              SizedBox(height: 70,),
+              
+              GestureDetector(
+                onTap: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (context) => Settings(),
+                    ),
+                  );
+                },
+                child: Container(
+                  padding: EdgeInsets.all(5),
+                  child: Row(
+                    children: [
+                      Icon(Icons.settings_rounded),SizedBox(width: 20,),
+                      Text("Settings", style: GoogleFonts.poppins(fontSize: 20),),
+                    ],
+                  ),
+                ),
+              ),
+              
+              SizedBox(height: 30,),
+              
+              GestureDetector(
+                // onTap: () {
+                //   Navigator.of(context).push(
+                //     MaterialPageRoute(
+                //       builder: (context) => Logout(),
+                //     ),
+                //   );
+                // },
+                child: Container(
+                  padding: EdgeInsets.all(5),
+                  child: Row(
+                    children: [
+                      Icon(Icons.logout_rounded),SizedBox(width: 20,),
+                      Text("Log Out", style: GoogleFonts.poppins(fontSize: 20),),
+                    ],
+                  ),
+                ),
+              ),
+
+            ],
+          ),
+        ),
+      ),
+
       bottomNavigationBar: Container(
         color: Colors.white,
         child: GNav(

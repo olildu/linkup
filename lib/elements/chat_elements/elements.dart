@@ -1,7 +1,8 @@
 // ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables, sized_box_for_whitespace, sort_child_properties_last
 import 'dart:async';
 
-import 'package:demo/pages/chat_details.dart';
+import 'package:demo/api/api_calls.dart';
+import 'package:demo/pages/chat_sub_pages/chat_details.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
@@ -89,7 +90,7 @@ class _ChatDetailsState extends State<ChatDetails> {
             child: Row(
               children: [
                 CircleAvatar(
-                  radius: 30, // Adjust the radius as needed
+                  radius: 30,
                   backgroundImage: AssetImage("lib/images/user.png"),
                 ),
                 SizedBox(width: 20),
@@ -122,6 +123,9 @@ class _ChatDetailsState extends State<ChatDetails> {
 }
 
 Widget matchedUser(){
+  // Get matched users list form API
+  ApiCalls.GetMatchedUsers();
+
   return SizedBox(
     height: 100, // Adjust the height as needed
     child: SingleChildScrollView(
@@ -139,16 +143,20 @@ Widget matchedUser(){
 Widget matchedUsersImages(){
   return Padding(
     padding: EdgeInsets.symmetric(horizontal: 8),
-    child: CircleAvatar(
-      radius: 35, 
-      backgroundColor: Colors.blue,
-      child: Text(
-        "Image", 
-        style: TextStyle(color: Colors.white),
+    child: Container(
+      width: 75,
+      height: 75, 
+      decoration: BoxDecoration(
+        border: Border.all(color: Colors.grey, width: 2),
+        shape: BoxShape.circle,
+      ),
+      child: ClipOval(
+        child: Image.asset("lib/images/profile.png"),
       ),
     ),
   );
 }
+
 
 Widget chatDetailsStructure(){
   return Expanded( 

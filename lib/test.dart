@@ -1,32 +1,69 @@
-// ignore_for_file: prefer_const_constructors
-
-import 'package:demo/api/firebase_calls.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_database/firebase_database.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
-class Test extends StatefulWidget {
-  const Test({Key? key}) : super(key: key);
-
-  @override
-  State<Test> createState() => _TestState();
-
-  static data() {}
-}
-
-class _TestState extends State<Test> {
-  
-  @override
-  void initState() {
-    super.initState();
-  }
+class MyWidget extends StatelessWidget {
+  const MyWidget({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    dynamic data = FirebaseCalls().data;
+    // Call showCupertinoModalPopup within the build method
     return Scaffold(
       body: Center(
-        child: Text(data["name"]),
+        child: GestureDetector(
+          onTap: () {
+            showCupertinoModalPopup(
+              context: context,
+              builder: (BuildContext context) {
+                // Calculate the height of the popup surface
+                double popupHeight = MediaQuery.of(context).size.height * 0.8;
+                return Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: CupertinoPopupSurface(
+                    child: SizedBox(
+                      height: popupHeight,
+                      child: SingleChildScrollView(
+                        child: Container(
+                          color: Colors.white,
+                          child: Column(
+                            children: [
+                              Container(
+                                height: 700,
+                                decoration: const BoxDecoration(
+                                  color: Color(0xFFD9D9D9),
+                                ),
+                                child: const Center(
+                                  child: Icon(Icons.image, size: 70),
+                                ),
+                              ),
+                              SizedBox(height: 200),
+                              Container(
+                                height: 700,
+                                color: const Color(0xFFD9D9D9),
+                                child: const Center(
+                                  child: Icon(Icons.image, size: 70),
+                                ),
+                              ),
+                              SizedBox(height: 200),
+                              Container(
+                                height: 200,
+                                decoration: const BoxDecoration(
+                                  borderRadius: BorderRadius.only(
+                                    bottomRight: Radius.circular(20),
+                                    bottomLeft: Radius.circular(20),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                );
+              },
+            );
+          },
+        ),
       ),
     );
   }

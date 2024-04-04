@@ -6,6 +6,7 @@ import 'package:demo/pages/main_pages/candidate_page.dart';
 import 'package:demo/pages/main_pages/chat_page.dart';
 import 'package:demo/pages/main_pages/profile_page.dart';
 import 'package:demo/pages/appbar_pages/settings_page.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_nav_bar/google_nav_bar.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -135,13 +136,9 @@ class _mainPageState extends State<mainPage> {
               SizedBox(height: 30,),
               
               GestureDetector(
-                // onTap: () {
-                //   Navigator.of(context).push(
-                //     MaterialPageRoute(
-                //       builder: (context) => Logout(),
-                //     ),
-                //   );
-                // },
+                onTap: () {
+                  FirebaseAuth.instance.signOut();
+                },
                 child: Container(
                   padding: EdgeInsets.all(5),
                   child: Row(

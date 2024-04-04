@@ -15,7 +15,6 @@ class FirebaseCalls {
 
     if (snapshot.exists) {
       data = snapshot.value; // Store retrieved data in the data variable
-      print('Type of snapshot.value: ${snapshot.value.runtimeType}');
     } else {
       data = null;
     }

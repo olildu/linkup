@@ -751,3 +751,38 @@ Widget OptionChildrenBuilder(String optionText, String Type, [Function()? onOpti
     ),
   );
 }
+
+class PhotoContainer extends StatefulWidget {
+  const PhotoContainer({super.key});
+
+  @override
+  State<PhotoContainer> createState() => _PhotoContainerState();
+}
+
+class _PhotoContainerState extends State<PhotoContainer> {
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+          alignment: Alignment.topCenter,
+          child: Column(
+            children: [
+              Container(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    const SizedBox(height: 20,),
+                    titleAndSubtitle("Add your Photos", "Add photos that show your true self", titleColor: Colors.white, subTitleColor: const Color(0xFFC0C0C0)),
+
+                    SizedBox(height: 50,),
+
+                    PhotosWidget()
+
+                  ],
+                ),
+              )
+            ],
+          ),
+        );
+  }
+}

@@ -1,4 +1,3 @@
-import 'package:demo/test.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -92,20 +91,14 @@ Widget joinTodayButton(BuildContext context){
       if (kIsWeb) {
         try {
           await FirebaseAuth.instance.signInWithRedirect(provider);
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => Test()),
-          );
+
         } catch (e) {
           print('Error signing in with redirect: $e');
         }
       } else {
         try {
           await FirebaseAuth.instance.signInWithProvider(provider);
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => Test()),
-          );
+
         } catch (e) {
           print('Error signing in with popup: $e');
         }

@@ -41,12 +41,14 @@ dependencies:
   google_nav_bar: ^5.0.6
   flutter_card_swiper: ^7.0.0
   image_picker: ^1.0.7
+  image_cropper: ^5.0.1
+  permission_handler: ^11.3.1
   flutter_animate: ^4.5.0
   provider: ^6.1.2
   http: ^1.2.1
   firebase_storage: ^11.6.11
-  firebase_app_check: ^0.2.1+19
-
+  cached_network_image: ^3.3.1
+  
 dev_dependencies:
   flutter_test:
     sdk: flutter

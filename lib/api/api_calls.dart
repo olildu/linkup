@@ -1,3 +1,6 @@
+// ignore_for_file: non_constant_identifier_names
+
+import 'dart:async';
 import 'dart:convert';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -7,6 +10,16 @@ import 'package:firebase_auth/firebase_auth.dart';
 class userValues{
   static String uid = FirebaseAuth.instance.currentUser!.uid;
   static String ?cookieValue;
+  static Map matchUserData = {};  
+  static Map matchUserDataNew = {};  
+}
+
+class pathAndName {
+  static Map pathAndNameData = {};
+}
+
+class flagChecker{
+  static bool matchQueFetched = false;
 }
 
 class ApiCalls {
@@ -30,6 +43,7 @@ class ApiCalls {
       );
 
       userValues.cookieValue = response.body;
+      print(userValues.cookieValue);
       return response.body;
     } catch (e) {
       return 'Exception occurred: $e';
@@ -50,7 +64,6 @@ class ApiCalls {
         body: jsonData,
       );
       
-      print(response.body);
       return response.body;
     } catch (e) {
       // Return the exception message
@@ -58,17 +71,91 @@ class ApiCalls {
     }
   }
 
-static GetMatchedUsers() async {
-  DatabaseReference userMatchRef = FirebaseDatabase.instance.ref('/UserMatchingDetails/${userValues.uid}/MatchUID/');
-  userMatchRef.onValue.listen((DatabaseEvent event) {
-    final data = event.snapshot.value as Map<dynamic, dynamic>?; 
-    data?.forEach((key, value) async {
-      print(key);
+  static Future<Map<String, dynamic>?> GetMatchedUsers() async {
+    DatabaseReference userMatchRef = FirebaseDatabase.instance.ref('/UserMatchingDetails/${userValues.uid}/MatchUID/');
+    
+    int tasksCount = 0;
 
-      final storageRef = FirebaseStorage.instance.ref();
-      final imageUrl = await storageRef.child("/UserImages/QCIG6YCw9HcpLyf5jYHc1yewq6k1/imageIK9dbCof").getDownloadURL();
+    Completer<Map<String, dynamic>> completer = Completer<Map<String, dynamic>>();
+
+    userMatchRef.onValue.listen((DatabaseEvent event) {
+      final data = event.snapshot.value as Map<dynamic, dynamic>?; 
+      Map<String, dynamic> matchUserData = {}; // Create a local variable to store data
+      
+      void checkTasksCompletion() {
+        tasksCount--;
+        if (tasksCount == 0) {
+          flagChecker.matchQueFetched = true;
+          completer.complete(matchUserData); 
+        }
+      }
+
+      data?.forEach((key, value) async {
+        matchUserData[key] = {};
+        value.forEach((uniqueIDandName, names) {
+          pathAndName.pathAndNameData[key] = names.split(",")[1];
+          pathAndName.pathAndNameData[key] = names.split(",")[0];
+          matchUserData[key]["userName"] = names.split(",")[1];
+          matchUserData[key]["uniquePath"] = names.split(",")[0];
+        });
+        tasksCount++;
+        await firebaseCalls.getImagesFromStorage(key, matchUserData, checkTasksCompletion); 
+      });
     });
-  });
+
+    return completer.future;
+  }
+
+  static getChatUserData(data) async {
+    print(data["key"]);
+    String jsonData = jsonEncode(data);
+
+    var headers = {
+      'Content-Type': 'application/json',
+    };
+
+    var response = await http.post(
+      Uri.parse('https://65ca1944cb067d7512f6.appwrite.global/'),
+      headers: headers,
+      body: jsonData,
+    );
+    userValues.matchUserDataNew[data["chatUID"]] = jsonDecode(jsonDecode(response.body));
+    return response.body;
 }
 
+static writeChatContent(data) async {
+    String jsonData = jsonEncode(data);
+
+    var headers = {
+      'Content-Type': 'application/json',
+    };
+
+    var response = await http.post(
+      Uri.parse('https://65ca1944cb067d7512f6.appwrite.global/'),
+      headers: headers,
+      body: jsonData,
+    );
+    print(response.body);
+    return response.body;
+}
+
+}
+
+class firebaseCalls {
+  static Future<void> getImagesFromStorage(key, Map<String, dynamic> matchUserData, Function onComplete) async {
+    final storageRef = FirebaseStorage.instance.ref().child("/UserImages/$key/");
+    final result = await storageRef.listAll();
+    var items = result.items;
+    int counter  = 1;
+    for (var item in items) {
+
+      String downloadURL = await FirebaseStorage.instance
+          .ref()
+          .child(item.fullPath)
+          .getDownloadURL();
+      matchUserData[key]["userImage$counter"] = downloadURL;
+      counter++;
+    }
+    onComplete(); // Call the callback function to notify task completion
+  }
 }

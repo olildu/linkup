@@ -1,14 +1,30 @@
 // ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables, sized_box_for_whitespace, sort_child_properties_last
 import 'dart:async';
 
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:demo/Colors.dart';
 import 'package:demo/api/api_calls.dart';
+import 'package:demo/elements/candidate_details_elements/elements.dart';
+import 'package:demo/elements/candidate_page_elements/elements.dart';
+import 'package:demo/elements/create_profile_elements/elements.dart';
 import 'package:demo/pages/chat_sub_pages/chat_details.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-Color primaryColor = Color(0xFF0C192C);
+Map chatUserDetails = {
+  "uid": userValues.uid,
+  "key" : userValues.cookieValue,
+  'type': 'GetChatUserDetails',
+};
+
+Map writeChatData = {
+  "uid": userValues.uid,
+  "key" : userValues.cookieValue,
+  'type': 'WriteChats',
+};
 
 Widget normalPadding(Widget child) {
   return Padding(
@@ -63,18 +79,18 @@ class _ChatDetailsState extends State<ChatDetails> {
         flashColor = Color.fromARGB(255, 237, 237, 237);
       });
 
-      Future.delayed(Duration(milliseconds: 100), () {
+      Future.delayed(Duration(milliseconds: 50), () {
         setState(() {
           flashColor = const Color.fromARGB(0, 219, 219, 219); 
         });
         
         Future.delayed(Duration(), () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => ChatDetailsPage(appBarTitle: "Name${widget.index}", imageUrl: "lib/images/user.png"),
-            ),
-          );
+          // Navigator.push(
+          //   context,
+          //   MaterialPageRoute(
+          //     builder: (context) => ChatDetailsPage(appBarTitle: "Name${widget.index}", imageUrl: "lib/images/user.png"),
+          //   ),
+          // );
         });
       });
     },
@@ -122,41 +138,246 @@ class _ChatDetailsState extends State<ChatDetails> {
   }
 }
 
-Widget matchedUser(){
-  // Get matched users list form API
-  ApiCalls.GetMatchedUsers();
+Widget matchedUser(BuildContext context) {
+  return Padding(
+    padding: const EdgeInsets.only(left: 8.0, top: 10),
+    child: FutureBuilder<Widget>(
+      future: _buildMatchedUserWidget(context),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return Center(child: CircularProgressIndicator()); // Display a loading indicator while data is being fetched
+        } else if (snapshot.hasError) {
+          return Text('Error: ${snapshot.error}'); // Display an error message if fetching data fails
+        } else {
+          return snapshot.data ?? SizedBox(); // Display the matched user images widget, or an empty SizedBox if data is null
+        }
+      },
+    ),
+  );
+}
+
+Future popupMatchDetails(BuildContext context, Map value, String key, Map<String, dynamic>? matchedUsersNew) {
+  chatUserDetails["chatUID"] = key;
+
+  return showCupertinoModalPopup(
+    context: context,
+    builder: (BuildContext context) {
+      // Calculate the height of the popup surface
+      double popupHeight = MediaQuery.of(context).size.height * 0.8;
+
+      return FutureBuilder(
+        future: fetchData(value, key),
+        builder: (BuildContext context, AsyncSnapshot snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Center(
+              child: CircularProgressIndicator(),
+            );
+          } else {
+            if (snapshot.hasError) {
+              // Handle error case
+              return Center(
+                child: Text('Error: ${snapshot.error}'),
+              );
+            } else {
+              Map matchUserData = snapshot.data["UserDetails"];
+              return Padding(
+                padding: EdgeInsets.all(8.0),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    CupertinoPopupSurface(
+                      child: IntrinsicHeight(
+                        child: SizedBox(
+                          height: popupHeight,
+                          child: SingleChildScrollView(
+                            // Wrap the content in a SingleChildScrollView
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.stretch,
+                              children: [
+                                // Match user userImage1
+                                Container(
+                                  decoration: BoxDecoration(
+                                    color: Color(0xFFD9D9D9),
+                                  ),
+                                  child: Stack(
+                                    children: [
+                                      CachedNetworkImage(
+                                        imageUrl: value["userImage1"],
+                                        fit: BoxFit.cover,
+                                        placeholder: (context, url) =>
+                                            Center(child: CircularProgressIndicator()),
+                                        errorWidget: (context, url, error) => Icon(Icons.error),
+                                      ),
+                                      Positioned(
+                                        bottom: 10,
+                                        left: 15,
+                                        child: Column(
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              '${matchUserData["name"]}, ${matchUserData["age"]}',
+                                              style: GoogleFonts.poppins(
+                                                color: Colors.white,
+                                                fontSize: 26,
+                                                decoration: TextDecoration.none,
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                            ),
+                                            Row(
+                                              children: [
+                                                Icon(Icons.school_outlined, color: Colors.white),
+                                                SizedBox(width: 5),
+                                                Text(
+                                                  'Doing ${matchUserData["stream"]}',
+                                                  style: GoogleFonts.poppins(
+                                                    color: Colors.white,
+                                                    fontSize: 16,
+                                                    decoration: TextDecoration.none,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                // Match user tags
+                                IntrinsicHeight(
+                                  child: Material(
+                                    child: aboutMeAndTags(data: matchUserData),
+                                    color: reuseableColors.primaryColor,
+                                  ),
+                                ),
+                                //Match user userImage1
+                                Container(
+                                  height: 700,
+                                  color: Color(0xFFD9D9D9),
+                                  child: CachedNetworkImage(
+                                    imageUrl: value["userImage2"],
+                                    fit: BoxFit.cover,
+                                    placeholder: (context, url) =>
+                                        Center(child: CircularProgressIndicator()),
+                                    errorWidget: (context, url, error) => Icon(Icons.error),
+                                  ),
+                                ),
+                                //Match user location or stream details
+                                IntrinsicHeight(
+                                  child: Material(
+                                    child: fromOrStreamDetails(buttonsNeeded: false, data: matchUserData),
+                                    color: reuseableColors.primaryColor,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    SizedBox(height: 10,),
+                    GestureDetector(
+                      onTap: () {
+                        Navigator.of(context).pop();
+                        print(matchedUsersNew?[key]["uniquePath"]);
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => ChatDetailsPage(appBarTitle: matchUserData["name"], imageUrl: value["userImage1"], path: matchedUsersNew?[key]["uniquePath"], matchUID: matchUserData["uid"]),
+                          ),
+                        );
+                      },
+                      child: Container(
+                        padding: EdgeInsets.all(15),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(50),
+                          color: reuseableColors.accentColor,
+                        ),
+                        child: Center(child: Material(color: reuseableColors.accentColor, child: Text("Start Messaging", style: GoogleFonts.poppins(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w500),)),),
+                      ),
+                    )
+                  ],
+                ),
+              );
+            }
+          }
+        },
+      );
+    },
+  );
+
+}
+
+// Function to fetch data asynchronously
+Future<Map> fetchData(Map value, String key) async {
+  try {
+    if (userValues.matchUserDataNew[key] == null) {
+      await ApiCalls.getChatUserData(chatUserDetails);
+    }
+    return userValues.matchUserDataNew[key];
+  } catch (e) {
+    throw Exception('Failed to fetch data: $e');
+  }
+}
+
+
+Map<String, dynamic>? matchedUsers;
+
+Future<Widget> _buildMatchedUserWidget(BuildContext context) async {
+  // Check if matchedUsers has already been fetched
+  if (!flagChecker.matchQueFetched) {
+    matchedUsers = await ApiCalls.GetMatchedUsers();
+    flagChecker.matchQueFetched = true;
+  }
+
+  // Widgets built will be stored here
+  List<Widget> userImages = [];
+  // Check if matchedUsers is not null
+  if (matchedUsers != null) {
+    matchedUsers!.forEach((key, value) {
+      String userImage = value["userImage1"];
+      userImages.add(
+        GestureDetector(
+          onTap: () {
+            popupMatchDetails(context, value, key, matchedUsers);
+          },
+          child: Padding(
+            padding: EdgeInsets.symmetric(horizontal: 5),
+            child: Container(
+              width: 80,
+              height: 80,
+              decoration: BoxDecoration(
+                border: Border.all(color: Colors.grey, width: 4),
+                shape: BoxShape.circle,
+              ),
+              child: ClipOval(
+                child : CachedNetworkImage(
+                  imageUrl: userImage,
+                  width: 90,
+                  height: 90,
+                  fit: BoxFit.cover,
+                  placeholder: (context, url) => CircularProgressIndicator(), 
+                  errorWidget: (context, url, error) => Icon(Icons.error),
+                ),
+          
+              ),
+            ),
+          ),
+        ),
+      );
+    });
+  }
 
   return SizedBox(
-    height: 100, // Adjust the height as needed
+    height: 90,
     child: SingleChildScrollView(
       scrollDirection: Axis.horizontal,
       child: Row(
-        children: [
-          for (int i = 0; i < 10; i++)
-          matchedUsersImages()
-        ],
+        children: userImages,
       ),
     ),
   );
 }
-
-Widget matchedUsersImages(){
-  return Padding(
-    padding: EdgeInsets.symmetric(horizontal: 8),
-    child: Container(
-      width: 75,
-      height: 75, 
-      decoration: BoxDecoration(
-        border: Border.all(color: Colors.grey, width: 2),
-        shape: BoxShape.circle,
-      ),
-      child: ClipOval(
-        child: Image.asset("lib/images/profile.png"),
-      ),
-    ),
-  );
-}
-
 
 Widget chatDetailsStructure(){
   return Expanded( 
@@ -174,103 +395,8 @@ Widget chatDetailsStructure(){
 
 typedef SendMessageCallback = void Function(Map<String, dynamic> message);
 
-class TextFieldWithDynamicColor extends StatefulWidget {
-  final SendMessageCallback sendMessage;
-  TextFieldWithDynamicColor({required this.sendMessage});
-  @override
-  _TextFieldWithDynamicColorState createState() => _TextFieldWithDynamicColorState();
-}
 
-class _TextFieldWithDynamicColorState extends State<TextFieldWithDynamicColor> {
-  TextEditingController messageController = TextEditingController();
-  Color containerColor = Colors.grey;
-  String imagePath = "lib/images/send-icon-disabled.png";
-  
-  @override
-  void initState() {
-    super.initState();
-    messageController.addListener(() {
-      setState(() {
-        if (messageController.text.trim().isNotEmpty) {
-          imagePath = "lib/images/send-icon-enabled.png";
-          containerColor = primaryColor;
-        } else {
-          imagePath = "lib/images/send-icon-disabled.png";
-          containerColor = Colors.grey;
-        }
-      });
-    });
-  }
 
-  @override
-  Widget build(BuildContext context) {
-    return NewTextField(sendMessage: widget.sendMessage, messageController: messageController, containerColor: containerColor, imagePath: imagePath);
-  }
-
-  @override
-  void dispose() {
-    messageController.dispose();
-    super.dispose();
-  }
-}
-
-Widget NewTextField({required SendMessageCallback sendMessage, required TextEditingController messageController, required Color containerColor, required String imagePath}) {
-  return Positioned(
-    left: 0,
-    right: 0,
-    bottom: 0,
-    child: Container(
-      padding: EdgeInsets.all(10),
-      child: Row(
-        children: [
-          Expanded( 
-            child: TextField(
-              controller: messageController,
-              decoration: InputDecoration(
-                hintText: 'Aa',
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(30.0),
-                ),
-                contentPadding: EdgeInsets.symmetric(horizontal: 16.0),
-              ),
-              textCapitalization: TextCapitalization.sentences,
-              minLines: 1,
-              maxLines: 4,
-            ),
-          ),
-          SizedBox(width: 5,),
-          GestureDetector(
-            onTap: () {
-              if (messageController.text.trim().isNotEmpty) {
-                sendMessage({
-                  "text": messageController.text.trim(),
-                  "sender": "user1"
-                });
-                messageController.clear();
-              }
-            },
-            child: Container(
-              padding: EdgeInsets.all(10),
-              child: Align(
-                alignment: Alignment.center,
-                child: Transform.translate(
-                  offset: Offset(-2,0),
-                  child: Image.asset(imagePath, width: 19, height: 19,)
-                ),
-              ),
-              width: 47,
-              height: 47,
-              decoration: BoxDecoration(
-                color: containerColor,
-                borderRadius: BorderRadius.circular(50)
-              ),
-            ),
-          )
-        ],
-      ),
-    ),
-  );
-}
 
 Widget MessageContent(messages){
   return Positioned.fill(

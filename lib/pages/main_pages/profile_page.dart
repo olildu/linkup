@@ -61,7 +61,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 SizedBox(height: 30), 
 
                 // Photos
-                photos(),
+                PhotosWidget(),
 
                 SizedBox(height: 40), 
 

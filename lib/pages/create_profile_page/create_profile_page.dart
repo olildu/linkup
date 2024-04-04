@@ -82,6 +82,7 @@ class _createUserProfileState extends State<createUserProfile>{
                     children: [
                       Animate(
                         autoPlay: false,
+                        // child: PhotoContainer(),
                         child: NameContainer(_isContainerEnabled, _nameController),
                       ).slideX(end: -0.2,).fadeOut(duration: const Duration(milliseconds: 200)),
                       const Spacer(),

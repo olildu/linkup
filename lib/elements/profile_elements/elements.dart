@@ -1,5 +1,7 @@
 // ignore_for_file: prefer_const_literals_to_create_immutables, prefer_const_constructors
 
+import 'dart:io';
+
 import 'package:demo/pages/about_me_edit_page/edit_page.dart';
 import 'package:demo/pages/basics_edit_page/edit_gender_page.dart';
 import 'package:demo/pages/basics_edit_page/edit_hometown_page.dart';
@@ -37,97 +39,294 @@ Widget titleAndSubtitle(String title, String subTitle, {Color? titleColor, Color
   );
 }
 
-Widget photos() {
-  String ImagePath;
-  return SizedBox(
-    height: 450,
-    child: FractionallySizedBox(
-      heightFactor: 1,
-      child: Column(
-        children: [
-          Expanded(
-            child: Row(
-              children: [
-                Expanded(
-                  flex: 16,
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: Color(0xFFD9D9D9),
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: Center(
-                      child: Icon(Icons.photo, size: 50),
+
+
+class PhotosWidget extends StatefulWidget {
+  @override
+  _PhotosWidgetState createState() => _PhotosWidgetState();
+}
+
+class _PhotosWidgetState extends State<PhotosWidget> {
+  Map<String, File?> images = {
+    "image0": null,
+    "image1": null,
+    "image2": null,
+    "image3": null,
+  };
+
+  Future confirmationPopup(BuildContext context, int index){
+    return showCupertinoModalPopup(
+      context: context,
+      builder: (BuildContext context) {
+        return Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20.0),
+          child: CupertinoPopupSurface(
+            child: Container(
+              height: 150,
+              width: double.infinity,
+              decoration: const BoxDecoration(
+                color: Colors.white
+              ),
+              child: Column(
+                children: [
+                  CupertinoButton(child: Text("Delete Photo", style: GoogleFonts.poppins(color: Color.fromARGB(255, 218, 37, 24), fontSize: 20),), onPressed: (){
+                    setState(() {
+                      switch (index) {
+                        case 0:
+                          for (int x = 0; x < 4; x++){
+                            images["image$x"] = images["image${x+1}"];
+                          }
+                          images["image3"] = null;
+                          Navigator.of(context).pop();
+                          break;
+                        case 1:
+                          for (int x = 1; x < 3; x++){
+                            images["image$x"] = images["image${x+1}"];
+                          }
+                          images["image3"] = null;
+                          Navigator.of(context).pop();
+                          break;
+                        case 2:
+                          for (int x = 2; x < 3; x++){
+                            print("$x" + " ${x+1}");
+                            images["image$x"] = images["image${x+1}"];
+                          }
+                          images["image3"] = null;
+                          Navigator.of(context).pop();
+                          break;
+                        case 3:
+                          for (int x = 3; x < 1; x++){
+                            images["image$x"] = images["image${x+1}"];
+                          }
+                          images["image3"] = null;
+                          Navigator.of(context).pop();
+                          break;
+                        default:
+                          break;
+                      }
+                      print(images);
+                    });
+                  }),
+                  CupertinoButton(child: Text("Dismiss", style: GoogleFonts.poppins(color: Colors.black, fontSize: 20),), onPressed: (){
+                    Navigator.of(context).pop();
+                  }),
+                ],
+              )),
+          ),
+        );
+      },
+    );
+  }
+
+
+
+
+  Future<void> _pickImage(ImageSource source, int imageIndex) async {
+    final picker = ImagePicker();
+    final pickedImage = await picker.pickImage(source: source);
+    if (pickedImage != null) {
+      setState(() {
+        switch (imageIndex) {
+          case 0:
+            images["image0"] = File(pickedImage.path);
+            break;
+          case 1:
+            if (images["image0"] == null){
+              images["image0"] = File(pickedImage.path);
+            }
+            else{
+              images["image1"] = File(pickedImage.path);
+            }
+            break;
+          case 2:
+            if (images["image0"] == null){
+              images["image0"] = File(pickedImage.path);
+              break;
+            }
+            if (images["image1"] == null){
+              images["image1"] = File(pickedImage.path);
+              break;
+            }
+            else{
+              images["image2"] = File(pickedImage.path);
+              break;
+            }
+          case 3:
+            if (images["image0"] == null){
+              images["image0"] = File(pickedImage.path);
+              break;
+            }
+            if (images["image1"] == null){
+              images["image1"] = File(pickedImage.path);
+              break;
+            }
+            if (images["image2"] == null){
+              images["image2"] = File(pickedImage.path);
+              break;
+            }
+            else{
+              images["image3"] = File(pickedImage.path);
+              break;
+            }
+          default:
+            break;
+        }
+        print(images);
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      height: 450,
+      child: FractionallySizedBox(
+        heightFactor: 1,
+        child: Column(
+          children: [
+            Expanded(
+              child: Row(
+                children: [
+                  Expanded(
+                    flex: 16,
+                    child: GestureDetector(
+                      onTap: () async {
+                        if (images["image0"] != null) {
+                          confirmationPopup(context, 0);
+                        }
+                        else{
+                          await _pickImage(ImageSource.gallery, 0);
+                        }
+                      },
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(10),
+                        child: Container(
+                          width: double.infinity,
+                          height: double.infinity,
+                          decoration: BoxDecoration(
+                            color: Color(0xFFD9D9D9),
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: images["image0"] != null
+                            ? Image.file(
+                                images["image0"]!,
+                                fit: BoxFit.cover,
+                              )
+                            : Icon(Icons.add_rounded, size: 50, color: Colors.white,),
+                        ),
+                      ),
                     ),
                   ),
-                ),
-                SizedBox(width: 10),
-                Expanded(
-                  flex: 10,
-                  child: GestureDetector(
-                    onTap: () async {
-                      final picker = ImagePicker();
-                      final pickedImage =
-                          await picker.pickImage(source: ImageSource.gallery);
-                      if (pickedImage != null) {
-                        ImagePath = pickedImage.path;
-                        print('Image picked from gallery: ${pickedImage.path}');
-                      }
-                    },
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: Color(0xFFD9D9D9),
+                  SizedBox(width: 10),
+                  Expanded(
+                    flex: 10,
+                    child: GestureDetector(
+                      onTap: () async {
+                        if (images["image1"] != null) {
+                          confirmationPopup(context, 1);
+                        }
+                        else{
+                          await _pickImage(ImageSource.gallery, 1);
+                        }
+                      },
+                      child: ClipRRect(
                         borderRadius: BorderRadius.circular(10),
 
+                        child: Container(
+                          width: double.infinity,
+                          height: double.infinity,
+                          decoration: BoxDecoration(
+                            color: Color(0xFFD9D9D9),
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                        child: images["image1"] != null
+                          ? Image.file(
+                              images["image1"]!,
+                              fit: BoxFit.cover,
+                            )
+                          : Icon(Icons.add_rounded, size: 50, color: Colors.white,),
+                        ),
                       ),
-                      child: Center(
-                        child: Icon(Icons.add_rounded,
-                            size: 50, color: Colors.white),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            SizedBox(height: 10),
+            Expanded(
+              child: Row(
+                children: [
+                  Expanded(
+                    flex: 10,
+                    child: GestureDetector(
+                      onTap: () async {
+                        if (images["image2"] != null) {
+                          confirmationPopup(context, 2);
+                        }
+                        else{
+                          await _pickImage(ImageSource.gallery, 2);
+                        }
+                      },
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(10),
+                        child: Container(
+                          width: double.infinity,
+                          height: double.infinity,
+                          decoration: BoxDecoration(
+                            color: Color(0xFFD9D9D9),
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                        child: images["image2"] != null
+                          ? Image.file(
+                              images["image2"]!,
+                              fit: BoxFit.cover,
+                            )
+                          : Icon(Icons.add_rounded, size: 50, color: Colors.white,),
+                        ),
                       ),
                     ),
                   ),
-                ),
-              ],
-            ),
-          ),
-          SizedBox(height: 10),
-          Expanded(
-            child: Row(
-              children: [
-                Expanded(
-                  flex: 10,
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: Color(0xFFD9D9D9),
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: Center(
-                      child: Icon(Icons.add_rounded,
-                          size: 50, color: Colors.white),
-                    ),
-                  ),
-                ),
-                SizedBox(width: 10),
-                Expanded(
-                  flex: 16,
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: Color(0xFFD9D9D9),
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: Center(
-                      child: Icon(Icons.add_rounded,
-                          size: 50, color: Colors.white),
+                  SizedBox(width: 10),
+                  Expanded(
+                    flex: 16,
+                    child: GestureDetector(
+                      onTap: () async {
+                        if (images["image3"] != null) {
+                          confirmationPopup(context, 3);
+                        }
+                        else{
+                          await _pickImage(ImageSource.gallery, 3);
+                        }
+                      },
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(10),
+                        child: Container(
+                          width: double.infinity,
+                          height: double.infinity,
+                          decoration: BoxDecoration(
+                            color: Color(0xFFD9D9D9),
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                        child: images["image3"] != null
+                          ? Image.file(
+                              images["image3"]!,
+                              fit: BoxFit.cover,
+                            )
+                          : Icon(Icons.add_rounded, size: 50, color: Colors.white,),
+                        ),
+                      ),
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
-    ),
-  );
+    );
+  }
 }
+
 
 Widget aboutMeContainer({String initialValue = '', required VoidCallback onPressed}) {
   TextEditingController _controller = TextEditingController(text: initialValue);

@@ -1,3 +1,5 @@
+import 'package:demo/Colors.dart';
+import 'package:demo/api/api_calls.dart';
 import 'package:demo/elements/about_me_edit_elements/elements.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
@@ -5,8 +7,8 @@ import 'package:flutter_animate/flutter_animate.dart';
 class edit_about_me extends StatefulWidget {
   final int counter;
   final int progressTrackerValue;
-
-  const edit_about_me({Key? key, required this.counter, required this.progressTrackerValue}) : super(key: key);
+  final Map userData;
+  const edit_about_me({Key? key, required this.counter, required this.progressTrackerValue, required this.userData}) : super(key: key);
 
   @override
   State<edit_about_me> createState() => _edit_about_meState();
@@ -36,8 +38,14 @@ class _edit_about_meState extends State<edit_about_me> with SingleTickerProvider
 
   void _startAnimation() {
     setState(() {
+      if (_counter != 8){
       _counter++;
       _progressTrackerValue += 40;
+      }
+      else{
+        Navigator.of(context).pop();
+      }
+
     });
     _controller.reset();
     _controller.forward();
@@ -63,71 +71,79 @@ class _edit_about_meState extends State<edit_about_me> with SingleTickerProvider
               ProgressTracker(value: _progressTrackerValue.toDouble()),
               if (_counter == 1)
                 Animate(
-                  controller: _controller,
                   autoPlay: false,
-                  child: HeightContainer(context),
+                  child: HeightContainer(heightValue: widget.userData["height"].toString()),
                 ).slideX(end: -0.2).fadeOut(duration: const Duration(milliseconds: 100)),
               if (_counter == 2)
                 Animate(
                   controller: _controller,
-                  child: DrinkingContainer(context),
+                  child: DrinkingContainer(onOptionSelected: _startAnimation),
                 ).fadeIn(duration: const Duration(milliseconds: 100)).slideX(begin: 0.2, end: 0.0, duration: const Duration(milliseconds: 100), curve: Curves.easeIn),
               if (_counter == 3)
                 Animate(
                   controller: _controller,
                   onComplete: (controller) {
                     setState(() {
-                      _counter = 4; // Transition to next counter
+                      _counter = 4; 
                     });
                   },
-                  child: DrinkingContainer(context),
+                  child: const DrinkingContainer(),
                 ).slideX(begin: 0.0, end: -0.2, duration: const Duration(milliseconds: 100), curve: Curves.easeIn).fadeOut(duration: const Duration(milliseconds: 100)),
               if (_counter == 4)
                 Animate(
                   controller: _controller,
-                  child: SmokingContainer(context),
+                  child: SmokingContainer(onOptionSelected: _startAnimation),
                 ).fadeIn(duration: const Duration(milliseconds: 100)).slideX(begin: 0.2, end: 0.0, duration: const Duration(milliseconds: 100), curve: Curves.easeIn),
               if (_counter == 5)
                 Animate(
                   controller: _controller,
-                  delay: Duration(microseconds: 100),
+                  delay: const Duration(microseconds: 100),
                   onComplete: (controller) {
                     setState(() {
                       _counter = 6;
                     });
                   },
-                  child: SmokingContainer(context),
+                  child: const SmokingContainer(),
                 ).slideX(begin: 0.0, end: -0.2, duration: const Duration(milliseconds: 100), curve: Curves.easeIn).fadeOut(duration: const Duration(milliseconds: 100)),
               if (_counter == 6)
                 Animate(
                   controller: _controller,
-                  child: LookingForContainer(context),
+                  child: LookingForContainer(onOptionSelected: _startAnimation),
                 ).fadeIn(duration: const Duration(milliseconds: 100)).slideX(begin: 0.2, end: 0.0, duration: const Duration(milliseconds: 100), curve: Curves.easeIn),
               if (_counter == 7)
                 Animate(
                   controller: _controller,
-                  delay: Duration(microseconds: 100),
+                  delay: const Duration(microseconds: 100),
                   onComplete: (controller) {
                     setState(() {
                       _counter = 8;
                     });
                   },
-                  child: LookingForContainer(context),
+                  child: const LookingForContainer(),
                 ).slideX(begin: 0.0, end: -0.2, duration: const Duration(milliseconds: 200), curve: Curves.easeIn).fadeOut(duration: const Duration(milliseconds: 100)),
               if (_counter == 8)
                 Animate(
-                  delay: Duration(microseconds: 100),
+                  delay: const Duration(microseconds: 100),
                   controller: _controller,
-                  child: ReligionContainer(context),
+                  child: ReligionContainer(onOptionSelected: _startAnimation),
                 ).fadeIn(duration: const Duration(milliseconds: 100)).slideX(begin: 0.2, end: 0.0, duration: const Duration(milliseconds: 100), curve: Curves.easeIn),
             ],
           ),
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _startAnimation,
-        child: const Icon(Icons.play_arrow),
-      ),
+      floatingActionButton: _counter == 1
+        ? FloatingActionButton(
+            onPressed: () {
+              _startAnimation();
+              ApiCalls.uploadUserTagData(userDataTags);
+              // Call your second function here
+              // Example: secondFunction();
+            },
+            shape: CircleBorder(),
+            backgroundColor: reuseableColors.accentColor,
+            child: Icon(Icons.done_rounded, color: Colors.white),
+          )
+      : null,
     );
   }
 }

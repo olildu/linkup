@@ -1,9 +1,13 @@
 // ignore_for_file: prefer_const_constructors, prefer_final_fields, sort_child_properties_last
 
+import 'dart:async';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:demo/api/api_calls.dart';
+import 'package:demo/api/firebase_calls.dart';
 import 'package:demo/elements/chat_elements/elements.dart';
 import 'package:demo/Colors.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 
 class ChatDetailsPage extends StatefulWidget {
@@ -20,12 +24,10 @@ class ChatDetailsPage extends StatefulWidget {
 
 class _ChatDetailsPageState extends State<ChatDetailsPage> {
   TextEditingController _messageController = TextEditingController();
+    
 
   List<Map<String, dynamic>> _messages = [
-    {"text": "Hello!", "sender": "user1"},
-    {"text": "How are you?", "sender": "user2"},
-    {"text": "I'm doing well, thank you.", "sender": "user1"},
-    {"text": "What about you?", "sender": "user2"},
+
   ];
 
   void _addMessage(Map<String, dynamic> message) {
@@ -36,7 +38,51 @@ class _ChatDetailsPageState extends State<ChatDetailsPage> {
 
   void initState() {
     super.initState();
+    // Call your asynchronous method inside a separate function
+    _fetchChatMessages();
   }
+
+void _fetchChatMessages() async {
+  DatabaseReference userMatchRef = FirebaseDatabase.instance.ref('/UserChats/${widget.path}/');
+  int x = 1;
+  // Listen for data changes
+  userMatchRef.onValue.listen((DatabaseEvent event) {
+    Map<dynamic, dynamic>? chatList = event.snapshot.value as Map<dynamic, dynamic>?;
+    print(event.snapshot.value);
+    
+  if (chatList != null && chatList["Messages"] != null) {
+    List<dynamic> messages = chatList["Messages"];
+
+    for (x; x < messages.length; x++) {
+      Map message = messages[x];
+      String sender = message["uid"];
+
+      if (sender == userValues.uid) {
+        sender = "user1";
+      } else {
+        sender = "user2";
+      }
+
+      String content = message["content"];
+      // Assuming timeStamp is stored as an int in Firebase, you might need to convert it accordingly
+      double timeStamp = message["timeStamp"];
+
+      _addMessage({
+        "text": content,
+        "sender": sender
+      });
+    }
+  }
+
+  });
+
+  // Wait for the Completer to complete and ge
+  // Process the chat messages
+
+}
+
+
+
 
   @override
   Widget build(BuildContext context) {

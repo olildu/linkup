@@ -1,21 +1,26 @@
 // ignore_for_file: use_super_parameters, prefer_const_constructors, prefer_const_literals_to_create_immutables
 
+import 'package:demo/Colors.dart';
+import 'package:demo/api/api_calls.dart';
 import 'package:demo/elements/profile_elements/elements.dart';
+import 'package:demo/main_page.dart';
+import 'package:demo/pages/login_page/login_page.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class ProfilePage extends StatefulWidget {
-  final VoidCallback? aboutMeCallback; // Callback parameter
-  const ProfilePage({Key? key, this.aboutMeCallback}) : super(key: key);
-
+  const ProfilePage({Key? key}) : super(key: key);
   @override
   State<ProfilePage> createState() => _ProfilePageState();
 }
 
+
 class _ProfilePageState extends State<ProfilePage> {
   dynamic Userdata;
   bool isDataLoaded = false;
+  bool test = false;
 
   @override
   void initState() {
@@ -23,9 +28,10 @@ class _ProfilePageState extends State<ProfilePage> {
     fetchUserData();
   }
 
+
   void fetchUserData() async{
     User? user = FirebaseAuth.instance.currentUser;
-    final ref = await FirebaseDatabase.instance.ref().child("/UsersMetaData/${user?.uid}/UserDetails");
+    final ref = FirebaseDatabase.instance.ref().child("/UsersMetaData/${user?.uid}/");
     
     ref.onValue.listen((event) {
       Userdata = event.snapshot.value;
@@ -61,7 +67,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 SizedBox(height: 30), 
 
                 // Photos
-                PhotosWidget(),
+                PhotosWidget(imageData: Userdata["ImageDetails"]),
 
                 SizedBox(height: 40), 
 
@@ -72,7 +78,46 @@ class _ProfilePageState extends State<ProfilePage> {
 
                 // About Me Container
 
-                aboutMeContainer(initialValue: Userdata?["aboutMe"] ?? "", onPressed: (){}),
+                aboutMeContainer(
+                  initialValue: Userdata?["UserDetails"]["aboutMe"] ?? "",
+                  onPressed: () {
+                    setState(() {
+                      test = true;
+                    });
+                  },
+                  onFocusLost: () {
+                    setState(() {
+                      test = false;
+                    });
+                  }
+                ),
+
+                if (test)
+                Column(
+                  children: [
+                    SizedBox(height: 20,),
+                    Align(
+                    alignment: Alignment.centerRight,
+                    child: FloatingActionButton(onPressed: (){
+                      setState(() {
+                        test = false;
+                      });
+                      Map userDataTags = {
+                        "uid": userValues.uid,
+                        'type': 'uploadTagData',
+                        'key': userValues.cookieValue,
+                        'keyToUpdate': "aboutMe",
+                        'value': controller.text
+                      };
+                      ApiCalls.uploadUserTagData(userDataTags);
+                    },
+                    backgroundColor: reuseableColors.accentColor,
+                    shape: const CircleBorder(),
+                    child: ClipOval(child: Icon(Icons.done_rounded, color: Colors.white,)),),),
+                  ],
+                ),
+
+
 
                 SizedBox(height: 20), 
 
@@ -82,7 +127,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 SizedBox(height: 30), 
 
                 // More About Me Children
-                moreAboutMeChildren(context, Userdata),
+                moreAboutMeChildren(context, Userdata["UserDetails"]),
 
                 SizedBox(height: 40), 
 
@@ -93,7 +138,7 @@ class _ProfilePageState extends State<ProfilePage> {
 
                 //My Basics Chilren
 
-                myBasicsChildren(context, Userdata)
+                myBasicsChildren(context, Userdata["UserDetails"])
 
               ],
             ),

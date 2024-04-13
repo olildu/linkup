@@ -1,16 +1,13 @@
-import 'package:firebase_auth/firebase_auth.dart';
+import 'dart:async';
+
+import 'package:demo/api/api_calls.dart';
 import 'package:firebase_database/firebase_database.dart';
 
 class FirebaseCalls {
-  User? user = FirebaseAuth.instance.currentUser;
   dynamic data;
 
-  String? getUserId() {
-    return user?.uid;
-  }
-
   Future<void> getUserData() async {
-    final ref = FirebaseDatabase.instance.ref().child("/UsersMetaData/${user?.uid}/UserDetails");
+    final ref = FirebaseDatabase.instance.ref().child("/UsersMetaData/${userValues.uid}/UserDetails");
     final snapshot = await ref.get();
 
     if (snapshot.exists) {
@@ -19,4 +16,22 @@ class FirebaseCalls {
       data = null;
     }
   }
+
+  static Future<Map<dynamic, dynamic>> getChatList() async {
+    DatabaseReference userMatchRef = FirebaseDatabase.instance.ref('/UserMatchingDetails/${userValues.uid}/ChatUID/');
+
+    StreamController<Map<dynamic, dynamic>> controller = StreamController();
+
+    userMatchRef.onValue.listen((event) {
+      Map<dynamic, dynamic>? chatList = event.snapshot.value as Map<dynamic, dynamic>?;
+
+      controller.add(chatList ?? {});
+    });
+
+    return controller.stream.first;
+  }
+
+
+
 }
+

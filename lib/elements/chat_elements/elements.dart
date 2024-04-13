@@ -1,17 +1,15 @@
-// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables, sized_box_for_whitespace, sort_child_properties_last
+// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables, sized_box_for_whitespace, sort_child_properties_last, library_private_types_in_public_api
 import 'dart:async';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:demo/Colors.dart';
 import 'package:demo/api/api_calls.dart';
-import 'package:demo/elements/candidate_details_elements/elements.dart';
+import 'package:demo/api/firebase_calls.dart';
 import 'package:demo/elements/candidate_page_elements/elements.dart';
-import 'package:demo/elements/create_profile_elements/elements.dart';
 import 'package:demo/pages/chat_sub_pages/chat_details.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
-import 'package:flutter/widgets.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 Map chatUserDetails = {
@@ -59,8 +57,11 @@ Widget matchQueTitle(){
 
 class ChatDetails extends StatefulWidget {
   final int index;
+  final String path;
+  final String matchUID;
+  final String name;
 
-  const ChatDetails({super.key, required this.index});
+  const ChatDetails({super.key, required this.index, required this.matchUID, required this.path, required this.name});
 
   @override
   _ChatDetailsState createState() => _ChatDetailsState();
@@ -69,35 +70,83 @@ class ChatDetails extends StatefulWidget {
 class _ChatDetailsState extends State<ChatDetails> {
   bool isClicked = false;
   Color flashColor = Color.fromARGB(255, 237, 237, 237);
+  String lastMessage = '';
+  bool isCurrentUserLastSender = true;
+  String? chatUserImage; // Define a variable to store the chat user image URL
+  bool isImageLoaded = false; // Track whether the image is already loaded
+
+  @override
+  void initState() {
+    super.initState();
+    // Initialize lastMessage when the widget is first created
+    _fetchLastMessage();
+  }
+
+  // Function to fetch last message of each chat users
+  void _fetchLastMessage() async {
+    DatabaseReference lastMessageRef = FirebaseDatabase.instance.ref('/UserChats/${widget.path}/ChatDetails/LastMessageDetails/');
+    lastMessageRef.onValue.listen((event) {
+      Map? lastMessageDetails = event.snapshot.value as Map <dynamic,dynamic>;
+      String lastMessegedUser = lastMessageDetails["lastMessageUser"];
+
+      setState(() {
+        if (lastMessegedUser.trim() != userValues.uid) {
+          isCurrentUserLastSender = false;
+        } else {
+          isCurrentUserLastSender = true;
+        }
+        lastMessage = lastMessageDetails["lastMessage"];
+      });
+    });
+  }
+
+  // Function to fetch chat user image if not already loaded
+  void _fetchChatUserImage() async {
+    if (!isImageLoaded) {
+      String? imageUrl = await firebaseCalls.getImagesFromStorageForChats(widget.matchUID);
+      print("etset");
+      setState(() {
+        chatUserImage = imageUrl;
+        isImageLoaded = true; // Mark image as loaded
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
+    // Call function to fetch chat user image
+    _fetchChatUserImage();
+
     return GestureDetector(
-    onTap: () {
-      setState(() {
-        isClicked = !isClicked;
-        flashColor = Color.fromARGB(255, 237, 237, 237);
-      });
-
-      Future.delayed(Duration(milliseconds: 50), () {
+      onTap: () {
         setState(() {
-          flashColor = const Color.fromARGB(0, 219, 219, 219); 
+          isClicked = !isClicked;
+          flashColor = Color.fromARGB(255, 237, 237, 237);
         });
-        
-        Future.delayed(Duration(), () {
-          // Navigator.push(
-          //   context,
-          //   MaterialPageRoute(
-          //     builder: (context) => ChatDetailsPage(appBarTitle: "Name${widget.index}", imageUrl: "lib/images/user.png"),
-          //   ),
-          // );
-        });
-      });
-    },
 
+        Future.delayed(Duration(milliseconds: 50), () {
+          setState(() {
+            flashColor = const Color.fromARGB(0, 219, 219, 219);
+          });
+
+          Future.delayed(Duration(), () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => ChatDetailsPage(
+                  appBarTitle: widget.name,
+                  imageUrl: "lib/images/user.png",
+                  path: widget.path,
+                  matchUID: widget.matchUID,
+                ),
+              ),
+            );
+          });
+        });
+      },
       child: AnimatedContainer(
         duration: Duration(milliseconds: 300),
-        color: isClicked ? flashColor : Colors.white, 
+        color: isClicked ? flashColor : Colors.white,
         child: Padding(
           padding: EdgeInsets.only(left: 20),
           child: Container(
@@ -105,11 +154,22 @@ class _ChatDetailsState extends State<ChatDetails> {
             color: Colors.transparent,
             child: Row(
               children: [
-                CircleAvatar(
-                  radius: 30,
-                  backgroundImage: AssetImage("lib/images/user.png"),
+                ClipOval(
+                  child: chatUserImage != null
+                      ? CachedNetworkImage(
+                          imageUrl: chatUserImage!,
+                          fit: BoxFit.cover,
+                          width: 65,
+                          height: 65,
+                          errorWidget: (context, url, error) => Icon(Icons.error),
+                        )
+                      : SizedBox(
+                          width: 65,
+                          height: 65,
+                          child: CircularProgressIndicator(),
+                        ),
                 ),
-                SizedBox(width: 20),
+                SizedBox(width: 13),
                 Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -117,18 +177,33 @@ class _ChatDetailsState extends State<ChatDetails> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          "Name${widget.index}",
+                          widget.name,
                           textAlign: TextAlign.left,
+                          style: GoogleFonts.poppins(fontWeight : FontWeight.w500, fontSize: 16),
                         ),
                         Text(
-                          "Last Message",
+                          lastMessage,
                           textAlign: TextAlign.left,
+                          style: GoogleFonts.poppins(fontWeight : FontWeight.w300),
                         ),
                       ],
                     ),
                   ],
                 ),
                 SizedBox(width: 10),
+                Spacer(),
+                if (!isCurrentUserLastSender)
+                  Transform.translate(
+                    offset: Offset(-13,0),
+                    child: Container(
+                      width: 20,
+                      height: 20,
+                      decoration: BoxDecoration(
+                        color: reuseableColors.accentColor,
+                        borderRadius: BorderRadius.circular(50)
+                      ),
+                    ),
+                  )
               ],
             ),
           ),
@@ -326,7 +401,7 @@ Map<String, dynamic>? matchedUsers;
 Future<Widget> _buildMatchedUserWidget(BuildContext context) async {
   // Check if matchedUsers has already been fetched
   if (!flagChecker.matchQueFetched) {
-    matchedUsers = await ApiCalls.GetMatchedUsers();
+    matchedUsers = await firebaseCalls.GetMatchedUsers();
     flagChecker.matchQueFetched = true;
   }
 
@@ -379,18 +454,42 @@ Future<Widget> _buildMatchedUserWidget(BuildContext context) async {
   );
 }
 
-Widget chatDetailsStructure(){
-  return Expanded( 
-    child: ListView.builder(
-      itemCount: 10,
-      itemBuilder: (_, index) => Column(
-        children: [
-          ChatDetails(index: index),
-          SizedBox(height: 10),
-        ],
-      ),
-    ),
-  );
+class chatDetailsStructure extends StatelessWidget {
+  // Get chat messages from database
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder<Map<dynamic, dynamic>>(
+      future: FirebaseCalls.getChatList(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return Center(child: CircularProgressIndicator()); 
+        } else if (snapshot.hasError) {
+          return Text('Error: ${snapshot.error}');
+        } else {
+          Map<dynamic, dynamic> chatList = snapshot.data!;
+          return Expanded(
+            child: ListView.builder(
+              itemCount: chatList.length,
+              itemBuilder: (_, index) {
+                // Access key and value within the loop
+                String key = chatList.keys.elementAt(index);
+                String value = chatList.values.elementAt(index)["uniqueIDandName"].split(",")[0];
+                String name = chatList.values.elementAt(index)["uniqueIDandName"].split(",")[1];
+                // Use key and value to build ChatDetails widget
+
+                return Column(
+                  children: [
+                    ChatDetails(index: index, matchUID: key, path: value, name: name,),
+                    SizedBox(height: 10),
+                  ],
+                );
+              },
+            ),
+          );
+        }
+      },
+    );
+  }
 }
 
 typedef SendMessageCallback = void Function(Map<String, dynamic> message);

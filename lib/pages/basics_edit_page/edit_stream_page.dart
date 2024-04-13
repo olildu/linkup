@@ -1,3 +1,4 @@
+import 'package:demo/api/api_calls.dart';
 import 'package:demo/elements/profile_elements/elements.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -13,62 +14,10 @@ class EditStream extends StatefulWidget {
   State<EditStream> createState() => EditStreamState();
 }
 
-class GenderBuilder extends StatefulWidget {
-  final String gender;
-
-  const GenderBuilder({Key? key, required this.gender}) : super(key: key);
-
-  @override
-  _GenderBuilderState createState() => _GenderBuilderState();
-}
-
-class _GenderBuilderState extends State<GenderBuilder> {
-  bool _isSelected = false;
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () {
-      },
-      child: Container(
-        padding: EdgeInsets.all(20),
-        decoration: BoxDecoration(
-          border: Border.all(color: _isSelected ? Colors.blue : Colors.grey),
-          borderRadius: BorderRadius.circular(10),
-        ),
-        child: Row(
-          children: [
-            Text(
-              widget.gender,
-              style: GoogleFonts.poppins(
-                fontWeight: FontWeight.w400,
-                fontSize: 20,
-              ),
-            ),
-            const Spacer(),
-            _isSelected
-                ? Icon(
-                    Icons.radio_button_checked,
-                  )
-                : Icon(
-                    Icons.radio_button_unchecked_rounded,
-                  ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-
-
 class EditStreamState extends State<EditStream> {
   @override
   void initState() {
     super.initState();
-    // WidgetsBinding.instance!.addPostFrameCallback((_) {
-    //   showSearch(context: context, delegate: CustomSearchDelegate());
-    // });
   }
 
   @override
@@ -137,9 +86,9 @@ class CustomSearchDelegate extends SearchDelegate<String> {
   List<Widget> buildActions(BuildContext context) {
     return <Widget>[
       Transform.translate(
-        offset: Offset(-5, 0),
+        offset: const Offset(-5, 0),
         child: IconButton(
-          icon: Icon(Icons.clear),
+          icon: const Icon(Icons.clear),
           onPressed: () {
             query = '';
           },
@@ -151,7 +100,7 @@ class CustomSearchDelegate extends SearchDelegate<String> {
   @override
   Widget buildLeading(BuildContext context) {
     return IconButton(
-      icon: Icon(Icons.arrow_back_ios_new_rounded),
+      icon: const Icon(Icons.arrow_back_ios_new_rounded),
       onPressed: () {
         close(context, '');
       },
@@ -199,6 +148,15 @@ class CustomSearchDelegate extends SearchDelegate<String> {
           title: Text(suggestion),
           onTap: () {
             close(context, suggestion);
+            Map userDataTags = {
+              "uid": userValues.uid,
+              'type': 'uploadTagData',
+              'key': userValues.cookieValue,
+              'keyToUpdate': "stream",
+              'value': suggestion
+            };
+            ApiCalls.uploadUserTagData(userDataTags);
+            Navigator.pop(context);
           },
         );
       },

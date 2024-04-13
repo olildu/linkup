@@ -2,8 +2,14 @@
 
 import 'package:demo/elements/home_elements/elements.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 void main() {
+  SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
+    statusBarColor: Color.fromRGBO(12, 25, 44, 1),
+    statusBarIconBrightness: Brightness.light,
+    systemNavigationBarColor: Color.fromRGBO(12, 25, 44, 1)
+  ));
   runApp(const LoginPage());
 }
 

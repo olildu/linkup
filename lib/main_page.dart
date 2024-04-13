@@ -1,6 +1,5 @@
 // ignore_for_file: camel_case_types, prefer_const_constructors, prefer_const_literals_to_create_immutables
 
-import 'package:demo/pages/basics_edit_page/edit_stream_page.dart';
 import 'package:demo/pages/appbar_pages/filters_page.dart';
 import 'package:demo/pages/main_pages/candidate_page.dart';
 import 'package:demo/pages/main_pages/chat_page.dart';
@@ -12,25 +11,25 @@ import 'package:google_nav_bar/google_nav_bar.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class mainPage extends StatefulWidget {
-  const mainPage({super.key});
+  const mainPage({Key? key}) : super(key: key);
 
   @override
-  State<mainPage> createState() => _mainPageState();
+  State<mainPage> createState() => mainPageState();
 }
 
-class _mainPageState extends State<mainPage> {
-  int bottomBarIndex = 2;
+class mainPageState extends State<mainPage> {
+  late int bottomBarIndex = 0;
   String appBarTitle = "MUJDating";
   IconData? type = Icons.tune_rounded;
 
-  void changeActionsForAboutMe(){
-    setState(() {
-      type = Icons.abc_sharp;
-    });
-  }
+  final List<Widget> _pages = [
+    ProfilePage(),
+    CandidatePage(),
+    ChatPage(),
+  ];
 
   void navigateActionButtons(BuildContext context) {
-    switch (bottomBarIndex){
+    switch (bottomBarIndex) {
       case 0:
         Navigator.push(
           context,
@@ -44,7 +43,6 @@ class _mainPageState extends State<mainPage> {
         );
         break;
     }
-
   }
 
   void navigateBottomBar(int index) {
@@ -55,12 +53,10 @@ class _mainPageState extends State<mainPage> {
           appBarTitle = "Profile";
           type = Icons.settings_rounded;
           break;
-
         case 1:
           appBarTitle = "MUJDating";
           type = Icons.tune_rounded;
           break;
-
         case 2:
           appBarTitle = "";
           type = null;
@@ -69,12 +65,7 @@ class _mainPageState extends State<mainPage> {
     });
   }
 
-  final List<Widget> _pages = [
-    ProfilePage(),
-    CandidatePage(),
-    ChatPage(),
-  ];
-  
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -87,13 +78,12 @@ class _mainPageState extends State<mainPage> {
         title: Center(
           child: Text(
             appBarTitle,
-            style: GoogleFonts.poppins(
-            ),
-          )
+            style: GoogleFonts.poppins(),
           ),
+        ),
         actions: [
           GestureDetector(
-            onTap: (){
+            onTap: () {
               navigateActionButtons(context);
             },
             child: Padding(
@@ -111,9 +101,8 @@ class _mainPageState extends State<mainPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Center(child: Text("LOGO", style: GoogleFonts.poppins(fontSize: 40),)),
-              SizedBox(height: 70,),
-              
+              Center(child: Text("LOGO", style: GoogleFonts.poppins(fontSize: 40))),
+              SizedBox(height: 70),
               GestureDetector(
                 onTap: () {
                   Navigator.of(context).push(
@@ -126,15 +115,14 @@ class _mainPageState extends State<mainPage> {
                   padding: EdgeInsets.all(5),
                   child: Row(
                     children: [
-                      Icon(Icons.settings_rounded),SizedBox(width: 20,),
-                      Text("Settings", style: GoogleFonts.poppins(fontSize: 20),),
+                      Icon(Icons.settings_rounded),
+                      SizedBox(width: 20),
+                      Text("Settings", style: GoogleFonts.poppins(fontSize: 20)),
                     ],
                   ),
                 ),
               ),
-              
-              SizedBox(height: 30,),
-              
+              SizedBox(height: 30),
               GestureDetector(
                 onTap: () {
                   FirebaseAuth.instance.signOut();
@@ -143,31 +131,29 @@ class _mainPageState extends State<mainPage> {
                   padding: EdgeInsets.all(5),
                   child: Row(
                     children: [
-                      Icon(Icons.logout_rounded),SizedBox(width: 20,),
-                      Text("Log Out", style: GoogleFonts.poppins(fontSize: 20),),
+                      Icon(Icons.logout_rounded),
+                      SizedBox(width: 20),
+                      Text("Log Out", style: GoogleFonts.poppins(fontSize: 20)),
                     ],
                   ),
                 ),
               ),
-
             ],
           ),
         ),
       ),
-
       bottomNavigationBar: Container(
         color: Colors.white,
         child: GNav(
-          onTabChange:(value) => {
-            navigateBottomBar(value)
-          },
+          onTabChange: (value) => {navigateBottomBar(value)},
           gap: 8,
           selectedIndex: 1,
           tabs: [
-            GButton(icon: Icons.person_rounded, text: "Profile",),
-            GButton(icon: Icons.favorite_border, text: "Favourite",),
-            GButton(icon: Icons.chat_bubble_outline_rounded, text: "Chat",),
-          ],),
+            GButton(icon: Icons.person_rounded, text: "Profile"),
+            GButton(icon: Icons.favorite_border, text: "Favourite"),
+            GButton(icon: Icons.chat_bubble_outline_rounded, text: "Chat"),
+          ],
+        ),
       ),
     );
   }

@@ -1,5 +1,6 @@
 // ignore_for_file: prefer_const_constructors
 
+import 'package:demo/api/api_calls.dart';
 import 'package:demo/elements/profile_elements/elements.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -12,13 +13,14 @@ class EditGender extends StatefulWidget {
   const EditGender({Key? key, required this.title, required this.type, required this.data}) : super(key: key);
 
   @override
-  State<EditGender> createState() => EditStreamState();
+  State<EditGender> createState() => EditGenderState();
 }
 
 class GenderBuilder extends StatefulWidget {
   final String gender;
+  final int index;
 
-  const GenderBuilder({Key? key, required this.gender}) : super(key: key);
+  const GenderBuilder({Key? key, required this.gender, required int this.index}) : super(key: key);
 
   @override
   _GenderBuilderState createState() => _GenderBuilderState();
@@ -26,6 +28,7 @@ class GenderBuilder extends StatefulWidget {
 
 class _GenderBuilderState extends State<GenderBuilder> {
   bool _isSelected = false;
+  final List <String> genderList = ["Female", "Male", "Others"];
 
   @override
   Widget build(BuildContext context) {
@@ -33,6 +36,17 @@ class _GenderBuilderState extends State<GenderBuilder> {
       onTap: () {
         setState(() {
           _isSelected = !_isSelected;
+            Map userDataTags = {
+              "uid": userValues.uid,
+              'type': 'uploadTagData',
+              'key': userValues.cookieValue,
+              'keyToUpdate': "gender",
+              'value': genderList[widget.index]
+            };
+
+          ApiCalls.uploadUserTagData(userDataTags);
+
+          Navigator.pop(context);
         });
       },
       child: Container(
@@ -67,7 +81,7 @@ class _GenderBuilderState extends State<GenderBuilder> {
 
 
 
-class EditStreamState extends State<EditGender> {
+class EditGenderState extends State<EditGender> {
   @override
   void initState() {
     super.initState();
@@ -95,16 +109,14 @@ class EditStreamState extends State<EditGender> {
             const SizedBox(height: 30,),
             const SizedBox(
               height: 400,
-              child: Expanded(
-                child: Column(
-                  children: [
-                    GenderBuilder(gender: "Woman"),
-                    SizedBox(height: 20,),
-                    GenderBuilder(gender: "Man"),
-                    SizedBox(height: 20,),
-                    GenderBuilder(gender: "Others"),
-                  ],
-                ),
+              child: Column(
+                children: [
+                  GenderBuilder(gender: "Female", index: 0),
+                  SizedBox(height: 20,),
+                  GenderBuilder(gender: "Male", index: 1),
+                  SizedBox(height: 20,),
+                  GenderBuilder(gender: "Others", index: 2),
+                ],
               ),
             ),
           ],

@@ -1,3 +1,4 @@
+import 'package:demo/api/api_calls.dart';
 import 'package:demo/elements/profile_elements/elements.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -13,32 +14,11 @@ class EditHometown extends StatefulWidget {
   State<EditHometown> createState() => EditHometownState();
 }
 
-class GenderBuilder extends StatefulWidget {
-  final String gender;
-
-  const GenderBuilder({Key? key, required this.gender}) : super(key: key);
-
-  @override
-  _GenderBuilderState createState() => _GenderBuilderState();
-}
-
-class _GenderBuilderState extends State<GenderBuilder> {
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold();
-  }
-}
-
-
 
 class EditHometownState extends State<EditHometown> {
   @override
   void initState() {
     super.initState();
-    // WidgetsBinding.instance!.addPostFrameCallback((_) {
-    //   showSearch(context: context, delegate: CustomSearchDelegate());
-    // });
   }
 
   @override
@@ -125,6 +105,7 @@ class CustomSearchDelegate extends SearchDelegate<String> {
       onPressed: () {
         close(context, '');
       },
+      
     );
   }
 
@@ -1363,6 +1344,18 @@ class CustomSearchDelegate extends SearchDelegate<String> {
           title: Text(suggestion),
           onTap: () {
             close(context, suggestion);
+
+            Map userDataTags = {
+              "uid": userValues.uid,
+              'type': 'uploadTagData',
+              'key': userValues.cookieValue,
+              'keyToUpdate': "fromPlace",
+              'value': suggestion
+            };
+
+            ApiCalls.uploadUserTagData(userDataTags);
+
+            Navigator.pop(context);
           },
         );
       },

@@ -22,8 +22,10 @@ void main() async{
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+
   runApp(const MyApp());
 }
+
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -46,6 +48,9 @@ class MyApp extends StatelessWidget {
               final user = snapshot.data;
               if (user != null) {
                 if (user.emailVerified) {
+                  if (userValues.cookieValue != null){
+                    return MyHomePage();
+                  }
                   return FutureBuilder<String>(
                     future: ApiCalls.fetchCookieDoggie(),
                     builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
@@ -55,7 +60,7 @@ class MyApp extends StatelessWidget {
                           body: Center(child: CircularProgressIndicator(),),
                         );
                       } else {
-                        return mainPage();
+                        return MyHomePage();
                       }
                     },
                   );

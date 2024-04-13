@@ -1,69 +1,70 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'dart:io';
+import 'package:firebase_database/firebase_database.dart';
+import 'package:image_picker/image_picker.dart';
 
-class MyWidget extends StatelessWidget {
-  const MyWidget({Key? key}) : super(key: key);
+void main() async{
+  print("balls");
+  runApp(MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Image Picker Example',
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+      ),
+      home: MyHomePage(),
+    );
+  }
+}
+
+void initState(){
+  print("test");
+}
+
+
+class MyHomePage extends StatefulWidget {
+  @override
+  _MyHomePageState createState() => _MyHomePageState();
+}
+
+class _MyHomePageState extends State<MyHomePage> {
+  late File _image = File('');
+  
+  Future getImage() async {
+    final picker = ImagePicker();
+    final pickedFile = await picker.pickImage(source: ImageSource.gallery, imageQuality: 50);
+
+    DatabaseReference userMatchRef = FirebaseDatabase.instance.ref('/UsersMetaData/QCIG6YCw9HcpLyf5jYHc1yewq6k1/ImageDetails');
+    print(userMatchRef.get());
+
+    setState(() {
+      if (pickedFile != null) {
+        _image = File(pickedFile.path);
+      } else {
+        print('No image selected.');
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
-    // Call showCupertinoModalPopup within the build method
     return Scaffold(
+      appBar: AppBar(
+        title: Text('Image Picker Example'),
+      ),
       body: Center(
-        child: GestureDetector(
-          onTap: () {
-            showCupertinoModalPopup(
-              context: context,
-              builder: (BuildContext context) {
-                // Calculate the height of the popup surface
-                double popupHeight = MediaQuery.of(context).size.height * 0.8;
-                return Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: CupertinoPopupSurface(
-                    child: SizedBox(
-                      height: popupHeight,
-                      child: SingleChildScrollView(
-                        child: Container(
-                          color: Colors.white,
-                          child: Column(
-                            children: [
-                              Container(
-                                height: 700,
-                                decoration: const BoxDecoration(
-                                  color: Color(0xFFD9D9D9),
-                                ),
-                                child: const Center(
-                                  child: Icon(Icons.image, size: 70),
-                                ),
-                              ),
-                              SizedBox(height: 200),
-                              Container(
-                                height: 700,
-                                color: const Color(0xFFD9D9D9),
-                                child: const Center(
-                                  child: Icon(Icons.image, size: 70),
-                                ),
-                              ),
-                              SizedBox(height: 200),
-                              Container(
-                                height: 200,
-                                decoration: const BoxDecoration(
-                                  borderRadius: BorderRadius.only(
-                                    bottomRight: Radius.circular(20),
-                                    bottomLeft: Radius.circular(20),
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                );
-              },
-            );
-          },
-        ),
+        child: _image == null
+            ? Text('No image selected.')
+            : Image.file(_image),
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: getImage,
+        tooltip: 'Pick Image',
+        child: Icon(Icons.add_a_photo),
       ),
     );
   }

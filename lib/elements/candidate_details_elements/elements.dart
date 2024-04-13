@@ -2,14 +2,13 @@
 
 import 'package:demo/elements/candidate_page_elements/elements.dart';
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 const Color tagColor = Color(0xFF0C192C);
 
 class ProfileImageFullscreen extends StatelessWidget {
   final String imagePath;
 
-  const ProfileImageFullscreen({required this.imagePath});
+  const ProfileImageFullscreen({super.key, required this.imagePath});
 
   @override
   Widget build(BuildContext context) {

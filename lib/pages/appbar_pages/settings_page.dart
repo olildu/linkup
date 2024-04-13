@@ -1,6 +1,10 @@
 // ignore_for_file: prefer_const_constructors
 
+import 'package:demo/api/api_calls.dart';
+import 'package:demo/api/firebase_calls.dart';
 import 'package:demo/elements/settings_elements/elements.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
@@ -83,7 +87,12 @@ class _SettingsState extends State<Settings> {
             SizedBox(height: 60,),
 
             // Log Out Button
-            buttonBuilder("Log Out", Icons.arrow_forward_ios_rounded),
+            GestureDetector(
+              onTap: () {
+                Navigator.of(context).pop();
+                FirebaseAuth.instance.signOut();
+              },
+              child: buttonBuilder("Log Out", Icons.arrow_forward_ios_rounded)),
 
             SizedBox(height: 10,),
 

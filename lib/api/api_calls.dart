@@ -2,6 +2,7 @@
 
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:http/http.dart' as http;
@@ -13,6 +14,13 @@ class userValues{
   static String ?cookieValue;
   static Map matchUserData = {};  
   static Map matchUserDataNew = {};  
+  static bool goToMainPage = false;
+  static late List<dynamic> userMatchCandidates = []; 
+  static Map userData = {};
+  static List<Map<String, dynamic>> matchUserDetails = [];
+  static List userImageURLs = [];
+  static int userVisited = 0;
+
 }
 
 class pathAndName {
@@ -42,6 +50,8 @@ class ApiCalls {
         headers: headers,
         body: jsonData,
       );
+
+      await firebaseCalls.fetchUserData();
 
       userValues.cookieValue = response.body;
       return response.body;
@@ -113,9 +123,70 @@ class ApiCalls {
       return response.body;
   }
 
+  static Future<List<Map<String, dynamic>>> getMatchCandidates() async {
+    Map<String, dynamic> data = {
+      "uid": userValues.uid,
+      "key": userValues.cookieValue,
+      "gender": "Female",
+      'type': 'GetUIDs'
+    };
+
+    String jsonData = jsonEncode(data);
+
+    var headers = {
+      'Content-Type': 'application/json',
+    };
+
+    var response = await http.post(
+      Uri.parse('https://65d257a08d0655ad974f.appwrite.global/'),
+      headers: headers,
+      body: jsonData,
+    );
+
+    List<dynamic> jsonList = jsonDecode(jsonDecode(response.body));
+
+    // Convert each element of jsonList to Map<String, dynamic>
+    List<Map<String, dynamic>> matchCandidates = jsonList.map((e) => e as Map<String, dynamic>).toList();
+
+    userValues.userMatchCandidates = matchCandidates;
+
+    return matchCandidates;
+  }
+
+  static dislikeMatch(data) async{
+    String jsonData = jsonEncode(data);
+
+    var headers = {
+      'Content-Type': 'application/json',
+    };
+
+    var response = await http.post(
+      Uri.parse('https://65d257a08d0655ad974f.appwrite.global/'),
+      headers: headers,
+      body: jsonData,
+    );
+    
+    return response.body;
+  }
+  static LikeMatch(data) async{
+    String jsonData = jsonEncode(data);
+
+    var headers = {
+      'Content-Type': 'application/json',
+    };
+
+    var response = await http.post(
+      Uri.parse('https://65d257a08d0655ad974f.appwrite.global/'),
+      headers: headers,
+      body: jsonData,
+    );
+    
+    return response.body;
+  }
 }
 
 class firebaseCalls {
+
   static Future<void> getImagesFromStorage(key, Map<String, dynamic> matchUserData, Function onComplete) async {
     final storageRef = FirebaseStorage.instance.ref().child("/UserImages/$key/");
     final result = await storageRef.listAll();
@@ -148,9 +219,10 @@ class firebaseCalls {
 
     Completer<Map<String, dynamic>> completer = Completer<Map<String, dynamic>>();
 
-    userMatchRef.onValue.listen((DatabaseEvent event) {
+    userMatchRef.onValue.listen((DatabaseEvent event) async{
       flagChecker.matchQueFetched = false;
-      final data = event.snapshot.value as Map<dynamic, dynamic>?; 
+      final data = await event.snapshot.value as Map<dynamic, dynamic>?; 
+      print(data);
       Map<String, dynamic> matchUserData = {}; // Create a local variable to store data
       
       void checkTasksCompletion() {
@@ -162,6 +234,7 @@ class firebaseCalls {
       }
 
       data?.forEach((key, value) async {
+        print(value);
         matchUserData[key] = {};
         value.forEach((uniqueIDandName, names) {
           pathAndName.pathAndNameData[key] = names.split(",")[1];
@@ -174,9 +247,57 @@ class firebaseCalls {
 
       });
     });
-
+    print(completer.future);
     return completer.future;
   }
 
-  static uploadImageStep(){}
+  static updateImageValuesinDatabase(String imageName) async {
+    final ref = FirebaseDatabase.instance.ref();
+    final snapshot = await ref.child('/UsersMetaData/${userValues.uid}/ImageDetails').get();
+    
+    if (snapshot.exists) {
+      final dataList = snapshot.value as List<Object?>?;
+      final List<Object?> listWithoutNulls = dataList?.where((element) => element != null).toList() ?? [];
+
+    final Map<String, String> uploadData = {
+      (listWithoutNulls.length + 1).toString(): imageName
+    };
+
+      await ref.child('/UsersMetaData/${userValues.uid}/ImageDetails').update(uploadData);
+    }
+  }
+
+  static uploadImage(File imageFile) async {
+    final storageRef = FirebaseStorage.instance.ref();
+    final String imageName = "image${DateTime.now().millisecondsSinceEpoch}.jpg";
+    final imageRef = storageRef.child("/UserImages/${userValues.uid}/$imageName");
+
+    await imageRef.putFile(imageFile);
+    await updateImageValuesinDatabase(imageName);
+  }
+
+  static Future<String> getCandidateImages(String uid, String imageName) async {
+    final storageRef = FirebaseStorage.instance.ref();
+    try {
+      final imageRef = storageRef.child("UserImages/$uid/$imageName");
+      final downloadUrl = await imageRef.getDownloadURL();
+      return downloadUrl;
+    } catch (e) {
+      print("UserImages/$uid/$imageName");
+      // Return a default URL or rethrow the error
+      return ''; // Return an empty string as a default value
+      // Alternatively, you can rethrow the error:
+      // throw e;
+    }
+  }
+
+
+  static fetchUserData() async{
+    User? user = FirebaseAuth.instance.currentUser;
+    final ref = FirebaseDatabase.instance.ref().child("/UsersMetaData/${user?.uid}/");
+    
+    ref.onValue.listen((event) {
+      userValues.userData = (event.snapshot.value as Map<dynamic, dynamic>)["UserDetails"];
+    },);
+  }
 }

@@ -36,8 +36,6 @@ class _createUserProfileState extends State<createUserProfile>{
       _isContainerEnabled = false;
       counter++;
     });
-    if (counter == 17)
-      _onCompletion();
   }
 
   void _textFieldListener() {
@@ -52,16 +50,23 @@ class _createUserProfileState extends State<createUserProfile>{
     });
   }
 
+  void valueReject(){
+    setState(() {
+      _isContainerEnabled = false;
+    });
+  }
+
   void _onCompletion() async{
     userDataTags["key"] = userValues.cookieValue;
     await ApiCalls.uploadUserData(userDataTags);
-    print("Pushed");
 
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => mainPage()),
-    );  
+    
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => mainPage()),
+      );  
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -73,7 +78,7 @@ class _createUserProfileState extends State<createUserProfile>{
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              if(counter != 17)
+              if(counter != 19)
                 Text("Create your profile", style: GoogleFonts.poppins(fontSize: 20, color: Colors.white)),
               const SizedBox(height: 50,),
               if (counter == 1)
@@ -82,7 +87,7 @@ class _createUserProfileState extends State<createUserProfile>{
                     children: [
                       Animate(
                         autoPlay: false,
-                        // child: PhotoContainer(),
+                        // child: PhotoContainer(moveAction: valueCheck, valueReject: valueReject),
                         child: NameContainer(_isContainerEnabled, _nameController),
                       ).slideX(end: -0.2,).fadeOut(duration: const Duration(milliseconds: 200)),
                       const Spacer(),
@@ -218,6 +223,28 @@ class _createUserProfileState extends State<createUserProfile>{
                   child: ReligionContainer(onOptionSelected: startAnimation),
                 ).fadeIn(duration: const Duration(milliseconds: 100)).slideX(begin: 0.2, end: 0.0, duration: const Duration(milliseconds: 100), curve: Curves.easeIn),
               if (counter == 17)
+                Animate(
+                  onComplete: (controller) {
+                    setState(() {
+                      counter = 18; 
+                    });
+                  },
+                  child: ReligionContainer(onOptionSelected: startAnimation),
+                ).slideX(end: -0.2).fadeOut(duration: const Duration(milliseconds: 100)),
+              if (counter == 18)
+                Animate(
+                child: Expanded(
+                  child: Column(
+                    children: [
+                      PhotoContainer(moveAction: valueCheck, valueReject: valueReject),
+                      const Spacer(),
+                      NextButton(_isContainerEnabled, _nameController, counter, startAnimation, uploadImageBool: true, onCompletion: _onCompletion),
+                    ],
+                  ),
+                ),
+              ).fadeIn(duration: const Duration(milliseconds: 100)).slideX(begin: 0.2, end: 0.0, duration: const Duration(milliseconds: 100), curve: Curves.easeIn),
+
+              if (counter == 19)
                 Expanded(
                   child: Center(
                     child: Column(
@@ -229,8 +256,7 @@ class _createUserProfileState extends State<createUserProfile>{
                       ],
                     ),
                   ),
-                ).animate().fadeIn()
-                
+                ).animate().fadeIn(),
             ],
           ),
         ),

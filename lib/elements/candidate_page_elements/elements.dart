@@ -1,87 +1,112 @@
+import 'package:demo/api/api_calls.dart';
 import 'package:demo/elements/candidate_details_elements/elements.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
-Widget buildProfileImage(BuildContext context) {
+Widget buildProfileImage(BuildContext context, Map candidateDetails, String imageUrl, double imageHeight) {
   return GestureDetector(
     onTap: () {
       Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) => const ProfileImageFullscreen(imagePath: 'lib/images/me3.jpg'),
+          builder: (context) => ProfileImageFullscreen(imagePath: imageUrl),
         ),
       );
     },
     child: Align(
       alignment: Alignment.topLeft,
-      child: ClipRRect(
-        borderRadius: const BorderRadius.only(
-          topLeft: Radius.circular(10),
-          topRight: Radius.circular(10),
-        ),
-        child: Stack(
-          children: [
-            Image.asset('lib/images/me3.jpg'),
-            Positioned(
-              bottom: 20,
-              left: 15,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Ebin, 18',
-                    style: GoogleFonts.poppins(
-                      color: Colors.white,
-                      fontSize: 26,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  Row(
-                    children: [
-                      const Icon(Icons.school_outlined, color: Colors.white),
-                      const SizedBox(width: 5),
-                      Text(
-                        'Doing B.Tech',
-                        style: GoogleFonts.poppins(
-                          color: Colors.white,
-                          fontSize: 16,
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-          
-          ],
-        ),
-      ),
-    ),
-  );
-}
-
-Widget nextImages(BuildContext context) {
-  return Align(
-    alignment: Alignment.topLeft,
-    child: ClipRRect(
       child: Stack(
         children: [
-          GestureDetector(
-            child: Image.asset('lib/images/me2.jpg'),
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const ProfileImageFullscreen(imagePath: 'lib/images/me2.jpg'),
+          SizedBox(
+            height: 665,
+            width: MediaQuery.of(context).size.width,
+            child: Column(
+              children: [
+                Expanded(
+                  child: CachedNetworkImage(
+                    imageUrl: imageUrl,
+                    placeholder: (context, url) => Center(child: CircularProgressIndicator()), // Placeholder widget while image is loading
+                    // errorWidget: (context, url, error) => Text((Key.currentContext?.size?.height).toString()), // Widget to display in case of error loading image
+                    fit: BoxFit.cover,
+                  ),
                 ),
-              );
-            },
+              ],
+            ),
+          ),
+          Positioned(
+            bottom: 20,
+            left: 15,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  '${candidateDetails["UserDetails"]["name"]}, ${candidateDetails["UserDetails"]["age"]}',
+                  style: GoogleFonts.poppins(
+                    color: Colors.white,
+                    fontSize: 26,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                Row(
+                  children: [
+                    const Icon(Icons.school_outlined, color: Colors.white),
+                    const SizedBox(width: 5),
+                    Text(
+                      'Doing ${candidateDetails["UserDetails"]["stream"]}',
+                      style: GoogleFonts.poppins(
+                        color: Colors.white,
+                        fontSize: 16,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
           ),
         ],
       ),
     ),
   );
 }
+
+Widget nextImages(BuildContext context, Map candidateDetails, double imageHeight, {String? secondImageURL, String? thirdImageURL}) {
+  String imageName = secondImageURL != null ? secondImageURL : thirdImageURL ?? ""; // Use filteredList if not null, otherwise use nextImageName
+  return Align(
+    alignment: Alignment.topLeft,
+    child: Stack(
+      children: [
+        GestureDetector(
+          child: SizedBox(
+            height: 665,
+            width: MediaQuery.of(context).size.width,
+            child: Column(
+              children: [
+                Expanded(
+                  child: CachedNetworkImage(
+                    imageUrl: imageName,
+                    placeholder: (context, url) => Center(child: CircularProgressIndicator()), // Placeholder widget while image is loading
+                    errorWidget: (context, url, error) => Icon(Icons.error),
+                    fit: BoxFit.cover, // Widget to display in case of error loading image
+                  ),
+                ),
+              ],
+            ),
+          ),
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => ProfileImageFullscreen(imagePath: imageName),
+              ),
+            );
+          },
+        ),
+      ],
+    ),
+  );
+}
+
 
 Widget buildTag(String text, IconData iconData) {
   return IntrinsicWidth(
@@ -102,13 +127,27 @@ Widget buildTag(String text, IconData iconData) {
   );
 }
 
-Widget candidateTags({Map? data}) {
+Widget candidateTags({Map? data, Map? candidateDetails}) {
+  String? drinkingStatus;
+  String? smokingStatus;
+  String? height;
+  String? religionStatus;
+  String? lookingFor;
+
   // Extract relevant data from the provided map
-  String? drinkingStatus = data?['drinkingStatus'];
-  String? smokingStatus = data?['smokingStatus'];
-  String? height = data?['height'];
-  String? religionStatus = data?['religionStatus'];
-  String? lookingFor = data?['lookingFor'];
+  if (data != null) {
+    drinkingStatus = data['drinkingStatus'];
+    smokingStatus = data['smokingStatus'];
+    height = data['height'];
+    religionStatus = data['religionStatus'];
+    lookingFor = data['lookingFor'];
+  } else if (candidateDetails != null) {
+    drinkingStatus = candidateDetails['drinkingStatus'];
+    smokingStatus = candidateDetails['smokingStatus'];
+    height = candidateDetails['height'];
+    religionStatus = candidateDetails['religionStatus'];
+    lookingFor = candidateDetails['lookingFor'];
+  }
 
   return Wrap(
     alignment: WrapAlignment.start,
@@ -123,14 +162,13 @@ Widget candidateTags({Map? data}) {
       if (religionStatus != null) IntrinsicWidth(child: buildTag(religionStatus, Icons.synagogue_rounded)),
       const SizedBox(width: 5),
       if (lookingFor != null) IntrinsicWidth(child: buildTag(lookingFor, Icons.search_rounded)),
-
     ],
   );
 }
 
 // Helper function to build a tag
 
-Widget aboutMeAndTags({Map? data}) {
+Widget aboutMeAndTags({Map? data, Map? candidateDetails}) {
   return Padding(
     padding: const EdgeInsets.all(10.0),
     child: Column(
@@ -161,7 +199,7 @@ Widget aboutMeAndTags({Map? data}) {
                   child: Transform.translate(
                     offset: const Offset(6, 0),
                     child: Text(
-                      data?["aboutMe"] ?? "Check",
+                      candidateDetails?["aboutMe"] ?? "Check",
                       textAlign: TextAlign.left,
                       style: GoogleFonts.poppins(
                         color: const Color.fromARGB(255, 255, 255, 255),
@@ -192,7 +230,7 @@ Widget aboutMeAndTags({Map? data}) {
                       const SizedBox(height: 10),
                       Align(
                         alignment: Alignment.topLeft,
-                        child: candidateTags(data: data),
+                        child: candidateTags(data: data, candidateDetails: candidateDetails),
                       ),
                     ],
                   ),
@@ -206,13 +244,13 @@ Widget aboutMeAndTags({Map? data}) {
   );
 }
 
-Widget fromOrStreamDetails({bool buttonsNeeded = true, Map? data}) {
+Widget fromOrStreamDetails({bool buttonsNeeded = true, Map? data, Map? candidateDetails}) {
   String fromOrStreamString;
-  if (data?["fromPlace"] == null){
-    fromOrStreamString = '${data?["stream"]}, ${addYearSuffix((data?["year"]).toString())} year';
+  if (candidateDetails?["fromPlace"] == null){
+    fromOrStreamString = '${candidateDetails?["stream"]}, ${addYearSuffix((candidateDetails?["year"]).toString())} year';
   }
   else{
-    fromOrStreamString = '${data?["fromPlace"]}';
+    fromOrStreamString = '${candidateDetails?["fromPlace"]}';
   }
   return Padding(
     padding: const EdgeInsets.all(20.0),
@@ -222,7 +260,7 @@ Widget fromOrStreamDetails({bool buttonsNeeded = true, Map? data}) {
         Align(
           alignment: Alignment.centerLeft,
           child: Text(
-            data?["fromPlace"] == null ? "${data?["name"]} is doing" : "📍 ${data?["name"]} is from",
+            candidateDetails?["fromPlace"] == null ? "${candidateDetails?["name"]} is doing" : "📍 ${candidateDetails?["name"]} is from ",
             style: GoogleFonts.poppins(
               color: Colors.white,
               fontSize: 20,

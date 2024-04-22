@@ -1,8 +1,9 @@
 
-// ignore_for_file: non_constant_identifier_names
+// ignore_for_file: non_constant_identifier_names, prefer_const_constructors
 
 import 'dart:io';
 
+import 'package:demo/api/api_calls.dart';
 import 'package:demo/elements/profile_elements/elements.dart';
 import 'package:dotted_border/dotted_border.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -10,6 +11,13 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
+
+Map<String, File?> images = {
+  "image0": null,
+  "image1": null,
+  "image2": null,
+  "image3": null,
+};
 
 class LookingForContainer extends StatelessWidget {
   final Function()? onOptionSelected;
@@ -696,15 +704,22 @@ Widget NameContainer(bool isContainerEnabled, TextEditingController nameControll
   );
 }
 
-Widget NextButton(bool isContainerEnabled, TextEditingController nameController, int counter, VoidCallback startAnimation){
+Widget NextButton(bool isContainerEnabled, TextEditingController nameController, int counter, VoidCallback startAnimation, {bool? uploadImageBool, VoidCallback? onCompletion}) {
   return Align(
     alignment: Alignment.bottomRight,
     child: FloatingActionButton(
       backgroundColor: isContainerEnabled ? const Color(0xFFFFC629) : Colors.grey,
       onPressed: isContainerEnabled
-          ? () {
+          ? () async {
               userDataTags["name"] = nameController.text.trim();
               startAnimation();
+              if (uploadImageBool != null && uploadImageBool) {
+                await Future.wait(images.values.whereType<File>().map((value) async {
+                  await firebaseCalls.uploadImage(value as File);
+                }));
+                onCompletion!();
+                print("Done Uploading Images");
+              }
             }
           : null,
       shape: const CircleBorder(),
@@ -712,6 +727,7 @@ Widget NextButton(bool isContainerEnabled, TextEditingController nameController,
     ),
   );
 }
+
 
 Map userDataTags = {
   "uid": FirebaseAuth.instance.currentUser?.uid,
@@ -760,7 +776,10 @@ Widget OptionChildrenBuilder(String optionText, String Type, [Function()? onOpti
 }
 
 class PhotoContainer extends StatefulWidget {
-  const PhotoContainer({super.key});
+  final VoidCallback moveAction;
+  final VoidCallback valueReject;
+
+  const PhotoContainer({super.key, required this.moveAction, required this.valueReject});
 
   @override
   State<PhotoContainer> createState() => _PhotoContainerState();
@@ -783,7 +802,7 @@ class _PhotoContainerState extends State<PhotoContainer> {
 
                     SizedBox(height: 50,),
 
-                    PhotosWidget()
+                    PhotosWidget(moveAction: widget.moveAction, valueReject: widget.valueReject)
 
                   ],
                 ),
@@ -795,19 +814,16 @@ class _PhotoContainerState extends State<PhotoContainer> {
 }
 
 class PhotosWidget extends StatefulWidget {
-  const PhotosWidget({super.key});
+  final VoidCallback moveAction;
+  final VoidCallback valueReject;
 
+  const PhotosWidget({super.key, required this.moveAction, required this.valueReject});
   @override
   _PhotosWidgetState createState() => _PhotosWidgetState();
 }
 
 class _PhotosWidgetState extends State<PhotosWidget> {
-  Map<String, File?> images = {
-    "image0": null,
-    "image1": null,
-    "image2": null,
-    "image3": null,
-  };
+  late int counter = 0;
 
   Future confirmationPopup(BuildContext context, int index){
     return showCupertinoModalPopup(
@@ -826,40 +842,39 @@ class _PhotosWidgetState extends State<PhotosWidget> {
                 children: [
                   CupertinoButton(child: Text("Delete Photo", style: GoogleFonts.poppins(color: Color.fromARGB(255, 218, 37, 24), fontSize: 20),), onPressed: (){
                     setState(() {
+                      counter--;
+                      if (counter > 0){
+                        widget.moveAction();
+                      }
+                      if (counter == 0){
+                        widget.valueReject();
+                      }
                       switch (index) {
                         case 0:
-                          for (int x = 0; x < 4; x++){
-                            images["image$x"] = images["image${x+1}"];
+                          for (int x = 0; x < 3; x++) {
+                            images["image$x"] = images["image${x + 1}"];
                           }
                           images["image3"] = null;
-                          Navigator.of(context).pop();
                           break;
                         case 1:
-                          for (int x = 1; x < 3; x++){
-                            images["image$x"] = images["image${x+1}"];
+                          for (int x = 1; x < 3; x++) {
+                            images["image$x"] = images["image${x + 1}"];
                           }
                           images["image3"] = null;
-                          Navigator.of(context).pop();
                           break;
                         case 2:
-                          for (int x = 2; x < 3; x++){
-                            print("$x" + " ${x+1}");
-                            images["image$x"] = images["image${x+1}"];
-                          }
+                          images["image2"] = images["image3"];
                           images["image3"] = null;
-                          Navigator.of(context).pop();
                           break;
                         case 3:
-                          for (int x = 3; x < 1; x++){
-                            images["image$x"] = images["image${x+1}"];
-                          }
                           images["image3"] = null;
-                          Navigator.of(context).pop();
                           break;
                         default:
                           break;
                       }
-                      print(images);
+                      Navigator.of(context).pop();
+
+                      print(counter);
                     });
                   }),
                   CupertinoButton(child: Text("Dismiss", style: GoogleFonts.poppins(color: Colors.black, fontSize: 20),), onPressed: (){
@@ -879,52 +894,48 @@ class _PhotosWidgetState extends State<PhotosWidget> {
     final pickedImage = await picker.pickImage(source: source);
     if (pickedImage != null) {
       setState(() {
+        if (counter > 0){
+          widget.moveAction();
+        }
+        if (counter == 0){
+          widget.valueReject();
+        }
         switch (imageIndex) {
           case 0:
             images["image0"] = File(pickedImage.path);
             break;
           case 1:
-            if (images["image0"] == null){
+            if (images["image0"] == null) {
               images["image0"] = File(pickedImage.path);
-            }
-            else{
+            } else {
               images["image1"] = File(pickedImage.path);
             }
             break;
           case 2:
-            if (images["image0"] == null){
+            if (images["image0"] == null) {
               images["image0"] = File(pickedImage.path);
-              break;
-            }
-            if (images["image1"] == null){
+            } else if (images["image1"] == null) {
               images["image1"] = File(pickedImage.path);
-              break;
-            }
-            else{
+            } else {
               images["image2"] = File(pickedImage.path);
-              break;
             }
+            break;
           case 3:
-            if (images["image0"] == null){
+            if (images["image0"] == null) {
               images["image0"] = File(pickedImage.path);
-              break;
-            }
-            if (images["image1"] == null){
+            } else if (images["image1"] == null) {
               images["image1"] = File(pickedImage.path);
-              break;
-            }
-            if (images["image2"] == null){
+            } else if (images["image2"] == null) {
               images["image2"] = File(pickedImage.path);
-              break;
-            }
-            else{
+            } else {
               images["image3"] = File(pickedImage.path);
-              break;
             }
+            break;
           default:
             break;
         }
-        print(images);
+
+        print(counter);
       });
     }
   }
@@ -948,6 +959,7 @@ class _PhotosWidgetState extends State<PhotosWidget> {
                           confirmationPopup(context, 0);
                         }
                         else{
+                          counter++;
                           await _pickImage(ImageSource.gallery, 0);
                         }
                       },
@@ -985,6 +997,7 @@ class _PhotosWidgetState extends State<PhotosWidget> {
                           confirmationPopup(context, 1);
                         }
                         else{
+                          counter++;
                           await _pickImage(ImageSource.gallery, 1);
                         }
                       },
@@ -1028,6 +1041,7 @@ class _PhotosWidgetState extends State<PhotosWidget> {
                           confirmationPopup(context, 2);
                         }
                         else{
+                          counter++;
                           await _pickImage(ImageSource.gallery, 2);
                         }
                       },
@@ -1065,6 +1079,7 @@ class _PhotosWidgetState extends State<PhotosWidget> {
                           confirmationPopup(context, 3);
                         }
                         else{
+                          counter++;
                           await _pickImage(ImageSource.gallery, 3);
                         }
                       },

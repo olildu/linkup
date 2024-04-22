@@ -10,6 +10,7 @@ import 'package:demo/pages/chat_sub_pages/chat_details.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 Map chatUserDetails = {
@@ -220,7 +221,7 @@ Widget matchedUser(BuildContext context) {
       future: _buildMatchedUserWidget(context),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return Center(child: CircularProgressIndicator()); // Display a loading indicator while data is being fetched
+          return Center(child: FlutterLogo()); // Display a loading indicator while data is being fetched
         } else if (snapshot.hasError) {
           return Text('Error: ${snapshot.error}'); // Display an error message if fetching data fails
         } else {
@@ -399,15 +400,13 @@ Future<Map> fetchData(Map value, String key) async {
 Map<String, dynamic>? matchedUsers;
 
 Future<Widget> _buildMatchedUserWidget(BuildContext context) async {
-  // Check if matchedUsers has already been fetched
-  if (!flagChecker.matchQueFetched) {
-    matchedUsers = await firebaseCalls.GetMatchedUsers();
-    flagChecker.matchQueFetched = true;
-  }
+  print("Hello");
+  matchedUsers = await firebaseCalls.GetMatchedUsers();
 
   // Widgets built will be stored here
   List<Widget> userImages = [];
   // Check if matchedUsers is not null
+  
   if (matchedUsers != null) {
     matchedUsers!.forEach((key, value) {
       String userImage = value["userImage1"];
@@ -467,25 +466,55 @@ class chatDetailsStructure extends StatelessWidget {
           return Text('Error: ${snapshot.error}');
         } else {
           Map<dynamic, dynamic> chatList = snapshot.data!;
-          return Expanded(
-            child: ListView.builder(
-              itemCount: chatList.length,
-              itemBuilder: (_, index) {
-                // Access key and value within the loop
-                String key = chatList.keys.elementAt(index);
-                String value = chatList.values.elementAt(index)["uniqueIDandName"].split(",")[0];
-                String name = chatList.values.elementAt(index)["uniqueIDandName"].split(",")[1];
-                // Use key and value to build ChatDetails widget
-
-                return Column(
+          if (chatList.isEmpty){
+            return Expanded(
+              child: Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
                   children: [
-                    ChatDetails(index: index, matchUID: key, path: value, name: name,),
-                    SizedBox(height: 10),
+                    SizedBox(height: 80,),
+                    Opacity(
+                      opacity: 0.3,
+                      child: Image.asset(
+                        "lib/images/empty_chat.png",
+                        height: 100,
+                        width: 100,
+                      ),
+                    ),
+                    SizedBox(height: 30,),
+                    Text("Find your conversations here", textAlign: TextAlign.center, style: GoogleFonts.poppins(fontSize: 20, fontWeight: FontWeight.w600),),
+                    SizedBox(height: 5,),
+                    Text("Step 1: You swipe right", textAlign: TextAlign.center, style: GoogleFonts.poppins(fontSize: 16, color: Colors.grey ),),
+                    Text("Step 2: They swipe right, too", textAlign: TextAlign.center, style: GoogleFonts.poppins(fontSize: 16, color: Colors.grey),),
+                    Text("Step 3: It's a match", textAlign: TextAlign.center, style: GoogleFonts.poppins(fontSize: 16, color: Colors.grey),),
+
                   ],
-                );
-              },
-            ),
-          );
+                )
+              )
+            );
+          }
+          else{
+            return Expanded(
+              child: ListView.builder(
+                itemCount: chatList.length,
+                itemBuilder: (_, index) {
+                  // Access key and value within the loop
+                  String key = chatList.keys.elementAt(index);
+                  String value = chatList.values.elementAt(index)["uniqueIDandName"].split(",")[0];
+                  String name = chatList.values.elementAt(index)["uniqueIDandName"].split(",")[1];
+                  // Use key and value to build ChatDetails widget
+
+                  return Column(
+                    children: [
+                      ChatDetails(index: index, matchUID: key, path: value, name: name,),
+                      SizedBox(height: 10),
+                    ],
+                  );
+                },
+              ),
+            );
+          }
+
         }
       },
     );

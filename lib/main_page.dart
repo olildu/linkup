@@ -9,6 +9,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_nav_bar/google_nav_bar.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:demo/api/api_calls.dart';
 
 class mainPage extends StatefulWidget {
   const mainPage({Key? key}) : super(key: key);
@@ -18,9 +19,14 @@ class mainPage extends StatefulWidget {
 }
 
 class mainPageState extends State<mainPage> {
-  late int bottomBarIndex = 0;
+  late int bottomBarIndex = 1;
   String appBarTitle = "MUJDating";
   IconData? type = Icons.tune_rounded;
+
+  IconData profileIcon = Icons.person_outline_outlined;
+  IconData candidateIcon = Icons.favorite_rounded;
+  IconData chatIcon = Icons.chat_bubble_outline_rounded;
+
 
   final List<Widget> _pages = [
     ProfilePage(),
@@ -48,18 +54,39 @@ class mainPageState extends State<mainPage> {
   void navigateBottomBar(int index) {
     setState(() {
       bottomBarIndex = index;
+
+      /* This function will track the user when he changes the page, when changed from match page gets the 
+        userValues.userVisited and loops and removes n number of 0th elements from the list */
+
+      if (bottomBarIndex != 1){
+        for (int x = 0; x < userValues.userVisited; x++){
+          userValues.matchUserDetails.removeAt(0);
+          userValues.userImageURLs.removeAt(0);
+        }
+        userValues.userVisited = 0;
+      }
+
       switch (bottomBarIndex) {
         case 0:
           appBarTitle = "Profile";
           type = Icons.settings_rounded;
+          profileIcon = Icons.person_rounded;
+          candidateIcon = Icons.favorite_outline_rounded;
+          chatIcon = Icons.chat_bubble_outline_rounded;
           break;
         case 1:
           appBarTitle = "MUJDating";
           type = Icons.tune_rounded;
+          candidateIcon = Icons.favorite_rounded;
+          profileIcon = Icons.person_outline_outlined;
+          chatIcon = Icons.chat_bubble_outline_rounded;
           break;
         case 2:
           appBarTitle = "";
           type = null;
+          chatIcon = Icons.chat_bubble_rounded;
+          profileIcon = Icons.person_outline_outlined;
+          candidateIcon = Icons.favorite_outline_rounded;
           break;
       }
     });
@@ -142,17 +169,26 @@ class mainPageState extends State<mainPage> {
           ),
         ),
       ),
-      bottomNavigationBar: Container(
-        color: Colors.white,
-        child: GNav(
-          onTabChange: (value) => {navigateBottomBar(value)},
-          gap: 8,
-          selectedIndex: 1,
-          tabs: [
-            GButton(icon: Icons.person_rounded, text: "Profile"),
-            GButton(icon: Icons.favorite_border, text: "Favourite"),
-            GButton(icon: Icons.chat_bubble_outline_rounded, text: "Chat"),
-          ],
+      bottomNavigationBar: SizedBox(
+        child: Container(
+          decoration: BoxDecoration(
+            color: Colors.white,
+            border: Border(
+              top: BorderSide(
+                color: const Color.fromARGB(255, 215, 215, 215),
+                width: 1.0,
+              )
+            )
+          ),
+          child: GNav(
+            onTabChange: (value) => {navigateBottomBar(value)},
+            selectedIndex: 1,
+            tabs: [
+              GButton(icon: profileIcon, ),
+              GButton(icon: candidateIcon, ),
+              GButton(icon: chatIcon,),
+            ],
+          ),
         ),
       ),
     );

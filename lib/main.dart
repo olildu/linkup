@@ -5,7 +5,7 @@ import "package:demo/elements/profile_elements/elements.dart";
 import "package:demo/main_page.dart";
 import "package:demo/pages/create_profile_page/create_profile_page.dart";
 import "package:demo/pages/login_page/login_page.dart";
-import "package:demo/test.dart";
+import "package:demo/pages/match_banner_page/matchedBanner.dart";
 import "package:firebase_auth/firebase_auth.dart";
 import 'package:flutter/material.dart';
 import "package:firebase_core/firebase_core.dart";
@@ -49,7 +49,7 @@ class MyApp extends StatelessWidget {
               if (user != null) {
                 if (user.emailVerified) {
                   if (userValues.cookieValue != null){
-                    return MyHomePage();
+                    return matchedBannerPage();
                   }
                   return FutureBuilder<String>(
                     future: ApiCalls.fetchCookieDoggie(),
@@ -60,7 +60,7 @@ class MyApp extends StatelessWidget {
                           body: Center(child: CircularProgressIndicator(),),
                         );
                       } else {
-                        return MyHomePage();
+                        return matchedBannerPage();
                       }
                     },
                   );

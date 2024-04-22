@@ -35,6 +35,7 @@ class _ProfilePageState extends State<ProfilePage> {
     
     ref.onValue.listen((event) {
       Userdata = event.snapshot.value;
+      userValues.userData = Userdata["UserDetails"];
       setState(() {
         isDataLoaded = true;
       });

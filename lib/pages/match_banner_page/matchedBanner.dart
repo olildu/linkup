@@ -31,10 +31,7 @@ class _matchedBannerPageState extends State<matchedBannerPage> {
   }
 
   void playSound() async{
-    final player = AudioCache(prefix: 'lib/images');
-    final url = await player.load('match_sound_effect.mp3');
-    audioController.setSourceUrl(url.path);
-    return await audioController.resume();
+    await audioController.play(UrlSource('https://example.com/my-audio.wav'));
   }
 
   @override

@@ -1,5 +1,6 @@
 // ignore_for_file: camel_case_types, prefer_const_constructors, prefer_const_literals_to_create_immutables
 
+import 'package:demo/Colors.dart';
 import 'package:demo/pages/appbar_pages/filters_page.dart';
 import 'package:demo/pages/main_pages/candidate_page.dart';
 import 'package:demo/pages/main_pages/chat_page.dart';
@@ -7,19 +8,23 @@ import 'package:demo/pages/main_pages/profile_page.dart';
 import 'package:demo/pages/appbar_pages/settings_page.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:google_nav_bar/google_nav_bar.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:demo/api/api_calls.dart';
+import 'package:flutter/services.dart';
+import 'package:internet_connection_checker/internet_connection_checker.dart';
+import "dart:async";
 
 class mainPage extends StatefulWidget {
-  const mainPage({Key? key}) : super(key: key);
+  const mainPage({super.key});
 
   @override
   State<mainPage> createState() => mainPageState();
 }
 
 class mainPageState extends State<mainPage> {
-  late int bottomBarIndex = 1;
+  late int bottomBarIndex = 2;
   String appBarTitle = "MUJDating";
   IconData? type = Icons.tune_rounded;
 
@@ -27,6 +32,8 @@ class mainPageState extends State<mainPage> {
   IconData candidateIcon = Icons.favorite_rounded;
   IconData chatIcon = Icons.chat_bubble_outline_rounded;
 
+  late StreamSubscription networkChecker;
+  late bool internetStatus = true;
 
   final List<Widget> _pages = [
     ProfilePage(),
@@ -52,6 +59,7 @@ class mainPageState extends State<mainPage> {
   }
 
   void navigateBottomBar(int index) {
+    HapticFeedback.vibrate(); 
     setState(() {
       bottomBarIndex = index;
 
@@ -92,6 +100,61 @@ class mainPageState extends State<mainPage> {
     });
   }
 
+  void internetChecker(event){
+    if(event == InternetConnectionStatus.connected){
+      setState(() {
+        internetStatus = true;
+      });
+    }
+    if(event == InternetConnectionStatus.disconnected ){
+      setState(() {
+        internetStatus = false;
+      });
+    }
+  }
+
+  @override
+  void initState(){
+    super.initState();
+    /* This is to make sure there is proper internet connection and this will get triggered on every page change */
+    networkChecker = InternetConnectionChecker().onStatusChange.listen((event) {
+      internetChecker(event);
+    });
+  }
+  
+  Widget buildNoInternetWidget() {
+    return Container(
+      padding: EdgeInsets.all(0),
+      width: MediaQuery.of(context).size.width,
+      decoration: BoxDecoration(
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Container(
+            padding: EdgeInsets.symmetric(vertical: 5, horizontal: 10),
+            decoration: BoxDecoration(
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.3),
+                  spreadRadius: 1,
+                  blurRadius: 5,
+                  offset: Offset(0, 3), 
+                ),
+              ],
+              color: reuseableColors.primaryColor, 
+              borderRadius: BorderRadius.circular(5),
+            ),
+            child: Text(
+              'You are offline',
+              style: GoogleFonts.poppins(fontSize: 16, color: Colors.white),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -102,11 +165,18 @@ class mainPageState extends State<mainPage> {
         scrolledUnderElevation: 0,
         elevation: 0,
         backgroundColor: Colors.white,
-        title: Center(
-          child: Text(
-            appBarTitle,
-            style: GoogleFonts.poppins(),
-          ),
+        title: Stack(
+          children: [
+            Center(
+              child: Text(
+                appBarTitle,
+                style: GoogleFonts.poppins(),
+              ),
+            ),
+            if (!internetStatus) buildNoInternetWidget().animate(delay: Duration(milliseconds: 500)).slideY(begin: -1.8),
+
+            if (internetStatus)  buildNoInternetWidget().animate().slideY(end: -1.8).fadeOut(),
+          ],
         ),
         actions: [
           GestureDetector(

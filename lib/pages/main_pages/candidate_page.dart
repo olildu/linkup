@@ -71,8 +71,19 @@ class _CandidatePageState extends State<CandidatePage> {
     return Scaffold(
       backgroundColor: Colors.white,
       body: isLoading
-          ? const Center(
-              child: CircularProgressIndicator(), // Have to implement better loading UI
+          ? Center(
+              child: Padding(
+                padding: const EdgeInsets.all(10),
+                child: Container(
+                  width: MediaQuery.of(context).size.width,
+                  height: MediaQuery.of(context).size.height,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(color: const Color.fromARGB(255, 213, 213, 213))
+                  ),
+                  child: Center(child: CircularProgressIndicator()),
+                ),
+              ), 
             )
           : Padding(
               padding: const EdgeInsets.all(10),
@@ -112,7 +123,7 @@ class _CandidatePageState extends State<CandidatePage> {
                         "matchName": userValues.matchUserDetails[previousIndex]["UserDetails"]["name"],
                         "userName": userValues.userData["name"]
                       };
-                      // ApiCalls.LikeMatch(data);
+                      ApiCalls.LikeMatch(data);
                     }
                     else{
                       // Pass the data to call the api (Disliked User) 
@@ -122,7 +133,7 @@ class _CandidatePageState extends State<CandidatePage> {
                         "key": userValues.cookieValue,
                         "matchUID": userValues.matchUserDetails[previousIndex]["UserDetails"]["uid"]
                       };
-                      // ApiCalls.dislikeMatch(data);
+                      ApiCalls.dislikeMatch(data);
                     }
                     return true;
                   },

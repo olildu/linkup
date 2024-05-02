@@ -10,7 +10,6 @@ import 'package:demo/pages/chat_sub_pages/chat_details.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 Map chatUserDetails = {
@@ -105,7 +104,6 @@ class _ChatDetailsState extends State<ChatDetails> {
   void _fetchChatUserImage() async {
     if (!isImageLoaded) {
       String? imageUrl = await firebaseCalls.getImagesFromStorageForChats(widget.matchUID);
-      print("etset");
       setState(() {
         chatUserImage = imageUrl;
         isImageLoaded = true; // Mark image as loaded
@@ -136,7 +134,7 @@ class _ChatDetailsState extends State<ChatDetails> {
               MaterialPageRoute(
                 builder: (context) => ChatDetailsPage(
                   appBarTitle: widget.name,
-                  imageUrl: "lib/images/user.png",
+                  imageUrl: chatUserImage!,
                   path: widget.path,
                   matchUID: widget.matchUID,
                 ),
@@ -221,7 +219,18 @@ Widget matchedUser(BuildContext context) {
       future: _buildMatchedUserWidget(context),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return Center(child: FlutterLogo()); // Display a loading indicator while data is being fetched
+          return Row(
+            children: [
+              SizedBox(width: 10,),
+              Image.asset(
+                "lib/images/cards_stack.png",
+                height: 70,
+                width: 70,
+              ),
+              SizedBox(width: 10,),
+              Text("Your matches will appear here", style: GoogleFonts.poppins(),)
+            ],
+          ); // Display a loading indicator while data is being fetched
         } else if (snapshot.hasError) {
           return Text('Error: ${snapshot.error}'); // Display an error message if fetching data fails
         } else {
@@ -234,10 +243,9 @@ Widget matchedUser(BuildContext context) {
 
 Future popupMatchDetails(BuildContext context, Map value, String key, Map<String, dynamic>? matchedUsersNew) {
   chatUserDetails["chatUID"] = key;
-
   return showCupertinoModalPopup(
     context: context,
-    builder: (BuildContext context) {
+    builder: (BuildContext context, ) {
       // Calculate the height of the popup surface
       double popupHeight = MediaQuery.of(context).size.height * 0.8;
 
@@ -264,7 +272,7 @@ Future popupMatchDetails(BuildContext context, Map value, String key, Map<String
                     CupertinoPopupSurface(
                       child: IntrinsicHeight(
                         child: SizedBox(
-                          height: popupHeight,
+                          height: popupHeight, 
                           child: SingleChildScrollView(
                             // Wrap the content in a SingleChildScrollView
                             child: Column(
@@ -280,6 +288,7 @@ Future popupMatchDetails(BuildContext context, Map value, String key, Map<String
                                       CachedNetworkImage(
                                         imageUrl: value["userImage1"],
                                         fit: BoxFit.cover,
+                                        height: popupHeight,
                                         placeholder: (context, url) =>
                                             Center(child: CircularProgressIndicator()),
                                         errorWidget: (context, url, error) => Icon(Icons.error),
@@ -332,6 +341,7 @@ Future popupMatchDetails(BuildContext context, Map value, String key, Map<String
                                   color: Color(0xFFD9D9D9),
                                   child: CachedNetworkImage(
                                     imageUrl: value["userImage2"],
+                                    height: popupHeight,
                                     fit: BoxFit.cover,
                                     placeholder: (context, url) =>
                                         Center(child: CircularProgressIndicator()),
@@ -400,7 +410,6 @@ Future<Map> fetchData(Map value, String key) async {
 Map<String, dynamic>? matchedUsers;
 
 Future<Widget> _buildMatchedUserWidget(BuildContext context) async {
-  print("Hello");
   matchedUsers = await firebaseCalls.GetMatchedUsers();
 
   // Widgets built will be stored here
@@ -594,7 +603,7 @@ Widget MessageContent(messages){
     );
 }
 
-Widget ActionWidget(){
+Widget ActionWidget(String matchUID){
   return ClipRRect(
     borderRadius: BorderRadius.circular(20), // Adjust the border radius as needed
     child: PopupMenuButton(
@@ -611,6 +620,12 @@ Widget ActionWidget(){
       onSelected: (value) {
         switch (value) {
           case 'option1':
+            Map unMatchUser = {
+              "type": "UnmatchUser",
+              "key" : userValues.cookieValue,
+              "matchUserID": matchUID
+            };
+            print(unMatchUser);
             break;
           case 'option2':
             break;

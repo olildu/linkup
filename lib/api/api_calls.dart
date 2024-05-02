@@ -20,7 +20,6 @@ class userValues{
   static List<Map<String, dynamic>> matchUserDetails = [];
   static List userImageURLs = [];
   static int userVisited = 0;
-
 }
 
 class pathAndName {

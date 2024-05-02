@@ -4,11 +4,14 @@ import 'dart:async';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:demo/api/api_calls.dart';
-import 'package:demo/api/firebase_calls.dart';
 import 'package:demo/elements/chat_elements/elements.dart';
 import 'package:demo/Colors.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
+import 'package:demo/elements/candidate_page_elements/elements.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/widgets.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class ChatDetailsPage extends StatefulWidget {
   final String appBarTitle;
@@ -42,47 +45,44 @@ class _ChatDetailsPageState extends State<ChatDetailsPage> {
     _fetchChatMessages();
   }
 
-void _fetchChatMessages() async {
-  DatabaseReference userMatchRef = FirebaseDatabase.instance.ref('/UserChats/${widget.path}/');
-  int x = 1;
-  // Listen for data changes
-  userMatchRef.onValue.listen((DatabaseEvent event) {
-    Map<dynamic, dynamic>? chatList = event.snapshot.value as Map<dynamic, dynamic>?;
-    print(event.snapshot.value);
-    
-  if (chatList != null && chatList["Messages"] != null) {
-    List<dynamic> messages = chatList["Messages"];
+  void _fetchChatMessages() async {
+    DatabaseReference userMatchRef = FirebaseDatabase.instance.ref('/UserChats/${widget.path}/');
+    int x = 1;
+    // Listen for data changes
+    userMatchRef.onValue.listen((DatabaseEvent event) {
+      Map<dynamic, dynamic>? chatList = event.snapshot.value as Map<dynamic, dynamic>?;
+      print(event.snapshot.value);
+      
+    if (chatList != null && chatList["Messages"] != null) {
+      List<dynamic> messages = chatList["Messages"];
 
-    for (x; x < messages.length; x++) {
-      Map message = messages[x];
-      String sender = message["uid"];
+      for (x; x < messages.length; x++) {
+        Map message = messages[x];
+        String sender = message["uid"];
 
-      if (sender == userValues.uid) {
-        sender = "user1";
-      } else {
-        sender = "user2";
+        if (sender == userValues.uid) {
+          sender = "user1";
+        } else {
+          sender = "user2";
+        }
+
+        String content = message["content"];
+        // Assuming timeStamp is stored as an int in Firebase, you might need to convert it accordingly
+        double timeStamp = message["timeStamp"];
+
+        _addMessage({
+          "text": content,
+          "sender": sender
+        });
       }
-
-      String content = message["content"];
-      // Assuming timeStamp is stored as an int in Firebase, you might need to convert it accordingly
-      double timeStamp = message["timeStamp"];
-
-      _addMessage({
-        "text": content,
-        "sender": sender
-      });
     }
+
+    });
+
+    // Wait for the Completer to complete and ge
+    // Process the chat messages
+
   }
-
-  });
-
-  // Wait for the Completer to complete and ge
-  // Process the chat messages
-
-}
-
-
-
 
   @override
   Widget build(BuildContext context) {
@@ -103,6 +103,12 @@ void _fetchChatMessages() async {
         ),
       ),
       title: GestureDetector(
+        onTap: () {
+          matchedUsers!.forEach((key, value) {
+            popupMatchDetails(context, value, key, matchedUsers);
+            }
+          );
+        },
         child: Transform.translate(
           offset: Offset(-22, 0),
           child: Row(
@@ -124,7 +130,7 @@ void _fetchChatMessages() async {
         ),
       ),
       actions: [
-        ActionWidget()
+        ActionWidget(widget.matchUID)
       ],
     
     ),
@@ -251,4 +257,137 @@ Widget NewTextField({required SendMessageCallback sendMessage, required TextEdit
       ),
     ),
   );
+}
+
+Future popupMatchDetails(BuildContext context, Map value, String key, Map<String, dynamic>? matchedUsersNew) {
+  chatUserDetails["chatUID"] = key;
+  return showCupertinoModalPopup(
+    context: context,
+    builder: (BuildContext context, ) {
+      // Calculate the height of the popup surface
+      double popupHeight = MediaQuery.of(context).size.height * 0.8;
+
+      return FutureBuilder(
+        future: fetchData(value, key),
+        builder: (BuildContext context, AsyncSnapshot snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Center(
+              child: CircularProgressIndicator(),
+            );
+          } else {
+            if (snapshot.hasError) {
+              // Handle error case
+              return Center(
+                child: Text('Error: ${snapshot.error}'),
+              );
+            } else {
+              Map matchUserData = snapshot.data["UserDetails"];
+              return Padding(
+                padding: EdgeInsets.all(8.0),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    CupertinoPopupSurface(
+                      child: IntrinsicHeight(
+                        child: SizedBox(
+                          height: popupHeight, 
+                          child: SingleChildScrollView(
+                            // Wrap the content in a SingleChildScrollView
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.stretch,
+                              children: [
+                                // Match user userImage1
+                                Container(
+                                  decoration: BoxDecoration(
+                                    color: Color(0xFFD9D9D9),
+                                  ),
+                                  child: Stack(
+                                    children: [
+                                      CachedNetworkImage(
+                                        imageUrl: value["userImage1"],
+                                        fit: BoxFit.cover,
+                                        height: popupHeight,
+                                        placeholder: (context, url) =>
+                                            Center(child: CircularProgressIndicator()),
+                                        errorWidget: (context, url, error) => Icon(Icons.error),
+                                      ),
+                                      Positioned(
+                                        bottom: 10,
+                                        left: 15,
+                                        child: Column(
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              '${matchUserData["name"]}, ${matchUserData["age"]}',
+                                              style: GoogleFonts.poppins(
+                                                color: Colors.white,
+                                                fontSize: 26,
+                                                decoration: TextDecoration.none,
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                            ),
+                                            Row(
+                                              children: [
+                                                Icon(Icons.school_outlined, color: Colors.white),
+                                                SizedBox(width: 5),
+                                                Text(
+                                                  'Doing ${matchUserData["stream"]}',
+                                                  style: GoogleFonts.poppins(
+                                                    color: Colors.white,
+                                                    fontSize: 16,
+                                                    decoration: TextDecoration.none,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                // Match user tags
+                                IntrinsicHeight(
+                                  child: Material(
+                                    child: aboutMeAndTags(data: matchUserData),
+                                    color: reuseableColors.primaryColor,
+                                  ),
+                                ),
+                                //Match user userImage1
+                                Container(
+                                  height: 700,
+                                  color: Color(0xFFD9D9D9),
+                                  child: CachedNetworkImage(
+                                    imageUrl: value["userImage2"],
+                                    height: popupHeight,
+                                    fit: BoxFit.cover,
+                                    placeholder: (context, url) =>
+                                        Center(child: CircularProgressIndicator()),
+                                    errorWidget: (context, url, error) => Icon(Icons.error),
+                                  ),
+                                ),
+                                //Match user location or stream details
+                                IntrinsicHeight(
+                                  child: Material(
+                                    child: fromOrStreamDetails(buttonsNeeded: false, data: matchUserData),
+                                    color: reuseableColors.primaryColor,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    SizedBox(height: 10,),
+                  ],
+                ),
+              );
+            }
+          }
+        },
+      );
+    },
+  );
+
 }

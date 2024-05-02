@@ -63,7 +63,6 @@ class _CandidateDetailsContainerState extends State<CandidateDetailsContainer> {
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (context, constraints) {
-        print('Container height: ${constraints.maxHeight}');
         return SingleChildScrollView(
           controller: widget.scrollController,
           child: Container(

@@ -17,7 +17,6 @@ class matchedBannerPage extends StatefulWidget {
 class _matchedBannerPageState extends State<matchedBannerPage> {
   final conffettiController = ConfettiController();
   final audioController = AudioPlayer();
-  final audioPlayer = AudioCache(prefix: 'lib/images');
 
   @override
   void initState(){
@@ -26,12 +25,13 @@ class _matchedBannerPageState extends State<matchedBannerPage> {
     Future.delayed(Duration(seconds: 2)).then((value) {
       conffettiController.stop();
     });
-
+    playSound();
 
   }
 
   void playSound() async{
-    await audioController.play(UrlSource('https://example.com/my-audio.wav'));
+    final audioSource = AssetSource('audio/match_sound_effect.mp3');
+    await audioController.play(audioSource);
   }
 
   @override
@@ -73,11 +73,9 @@ class _matchedBannerPageState extends State<matchedBannerPage> {
               ),
             )
           ),
-
-
           Center(
             child: Column(
-              mainAxisAlignment: MainAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Text(
                   "IT'S A MATCH!!", 

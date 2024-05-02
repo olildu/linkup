@@ -31,7 +31,7 @@ class _ChatPageState extends State<ChatPage> {
             // Matches Que
             matchedUser(context),
     
-            SizedBox(height: 20),
+            SizedBox(height: 10),
             // Chats Title
     
             chatTitle(),

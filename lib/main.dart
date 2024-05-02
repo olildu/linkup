@@ -1,16 +1,16 @@
 // ignore_for_file: prefer_const_constructors
 
+import "dart:async";
+
 import "package:demo/api/api_calls.dart";
-import "package:demo/elements/profile_elements/elements.dart";
 import "package:demo/main_page.dart";
-import "package:demo/pages/create_profile_page/create_profile_page.dart";
 import "package:demo/pages/login_page/login_page.dart";
-import "package:demo/pages/match_banner_page/matchedBanner.dart";
 import "package:firebase_auth/firebase_auth.dart";
 import 'package:flutter/material.dart';
 import "package:firebase_core/firebase_core.dart";
 import "package:flutter/services.dart";
 import "assets/firebase_options.dart";
+import 'package:internet_connection_checker/internet_connection_checker.dart';
 
 void main() async{
   SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
@@ -22,13 +22,18 @@ void main() async{
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
-
   runApp(const MyApp());
 }
 
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
   const MyApp({super.key});
+
+  @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
 
   @override
   Widget build(BuildContext context) {
@@ -49,7 +54,7 @@ class MyApp extends StatelessWidget {
               if (user != null) {
                 if (user.emailVerified) {
                   if (userValues.cookieValue != null){
-                    return matchedBannerPage();
+                    return mainPage();
                   }
                   return FutureBuilder<String>(
                     future: ApiCalls.fetchCookieDoggie(),
@@ -60,7 +65,7 @@ class MyApp extends StatelessWidget {
                           body: Center(child: CircularProgressIndicator(),),
                         );
                       } else {
-                        return matchedBannerPage();
+                        return mainPage();
                       }
                     },
                   );

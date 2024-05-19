@@ -10,7 +10,6 @@ import 'package:flutter/material.dart';
 import "package:firebase_core/firebase_core.dart";
 import "package:flutter/services.dart";
 import "assets/firebase_options.dart";
-import 'package:internet_connection_checker/internet_connection_checker.dart';
 
 void main() async{
   SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
@@ -22,27 +21,27 @@ void main() async{
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
-  runApp(const MyApp());
+  runApp(MyApp());
 }
 
 
 class MyApp extends StatefulWidget {
-  const MyApp({super.key});
+
+  const MyApp({Key? key}) : super(key: key);
 
   @override
   State<MyApp> createState() => _MyAppState();
 }
 
 class _MyAppState extends State<MyApp> {
-
   @override
+
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         primaryColor: Colors.white, 
       ),
-
       home: Scaffold(
         body: StreamBuilder<User?>(
           stream: FirebaseAuth.instance.authStateChanges(),

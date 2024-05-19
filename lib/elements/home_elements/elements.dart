@@ -4,13 +4,10 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 
 Widget appTitle() {
-  return Text(
-    "MUJDating",
-    style: GoogleFonts.notoSansSymbols2(
-      color: Colors.white,
-      fontWeight: FontWeight.normal,
-      fontSize: 40,
-    ),
+  return Image.asset(
+    'assets/logo/welcome_logo.png',
+    width: 200,
+    height: 100,
   );
 }
 

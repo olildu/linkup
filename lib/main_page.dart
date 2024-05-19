@@ -24,7 +24,7 @@ class mainPage extends StatefulWidget {
 }
 
 class mainPageState extends State<mainPage> {
-  late int bottomBarIndex = 2;
+  late int bottomBarIndex = 1;
   String appBarTitle = "MUJDating";
   IconData? type = Icons.tune_rounded;
 
@@ -90,7 +90,7 @@ class mainPageState extends State<mainPage> {
           chatIcon = Icons.chat_bubble_outline_rounded;
           break;
         case 2:
-          appBarTitle = "";
+          appBarTitle = "Chats";
           type = null;
           chatIcon = Icons.chat_bubble_rounded;
           profileIcon = Icons.person_outline_outlined;
@@ -167,10 +167,11 @@ class mainPageState extends State<mainPage> {
         backgroundColor: Colors.white,
         title: Stack(
           children: [
-            Center(
+            Align(
+              alignment: Alignment.centerLeft,
               child: Text(
                 appBarTitle,
-                style: GoogleFonts.poppins(),
+                style: GoogleFonts.raleway(fontSize: 25, fontWeight: FontWeight.w500),
               ),
             ),
             if (!internetStatus) buildNoInternetWidget().animate(delay: Duration(milliseconds: 500)).slideY(begin: -1.8),
@@ -190,55 +191,7 @@ class mainPageState extends State<mainPage> {
           ),
         ],
       ),
-      drawer: FractionallySizedBox(
-        widthFactor: 0.75,
-        child: Container(
-          padding: EdgeInsets.symmetric(vertical: 40, horizontal: 20),
-          color: Colors.white,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Center(child: Text("LOGO", style: GoogleFonts.poppins(fontSize: 40))),
-              SizedBox(height: 70),
-              GestureDetector(
-                onTap: () {
-                  Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (context) => Settings(),
-                    ),
-                  );
-                },
-                child: Container(
-                  padding: EdgeInsets.all(5),
-                  child: Row(
-                    children: [
-                      Icon(Icons.settings_rounded),
-                      SizedBox(width: 20),
-                      Text("Settings", style: GoogleFonts.poppins(fontSize: 20)),
-                    ],
-                  ),
-                ),
-              ),
-              SizedBox(height: 30),
-              GestureDetector(
-                onTap: () {
-                  FirebaseAuth.instance.signOut();
-                },
-                child: Container(
-                  padding: EdgeInsets.all(5),
-                  child: Row(
-                    children: [
-                      Icon(Icons.logout_rounded),
-                      SizedBox(width: 20),
-                      Text("Log Out", style: GoogleFonts.poppins(fontSize: 20)),
-                    ],
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
+
       bottomNavigationBar: SizedBox(
         child: Container(
           decoration: BoxDecoration(

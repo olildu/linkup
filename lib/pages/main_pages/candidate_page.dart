@@ -1,7 +1,12 @@
+import 'dart:convert';
+
+import 'package:demo/Colors.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_card_swiper/flutter_card_swiper.dart';
 import 'package:demo/elements/candidate_details_elements/elements.dart';
 import 'package:demo/api/api_calls.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class CandidatePage extends StatefulWidget {
   const CandidatePage({super.key});
@@ -32,12 +37,29 @@ class _CandidatePageState extends State<CandidatePage> {
     setState(() {
       isLoading = true; 
     });
+    final startTime = DateTime.now();
 
-    // Checking if wether there is data in this 
+    // Checking if wether there is data in this while switching pages
     // Have to implement time feature also
     if (userValues.matchUserDetails.isEmpty){
       userValues.matchUserDetails = await ApiCalls.getMatchCandidates();
+
+      // This will trigger only if matchUserDetails is empty and it is returned empty since snoozeMode is on
+      if (userValues.matchUserDetails.isEmpty){
+        setState(() {
+          isLoading = false; 
+          userValues.snoozeEnabled = true;
+        });
+        return;
+      }
+
       await getUserImages();
+
+      final endTime = DateTime.now();
+      final totalTime = endTime.difference(startTime);
+
+      print("Total time taken: $totalTime");
+
 
       // Once data fetching is over then flags will be automatically updated to show the screen to the user
       setState(() {
@@ -78,6 +100,7 @@ class _CandidatePageState extends State<CandidatePage> {
                   width: MediaQuery.of(context).size.width,
                   height: MediaQuery.of(context).size.height,
                   decoration: BoxDecoration(
+                    color: Colors.white,
                     borderRadius: BorderRadius.circular(10),
                     border: Border.all(color: const Color.fromARGB(255, 213, 213, 213))
                   ),
@@ -85,6 +108,54 @@ class _CandidatePageState extends State<CandidatePage> {
                 ),
               ), 
             )
+
+          : userValues.snoozeEnabled ? 
+            // Shown if in snooze mode
+            Center(
+              child: Padding(
+                padding: EdgeInsets.all(30),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    // Snooze Image
+                    Image.asset(
+                        "lib/images/snooze.png",
+                        height: 100,
+                        width: 100,
+                    ),
+                    SizedBox(height: 20,),
+
+                    // Snooze Mode Text
+                    Text("Snooze Mode,\n Activated", style: GoogleFonts.poppins(fontSize: 30, fontWeight: FontWeight.bold),textAlign: TextAlign.center,),
+                    SizedBox(height: 10,),
+
+                    Text("Your profile will be hidden from other's untill you turn off Snooze Mode", style: GoogleFonts.poppins(fontWeight: FontWeight.w400), textAlign: TextAlign.center,),
+                    SizedBox(height: 20,),
+
+                    // Button to turn off snooze mode
+                    GestureDetector(
+                      onTap: () {
+                        ApiCalls.disableSnoozeMode();
+                        setState(() {
+                          userValues.snoozeEnabled = false;
+                        });
+                      },
+                      child: Container(
+                        padding: EdgeInsets.symmetric(vertical: 15, horizontal: 50),
+                        decoration: BoxDecoration(
+                          color: reuseableColors.accentColor,
+                          borderRadius: BorderRadius.circular(25)
+                        ),
+                        child: Text("Turn off your Snooze Mode", style: GoogleFonts.poppins(color: Colors.white, fontWeight: FontWeight.w600, fontSize: 16),),
+                      ),
+                    )
+                  ],
+                ),
+              ),
+              ) 
+
+            // Else normally show users match content
           : Padding(
               padding: const EdgeInsets.all(10),
               child: ClipRRect(
@@ -101,14 +172,15 @@ class _CandidatePageState extends State<CandidatePage> {
                     _scrollController.jumpTo(0.0);
 
                     // This is to ensure that the server doesnt get abused with multiple requests causing data to be overwritten
-                    setState(() {
-                      canSwipe = true;
-                      Future.delayed(const Duration(seconds: 2), () {
-                        setState(() {
-                          canSwipe = false;
-                        });
-                      });
-                    });
+                    // {Disabled for now for smoother testing}
+                    // setState(() {
+                    //   canSwipe = true;
+                    //   Future.delayed(const Duration(seconds: 2), () {
+                    //     setState(() {
+                    //       canSwipe = false;
+                    //     });
+                    //   });
+                    // });
 
                     // This int keeps track of how many users have been swiped and then if the user visits any other page then deletes them from the list
                     userValues.userVisited++;
@@ -123,7 +195,11 @@ class _CandidatePageState extends State<CandidatePage> {
                         "matchName": userValues.matchUserDetails[previousIndex]["UserDetails"]["name"],
                         "userName": userValues.userData["name"]
                       };
-                      ApiCalls.LikeMatch(data);
+                      ApiCalls.swipeActionsMatch(data).then((response) {
+                        if (jsonDecode(response)["identifier"] == 1){
+                          print("Match Found");
+                        }
+                      });
                     }
                     else{
                       // Pass the data to call the api (Disliked User) 
@@ -133,7 +209,7 @@ class _CandidatePageState extends State<CandidatePage> {
                         "key": userValues.cookieValue,
                         "matchUID": userValues.matchUserDetails[previousIndex]["UserDetails"]["uid"]
                       };
-                      ApiCalls.dislikeMatch(data);
+                      ApiCalls.swipeActionsMatch(data);
                     }
                     return true;
                   },

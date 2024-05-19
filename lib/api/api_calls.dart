@@ -7,7 +7,7 @@ import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:http/http.dart' as http;
 import 'package:firebase_auth/firebase_auth.dart';
-
+import 'package:shared_preferences/shared_preferences.dart';
 
 class userValues{
   static String uid = FirebaseAuth.instance.currentUser!.uid;
@@ -15,6 +15,7 @@ class userValues{
   static Map matchUserData = {};  
   static Map matchUserDataNew = {};  
   static bool goToMainPage = false;
+  static late bool snoozeEnabled; // This bool will track if snoozeMode is on or off
   static late List<dynamic> userMatchCandidates = []; 
   static Map userData = {};
   static List<Map<String, dynamic>> matchUserDetails = [];
@@ -32,7 +33,16 @@ class flagChecker{
 
 class ApiCalls {
   static Future<String> fetchCookieDoggie() async {
-    try {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      await firebaseCalls.fetchUserData();
+
+      String? localCookieValue = prefs.getString('cookieValue');
+      // If already cookie is there in localStorage just return that
+      if (localCookieValue != null){
+        userValues.cookieValue = localCookieValue;
+        return localCookieValue;
+      }
+
       var data = {
         'uid': userValues.uid,
         'type': 'CookieCreation',
@@ -50,18 +60,16 @@ class ApiCalls {
         body: jsonData,
       );
 
-      await firebaseCalls.fetchUserData();
-
       userValues.cookieValue = response.body;
+      
+      // Save cookie to localStorage to avoid fetching cookie repeatedly
+      await prefs.setString('cookieValue', response.body);
+
       return response.body;
-    } catch (e) {
-      return 'Exception occurred: $e';
-    }
   }
 
   static uploadUserData(data) async {
       String jsonData = jsonEncode(data);
-      print(jsonData);
       var headers = {
         'Content-Type': 'application/json',
       };
@@ -77,7 +85,6 @@ class ApiCalls {
 
   static uploadUserTagData(data) async {
       String jsonData = jsonEncode(data);
-      print(jsonData);
       var headers = {
         'Content-Type': 'application/json',
       };
@@ -129,7 +136,7 @@ class ApiCalls {
       "gender": "Female",
       'type': 'GetUIDs'
     };
-
+    
     String jsonData = jsonEncode(data);
 
     var headers = {
@@ -142,12 +149,21 @@ class ApiCalls {
       body: jsonData,
     );
 
-    List<dynamic> jsonList = jsonDecode(jsonDecode(response.body));
+    // If user is in snoozeMode then code will handle here
+    if (response.body == '{"snoozeEnabled":true}') {
+      // Return response.body as a List<Map<String, dynamic>>
+      userValues.snoozeEnabled = true;
+      return [];
+    }
+
+
+    List<dynamic> jsonList = jsonDecode(response.body);
 
     // Convert each element of jsonList to Map<String, dynamic>
     List<Map<String, dynamic>> matchCandidates = jsonList.map((e) => e as Map<String, dynamic>).toList();
 
     userValues.userMatchCandidates = matchCandidates;
+    userValues.snoozeEnabled = false;
 
     return matchCandidates;
   }
@@ -167,7 +183,11 @@ class ApiCalls {
     
     return response.body;
   }
-  static LikeMatch(data) async{
+  
+  /*When getUIDs run also check for future match possibility when swiped right, bring to device check if swipe right is done then show 
+match banner */
+
+  static swipeActionsMatch(data) async{
     String jsonData = jsonEncode(data);
 
     var headers = {
@@ -180,6 +200,54 @@ class ApiCalls {
       body: jsonData,
     );
     
+    return response.body;
+  }
+
+  static enableSnoozeMode() async{
+    Map<String, dynamic> data = {
+      "uid": userValues.uid,
+      "key": userValues.cookieValue,
+      'type': 'snoozeUser'
+    };
+    
+    String jsonData = jsonEncode(data);
+
+    var headers = {
+      'Content-Type': 'application/json',
+    };
+
+    var response = await http.post(
+      Uri.parse('https://65d257a08d0655ad974f.appwrite.global/'),
+      headers: headers,
+      body: jsonData,
+    );
+
+    userValues.snoozeEnabled = true;
+
+    return response.body;
+  }
+
+  static disableSnoozeMode() async{
+    Map<String, dynamic> data = {
+      "uid": userValues.uid,
+      "key": userValues.cookieValue,
+      'type': 'disableSnoozeUser'
+    };
+    
+    String jsonData = jsonEncode(data);
+
+    var headers = {
+      'Content-Type': 'application/json',
+    };
+
+    var response = await http.post(
+      Uri.parse('https://65d257a08d0655ad974f.appwrite.global/'),
+      headers: headers,
+      body: jsonData,
+    );
+
+    userValues.snoozeEnabled = false;
+
     return response.body;
   }
 }
@@ -207,7 +275,6 @@ class firebaseCalls {
     final result = await storageRef.listAll();
     var items = result.items[0];
     String downloadURL = await FirebaseStorage.instance.ref().child(items.fullPath).getDownloadURL();
-    print(downloadURL);
     return downloadURL;
   }
 
@@ -221,7 +288,6 @@ class firebaseCalls {
     userMatchRef.onValue.listen((DatabaseEvent event) async{
       flagChecker.matchQueFetched = false;
       final data = await event.snapshot.value as Map<dynamic, dynamic>?; 
-      print(data);
       Map<String, dynamic> matchUserData = {}; // Create a local variable to store data
       
       void checkTasksCompletion() {
@@ -233,7 +299,6 @@ class firebaseCalls {
       }
 
       data?.forEach((key, value) async {
-        print(value);
         matchUserData[key] = {};
         value.forEach((uniqueIDandName, names) {
           pathAndName.pathAndNameData[key] = names.split(",")[1];
@@ -246,7 +311,6 @@ class firebaseCalls {
 
       });
     });
-    print(completer.future);
     return completer.future;
   }
 
@@ -276,20 +340,13 @@ class firebaseCalls {
   }
 
   static Future<String> getCandidateImages(String uid, String imageName) async {
-    final storageRef = FirebaseStorage.instance.ref();
     try {
-      final imageRef = storageRef.child("UserImages/$uid/$imageName");
-      final downloadUrl = await imageRef.getDownloadURL();
-      return downloadUrl;
-    } catch (e) {
-      print("UserImages/$uid/$imageName");
-      // Return a default URL or rethrow the error
+      String userImageURL = "https://firebasestorage.googleapis.com/v0/b/mujdating.appspot.com/o/UserImages%2F$uid%2F$imageName?alt=media&token";
+      return userImageURL;
+    } catch (e) { // Temporary solution because I was lazy to load some users images
       return ''; // Return an empty string as a default value
-      // Alternatively, you can rethrow the error:
-      // throw e;
     }
   }
-
 
   static fetchUserData() async{
     User? user = FirebaseAuth.instance.currentUser;
@@ -297,6 +354,7 @@ class firebaseCalls {
     
     ref.onValue.listen((event) {
       userValues.userData = (event.snapshot.value as Map<dynamic, dynamic>)["UserDetails"];
+      print(userValues.userData);
     },);
   }
 }

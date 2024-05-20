@@ -5,10 +5,15 @@ import 'package:confetti/confetti.dart';
 import 'package:demo/Colors.dart';
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter/widgets.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:image_cropper/image_cropper.dart';
 
 class matchedBannerPage extends StatefulWidget {
-  const matchedBannerPage({super.key});
+  final String matchUID;
+  final String imageName;
+
+  const matchedBannerPage({Key? key, required this.imageName, required this.matchUID}) : super(key: key);
 
   @override
   State<matchedBannerPage> createState() => _matchedBannerPageState();
@@ -88,7 +93,8 @@ class _matchedBannerPageState extends State<matchedBannerPage> {
                     height: 500,
                     width: 300,
                     child: CachedNetworkImage(
-                      imageUrl: "https://firebasestorage.googleapis.com/v0/b/mujdating.appspot.com/o/UserImages%2FQCIG6YCw9HcpLyf5jYHc1yewq6k1%2Fme8.jpg?alt=media&token=d56fbd15-fb1a-4b8f-b80b-f28fe8d3594b",
+                      // Match Candidate Image Url
+                      imageUrl: "https://firebasestorage.googleapis.com/v0/b/mujdating.appspot.com/o/UserImages%2F${widget.matchUID}%2F${widget.imageName}?alt=media&token",
                       placeholder: (context, url) => const Center(child: CircularProgressIndicator()), // Placeholder widget while image is loading
                       errorWidget: (context, url, error) => const Icon(Icons.error),
                       fit: BoxFit.cover, // Widget to display in case of error loading image
@@ -96,14 +102,19 @@ class _matchedBannerPageState extends State<matchedBannerPage> {
                   ),
                 ),
                 const SizedBox(height: 20,),
-                Container(
-                  width: 300,
-                  padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 15),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(30),
-                    color: reuseableColors.accentColor
+                GestureDetector(
+                  onTap: () {
+                    Navigator.of(context).pop();
+                  },
+                  child: Container(
+                    width: 300,
+                    padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 15),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(30),
+                      color: reuseableColors.accentColor
+                    ),
+                    child: Center(child: Text("Continue Swiping", style: GoogleFonts.poppins(color: Colors.white, fontWeight: FontWeight.w500, fontSize: 20),)),
                   ),
-                  child: Center(child: Text("Start Chatting", style: GoogleFonts.poppins(color: Colors.white, fontWeight: FontWeight.w500, fontSize: 20),)),
                 )
               ],
             ),

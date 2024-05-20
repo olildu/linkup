@@ -2,9 +2,9 @@ import 'dart:convert';
 
 import 'package:demo/Colors.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_card_swiper/flutter_card_swiper.dart';
 import 'package:demo/elements/candidate_details_elements/elements.dart';
+import 'package:demo/pages/match_banner_page/matchedBanner.dart';
 import 'package:demo/api/api_calls.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -195,8 +195,11 @@ class _CandidatePageState extends State<CandidatePage> {
                         "matchName": userValues.matchUserDetails[previousIndex]["UserDetails"]["name"],
                         "userName": userValues.userData["name"]
                       };
+                      print(data);
                       ApiCalls.swipeActionsMatch(data).then((response) {
-                        if (jsonDecode(response)["identifier"] == 1){
+                        dynamic decodedResponse = jsonDecode(response);
+                        if (decodedResponse["identifier"] == 1){
+                          Navigator.push(context, MaterialPageRoute(builder: (context) => matchedBannerPage(matchUID: decodedResponse["uid"], imageName: decodedResponse["imageName"],)),);
                           print("Match Found");
                         }
                       });

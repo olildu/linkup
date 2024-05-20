@@ -354,7 +354,6 @@ class firebaseCalls {
     
     ref.onValue.listen((event) {
       userValues.userData = (event.snapshot.value as Map<dynamic, dynamic>)["UserDetails"];
-      print(userValues.userData);
     },);
   }
 }

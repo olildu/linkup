@@ -1,12 +1,11 @@
 // ignore_for_file: camel_case_types, prefer_const_constructors, prefer_const_literals_to_create_immutables
 
-import 'package:demo/Colors.dart';
+import 'package:demo/colors.dart';
 import 'package:demo/pages/appbar_pages/filters_page.dart';
 import 'package:demo/pages/main_pages/candidate_page.dart';
 import 'package:demo/pages/main_pages/chat_page.dart';
 import 'package:demo/pages/main_pages/profile_page.dart';
 import 'package:demo/pages/appbar_pages/settings_page.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:google_nav_bar/google_nav_bar.dart';
@@ -34,7 +33,6 @@ class mainPageState extends State<mainPage> {
 
   late StreamSubscription networkChecker;
   late bool internetStatus = true;
-
   final List<Widget> _pages = [
     ProfilePage(),
     CandidatePage(),
@@ -158,59 +156,61 @@ class mainPageState extends State<mainPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: _pages[bottomBarIndex],
-      appBar: AppBar(
-        toolbarHeight: 50,
-        scrolledUnderElevation: 0,
-        elevation: 0,
-        backgroundColor: Colors.white,
-        title: Stack(
-          children: [
-            Align(
-              alignment: Alignment.centerLeft,
-              child: Text(
-                appBarTitle,
-                style: GoogleFonts.raleway(fontSize: 25, fontWeight: FontWeight.w500),
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      value: const SystemUiOverlayStyle(
+        systemNavigationBarColor: Colors.white
+      ),
+      child: Scaffold(
+        body: _pages[bottomBarIndex],
+        appBar: AppBar(
+          toolbarHeight: 50,
+          scrolledUnderElevation: 0,
+          elevation: 0,
+          backgroundColor: Colors.white,
+          title: Stack(
+            children: [
+              Align(
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  appBarTitle,
+                  style: GoogleFonts.raleway(fontSize: 25, fontWeight: FontWeight.w500),
+                ),
+              ),
+              if (!internetStatus) buildNoInternetWidget().animate(delay: Duration(milliseconds: 500)).slideY(begin: -1.8),
+      
+              if (internetStatus)  buildNoInternetWidget().animate().slideY(end: -1.8).fadeOut(),
+            ],
+          ),
+          actions: [
+            GestureDetector(
+              onTap: () {
+                navigateActionButtons(context);
+              },
+              child: Padding(
+                padding: EdgeInsets.only(right: 20.0),
+                child: Icon(type),
               ),
             ),
-            if (!internetStatus) buildNoInternetWidget().animate(delay: Duration(milliseconds: 500)).slideY(begin: -1.8),
-
-            if (internetStatus)  buildNoInternetWidget().animate().slideY(end: -1.8).fadeOut(),
           ],
         ),
-        actions: [
-          GestureDetector(
-            onTap: () {
-              navigateActionButtons(context);
-            },
-            child: Padding(
-              padding: EdgeInsets.only(right: 20.0),
-              child: Icon(type),
+      
+        bottomNavigationBar: SizedBox(
+          child: Container(
+            decoration: BoxDecoration(
+              color: Colors.white,
             ),
-          ),
-        ],
-      ),
-
-      bottomNavigationBar: SizedBox(
-        child: Container(
-          decoration: BoxDecoration(
-            color: Colors.white,
-            border: Border(
-              top: BorderSide(
-                color: const Color.fromARGB(255, 215, 215, 215),
-                width: 1.0,
-              )
-            )
-          ),
-          child: GNav(
-            onTabChange: (value) => {navigateBottomBar(value)},
-            selectedIndex: 1,
-            tabs: [
-              GButton(icon: profileIcon, ),
-              GButton(icon: candidateIcon, ),
-              GButton(icon: chatIcon,),
-            ],
+            child: Transform.translate(
+              offset: Offset(0,10),
+              child: GNav(
+                onTabChange: (value) => {navigateBottomBar(value)},
+                selectedIndex: 1,
+                tabs: [
+                  GButton(icon: profileIcon, ),
+                  GButton(icon: candidateIcon, ),
+                  GButton(icon: chatIcon,),
+                ],
+              ),
+            ),
           ),
         ),
       ),

@@ -19,6 +19,7 @@ class _CandidatePageState extends State<CandidatePage> {
   late ScrollController _scrollController;
   bool canSwipe = false;
   bool isLoading = true; // Flag to track if data is loading
+  late int counterCandidatesAvailable;
 
   @override
   void initState() {
@@ -37,15 +38,15 @@ class _CandidatePageState extends State<CandidatePage> {
     setState(() {
       isLoading = true; 
     });
-    final startTime = DateTime.now();
 
     // Checking if wether there is data in this while switching pages
     // Have to implement time feature also
-    if (userValues.matchUserDetails.isEmpty){
+    if (userValues.matchUserDetails.isEmpty && userValues.snoozeEnabled == false){
       userValues.matchUserDetails = await ApiCalls.getMatchCandidates();
 
-      // This will trigger only if matchUserDetails is empty and it is returned empty since snoozeMode is on
-      if (userValues.matchUserDetails.isEmpty){
+      /* This will trigger only if matchUserDetails is empty and it is returned empty since snoozeMode is on also will check if the 
+        the userValues.snoozeEnabled is true if it is not then its likely means there are no candidates the user can see */
+      if (userValues.matchUserDetails.isEmpty && userValues.snoozeEnabled == true){
         setState(() {
           isLoading = false; 
           userValues.snoozeEnabled = true;
@@ -53,13 +54,19 @@ class _CandidatePageState extends State<CandidatePage> {
         return;
       }
 
+      // This will trigger when matchUserDetails is empty meaning there is no candidates for the user to see and hence shows the message
+      if (userValues.matchUserDetails.isEmpty){
+        setState(() {
+          isLoading = false; 
+          userValues.limitReached = true;
+        });
+        return;
+      }
+
       await getUserImages();
 
-      final endTime = DateTime.now();
-      final totalTime = endTime.difference(startTime);
-
-      print("Total time taken: $totalTime");
-
+      counterCandidatesAvailable = userValues.matchUserDetails.length;
+      print(counterCandidatesAvailable);
 
       // Once data fetching is over then flags will be automatically updated to show the screen to the user
       setState(() {
@@ -110,7 +117,7 @@ class _CandidatePageState extends State<CandidatePage> {
             )
 
           : userValues.snoozeEnabled ? 
-            // Shown if in snooze mode
+            // Shown if in snooze mode is enabled
             Center(
               child: Padding(
                 padding: EdgeInsets.all(30),
@@ -155,8 +162,36 @@ class _CandidatePageState extends State<CandidatePage> {
               ),
               ) 
 
-            // Else normally show users match content
-          : Padding(
+          // When the user has no Candidates to see or has finished their quota
+          : userValues.limitReached ? 
+            Center(
+              child: Padding(
+                padding: EdgeInsets.all(30),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    // No more likes image
+                    Image.asset(
+                        "lib/images/sad.png",
+                        height: 100,
+                        width: 100,
+                    ),
+                    SizedBox(height: 20,),
+
+                    // No more likes Text
+                    Text("Whoops!\nYou're Out of Likes!", style: GoogleFonts.poppins(fontSize: 30, fontWeight: FontWeight.bold),textAlign: TextAlign.center,),
+                    SizedBox(height: 20,),
+
+                    Text("You've spread all the love you can for now. Come back later to find more amazing people!", style: GoogleFonts.poppins(fontWeight: FontWeight.w400), textAlign: TextAlign.center,),
+                    SizedBox(height: 20,),
+                  ],
+                ),
+              ),
+              ) 
+          :
+          // Else normally show users match content
+          Padding(
               padding: const EdgeInsets.all(10),
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(10),
@@ -184,6 +219,14 @@ class _CandidatePageState extends State<CandidatePage> {
 
                     // This int keeps track of how many users have been swiped and then if the user visits any other page then deletes them from the list
                     userValues.userVisited++;
+
+                    // This int keeps track of how many candidates the user has seen and when it becomes zero no more matches available is shown
+                    counterCandidatesAvailable--;
+                    if (counterCandidatesAvailable <= 0) {
+                      setState(() {
+                        userValues.limitReached = true;
+                      });
+                    }
 
                     if (direction == CardSwiperDirection.right){
                       // Pass the data to call the api (Liked User) 

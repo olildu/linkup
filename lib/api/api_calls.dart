@@ -15,7 +15,8 @@ class userValues{
   static Map matchUserData = {};  
   static Map matchUserDataNew = {};  
   static bool goToMainPage = false;
-  static late bool snoozeEnabled; // This bool will track if snoozeMode is on or off
+  static bool snoozeEnabled = false; // This bool will track if snoozeMode is on or off
+  static bool limitReached = false; // This bool will keep track if the user has finished his like quota
   static late List<dynamic> userMatchCandidates = []; 
   static Map userData = {};
   static List<Map<String, dynamic>> matchUserDetails = [];

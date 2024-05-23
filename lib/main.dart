@@ -1,8 +1,7 @@
 // ignore_for_file: prefer_const_constructors
 
-import "dart:async";
-
 import "package:demo/api/api_calls.dart";
+import "package:demo/colors.dart";
 import "package:demo/main_page.dart";
 import "package:demo/pages/login_page/login_page.dart";
 import "package:firebase_auth/firebase_auth.dart";
@@ -10,25 +9,28 @@ import 'package:flutter/material.dart';
 import "package:firebase_core/firebase_core.dart";
 import "package:flutter/services.dart";
 import "assets/firebase_options.dart";
+import 'package:firebase_app_check/firebase_app_check.dart';
 
 void main() async{
   SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
-    statusBarColor: Color.fromRGBO(12, 25, 44, 1),
+    statusBarColor: reuseableColors.secondaryColor,
     statusBarIconBrightness: Brightness.light,
-    systemNavigationBarColor: Color.fromRGBO(12, 25, 44, 1)
+    systemNavigationBarColor: reuseableColors.secondaryColor
   ));
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
+  );
+  await FirebaseAppCheck.instance.activate(
+    // Set androidProvider to `AndroidProvider.debug`
+    androidProvider: AndroidProvider.debug,
   );
   runApp(MyApp());
 }
 
 
 class MyApp extends StatefulWidget {
-
   const MyApp({Key? key}) : super(key: key);
-
   @override
   State<MyApp> createState() => _MyAppState();
 }

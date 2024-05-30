@@ -1,15 +1,17 @@
 // ignore_for_file: prefer_const_constructors
 
-import 'package:demo/Colors.dart';
+import 'package:demo/colors/colors.dart';
 import 'package:demo/api/api_calls.dart';
-import 'package:demo/api/firebase_calls.dart';
 import 'package:demo/elements/settings_elements/elements.dart';
+import 'package:demo/pages/login_page/login_page.dart';
+import 'package:demo/pages/providers/provider.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 TextStyle avoidMaterial = GoogleFonts.poppins(
   color: Colors.white,
@@ -27,13 +29,13 @@ class Settings extends StatefulWidget {
 }
 
 class _SettingsState extends State<Settings> {
-  bool isSwitchOn = false;
+  bool isSwitchOn = userValues.darkTheme;
 
   @override
   Widget build(BuildContext context) {
-    print(userValues.snoozeEnabled);
     return Scaffold(
       appBar: AppBar(
+        backgroundColor: Theme.of(context).colorScheme.background,
         title: Text(
           "Settings",
           style: GoogleFonts.poppins(),
@@ -56,7 +58,7 @@ class _SettingsState extends State<Settings> {
                         child: Container(
                           width: MediaQuery.of(context).size.width,
                           decoration: BoxDecoration(
-                            color: Colors.white,
+                            color: Theme.of(context).colorScheme.primary,
                             borderRadius: BorderRadius.circular(20)
                           ),
                           child: Padding(
@@ -67,7 +69,6 @@ class _SettingsState extends State<Settings> {
                                 Text(
                                   userValues.snoozeEnabled ? "Turn off snooze mode and let your profile be seen?" : "Do you want to turn on snooze and become ghost?" ,
                                   style: GoogleFonts.poppins(
-                                    color: Colors.black,
                                     fontSize: 20,
                                     fontWeight: FontWeight.normal,
                                     decoration: TextDecoration.none,
@@ -131,7 +132,7 @@ class _SettingsState extends State<Settings> {
                 child: Container(
                   child: Column(
                     children: [
-                      buttonBuilder(userValues.snoozeEnabled ? "Disable Snooze" : "Snooze", null),
+                      buttonBuilder(userValues.snoozeEnabled ? "Disable Snooze" : "Snooze", null, context),
                       SizedBox(height: 15,),
                       Padding(
                         padding: EdgeInsets.symmetric(horizontal: 5),
@@ -148,34 +149,64 @@ class _SettingsState extends State<Settings> {
               SizedBox(height: 40,),
         
               // Disable Notification's Box
-              Container(
-                child: Column(
-                  children: [
-                    DisableNotificationsButton(isSwitchOn, () {
-                      setState(() {
-                        isSwitchOn = !isSwitchOn;
-                      });
-                    }),
-                    SizedBox(height: 15,),
-                    Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 5),
-                      child: Text(
-                        "Permanently disable all notifications received from MUJDating",
-                        style: GoogleFonts.poppins(),
-                      ),
+              // Container(
+              //   child: Column(
+              //     children: [
+              //       DisableNotificationsButton(isSwitchOn, () async{
+              //         setState(() {
+              //           isSwitchOn = !isSwitchOn;
+              //           userValues.darkTheme = false;
+              //         });
+              //         Provider.of<ThemeProvider>(context, listen: false).toggleTheme();
+              //         print(isSwitchOn);
+                      
+              //         SharedPreferences prefs = await SharedPreferences.getInstance();
+              //         await prefs.setBool('darkTheme', isSwitchOn);
+                      
+              //       }, context),
+              //       SizedBox(height: 15,),
+              //       Padding(
+              //         padding: EdgeInsets.symmetric(horizontal: 5),
+              //         child: Text(
+              //           "Switch to light mode or dark mode, Dark mode choosen as default",
+              //           style: GoogleFonts.poppins(),
+              //         ),
+              //       ),
+              //     ],
+              //   ),
+              // ),
+
+              GestureDetector(
+                onTap: () async{
+                  SharedPreferences prefs = await SharedPreferences.getInstance();
+                  Provider.of<ThemeProvider>(context, listen: false).toggleTheme();
+                  await prefs.setBool('darkTheme', userValues.darkTheme);
+                },
+                child: Container(
+                    child: Column(
+                      children: [
+                        buttonBuilder(userValues.darkTheme ? "Switch to light mode" : "Switch to dark mode", null, context),
+                        SizedBox(height: 15,),
+                        Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 5),
+                          child: Text(
+                            "Switch to light mode or dark mode, Dark mode choosen as default",
+                            style: GoogleFonts.poppins(),
+                          ),
+                        ),
+                      ],
                     ),
-                  ],
-                ),
+                  ),
               ),
         
               SizedBox(height: 40,),
         
               // Contact & FAQ Button
-              buttonBuilder("Contact & FAQ", Icons.arrow_forward_ios_rounded),
+              buttonBuilder("Contact & FAQ", Icons.arrow_forward_ios_rounded, context),
         
               SizedBox(height: 10,),
               // Security and Privacy Button
-              buttonBuilder("Security & Privacy", Icons.arrow_forward_ios_rounded),
+              buttonBuilder("Security & Privacy", Icons.arrow_forward_ios_rounded, context),
         
               SizedBox(height: 60,),
         
@@ -184,13 +215,14 @@ class _SettingsState extends State<Settings> {
                 onTap: () {
                   Navigator.of(context).pop();
                   FirebaseAuth.instance.signOut();
+                  Navigator.of(context).push(MaterialPageRoute(builder: (context) => LoginPage()));
                 },
-                child: buttonBuilder("Log Out", Icons.arrow_forward_ios_rounded)),
+                child: buttonBuilder("Log Out", Icons.arrow_forward_ios_rounded, context)),
         
               SizedBox(height: 10,),
         
               // Delete account Button
-              buttonBuilder("Delete Account", Icons.arrow_forward_ios_rounded),
+              buttonBuilder("Delete Account", Icons.arrow_forward_ios_rounded, context),
         
         
             ],

@@ -12,8 +12,10 @@ class _FilterState extends State<Filter> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Theme.of(context).colorScheme.background,
       appBar: AppBar(
         title: Text("Better your search", style: GoogleFonts.poppins(),),
+        backgroundColor: Theme.of(context).colorScheme.background,
         leading: GestureDetector(
           onTap: (){
             Navigator.of(context).pop();

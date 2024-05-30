@@ -2,12 +2,10 @@ import 'dart:math';
 
 import 'package:audioplayers/audioplayers.dart';
 import 'package:confetti/confetti.dart';
-import 'package:demo/Colors.dart';
+import 'package:demo/colors/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:flutter/widgets.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:image_cropper/image_cropper.dart';
 
 class matchedBannerPage extends StatefulWidget {
   final String matchUID;

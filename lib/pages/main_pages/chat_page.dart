@@ -19,7 +19,7 @@ class _ChatPageState extends State<ChatPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: Theme.of(context).colorScheme.background,
       body: Padding(
         padding: EdgeInsets.only(top: 20),
         child: Column(
@@ -32,8 +32,8 @@ class _ChatPageState extends State<ChatPage> {
             matchedUser(context),
     
             SizedBox(height: 10),
-            // Chats Title
-    
+
+            // Chats Title (The smaller version)
             chatTitle(),
     
             // Chat Widgets

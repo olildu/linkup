@@ -5,12 +5,12 @@ import 'package:flutter/foundation.dart' show kIsWeb;
 
 Widget appTitle() {
   return Image.asset(
-    'assets/logo/welcome_logo.png',
+    'assets/logo/logo_transparent.png',
     width: 200,
     height: 100,
   );
 }
-
+  
 Widget imagesLoveHands(){
   return Align(
     alignment: Alignment.center,
@@ -90,14 +90,12 @@ Widget joinTodayButton(BuildContext context){
           await FirebaseAuth.instance.signInWithRedirect(provider);
 
         } catch (e) {
-          print('Error signing in with redirect: $e');
         }
       } else {
         try {
           await FirebaseAuth.instance.signInWithProvider(provider);
 
         } catch (e) {
-          print('Error signing in with popup: $e');
         }
       }
     },

@@ -244,7 +244,6 @@ class HeightContainer extends StatefulWidget {
 }
 
 class _HeightContainerState extends State<HeightContainer> {
-  @override
   String heightValue = "Choose your height";
   
   Widget build(BuildContext context) {
@@ -591,7 +590,7 @@ class _DateContainerNewState extends State<DateContainerNew> {
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisAlignment: MainAxisAlignment.start,
       children: [
-        titleAndSubtitle("When were you born?", "Users above 18 can only use MUJDating", titleColor: Colors.white, subTitleColor: const Color(0xFFC0C0C0)),
+        titleAndSubtitle("When were you born?", "Users above 18 can only use LinkUp", titleColor: Colors.white, subTitleColor: const Color(0xFFC0C0C0)),
         const SizedBox(height: 30,),
         GestureDetector(
           onTap: () {
@@ -715,10 +714,9 @@ Widget NextButton(bool isContainerEnabled, TextEditingController nameController,
               startAnimation();
               if (uploadImageBool != null && uploadImageBool) {
                 await Future.wait(images.values.whereType<File>().map((value) async {
-                  await firebaseCalls.uploadImage(value as File);
+                  await firebaseCalls.uploadImage(value);
                 }));
                 onCompletion!();
-                print("Done Uploading Images");
               }
             }
           : null,
@@ -874,7 +872,6 @@ class _PhotosWidgetState extends State<PhotosWidget> {
                       }
                       Navigator.of(context).pop();
 
-                      print(counter);
                     });
                   }),
                   CupertinoButton(child: Text("Dismiss", style: GoogleFonts.poppins(color: Colors.black, fontSize: 20),), onPressed: (){
@@ -934,8 +931,6 @@ class _PhotosWidgetState extends State<PhotosWidget> {
           default:
             break;
         }
-
-        print(counter);
       });
     }
   }

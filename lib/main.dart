@@ -1,13 +1,14 @@
-// ignore_for_file: prefer_const_constructors
-
 import "package:demo/api/api_calls.dart";
-import "package:demo/colors.dart";
-import "package:demo/main_page.dart";
+import "package:demo/colors/colors.dart";
 import "package:demo/pages/login_page/login_page.dart";
+import "package:demo/pages/providers/provider.dart";
+import "package:demo/pages/splashscreen_page/splashscreen.dart";
 import "package:firebase_auth/firebase_auth.dart";
 import 'package:flutter/material.dart';
 import "package:firebase_core/firebase_core.dart";
 import "package:flutter/services.dart";
+import "package:provider/provider.dart";
+import "package:shared_preferences/shared_preferences.dart";
 import "assets/firebase_options.dart";
 import 'package:firebase_app_check/firebase_app_check.dart';
 
@@ -18,14 +19,21 @@ void main() async{
     systemNavigationBarColor: reuseableColors.secondaryColor
   ));
   WidgetsFlutterBinding.ensureInitialized();
+  // Initialize firebase options
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+  // Initialize firebase app check
   await FirebaseAppCheck.instance.activate(
-    // Set androidProvider to `AndroidProvider.debug`
     androidProvider: AndroidProvider.debug,
   );
-  runApp(MyApp());
+  // Initialize firebase fCMToken
+  await firebaseCalls().initNotifications(); 
+  
+  // Runs app with the provider call
+  runApp(
+    ChangeNotifierProvider(create: (context) => ThemeProvider(), child: MyApp())
+  );
 }
 
 
@@ -36,14 +44,29 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  @override
+  bool didFunctionRun = false;
 
   Widget build(BuildContext context) {
+    // Check for any saved user preference in the localStorage and reflects accordingly
+    void getDarkThemeValue() async{
+      if (didFunctionRun){
+        return;
+      }
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      bool? localDarkThemeValue = await prefs.getBool('darkTheme');
+
+      if (localDarkThemeValue != null){
+        userValues.darkTheme = localDarkThemeValue;
+        if (localDarkThemeValue == false){
+          Provider.of<ThemeProvider>(context, listen: false).toggleTheme();
+        }
+        didFunctionRun = true;
+      }
+    }
+    getDarkThemeValue();
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        primaryColor: Colors.white, 
-      ),
+      theme: Provider.of<ThemeProvider>(context).themeData,
       home: Scaffold(
         body: StreamBuilder<User?>(
           stream: FirebaseAuth.instance.authStateChanges(),
@@ -55,7 +78,7 @@ class _MyAppState extends State<MyApp> {
               if (user != null) {
                 if (user.emailVerified) {
                   if (userValues.cookieValue != null){
-                    return mainPage();
+                    return splashScreen();
                   }
                   return FutureBuilder<String>(
                     future: ApiCalls.fetchCookieDoggie(),
@@ -66,7 +89,7 @@ class _MyAppState extends State<MyApp> {
                           body: Center(child: CircularProgressIndicator(),),
                         );
                       } else {
-                        return mainPage();
+                        return splashScreen();
                       }
                     },
                   );
@@ -81,7 +104,7 @@ class _MyAppState extends State<MyApp> {
                           body: Center(child: CircularProgressIndicator(),),
                         );
                       } else {
-                        return mainPage();
+                        return splashScreen();
                       }
                     },
                   );

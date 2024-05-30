@@ -1,4 +1,4 @@
-import 'package:demo/Colors.dart';
+import 'package:demo/colors/colors.dart';
 import 'package:demo/api/api_calls.dart';
 import 'package:demo/elements/about_me_edit_elements/elements.dart';
 import 'package:flutter/material.dart';
@@ -56,6 +56,7 @@ class _edit_about_meState extends State<edit_about_me> with SingleTickerProvider
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
+        backgroundColor: Theme.of(context).colorScheme.background,
         leading: GestureDetector(
           onTap: () {
             Navigator.of(context).pop();

@@ -5,7 +5,7 @@ import 'dart:async';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:demo/api/api_calls.dart';
 import 'package:demo/elements/chat_elements/elements.dart';
-import 'package:demo/Colors.dart';
+import 'package:demo/colors/colors.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:demo/elements/candidate_page_elements/elements.dart';
@@ -51,7 +51,6 @@ class _ChatDetailsPageState extends State<ChatDetailsPage> {
     // Listen for data changes
     userMatchRef.onValue.listen((DatabaseEvent event) {
       Map<dynamic, dynamic>? chatList = event.snapshot.value as Map<dynamic, dynamic>?;
-      print(event.snapshot.value);
       
     if (chatList != null && chatList["Messages"] != null) {
       List<dynamic> messages = chatList["Messages"];
@@ -87,9 +86,9 @@ class _ChatDetailsPageState extends State<ChatDetailsPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-    backgroundColor: Colors.white,
+    backgroundColor: Theme.of(context).colorScheme.background,
     appBar: AppBar(
-      backgroundColor: Colors.white,
+      backgroundColor: Theme.of(context).colorScheme.background,
       shadowColor: Colors.black,
       leading: InkWell(
         onTap: () {
@@ -104,8 +103,8 @@ class _ChatDetailsPageState extends State<ChatDetailsPage> {
       ),
       title: GestureDetector(
         onTap: () {
-          matchedUsers!.forEach((key, value) {
-            popupMatchDetails(context, value, key, matchedUsers);
+          userValues.matchedUsers!.forEach((key, value) {
+            popupMatchDetails(context, value, key, userValues.matchedUsers);
             }
           );
         },
@@ -137,7 +136,6 @@ class _ChatDetailsPageState extends State<ChatDetailsPage> {
     body: Stack(
       children: [
         MessageContent(_messages),
-    
         TextFieldWithDynamicColor(sendMessage: _addMessage, path: widget.path, matchUID: widget.matchUID),
       ],
     ),
@@ -184,7 +182,7 @@ class _TextFieldWithDynamicColorState extends State<TextFieldWithDynamicColor> {
 
   @override
   Widget build(BuildContext context) {
-    return NewTextField(sendMessage: widget.sendMessage, messageController: messageController, containerColor: containerColor, imagePath: imagePath, path: widget.path, matchUID: widget.matchUID);
+    return NewTextField(sendMessage: widget.sendMessage, messageController: messageController, containerColor: containerColor, imagePath: imagePath, path: widget.path, matchUID: widget.matchUID, context: context);
   }
 
   @override
@@ -194,13 +192,16 @@ class _TextFieldWithDynamicColorState extends State<TextFieldWithDynamicColor> {
   }
 }
 
-Widget NewTextField({required SendMessageCallback sendMessage, required TextEditingController messageController, required Color containerColor, required String imagePath, required String path, required String matchUID}) {
+Widget NewTextField({required BuildContext context, required SendMessageCallback sendMessage, required TextEditingController messageController, required Color containerColor, required String imagePath, required String path, required String matchUID}) {
   return Positioned(
     left: 0,
     right: 0,
     bottom: 0,
     child: Container(
       padding: EdgeInsets.all(10),
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.background
+      ),
       child: Row(
         children: [
           Expanded( 
@@ -209,6 +210,14 @@ Widget NewTextField({required SendMessageCallback sendMessage, required TextEdit
               decoration: InputDecoration(
                 hintText: 'Aa',
                 border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(30.0),
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderSide: BorderSide(color: Theme.of(context).colorScheme.primary), // Border color when not focused
+                  borderRadius: BorderRadius.circular(30.0),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderSide: BorderSide(color: Theme.of(context).colorScheme.surface), // Border color when focused
                   borderRadius: BorderRadius.circular(30.0),
                 ),
                 contentPadding: EdgeInsets.symmetric(horizontal: 16.0),
@@ -232,6 +241,7 @@ Widget NewTextField({required SendMessageCallback sendMessage, required TextEdit
                 writeChatData["matchUID"] = matchUID;   
 
                 print(writeChatData);
+
                 ApiCalls.writeChatContent(writeChatData);
                 messageController.clear();
               }

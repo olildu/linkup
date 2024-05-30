@@ -1,4 +1,3 @@
-import 'package:demo/api/api_calls.dart';
 import 'package:demo/elements/candidate_details_elements/elements.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -325,7 +324,7 @@ Widget fromOrStreamDetails({bool buttonsNeeded = true, Map? data, Map? candidate
 
 String addYearSuffix(String yearString) {
 
-  if (yearString == null || yearString.isEmpty) {
+  if (yearString.isEmpty) {
     return '';
   }
   

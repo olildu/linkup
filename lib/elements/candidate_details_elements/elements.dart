@@ -14,7 +14,7 @@ class ProfileImageFullscreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.black,
+      backgroundColor: Theme.of(context).colorScheme.background,
       body: GestureDetector(
           onTap: () {
             Navigator.pop(context);

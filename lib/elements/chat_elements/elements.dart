@@ -2,7 +2,7 @@
 import 'dart:async';
 
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:demo/Colors.dart';
+import 'package:demo/colors/colors.dart';
 import 'package:demo/api/api_calls.dart';
 import 'package:demo/api/firebase_calls.dart';
 import 'package:demo/elements/candidate_page_elements/elements.dart';
@@ -143,68 +143,63 @@ class _ChatDetailsState extends State<ChatDetails> {
           });
         });
       },
-      child: AnimatedContainer(
-        duration: Duration(milliseconds: 300),
-        color: isClicked ? flashColor : Colors.white,
-        child: Padding(
-          padding: EdgeInsets.only(left: 20),
-          child: Container(
-            height: 90,
-            color: Colors.transparent,
-            child: Row(
-              children: [
-                ClipOval(
-                  child: chatUserImage != null
-                      ? CachedNetworkImage(
-                          imageUrl: chatUserImage!,
-                          fit: BoxFit.cover,
-                          width: 65,
-                          height: 65,
-                          errorWidget: (context, url, error) => Icon(Icons.error),
-                        )
-                      : SizedBox(
-                          width: 65,
-                          height: 65,
-                          child: CircularProgressIndicator(),
-                        ),
-                ),
-                SizedBox(width: 13),
-                Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          widget.name,
-                          textAlign: TextAlign.left,
-                          style: GoogleFonts.poppins(fontWeight : FontWeight.w500, fontSize: 16),
-                        ),
-                        Text(
-                          lastMessage,
-                          textAlign: TextAlign.left,
-                          style: GoogleFonts.poppins(fontWeight : FontWeight.w300),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-                SizedBox(width: 10),
-                Spacer(),
-                if (!isCurrentUserLastSender)
-                  Transform.translate(
-                    offset: Offset(-13,0),
-                    child: Container(
-                      width: 20,
-                      height: 20,
-                      decoration: BoxDecoration(
-                        color: reuseableColors.accentColor,
-                        borderRadius: BorderRadius.circular(50)
+      child: Padding(
+        padding: EdgeInsets.only(left: 20),
+        child: Container(
+          height: 90,
+          color: Colors.transparent,
+          child: Row(
+            children: [
+              ClipOval(
+                child: chatUserImage != null
+                    ? CachedNetworkImage(
+                        imageUrl: chatUserImage!,
+                        fit: BoxFit.cover,
+                        width: 65,
+                        height: 65,
+                      )
+                    : SizedBox(
+                        width: 65,
+                        height: 65,
+                        child: CircularProgressIndicator(),
                       ),
+              ),
+              SizedBox(width: 13),
+              Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        widget.name,
+                        textAlign: TextAlign.left,
+                        style: GoogleFonts.poppins(fontWeight : FontWeight.w500, fontSize: 16),
+                      ),
+                      Text(
+                        lastMessage,
+                        textAlign: TextAlign.left,
+                        style: GoogleFonts.poppins(fontWeight : FontWeight.w300),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+              SizedBox(width: 10),
+              Spacer(),
+              if (!isCurrentUserLastSender)
+                Transform.translate(
+                  offset: Offset(-13,0),
+                  child: Container(
+                    width: 20,
+                    height: 20,
+                    decoration: BoxDecoration(
+                      color: reuseableColors.accentColor,
+                      borderRadius: BorderRadius.circular(50)
                     ),
-                  )
-              ],
-            ),
+                  ),
+                )
+            ],
           ),
         ),
       ),
@@ -215,29 +210,7 @@ class _ChatDetailsState extends State<ChatDetails> {
 Widget matchedUser(BuildContext context) {
   return Padding(
     padding: const EdgeInsets.only(left: 8.0, top: 10),
-    child: FutureBuilder<Widget>(
-      future: _buildMatchedUserWidget(context),
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return Row(
-            children: [
-              SizedBox(width: 10,),
-              Image.asset(
-                "lib/images/cards_stack.png",
-                height: 70,
-                width: 70,
-              ),
-              SizedBox(width: 10,),
-              Text("Your matches will appear here", style: GoogleFonts.poppins(),)
-            ],
-          ); // Display a loading indicator while data is being fetched
-        } else if (snapshot.hasError) {
-          return Text('Error: ${snapshot.error}'); // Display an error message if fetching data fails
-        } else {
-          return snapshot.data ?? SizedBox(); // Display the matched user images widget, or an empty SizedBox if data is null
-        }
-      },
-    ),
+    child: _buildMatchedUserWidget(context)
   );
 }
 
@@ -365,7 +338,6 @@ Future popupMatchDetails(BuildContext context, Map value, String key, Map<String
                     GestureDetector(
                       onTap: () {
                         Navigator.of(context).pop();
-                        print(matchedUsersNew?[key]["uniquePath"]);
                         Navigator.push(
                           context,
                           MaterialPageRoute(
@@ -397,32 +369,30 @@ Future popupMatchDetails(BuildContext context, Map value, String key, Map<String
 // Function to fetch data asynchronously
 Future<Map> fetchData(Map value, String key) async {
   try {
-    if (userValues.matchUserDataNew[key] == null) {
+    if (userValues.matchUserData[key] == null) {
       await ApiCalls.getChatUserData(chatUserDetails);
     }
-    return userValues.matchUserDataNew[key];
+    return userValues.matchUserData[key];
   } catch (e) {
     throw Exception('Failed to fetch data: $e');
   }
 }
 
 
-Map<String, dynamic>? matchedUsers;
 
-Future<Widget> _buildMatchedUserWidget(BuildContext context) async {
-  matchedUsers = await firebaseCalls.GetMatchedUsers();
-
+Widget _buildMatchedUserWidget(BuildContext context) {
   // Widgets built will be stored here
+  print(userValues.matchedUsers);
   List<Widget> userImages = [];
   // Check if matchedUsers is not null
   
-  if (matchedUsers != null) {
-    matchedUsers!.forEach((key, value) {
-      String userImage = value["userImage1"];
+  if (userValues.matchedUsers != null) {
+    userValues.matchedUsers!.forEach((key, value) {
+      String userImage = value["userImage1"]; // UserImages 
       userImages.add(
         GestureDetector(
           onTap: () {
-            popupMatchDetails(context, value, key, matchedUsers);
+            popupMatchDetails(context, value, key, userValues.matchedUsers); // Details passed to popUp Container
           },
           child: Padding(
             padding: EdgeInsets.symmetric(horizontal: 5),
@@ -442,7 +412,6 @@ Future<Widget> _buildMatchedUserWidget(BuildContext context) async {
                   placeholder: (context, url) => CircularProgressIndicator(), 
                   errorWidget: (context, url, error) => Icon(Icons.error),
                 ),
-          
               ),
             ),
           ),
@@ -475,6 +444,8 @@ class chatDetailsStructure extends StatelessWidget {
           return Text('Error: ${snapshot.error}');
         } else {
           Map<dynamic, dynamic> chatList = snapshot.data!;
+          
+          // This will return only if the chatlist is empty i.e if the user has no one to message 
           if (chatList.isEmpty){
             return Expanded(
               child: Center(
@@ -485,7 +456,8 @@ class chatDetailsStructure extends StatelessWidget {
                     Opacity(
                       opacity: 0.3,
                       child: Image.asset(
-                        "lib/images/empty_chat.png",
+                        // This will load the sad image face if there are no chats for the user also it depends on the theme that is set
+                        Theme.of(context).brightness == Brightness.dark ? "lib/images/empty_chat_white.png" : "lib/images/empty_chat.png",
                         height: 100,
                         width: 100,
                       ),
@@ -502,6 +474,7 @@ class chatDetailsStructure extends StatelessWidget {
               )
             );
           }
+          // This is when the user has other users to message to 
           else{
             return Expanded(
               child: ListView.builder(
@@ -625,7 +598,6 @@ Widget ActionWidget(String matchUID){
               "key" : userValues.cookieValue,
               "matchUserID": matchUID
             };
-            print(unMatchUser);
             break;
           case 'option2':
             break;

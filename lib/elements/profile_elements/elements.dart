@@ -1,22 +1,18 @@
-// ignore_for_file: prefer_const_literals_to_create_immutables, prefer_const_constructors
-
-import 'dart:io';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:demo/api/api_calls.dart';
-import 'package:demo/elements/create_profile_elements/elements.dart';
 import 'package:demo/pages/about_me_edit_page/edit_page.dart';
 import 'package:demo/pages/basics_edit_page/edit_gender_page.dart';
 import 'package:demo/pages/basics_edit_page/edit_hometown_page.dart';
 import 'package:demo/pages/basics_edit_page/edit_stream_page.dart';
 import 'package:demo/pages/basics_edit_page/edit_year_page.dart';
+import 'package:demo/pages/main_pages/profile_page.dart';
 import 'package:dotted_border/dotted_border.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:http/http.dart' as http;
 
 TextEditingController controller = TextEditingController();
 
@@ -101,7 +97,6 @@ class _PhotosWidgetState extends State<PhotosWidget> {
                           break;
                         case 2:
                           for (int x = 2; x < 3; x++){
-                            print("$x" + " ${x+1}");
                             images["image$x"] = images["image${x+1}"];
                           }
                           images["image3"] = null;
@@ -117,7 +112,6 @@ class _PhotosWidgetState extends State<PhotosWidget> {
                         default:
                           break;
                       }
-                      print(images);
                     });
                   }),
                   CupertinoButton(child: Text("Dismiss", style: GoogleFonts.poppins(color: Colors.black, fontSize: 20),), onPressed: (){
@@ -138,17 +132,40 @@ class _PhotosWidgetState extends State<PhotosWidget> {
   }
 
   void initializeImages() async {
-    await getImagesFromStorage();
+    int imageLength = 0; // Length of images Map
+    int imageDataLength = 0; // Length of uservalues.imageData
+
+    // Removing null from both and getting an length
+
+    images.forEach((key, value) {
+      if (value != null) {
+        imageLength++;
+      }
+    });
+
+    for (dynamic x in widget.imageData){
+      if (x != null){
+        imageDataLength++;
+      }
+    }
+
+    // Compare them if they are different then we need to reload them 
+    
+    if (imageLength != imageDataLength){
+      print(images.length);
+      await getImagesFromStorage();
+    }
   }
 
 Future<void> getImagesFromStorage() async {
   int counter = 0;
 
   for (dynamic imagePath in widget.imageData) {
+    // Some values are null for some reason those get skipped
     if (imagePath == null) continue;
-    final storageRef = FirebaseStorage.instance.ref().child("/UserImages/${userValues.uid}/$imagePath");
 
-    String downloadURL = await storageRef.getDownloadURL(); 
+    // Download URL time saved here by not needing to retrieve it everyTime
+    String downloadURL = "https://firebasestorage.googleapis.com/v0/b/mujdating.appspot.com/o/UserImages%2F${userValues.uid}%2F$imagePath?alt=media&token";
 
       setState(() {
         images["image$counter"] = downloadURL;
@@ -207,7 +224,6 @@ Future<void> getImagesFromStorage() async {
       //     default:
       //       break;
       //   }
-      //   print(images);
       // });
       
     }
@@ -246,7 +262,7 @@ Future<void> getImagesFromStorage() async {
                               width: double.infinity,
                               height: double.infinity,
                               decoration: BoxDecoration(
-                                color: Color(0xFFD9D9D9),
+                                color: Theme.of(context).colorScheme.primaryContainer,
                                 borderRadius: BorderRadius.circular(10),
                               ),
                               child: images["image0"] != null
@@ -286,7 +302,7 @@ Future<void> getImagesFromStorage() async {
                             width: double.infinity,
                             height: double.infinity,
                             decoration: BoxDecoration(
-                              color: Color(0xFFD9D9D9),
+                              color: Theme.of(context).colorScheme.primaryContainer,
                               borderRadius: BorderRadius.circular(10),
                             ),
                           child: images["image1"] != null
@@ -331,7 +347,7 @@ Future<void> getImagesFromStorage() async {
                             width: double.infinity,
                             height: double.infinity,
                             decoration: BoxDecoration(
-                              color: Color(0xFFD9D9D9),
+                              color: Theme.of(context).colorScheme.primaryContainer,
                               borderRadius: BorderRadius.circular(10),
                             ),
                           child: images["image2"] != null
@@ -370,7 +386,7 @@ Future<void> getImagesFromStorage() async {
                             width: double.infinity,
                             height: double.infinity,
                             decoration: BoxDecoration(
-                              color: Color(0xFFD9D9D9),
+                              color: Theme.of(context).colorScheme.primaryContainer,
                               borderRadius: BorderRadius.circular(10),
                             ),
                           child: images["image3"] != null
@@ -400,7 +416,6 @@ Widget aboutMeContainer({String initialValue = '', required VoidCallback onPress
   FocusNode focusNode = FocusNode();
   controller.text = initialValue;
   focusNode.addListener(() {
-    print(focusNode.hasFocus);
     if (focusNode.hasFocus) {
       onPressed();
     }

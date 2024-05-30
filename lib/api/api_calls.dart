@@ -4,6 +4,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'package:firebase_database/firebase_database.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:http/http.dart' as http;
 import 'package:firebase_auth/firebase_auth.dart';
@@ -13,15 +14,18 @@ class userValues{
   static String uid = FirebaseAuth.instance.currentUser!.uid;
   static String ?cookieValue;
   static Map matchUserData = {};  
-  static Map matchUserDataNew = {};  
+  static Map<String, dynamic>? matchedUsers; // UserData for matchedUsers in chatPage 
+  static late String ?fCMToken; // We store fCMToken here so that we can call after getting key
   static bool goToMainPage = false;
   static bool snoozeEnabled = false; // This bool will track if snoozeMode is on or off
   static bool limitReached = false; // This bool will keep track if the user has finished his like quota
   static late List<dynamic> userMatchCandidates = []; 
-  static Map userData = {};
+  static Map userData = {}; // Current UserDetails will be store here (Change always listening in here)
+  static List userImageData = []; // Current UserImageDetails here
   static List<Map<String, dynamic>> matchUserDetails = [];
   static List userImageURLs = [];
   static int userVisited = 0;
+  static bool darkTheme = true; // This bool is gonna keep the track of the theme
 }
 
 class pathAndName {
@@ -35,12 +39,16 @@ class flagChecker{
 class ApiCalls {
   static Future<String> fetchCookieDoggie() async {
       SharedPreferences prefs = await SharedPreferences.getInstance();
-      await firebaseCalls.fetchUserData();
+      firebaseCalls.fetchUserData();
 
       String? localCookieValue = prefs.getString('cookieValue');
+
       // If already cookie is there in localStorage just return that
       if (localCookieValue != null){
         userValues.cookieValue = localCookieValue;
+        
+        // Upload to server 
+        ApiCalls.uploadfCMToken(userValues.fCMToken);
         return localCookieValue;
       }
 
@@ -65,6 +73,9 @@ class ApiCalls {
       
       // Save cookie to localStorage to avoid fetching cookie repeatedly
       await prefs.setString('cookieValue', response.body);
+      
+      // Upload to server 
+      ApiCalls.uploadfCMToken(userValues.fCMToken);
 
       return response.body;
   }
@@ -82,6 +93,29 @@ class ApiCalls {
       );
       
       return response.body;
+  }
+
+  // Function to upload fCMToken to the server just gives the token and key and is stored in /fCMTokens/
+  static uploadfCMToken(String ?token) async {
+    Map storeTokenData = {
+      "key" : userValues.cookieValue,
+      "uid" : userValues.uid,
+      "token" : token,
+      "type" : "storefCMToken"
+    };
+
+    String jsonData = jsonEncode(storeTokenData);
+    var headers = {
+      'Content-Type': 'application/json',
+    };
+
+    var response = await http.post(
+      Uri.parse('https://65b14d8f6e5d33340fe7.appwrite.global/'),
+      headers: headers,
+      body: jsonData,
+    );
+    
+    return response.body;
   }
 
   static uploadUserTagData(data) async {
@@ -111,7 +145,7 @@ class ApiCalls {
       headers: headers,
       body: jsonData,
     );
-    userValues.matchUserDataNew[data["chatUID"]] = jsonDecode(jsonDecode(response.body));
+    userValues.matchUserData[data["chatUID"]] = jsonDecode(jsonDecode(response.body));
     return response.body;
 }
 
@@ -254,21 +288,17 @@ match banner */
 }
 
 class firebaseCalls {
-
   static Future<void> getImagesFromStorage(key, Map<String, dynamic> matchUserData, Function onComplete) async {
     final storageRef = FirebaseStorage.instance.ref().child("/UserImages/$key/");
     final result = await storageRef.listAll();
     var items = result.items;
     int counter  = 1;
     for (var item in items) {
-      String downloadURL = await FirebaseStorage.instance
-          .ref()
-          .child(item.fullPath)
-          .getDownloadURL();
+      String downloadURL = "https://firebasestorage.googleapis.com/v0/b/mujdating.appspot.com/o/UserImages%2F${key}%2F${item.name}?alt=media&token";
       matchUserData[key]["userImage$counter"] = downloadURL;
       counter++;
     }
-    onComplete(); // Call the callback function to notify task completion
+      onComplete(); // Call the callback function to notify task completion
   }
 
   static Future<String> getImagesFromStorageForChats(key, {Map<String, dynamic>? matchUserData, Function? onComplete}) async {
@@ -279,7 +309,7 @@ class firebaseCalls {
     return downloadURL;
   }
 
-  static Future<Map<String, dynamic>?> GetMatchedUsers() async {
+  static Future<Map<String, dynamic>?> getMatchedUsers() async {
     DatabaseReference userMatchRef = FirebaseDatabase.instance.ref('/UserMatchingDetails/${userValues.uid}/MatchUID/');
     
     int tasksCount = 0;
@@ -353,8 +383,34 @@ class firebaseCalls {
     User? user = FirebaseAuth.instance.currentUser;
     final ref = FirebaseDatabase.instance.ref().child("/UsersMetaData/${user?.uid}/");
     
+    final snapshot = await ref.once();
+    final data = snapshot.snapshot.value as Map<dynamic, dynamic>?;
+
+    userValues.userData = data?["UserDetails"];
+    userValues.userImageData = data?["ImageDetails"] as List;
+
+    userValues.matchedUsers = await firebaseCalls.getMatchedUsers();
+
     ref.onValue.listen((event) {
       userValues.userData = (event.snapshot.value as Map<dynamic, dynamic>)["UserDetails"];
+      userValues.userImageData = (event.snapshot.value as Map<dynamic, dynamic>)["ImageDetails"];
     },);
+
+
   }
+
+  // Instance for Firebase Messaging
+
+  // Intialization of notifications
+  Future<void> initNotifications() async {
+    final FBMessaging = FirebaseMessaging.instance;
+    
+    // Request permission from user
+    await FBMessaging.requestPermission();
+
+    // Fetch FCM Token
+    userValues.fCMToken = await FBMessaging.getToken();
+
+  }
+  // Fun
 }

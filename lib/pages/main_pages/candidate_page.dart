@@ -1,6 +1,6 @@
 import 'dart:convert';
 
-import 'package:demo/Colors.dart';
+import 'package:demo/colors/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_card_swiper/flutter_card_swiper.dart';
 import 'package:demo/elements/candidate_details_elements/elements.dart';
@@ -66,8 +66,6 @@ class _CandidatePageState extends State<CandidatePage> {
       await getUserImages();
 
       counterCandidatesAvailable = userValues.matchUserDetails.length;
-      print(counterCandidatesAvailable);
-
       // Once data fetching is over then flags will be automatically updated to show the screen to the user
       setState(() {
         isLoading = false; 
@@ -98,7 +96,7 @@ class _CandidatePageState extends State<CandidatePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: Theme.of(context).colorScheme.background,
       body: isLoading
           ? Center(
               child: Padding(
@@ -107,9 +105,9 @@ class _CandidatePageState extends State<CandidatePage> {
                   width: MediaQuery.of(context).size.width,
                   height: MediaQuery.of(context).size.height,
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: Theme.of(context).colorScheme.secondary,
                     borderRadius: BorderRadius.circular(10),
-                    border: Border.all(color: const Color.fromARGB(255, 213, 213, 213))
+                    border: Border.all(color: Theme.of(context).colorScheme.secondary)
                   ),
                   child: Center(child: CircularProgressIndicator()),
                 ),
@@ -238,12 +236,10 @@ class _CandidatePageState extends State<CandidatePage> {
                         "matchName": userValues.matchUserDetails[previousIndex]["UserDetails"]["name"],
                         "userName": userValues.userData["name"]
                       };
-                      print(data);
                       ApiCalls.swipeActionsMatch(data).then((response) {
                         dynamic decodedResponse = jsonDecode(response);
                         if (decodedResponse["identifier"] == 1){
                           Navigator.push(context, MaterialPageRoute(builder: (context) => matchedBannerPage(matchUID: decodedResponse["uid"], imageName: decodedResponse["imageName"],)),);
-                          print("Match Found");
                         }
                       });
                     }

@@ -1,6 +1,6 @@
 // ignore_for_file: camel_case_types, prefer_const_constructors, prefer_const_literals_to_create_immutables
 
-import 'package:demo/colors.dart';
+import 'package:demo/colors/colors.dart';
 import 'package:demo/pages/appbar_pages/filters_page.dart';
 import 'package:demo/pages/main_pages/candidate_page.dart';
 import 'package:demo/pages/main_pages/chat_page.dart';
@@ -24,7 +24,7 @@ class mainPage extends StatefulWidget {
 
 class mainPageState extends State<mainPage> {
   late int bottomBarIndex = 1;
-  String appBarTitle = "MUJDating";
+  String appBarTitle = "LinkUp";
   IconData? type = Icons.tune_rounded;
 
   IconData profileIcon = Icons.person_outline_outlined;
@@ -81,7 +81,7 @@ class mainPageState extends State<mainPage> {
           chatIcon = Icons.chat_bubble_outline_rounded;
           break;
         case 1:
-          appBarTitle = "MUJDating";
+          appBarTitle = "LinkUp";
           type = Icons.tune_rounded;
           candidateIcon = Icons.favorite_rounded;
           profileIcon = Icons.person_outline_outlined;
@@ -120,35 +120,38 @@ class mainPageState extends State<mainPage> {
     });
   }
   
-  Widget buildNoInternetWidget() {
-    return Container(
-      padding: EdgeInsets.all(0),
-      width: MediaQuery.of(context).size.width,
-      decoration: BoxDecoration(
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Container(
-            padding: EdgeInsets.symmetric(vertical: 5, horizontal: 10),
-            decoration: BoxDecoration(
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.3),
-                  spreadRadius: 1,
-                  blurRadius: 5,
-                  offset: Offset(0, 3), 
-                ),
-              ],
-              color: reuseableColors.primaryColor, 
-              borderRadius: BorderRadius.circular(5),
+  Widget buildNoInternetWidget(String width) {
+    double offsetMiddle = (115 / 392.72727272727275) * MediaQuery.of(context).size.width;
+    return Transform.translate(
+      offset: Offset(offsetMiddle,0),
+      child: Container(
+        padding: EdgeInsets.all(0),
+        width: MediaQuery.of(context).size.width,
+        decoration: BoxDecoration(
+        ),
+        child: Row(
+          children: [
+            Container(
+              padding: EdgeInsets.symmetric(vertical: 5, horizontal: 10),
+              decoration: BoxDecoration(
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.3),
+                    spreadRadius: 1,
+                    blurRadius: 5,
+                    offset: Offset(0, 3), 
+                  ),
+                ],
+                color: reuseableColors.primaryColor, 
+                borderRadius: BorderRadius.circular(5),
+              ),
+              child: Text(
+                'You are offline',
+                style: GoogleFonts.poppins(fontSize: 16, color: Colors.white),
+              ),
             ),
-            child: Text(
-              'You are offline',
-              style: GoogleFonts.poppins(fontSize: 16, color: Colors.white),
-            ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -157,8 +160,8 @@ class mainPageState extends State<mainPage> {
   @override
   Widget build(BuildContext context) {
     return AnnotatedRegion<SystemUiOverlayStyle>(
-      value: const SystemUiOverlayStyle(
-        systemNavigationBarColor: Colors.white
+      value: SystemUiOverlayStyle(
+        systemNavigationBarColor: Theme.of(context).colorScheme.background
       ),
       child: Scaffold(
         body: _pages[bottomBarIndex],
@@ -166,7 +169,7 @@ class mainPageState extends State<mainPage> {
           toolbarHeight: 50,
           scrolledUnderElevation: 0,
           elevation: 0,
-          backgroundColor: Colors.white,
+          backgroundColor: Theme.of(context).colorScheme.background,
           title: Stack(
             children: [
               Align(
@@ -176,9 +179,9 @@ class mainPageState extends State<mainPage> {
                   style: GoogleFonts.raleway(fontSize: 25, fontWeight: FontWeight.w500),
                 ),
               ),
-              if (!internetStatus) buildNoInternetWidget().animate(delay: Duration(milliseconds: 500)).slideY(begin: -1.8),
+              if (!internetStatus) buildNoInternetWidget((MediaQuery.of(context).size.width).toString()).animate(delay: Duration(milliseconds: 500)).slideY(begin: -1.8),
       
-              if (internetStatus)  buildNoInternetWidget().animate().slideY(end: -1.8).fadeOut(),
+              if (internetStatus)  buildNoInternetWidget((MediaQuery.of(context).size.width).toString()).animate().slideY(end: -1.8).fadeOut(),
             ],
           ),
           actions: [
@@ -197,7 +200,7 @@ class mainPageState extends State<mainPage> {
         bottomNavigationBar: SizedBox(
           child: Container(
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: Theme.of(context).colorScheme.background,
             ),
             child: Transform.translate(
               offset: Offset(0,10),

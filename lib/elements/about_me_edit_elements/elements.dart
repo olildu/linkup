@@ -183,15 +183,15 @@ class DrinkingContainer extends StatelessWidget {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: [
-                            OptionChildrenBuilder("Frequently", "Drinking", onOptionSelected),
+                            OptionChildrenBuilder("Frequently", "Drinking", context, onOptionSelected),
                             SizedBox(height: 10),
-                            OptionChildrenBuilder("Socially", "Drinking", onOptionSelected),
+                            OptionChildrenBuilder("Socially", "Drinking", context, onOptionSelected),
                             SizedBox(height: 10),
-                            OptionChildrenBuilder("Rarely", "Drinking", onOptionSelected),
+                            OptionChildrenBuilder("Rarely", "Drinking", context, onOptionSelected),
                             SizedBox(height: 10),
-                            OptionChildrenBuilder("Never", "Drinking", onOptionSelected),
+                            OptionChildrenBuilder("Never", "Drinking", context, onOptionSelected),
                             SizedBox(height: 10),
-                            OptionChildrenBuilder("Sober", "Drinking", onOptionSelected),
+                            OptionChildrenBuilder("Sober", "Drinking", context, onOptionSelected),
                           ],
                         ),
                       ),
@@ -238,11 +238,11 @@ class SmokingContainer extends StatelessWidget {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: [
-                            OptionChildrenBuilder("Socially", "Smoking", onOptionSelected),
+                            OptionChildrenBuilder("Socially", "Smoking", context, onOptionSelected),
                             SizedBox(height: 10),
-                            OptionChildrenBuilder("Regularly", "Smoking", onOptionSelected),
+                            OptionChildrenBuilder("Regularly", "Smoking", context, onOptionSelected),
                             SizedBox(height: 10),
-                            OptionChildrenBuilder("Never", "Smoking", onOptionSelected),
+                            OptionChildrenBuilder("Never", "Smoking", context, onOptionSelected),
                           ],
                         ),
                       ),
@@ -289,11 +289,11 @@ class LookingForContainer extends StatelessWidget {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: [
-                            OptionChildrenBuilder("Relationship", "lookingFor", onOptionSelected),
+                            OptionChildrenBuilder("Relationship", "lookingFor", context, onOptionSelected),
                             SizedBox(height: 10),
-                            OptionChildrenBuilder("Something Casual", "lookingFor", onOptionSelected),
+                            OptionChildrenBuilder("Something Casual", "lookingFor", context, onOptionSelected),
                             SizedBox(height: 10),
-                            OptionChildrenBuilder("Don't know yet", "lookingFor", onOptionSelected),
+                            OptionChildrenBuilder("Don't know yet", "lookingFor", context, onOptionSelected),
                           ],
                         ),
                       ),
@@ -339,29 +339,29 @@ class ReligionContainer extends StatelessWidget {
                     height: MediaQuery.of(context).size.height * 0.6,
                     child: ListView(
                       children: [
-                        OptionChildrenBuilder("Agnostic", "religionStatus", onOptionSelected),
+                        OptionChildrenBuilder("Agnostic", "religionStatus", context, onOptionSelected),
                         SizedBox(height: 10),
-                        OptionChildrenBuilder("Atheist", "religionStatus", onOptionSelected),
+                        OptionChildrenBuilder("Atheist", "religionStatus", context, onOptionSelected),
                         SizedBox(height: 10),
-                        OptionChildrenBuilder("Buddhist", "religionStatus", onOptionSelected),
+                        OptionChildrenBuilder("Buddhist", "religionStatus", context, onOptionSelected),
                         SizedBox(height: 10),
-                        OptionChildrenBuilder("Catholic", "religionStatus", onOptionSelected),
+                        OptionChildrenBuilder("Catholic", "religionStatus", context, onOptionSelected),
                         SizedBox(height: 10),
-                        OptionChildrenBuilder("Christian", "religionStatus", onOptionSelected),
+                        OptionChildrenBuilder("Christian", "religionStatus", context, onOptionSelected),
                         SizedBox(height: 10),
-                        OptionChildrenBuilder("Hindu", "religionStatus", onOptionSelected),
+                        OptionChildrenBuilder("Hindu", "religionStatus", context, onOptionSelected),
                         SizedBox(height: 10),
-                        OptionChildrenBuilder("Jain", "religionStatus", onOptionSelected),
+                        OptionChildrenBuilder("Jain", "religionStatus", context, onOptionSelected),
                         SizedBox(height: 10),
-                        OptionChildrenBuilder("Jewish", "religionStatus", onOptionSelected),
+                        OptionChildrenBuilder("Jewish", "religionStatus", context, onOptionSelected),
                         SizedBox(height: 10),
-                        OptionChildrenBuilder("Mormon", "religionStatus", onOptionSelected),
+                        OptionChildrenBuilder("Mormon", "religionStatus", context, onOptionSelected),
                         SizedBox(height: 10),
-                        OptionChildrenBuilder("Muslim", "religionStatus", onOptionSelected),
+                        OptionChildrenBuilder("Muslim", "religionStatus", context, onOptionSelected),
                         SizedBox(height: 10),
-                        OptionChildrenBuilder("Sikh", "religionStatus", onOptionSelected),
+                        OptionChildrenBuilder("Sikh", "religionStatus", context, onOptionSelected),
                         SizedBox(height: 10),
-                        OptionChildrenBuilder("Other", "religionStatus", onOptionSelected),
+                        OptionChildrenBuilder("Other", "religionStatus", context, onOptionSelected),
                         SizedBox(height: 30),
                         Center(child: Text("Skip", style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500))),
                       ],
@@ -377,7 +377,7 @@ class ReligionContainer extends StatelessWidget {
   }
 }
 
-Widget OptionChildrenBuilder(String optionText, String Type, [Function()? onOptionSelected]) {
+Widget OptionChildrenBuilder(String optionText, String Type, BuildContext context, [Function()? onOptionSelected]) {
   return GestureDetector(
     onTap: () {
       switch(Type){
@@ -407,8 +407,8 @@ Widget OptionChildrenBuilder(String optionText, String Type, [Function()? onOpti
     child: Container(
       padding: const EdgeInsets.symmetric(vertical: 15),
       decoration: BoxDecoration(
-        color: Colors.white,
-        border: Border.all(color: const Color.fromARGB(255, 233, 233, 233)),
+        color: Theme.of(context).colorScheme.primary,
+        border: Border.all(color: Theme.of(context).colorScheme.secondary,),
         borderRadius: BorderRadius.circular(40),
       ),
       child: Center(

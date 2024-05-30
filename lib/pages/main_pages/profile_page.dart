@@ -1,13 +1,10 @@
 // ignore_for_file: use_super_parameters, prefer_const_constructors, prefer_const_literals_to_create_immutables
 
-import 'package:demo/Colors.dart';
+import 'package:demo/colors/colors.dart';
 import 'package:demo/api/api_calls.dart';
 import 'package:demo/elements/profile_elements/elements.dart';
-import 'package:demo/main_page.dart';
-import 'package:demo/pages/login_page/login_page.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class ProfilePage extends StatefulWidget {
@@ -19,40 +16,27 @@ class ProfilePage extends StatefulWidget {
 
 class _ProfilePageState extends State<ProfilePage> {
   dynamic Userdata;
-  bool isDataLoaded = false;
-  bool test = false;
+  bool isDataLoaded = true;
+  bool aboutMeClicked = false;
 
   @override
   void initState() {
     super.initState();
-    fetchUserData();
   }
 
-
-  void fetchUserData() async{
-    User? user = FirebaseAuth.instance.currentUser;
-    final ref = FirebaseDatabase.instance.ref().child("/UsersMetaData/${user?.uid}/");
-    
-    ref.onValue.listen((event) {
-      Userdata = event.snapshot.value;
-      userValues.userData = Userdata["UserDetails"];
-      setState(() {
-        isDataLoaded = true;
-      });
-    },);
-  }
 
   @override
   Widget build(BuildContext context) {
     if (!isDataLoaded) {
       return Scaffold(
+        backgroundColor: Theme.of(context).colorScheme.background,
         body: Center(
           child: CircularProgressIndicator(),
         ),
       );
     }
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: Theme.of(context).colorScheme.background,
       body: 
       SingleChildScrollView(
         child: Container(
@@ -63,37 +47,37 @@ class _ProfilePageState extends State<ProfilePage> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 // Photos Title
-                titleAndSubtitle("Your Photos", "Add photos that show your true self"),
+                titleAndSubtitle("Your Photos", "Add photos that show your true self", subTitleColor: Theme.of(context).colorScheme.secondaryContainer),
                 
                 SizedBox(height: 30), 
 
                 // Photos
-                PhotosWidget(imageData: Userdata["ImageDetails"]),
+                PhotosWidget(imageData: userValues.userImageData),
 
                 SizedBox(height: 40), 
 
                 // About Me Title
-                titleAndSubtitle("About Me", "Write something that catches the eye"),
+                titleAndSubtitle("About Me", "Write something that catches the eye", subTitleColor: Theme.of(context).colorScheme.secondaryContainer),
 
                 SizedBox(height: 30), 
 
                 // About Me Container
 
                 aboutMeContainer(
-                  initialValue: Userdata?["UserDetails"]["aboutMe"] ?? "",
+                  initialValue: userValues.userData["aboutMe"] ?? "",
                   onPressed: () {
                     setState(() {
-                      test = true;
+                      aboutMeClicked = true;
                     });
                   },
                   onFocusLost: () {
                     setState(() {
-                      test = false;
+                      aboutMeClicked = false;
                     });
                   }
                 ),
 
-                if (test)
+                if (aboutMeClicked)
                 Column(
                   children: [
                     SizedBox(height: 20,),
@@ -101,7 +85,7 @@ class _ProfilePageState extends State<ProfilePage> {
                     alignment: Alignment.centerRight,
                     child: FloatingActionButton(onPressed: (){
                       setState(() {
-                        test = false;
+                        aboutMeClicked = false;
                       });
                       Map userDataTags = {
                         "uid": userValues.uid,
@@ -123,23 +107,23 @@ class _ProfilePageState extends State<ProfilePage> {
                 SizedBox(height: 20), 
 
                 // More About Me Title
-                titleAndSubtitle("More about me", "Things most people are curious about"),
+                titleAndSubtitle("More about me", "Things most people are curious about", subTitleColor: Theme.of(context).colorScheme.secondaryContainer),
 
                 SizedBox(height: 30), 
 
                 // More About Me Children
-                moreAboutMeChildren(context, Userdata["UserDetails"]),
+                moreAboutMeChildren(context, userValues.userData),
 
                 SizedBox(height: 40), 
 
                 // My Basics Title
-                titleAndSubtitle("My basics", "Get your basics right"),
+                titleAndSubtitle("My basics", "Get your basics right", subTitleColor: Theme.of(context).colorScheme.secondaryContainer),
 
                 SizedBox(height: 30), 
 
                 //My Basics Chilren
 
-                myBasicsChildren(context, Userdata["UserDetails"])
+                myBasicsChildren(context, userValues.userData)
 
               ],
             ),

@@ -56,7 +56,10 @@ dependencies:
   internet_connection_checker: ^1.0.0+1
   get: ^4.6.6
   shared_preferences: ^2.2.3
-
+  animated_splash_screen: ^1.3.0
+  video_player: ^2.8.6
+  firebase_messaging: ^14.9.4
+  
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -95,6 +98,7 @@ flutter:
     - lib/images/
     - assets/audio/
     - assets/logo/
+    - assets/video/
     
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware

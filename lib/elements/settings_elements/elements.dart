@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-Widget buttonBuilder(String title, IconData? iconData){
+Widget buttonBuilder(String title, IconData? iconData, BuildContext context){
   return Row(
     children: [
       Expanded(
@@ -9,7 +9,8 @@ Widget buttonBuilder(String title, IconData? iconData){
           padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 20),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(30),
-            color: const Color(0xFFD9D9D9) 
+            border: Border.all(color: Theme.of(context).colorScheme.secondary,),
+            color: Theme.of(context).colorScheme.primary
           ),
           child: Row(
             children: [
@@ -24,18 +25,20 @@ Widget buttonBuilder(String title, IconData? iconData){
   );
 }
 
-Widget DisableNotificationsButton(bool isSwitchOn, VoidCallback onPressed) {
+Widget DisableNotificationsButton(bool isSwitchOn, VoidCallback onPressed, BuildContext context) {
   return Row(
     children: [
       Expanded(
         child: Container(
           padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 20),
           decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(30), color: const Color(0xFFD9D9D9)),
+              borderRadius: BorderRadius.circular(30),
+              border: Border.all(color: Theme.of(context).colorScheme.secondary,),
+              color: Theme.of(context).colorScheme.primary),
           child: Row(
             children: [
               Text(
-                "Disable all notifications",
+                "Switch to light mode",
                 style: GoogleFonts.poppins(fontSize: 18),
               ),
               Spacer(),

@@ -1,6 +1,8 @@
 // ignore_for_file: prefer_const_constructors
 
-import 'package:demo/colors.dart';
+import 'dart:math';
+
+import 'package:demo/colors/colors.dart';
 import 'package:demo/elements/home_elements/elements.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -28,58 +30,67 @@ class _LoginPageState extends State<LoginPage> {
   Widget build(BuildContext context) {
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: SystemUiOverlayStyle(
-        statusBarColor: reuseableColors.secondaryColor,
+        statusBarColor: const Color.fromRGBO(21, 18, 13, 1),
         statusBarIconBrightness: Brightness.light,
-        systemNavigationBarColor: reuseableColors.secondaryColor
+        systemNavigationBarColor: const Color.fromRGBO(21, 18, 13, 1)
       ),
-      child: Scaffold(
-        backgroundColor: Color.fromRGBO(12, 25, 44, 1),
-        body: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 40.0),
-          child: Center(
-            child: Column(
-              children: [
-                SizedBox(height: 90),
-      
-                // MUJDating Branding Name
-      
-                appTitle(),
-                
-                SizedBox(height: 100),
-      
-                // Images Love and Hands Symbol
-      
-                imagesLoveHands(),
-      
-                const Spacer(),
-                
-                // Dating For MUJ Students (SLOGAN)
-      
-                appSlogan(),
-      
-                SizedBox(height: 10),
-      
-                // Join the campus dating community
-      
-                infotext(),
-      
-                const SizedBox(height: 20),
-      
-                // Join Today Button (Login logic make in this widget)
-      
-                joinTodayButton(context),
-      
-                const SizedBox(height: 60),
-      
-                // Terms and Conditions
-      
-                termsAndConditions(),
-                
-                const SizedBox(height: 20),
-              ],
+      child: Stack(
+        children: <Widget> [
+          Image.asset(
+            "lib/images/login_page.jpg",
+            height: MediaQuery.of(context).size.height,
+            width: MediaQuery.of(context).size.width,
+            fit: BoxFit.cover,
+          ),
+          Scaffold(
+            backgroundColor: Colors.transparent,
+            body: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 40.0),
+              child: Center(
+                child: Column(
+                  children: [
+                    SizedBox(height: 90),
+          
+                    // LinkUp Branding Name
+          
+                    appTitle(),
+                    
+                    SizedBox(height: 100),
+          
+                    // Images Love and Hands Symbol
+          
+          
+                    const Spacer(),
+                    
+                    // Dating For MUJ Students (SLOGAN)
+          
+                    appSlogan(),
+          
+                    SizedBox(height: 10),
+          
+                    // Join the campus dating community
+          
+                    infotext(),
+          
+                    const SizedBox(height: 20),
+          
+                    // Join Today Button (Login logic make in this widget)
+          
+                    joinTodayButton(context),
+          
+                    const SizedBox(height: 60),
+          
+                    // Terms and Conditions
+          
+                    termsAndConditions(),
+                    
+                    const SizedBox(height: 20),
+                ],
+              ),
             ),
           ),
         ),
+        ]
       ),
     );
   }

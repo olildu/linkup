@@ -1,6 +1,6 @@
 // ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables
 
-import 'package:demo/elements/chat_elements/elements.dart';
+import 'package:linkup/elements/chat_elements/elements.dart';
 import 'package:flutter/material.dart';
 
 class ChatPage extends StatefulWidget {
@@ -11,9 +11,12 @@ class ChatPage extends StatefulWidget {
 }
 
 class _ChatPageState extends State<ChatPage> {
+  dynamic Userdata;
+
   @override
   void initState() {
     super.initState();
+    print("Chat Page");
   }
 
   @override
@@ -29,7 +32,7 @@ class _ChatPageState extends State<ChatPage> {
             matchQueTitle(),
     
             // Matches Que
-            matchedUser(context),
+            matchedUsers(),
     
             SizedBox(height: 10),
 
@@ -37,10 +40,9 @@ class _ChatPageState extends State<ChatPage> {
             chatTitle(),
     
             // Chat Widgets
-    
             SizedBox(height: 5),
     
-            chatDetailsStructure(),
+            chatDetailsChatPage(),
           ],
         ),
       ),

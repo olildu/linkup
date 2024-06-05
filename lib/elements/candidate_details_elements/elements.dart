@@ -1,7 +1,7 @@
 // ignore_for_file: unused_element, prefer_const_constructors, prefer_const_literals_to_create_immutables, non_constant_identifier_names
 
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:demo/elements/candidate_page_elements/elements.dart';
+import 'package:linkup/elements/candidate_page_elements/elements.dart';
 import 'package:flutter/material.dart';
 
 const Color tagColor = Color(0xFF0C192C);

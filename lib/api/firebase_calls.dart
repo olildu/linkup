@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:demo/api/api_calls.dart';
+import 'package:linkup/api/api_calls.dart';
 import 'package:firebase_database/firebase_database.dart';
 
 class FirebaseCalls {

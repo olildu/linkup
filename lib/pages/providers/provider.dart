@@ -1,5 +1,5 @@
-import 'package:demo/api/api_calls.dart';
-import 'package:demo/colors/theme.dart';
+import 'package:linkup/api/api_calls.dart';
+import 'package:linkup/colors/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -14,7 +14,6 @@ class ThemeProvider with ChangeNotifier{
   }
 
   void toggleTheme() async{
-    print("Toggled Here");
     SharedPreferences prefs = await SharedPreferences.getInstance();
     if (themeData == darkMode){
       themeData = lightMode;

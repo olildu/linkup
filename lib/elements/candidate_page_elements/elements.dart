@@ -1,4 +1,4 @@
-import 'package:demo/elements/candidate_details_elements/elements.dart';
+import 'package:linkup/elements/candidate_details_elements/elements.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:cached_network_image/cached_network_image.dart';
@@ -243,7 +243,7 @@ Widget aboutMeAndTags({Map? data, Map? candidateDetails}) {
   );
 }
 
-Widget fromOrStreamDetails({bool buttonsNeeded = true, Map? data, Map? candidateDetails}) {
+Widget fromOrStreamDetails({bool buttonsNeeded = true, Map? candidateDetails}) {
   String fromOrStreamString;
   if (candidateDetails?["fromPlace"] == null){
     fromOrStreamString = '${candidateDetails?["stream"]}, ${addYearSuffix((candidateDetails?["year"]).toString())} year';

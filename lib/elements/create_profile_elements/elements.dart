@@ -3,8 +3,8 @@
 
 import 'dart:io';
 
-import 'package:demo/api/api_calls.dart';
-import 'package:demo/elements/profile_elements/elements.dart';
+import 'package:linkup/api/api_calls.dart';
+import 'package:linkup/elements/profile_elements/elements.dart';
 import 'package:dotted_border/dotted_border.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
@@ -590,7 +590,7 @@ class _DateContainerNewState extends State<DateContainerNew> {
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisAlignment: MainAxisAlignment.start,
       children: [
-        titleAndSubtitle("When were you born?", "Users above 18 can only use LinkUp", titleColor: Colors.white, subTitleColor: const Color(0xFFC0C0C0)),
+        titleAndSubtitle("When were you born?", "Users above 18 can only use linkup", titleColor: Colors.white, subTitleColor: const Color(0xFFC0C0C0)),
         const SizedBox(height: 30,),
         GestureDetector(
           onTap: () {

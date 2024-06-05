@@ -1,6 +1,6 @@
-# demo
+# linkup
 
-A new Flutter project.
+A dating app for college students
 
 ## Getting Started
 

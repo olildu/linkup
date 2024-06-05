@@ -1,7 +1,7 @@
 // ignore_for_file: prefer_const_constructors
 
-import 'package:demo/api/api_calls.dart';
-import 'package:demo/elements/profile_elements/elements.dart';
+import 'package:linkup/api/api_calls.dart';
+import 'package:linkup/elements/profile_elements/elements.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';

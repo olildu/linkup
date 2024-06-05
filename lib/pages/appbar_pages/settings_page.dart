@@ -1,14 +1,13 @@
 // ignore_for_file: prefer_const_constructors
 
-import 'package:demo/colors/colors.dart';
-import 'package:demo/api/api_calls.dart';
-import 'package:demo/elements/settings_elements/elements.dart';
-import 'package:demo/pages/login_page/login_page.dart';
-import 'package:demo/pages/providers/provider.dart';
+import 'package:linkup/colors/colors.dart';
+import 'package:linkup/api/api_calls.dart';
+import 'package:linkup/elements/settings_elements/elements.dart';
+import 'package:linkup/pages/login_page/login_page.dart';
+import 'package:linkup/pages/providers/provider.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';

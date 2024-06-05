@@ -1,14 +1,11 @@
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:demo/api/api_calls.dart';
-import 'package:demo/pages/about_me_edit_page/edit_page.dart';
-import 'package:demo/pages/basics_edit_page/edit_gender_page.dart';
-import 'package:demo/pages/basics_edit_page/edit_hometown_page.dart';
-import 'package:demo/pages/basics_edit_page/edit_stream_page.dart';
-import 'package:demo/pages/basics_edit_page/edit_year_page.dart';
-import 'package:demo/pages/main_pages/profile_page.dart';
+import 'package:linkup/api/api_calls.dart';
+import 'package:linkup/pages/about_me_edit_page/edit_page.dart';
+import 'package:linkup/pages/basics_edit_page/edit_gender_page.dart';
+import 'package:linkup/pages/basics_edit_page/edit_hometown_page.dart';
+import 'package:linkup/pages/basics_edit_page/edit_stream_page.dart';
+import 'package:linkup/pages/basics_edit_page/edit_year_page.dart';
 import 'package:dotted_border/dotted_border.dart';
-import 'package:firebase_database/firebase_database.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -152,7 +149,6 @@ class _PhotosWidgetState extends State<PhotosWidget> {
     // Compare them if they are different then we need to reload them 
     
     if (imageLength != imageDataLength){
-      print(images.length);
       await getImagesFromStorage();
     }
   }
@@ -485,35 +481,37 @@ Widget childrenBuilder(IconData type, String childText) {
 }
 
 Widget childrenBuilder1(IconData type, String childText, data) {
-  return Row(
-    children: [
-      Icon(
-        type,
-        size: 27,
-      ),
-      SizedBox(width: 14),
-      Text(
-        childText,
-        style: GoogleFonts.poppins(
-          fontSize: 16,
+  return Container(
+    child: Row(
+      children: [
+        Icon(
+          type,
+          size: 27,
         ),
-      ),
-      Spacer(),
-      Text(
-        data.toString(),
-        style: GoogleFonts.poppins(
-          fontSize: 16,
+        SizedBox(width: 14),
+        Text(
+          childText,
+          style: GoogleFonts.poppins(
+            fontSize: 16,
+          ),
         ),
-      ),
-      Icon(
-        Icons.chevron_right_rounded,
-        size: 30,
-      ),
-    ],
+        Spacer(),
+        Text(
+          data.toString(),
+          style: GoogleFonts.poppins(
+            fontSize: 16,
+          ),
+        ),
+        Icon(
+          Icons.chevron_right_rounded,
+          size: 30,
+        ),
+      ],
+    ),
   );
 }
 
-Widget moreAboutMeChildren(BuildContext context, userData) {
+Widget moreAboutMeChildren(BuildContext context, Map userData) {
   return Column(
     children: [
       GestureDetector(onTap: () {
@@ -521,7 +519,7 @@ Widget moreAboutMeChildren(BuildContext context, userData) {
         context,
         MaterialPageRoute(builder: (context) => edit_about_me(counter: 1, progressTrackerValue: 40, userData: userData)),
       );
-      }, child: childrenBuilder1(Icons.straighten, "Height", userData?["height"] ?? "Add")),
+      }, child: childrenBuilder1(Icons.straighten, "Height", userData["height"] ?? "Add")),
       SizedBox(height: 25),
   
       GestureDetector(onTap: () {
@@ -529,7 +527,7 @@ Widget moreAboutMeChildren(BuildContext context, userData) {
         context,
         MaterialPageRoute(builder: (context) => edit_about_me(counter: 2, progressTrackerValue: 80, userData: userData)),
       );
-      }, child: childrenBuilder1(Icons.wine_bar_rounded, "Drinking", userData?["drinkingStatus"] ?? "Add")),
+      }, child: childrenBuilder1(Icons.wine_bar_rounded, "Drinking", userData["drinkingStatus"] ?? "Add")),
       SizedBox(height: 25),
   
       GestureDetector(onTap: () {
@@ -537,7 +535,7 @@ Widget moreAboutMeChildren(BuildContext context, userData) {
         context,
         MaterialPageRoute(builder: (context) => edit_about_me(counter: 4, progressTrackerValue: 120, userData: userData)),
       );
-      }, child: childrenBuilder1(Icons.smoking_rooms_rounded, "Smoking", userData?["smokingStatus"] ?? "Add")),
+      }, child: childrenBuilder1(Icons.smoking_rooms_rounded, "Smoking", userData["smokingStatus"] ?? "Add")),
       SizedBox(height: 25),
   
       GestureDetector(onTap: () {
@@ -545,7 +543,7 @@ Widget moreAboutMeChildren(BuildContext context, userData) {
         context,
         MaterialPageRoute(builder: (context) => edit_about_me(counter: 5, progressTrackerValue: 160, userData: userData)),
       );
-      }, child: childrenBuilder1(Icons.search_rounded, "Looking For", userData?["datingStatus"] ?? "Add")),
+      }, child: childrenBuilder1(Icons.search_rounded, "Looking For", userData["datingStatus"] ?? "Add")),
       SizedBox(height: 25),
   
   
@@ -554,7 +552,7 @@ Widget moreAboutMeChildren(BuildContext context, userData) {
         context,
         MaterialPageRoute(builder: (context) => edit_about_me(counter: 8, progressTrackerValue: 200, userData: userData)),
       );
-      }, child: childrenBuilder1(Icons.synagogue_rounded, "Religion", userData?["religionStatus"] ?? "Add")),
+      }, child: childrenBuilder1(Icons.synagogue_rounded, "Religion", userData["religionStatus"] ?? "Add")),
     ],
   );
 }

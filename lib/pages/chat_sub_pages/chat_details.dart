@@ -3,14 +3,14 @@
 import 'dart:async';
 
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:demo/api/api_calls.dart';
-import 'package:demo/elements/chat_elements/elements.dart';
-import 'package:demo/colors/colors.dart';
+import 'package:flutter/widgets.dart';
+import 'package:linkup/api/api_calls.dart';
+import 'package:linkup/elements/chat_elements/elements.dart';
+import 'package:linkup/colors/colors.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
-import 'package:demo/elements/candidate_page_elements/elements.dart';
+import 'package:linkup/elements/candidate_page_elements/elements.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/widgets.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class ChatDetailsPage extends StatefulWidget {
@@ -18,8 +18,9 @@ class ChatDetailsPage extends StatefulWidget {
   final String imageUrl;
   final String path;
   final String matchUID;
+  final bool notChatPage;
 
-  const ChatDetailsPage({super.key, required this.appBarTitle, required this.imageUrl, required this.path, required this.matchUID,});
+  const ChatDetailsPage({super.key, required this.appBarTitle, required this.imageUrl, required this.path, required this.matchUID, this.notChatPage = true});
 
   @override
   _ChatDetailsPageState createState() => _ChatDetailsPageState();
@@ -27,60 +28,84 @@ class ChatDetailsPage extends StatefulWidget {
 
 class _ChatDetailsPageState extends State<ChatDetailsPage> {
   TextEditingController _messageController = TextEditingController();
-    
+  FocusNode myFocusNode = FocusNode();
+  final ScrollController _scrollController = ScrollController();
 
-  List<Map<String, dynamic>> _messages = [
-
-  ];
+  List<Map<String, dynamic>> _messages = [];
 
   void _addMessage(Map<String, dynamic> message) {
     setState(() {
+      scrollDown();
       _messages.add(message);
     });
   }
 
+  @override
   void initState() {
     super.initState();
-    // Call your asynchronous method inside a separate function
-    _fetchChatMessages();
+    
+    // Fetch messages required 
+    fetchChatMessages();
+
+    // Change required notificationHandlers
+    userValues.notificationHandlers["allowNotification"] = true;
+    userValues.notificationHandlers["currentMatchUID"] = widget.matchUID;
+
+    userValues.shouldLoad = true;
+
+    Future.delayed(const Duration(milliseconds: 500), () => scrollDown());
+
+    myFocusNode.addListener(() {
+      if(myFocusNode.hasFocus){
+        Future.delayed(const Duration(milliseconds: 500), () => scrollDown());
+      }
+    });
   }
 
-  void _fetchChatMessages() async {
-    DatabaseReference userMatchRef = FirebaseDatabase.instance.ref('/UserChats/${widget.path}/');
-    int x = 1;
-    // Listen for data changes
-    userMatchRef.onValue.listen((DatabaseEvent event) {
-      Map<dynamic, dynamic>? chatList = event.snapshot.value as Map<dynamic, dynamic>?;
+  @override
+  void dispose() {
+    if (!widget.notChatPage){
+      userValues.notificationHandlers["allowNotification"] = false;
+    }
+
+    userValues.notificationHandlers["currentMatchUID"] = null;
+
+    myFocusNode.dispose();
+    _messageController.dispose();
+    super.dispose();
+  }
+
+  void scrollDown(){
+    _scrollController.animateTo(_scrollController.position.maxScrollExtent,
+    duration: const Duration(milliseconds: 500),
+    curve: Curves.fastOutSlowIn
+  );  
+}
+
+  void fetchChatMessages() async {
+    DatabaseReference userMatchRef = FirebaseDatabase.instance.ref('/UserChats/${widget.path}/Messages');
+
+    userMatchRef.onChildAdded.listen((event) {
+      Map messages = event.snapshot.value as Map;
+
+      String message = messages["content"];
+      String sender = messages["uid"];
+
+      if (sender == userValues.uid) {
+        sender = "user1";
+      } else {
+        sender = "user2";
+      }
       
-    if (chatList != null && chatList["Messages"] != null) {
-      List<dynamic> messages = chatList["Messages"];
-
-      for (x; x < messages.length; x++) {
-        Map message = messages[x];
-        String sender = message["uid"];
-
-        if (sender == userValues.uid) {
-          sender = "user1";
-        } else {
-          sender = "user2";
-        }
-
-        String content = message["content"];
-        // Assuming timeStamp is stored as an int in Firebase, you might need to convert it accordingly
-        double timeStamp = message["timeStamp"];
-
+      /* userValues.shouldLoad will be set to false if the users has sent a message
+            because else there will messages coming twice in the UI */
+      if ((userValues.shouldLoad == true) || (messages["uid"] != userValues.uid)){
         _addMessage({
-          "text": content,
+          "text": message,
           "sender": sender
         });
       }
-    }
-
     });
-
-    // Wait for the Completer to complete and ge
-    // Process the chat messages
-
   }
 
   @override
@@ -103,7 +128,7 @@ class _ChatDetailsPageState extends State<ChatDetailsPage> {
       ),
       title: GestureDetector(
         onTap: () {
-          userValues.matchedUsers!.forEach((key, value) {
+          userValues.matchedUsers.forEach((key, value) {
             popupMatchDetails(context, value, key, userValues.matchedUsers);
             }
           );
@@ -135,26 +160,23 @@ class _ChatDetailsPageState extends State<ChatDetailsPage> {
     ),
     body: Stack(
       children: [
-        MessageContent(_messages),
-        TextFieldWithDynamicColor(sendMessage: _addMessage, path: widget.path, matchUID: widget.matchUID),
+        MessageContent(_messages, _scrollController),
+        TextFieldWithDynamicColor(sendMessage: _addMessage, path: widget.path, matchUID: widget.matchUID, focusNode: myFocusNode,),
       ],
     ),
         );
   }
 
-  @override
-  void dispose() {
-    _messageController.dispose();
-    super.dispose();
-  }
+
 }
 
 class TextFieldWithDynamicColor extends StatefulWidget {
   final SendMessageCallback sendMessage;
   final String path;
   final String matchUID;
+  final FocusNode focusNode;
 
-  TextFieldWithDynamicColor({required this.sendMessage, required this.path, required, required this.matchUID});
+  TextFieldWithDynamicColor({required this.sendMessage, required this.path, required, required this.matchUID, required this.focusNode});
   @override
   _TextFieldWithDynamicColorState createState() => _TextFieldWithDynamicColorState();
 }
@@ -169,9 +191,12 @@ class _TextFieldWithDynamicColorState extends State<TextFieldWithDynamicColor> {
     super.initState();
     messageController.addListener(() {
       setState(() {
+        // Change color to enabled when text is available
         if (messageController.text.trim().isNotEmpty) {
           imagePath = "lib/images/send-icon-enabled.png";
           containerColor = reuseableColors.primaryColor;
+
+        // Change color to disable when text is not there or are just some spaces
         } else {
           imagePath = "lib/images/send-icon-disabled.png";
           containerColor = Colors.grey;
@@ -182,7 +207,7 @@ class _TextFieldWithDynamicColorState extends State<TextFieldWithDynamicColor> {
 
   @override
   Widget build(BuildContext context) {
-    return NewTextField(sendMessage: widget.sendMessage, messageController: messageController, containerColor: containerColor, imagePath: imagePath, path: widget.path, matchUID: widget.matchUID, context: context);
+    return NewTextField(sendMessage: widget.sendMessage, messageController: messageController, containerColor: containerColor, imagePath: imagePath, path: widget.path, matchUID: widget.matchUID, context: context, focusNode: widget.focusNode);
   }
 
   @override
@@ -192,7 +217,7 @@ class _TextFieldWithDynamicColorState extends State<TextFieldWithDynamicColor> {
   }
 }
 
-Widget NewTextField({required BuildContext context, required SendMessageCallback sendMessage, required TextEditingController messageController, required Color containerColor, required String imagePath, required String path, required String matchUID}) {
+Widget NewTextField({required BuildContext context, required SendMessageCallback sendMessage, required TextEditingController messageController, required Color containerColor, required String imagePath, required String path, required String matchUID, required FocusNode focusNode}) {
   return Positioned(
     left: 0,
     right: 0,
@@ -207,6 +232,7 @@ Widget NewTextField({required BuildContext context, required SendMessageCallback
           Expanded( 
             child: TextField(
               controller: messageController,
+              focusNode: focusNode,
               decoration: InputDecoration(
                 hintText: 'Aa',
                 border: OutlineInputBorder(
@@ -240,7 +266,7 @@ Widget NewTextField({required BuildContext context, required SendMessageCallback
                 writeChatData["uniquePath"] = path; 
                 writeChatData["matchUID"] = matchUID;   
 
-                print(writeChatData);
+                userValues.shouldLoad = false;
 
                 ApiCalls.writeChatContent(writeChatData);
                 messageController.clear();
@@ -278,7 +304,7 @@ Future popupMatchDetails(BuildContext context, Map value, String key, Map<String
       double popupHeight = MediaQuery.of(context).size.height * 0.8;
 
       return FutureBuilder(
-        future: fetchData(value, key),
+        future: fetchData(key),
         builder: (BuildContext context, AsyncSnapshot snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return Center(
@@ -379,7 +405,7 @@ Future popupMatchDetails(BuildContext context, Map value, String key, Map<String
                                 //Match user location or stream details
                                 IntrinsicHeight(
                                   child: Material(
-                                    child: fromOrStreamDetails(buttonsNeeded: false, data: matchUserData),
+                                    child: fromOrStreamDetails(buttonsNeeded: false, candidateDetails: matchUserData),
                                     color: reuseableColors.primaryColor,
                                   ),
                                 ),

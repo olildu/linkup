@@ -1,6 +1,6 @@
 // ignore_for_file: prefer_const_constructors, non_constant_identifier_names, must_be_immutable, library_private_types_in_public_api
 
-import 'package:demo/api/api_calls.dart';
+import 'package:linkup/api/api_calls.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';

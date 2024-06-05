@@ -1,11 +1,11 @@
 import 'dart:convert';
 
-import 'package:demo/colors/colors.dart';
+import 'package:linkup/colors/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_card_swiper/flutter_card_swiper.dart';
-import 'package:demo/elements/candidate_details_elements/elements.dart';
-import 'package:demo/pages/match_banner_page/matchedBanner.dart';
-import 'package:demo/api/api_calls.dart';
+import 'package:linkup/elements/candidate_details_elements/elements.dart';
+import 'package:linkup/pages/match_banner_page/matchedBanner.dart';
+import 'package:linkup/api/api_calls.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class CandidatePage extends StatefulWidget {
@@ -19,7 +19,6 @@ class _CandidatePageState extends State<CandidatePage> {
   late ScrollController _scrollController;
   bool canSwipe = false;
   bool isLoading = true; // Flag to track if data is loading
-  late int counterCandidatesAvailable;
 
   @override
   void initState() {
@@ -65,7 +64,8 @@ class _CandidatePageState extends State<CandidatePage> {
 
       await getUserImages();
 
-      counterCandidatesAvailable = userValues.matchUserDetails.length;
+      userValues.counterCandidatesAvailable = userValues.matchUserDetails.length;
+
       // Once data fetching is over then flags will be automatically updated to show the screen to the user
       setState(() {
         isLoading = false; 
@@ -219,8 +219,13 @@ class _CandidatePageState extends State<CandidatePage> {
                     userValues.userVisited++;
 
                     // This int keeps track of how many candidates the user has seen and when it becomes zero no more matches available is shown
-                    counterCandidatesAvailable--;
-                    if (counterCandidatesAvailable <= 0) {
+                    userValues.counterCandidatesAvailable--;
+                    print(userValues.counterCandidatesAvailable);
+
+                    if (userValues.counterCandidatesAvailable <= 0) {
+                      print("Problem");
+                      print(userValues.counterCandidatesAvailable);
+
                       setState(() {
                         userValues.limitReached = true;
                       });

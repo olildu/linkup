@@ -1,9 +1,6 @@
 // ignore_for_file: prefer_const_constructors
 
-import 'dart:math';
-
-import 'package:demo/colors/colors.dart';
-import 'package:demo/elements/home_elements/elements.dart';
+import 'package:linkup/elements/home_elements/elements.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -51,7 +48,7 @@ class _LoginPageState extends State<LoginPage> {
                   children: [
                     SizedBox(height: 90),
           
-                    // LinkUp Branding Name
+                    // linkup Branding Name
           
                     appTitle(),
                     

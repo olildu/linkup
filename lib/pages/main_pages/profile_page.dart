@@ -1,16 +1,16 @@
 // ignore_for_file: use_super_parameters, prefer_const_constructors, prefer_const_literals_to_create_immutables
 
-import 'package:demo/colors/colors.dart';
-import 'package:demo/api/api_calls.dart';
-import 'package:demo/elements/profile_elements/elements.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
+import 'package:linkup/colors/colors.dart';
+import 'package:linkup/api/api_calls.dart';
+import 'package:linkup/elements/profile_elements/elements.dart';
 import 'package:flutter/material.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({Key? key}) : super(key: key);
   @override
   State<ProfilePage> createState() => _ProfilePageState();
+
 }
 
 
@@ -22,8 +22,24 @@ class _ProfilePageState extends State<ProfilePage> {
   @override
   void initState() {
     super.initState();
+    fetchUserData();
   }
 
+  void dispose(){
+    super.dispose();
+  }
+ 
+  void fetchUserData() async{
+    final ref = FirebaseDatabase.instance.ref().child("/UsersMetaData/${userValues.uid}/");
+    
+    ref.onValue.listen((event) {
+      Userdata = event.snapshot.value;
+      userValues.userData = Userdata["UserDetails"];
+      setState(() {
+        isDataLoaded = true;
+      });
+    },);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -101,8 +117,6 @@ class _ProfilePageState extends State<ProfilePage> {
                     child: ClipOval(child: Icon(Icons.done_rounded, color: Colors.white,)),),),
                   ],
                 ),
-
-
 
                 SizedBox(height: 20), 
 

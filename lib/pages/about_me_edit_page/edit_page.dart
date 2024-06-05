@@ -1,6 +1,6 @@
-import 'package:demo/colors/colors.dart';
-import 'package:demo/api/api_calls.dart';
-import 'package:demo/elements/about_me_edit_elements/elements.dart';
+import 'package:linkup/colors/colors.dart';
+import 'package:linkup/api/api_calls.dart';
+import 'package:linkup/elements/about_me_edit_elements/elements.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 

@@ -1,6 +1,6 @@
 import 'package:animated_splash_screen/animated_splash_screen.dart';
-import 'package:demo/colors/colors.dart';
-import 'package:demo/main_page.dart';
+import 'package:linkup/colors/colors.dart';
+import 'package:linkup/main_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:video_player/video_player.dart';

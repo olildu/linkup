@@ -8,9 +8,9 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:889381416201:android:c8d56855371ed6921cb7d8",
+        "mobilesdk_app_id": "1:889381416201:android:e021e46955407c441cb7d8",
         "android_client_info": {
-          "package_name": "com.example.demo"
+          "package_name": "com.olildu.linkup"
         }
       },
       "oauth_client": [],

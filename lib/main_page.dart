@@ -1,19 +1,23 @@
 // ignore_for_file: camel_case_types, prefer_const_constructors, prefer_const_literals_to_create_immutables
 
-import 'package:demo/colors/colors.dart';
-import 'package:demo/pages/appbar_pages/filters_page.dart';
-import 'package:demo/pages/main_pages/candidate_page.dart';
-import 'package:demo/pages/main_pages/chat_page.dart';
-import 'package:demo/pages/main_pages/profile_page.dart';
-import 'package:demo/pages/appbar_pages/settings_page.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:linkup/colors/colors.dart';
+import 'package:linkup/pages/appbar_pages/filters_page.dart';
+import 'package:linkup/pages/main_pages/candidate_page.dart';
+import 'package:linkup/pages/main_pages/chat_page.dart';
+import 'package:linkup/pages/main_pages/profile_page.dart';
+import 'package:linkup/pages/appbar_pages/settings_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:google_nav_bar/google_nav_bar.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:demo/api/api_calls.dart';
+import 'package:linkup/api/api_calls.dart';
+import 'package:linkup/api/common_functions.dart';
 import 'package:flutter/services.dart';
 import 'package:internet_connection_checker/internet_connection_checker.dart';
 import "dart:async";
+import 'package:in_app_notification/in_app_notification.dart';
+import 'package:linkup/pages/notification_page/notification.dart';
 
 class mainPage extends StatefulWidget {
   const mainPage({super.key});
@@ -24,7 +28,7 @@ class mainPage extends StatefulWidget {
 
 class mainPageState extends State<mainPage> {
   late int bottomBarIndex = 1;
-  String appBarTitle = "LinkUp";
+  String appBarTitle = "linkup";
   IconData? type = Icons.tune_rounded;
 
   IconData profileIcon = Icons.person_outline_outlined;
@@ -33,6 +37,7 @@ class mainPageState extends State<mainPage> {
 
   late StreamSubscription networkChecker;
   late bool internetStatus = true;
+
   final List<Widget> _pages = [
     ProfilePage(),
     CandidatePage(),
@@ -61,16 +66,11 @@ class mainPageState extends State<mainPage> {
     setState(() {
       bottomBarIndex = index;
 
+      commonFunction().manageNotificationHandlers(index); // Function to keep notificationHandler updated
+
       /* This function will track the user when he changes the page, when changed from match page gets the 
         userValues.userVisited and loops and removes n number of 0th elements from the list */
-
-      if (bottomBarIndex != 1){
-        for (int x = 0; x < userValues.userVisited; x++){
-          userValues.matchUserDetails.removeAt(0);
-          userValues.userImageURLs.removeAt(0);
-        }
-        userValues.userVisited = 0;
-      }
+      commonFunction().manageUserVisited(bottomBarIndex);
 
       switch (bottomBarIndex) {
         case 0:
@@ -81,7 +81,7 @@ class mainPageState extends State<mainPage> {
           chatIcon = Icons.chat_bubble_outline_rounded;
           break;
         case 1:
-          appBarTitle = "LinkUp";
+          appBarTitle = "linkup";
           type = Icons.tune_rounded;
           candidateIcon = Icons.favorite_rounded;
           profileIcon = Icons.person_outline_outlined;
@@ -118,6 +118,8 @@ class mainPageState extends State<mainPage> {
     networkChecker = InternetConnectionChecker().onStatusChange.listen((event) {
       internetChecker(event);
     });
+
+    notificationHandlers().setupFirebaseMessaging(context);
   }
   
   Widget buildNoInternetWidget(String width) {
@@ -220,3 +222,4 @@ class mainPageState extends State<mainPage> {
     );
   }
 }
+

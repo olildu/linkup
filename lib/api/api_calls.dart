@@ -6,30 +6,51 @@ import 'dart:io';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class userValues{
+class userValues extends ChangeNotifier{
+  // Essential tokens for current user
   static String uid = FirebaseAuth.instance.currentUser!.uid;
   static String ?cookieValue;
-  static Map matchUserData = {};  
-  static Map<String, dynamic>? matchedUsers; // UserData for matchedUsers in chatPage 
   static late String ?fCMToken; // We store fCMToken here so that we can call after getting key
-  static bool goToMainPage = false;
+  static List userImageURLs = [];
+  static bool darkTheme = true; // This bool is gonna keep the track of the theme
   static bool snoozeEnabled = false; // This bool will track if snoozeMode is on or off
   static bool limitReached = false; // This bool will keep track if the user has finished his like quota
-  static late List<dynamic> userMatchCandidates = []; 
+  static bool didFunctionRun = false;
+  
+  // Values for candidatePage
+  static int userVisited = 0;
+  static int counterCandidatesAvailable = 0;
+  
+  // Values for matchUsers in chatPage
+  static Map <String, dynamic> matchUserData = {}; // Map for MatchedUsers used in popUpMenu to see the full details of the user
+  static Map<String, dynamic> matchedUsers = {}; // UserData for matchedUsers in chatPage 
+  
+  // Values for current UserData
   static Map userData = {}; // Current UserDetails will be store here (Change always listening in here)
   static List userImageData = []; // Current UserImageDetails here
-  static List<Map<String, dynamic>> matchUserDetails = [];
-  static List userImageURLs = [];
-  static int userVisited = 0;
-  static bool darkTheme = true; // This bool is gonna keep the track of the theme
-}
 
-class pathAndName {
-  static Map pathAndNameData = {};
+  // Values for chatUserData in chatPage
+  static Map chatUserImages = {};
+  static Map<String, dynamic> chatUsers = {}; // UserData for matchedUsers in chatPage 
+
+  // Values that keep track of userChats
+  static bool shouldLoad = true; // Keeps track of shouldLoad when user sends a message and accordingly (Avoid message coming twice in the UI)
+
+  // Values that keep track of usersNotification
+  static Map <String, dynamic> notificationHandlers = {
+    "allowNotification" : true,
+    "currentMatchUID" : null
+  };
+
+  static bool goToMainPage = false;
+  static late List<dynamic> userMatchCandidates = []; 
+
+  static List<Map<String, dynamic>> matchUserDetails = [];
 }
 
 class flagChecker{
@@ -39,7 +60,7 @@ class flagChecker{
 class ApiCalls {
   static Future<String> fetchCookieDoggie() async {
       SharedPreferences prefs = await SharedPreferences.getInstance();
-      firebaseCalls.fetchUserData();
+      firebaseCalls().fetchUserData();
 
       String? localCookieValue = prefs.getString('cookieValue');
 
@@ -70,7 +91,7 @@ class ApiCalls {
       );
 
       userValues.cookieValue = response.body;
-      
+
       // Save cookie to localStorage to avoid fetching cookie repeatedly
       await prefs.setString('cookieValue', response.body);
       
@@ -129,11 +150,12 @@ class ApiCalls {
         headers: headers,
         body: jsonData,
       );
-      
+
       return response.body;
   }
 
   static getChatUserData(data) async {
+
     String jsonData = jsonEncode(data);
 
     var headers = {
@@ -145,7 +167,9 @@ class ApiCalls {
       headers: headers,
       body: jsonData,
     );
+    
     userValues.matchUserData[data["chatUID"]] = jsonDecode(jsonDecode(response.body));
+
     return response.body;
 }
 
@@ -219,8 +243,8 @@ class ApiCalls {
     return response.body;
   }
   
-  /*When getUIDs run also check for future match possibility when swiped right, bring to device check if swipe right is done then show 
-match banner */
+    /*When getUIDs run also check for future match possibility when swiped right, bring to device check if swipe right is done then show 
+  match banner */
 
   static swipeActionsMatch(data) async{
     String jsonData = jsonEncode(data);
@@ -287,8 +311,9 @@ match banner */
   }
 }
 
-class firebaseCalls {
-  static Future<void> getImagesFromStorage(key, Map<String, dynamic> matchUserData, Function onComplete) async {
+class firebaseCalls with ChangeNotifier {
+  
+  static Future<void> getImagesFromStorage(key, Map<String, dynamic> matchUserData) async {
     final storageRef = FirebaseStorage.instance.ref().child("/UserImages/$key/");
     final result = await storageRef.listAll();
     var items = result.items;
@@ -298,51 +323,78 @@ class firebaseCalls {
       matchUserData[key]["userImage$counter"] = downloadURL;
       counter++;
     }
-      onComplete(); // Call the callback function to notify task completion
   }
 
-  static Future<String> getImagesFromStorageForChats(key, {Map<String, dynamic>? matchUserData, Function? onComplete}) async {
-    final storageRef = FirebaseStorage.instance.ref().child("/UserImages/$key/");
-    final result = await storageRef.listAll();
-    var items = result.items[0];
-    String downloadURL = await FirebaseStorage.instance.ref().child(items.fullPath).getDownloadURL();
-    return downloadURL;
-  }
-
-  static Future<Map<String, dynamic>?> getMatchedUsers() async {
-    DatabaseReference userMatchRef = FirebaseDatabase.instance.ref('/UserMatchingDetails/${userValues.uid}/MatchUID/');
-    
-    int tasksCount = 0;
-
-    Completer<Map<String, dynamic>> completer = Completer<Map<String, dynamic>>();
-
-    userMatchRef.onValue.listen((DatabaseEvent event) async{
-      flagChecker.matchQueFetched = false;
-      final data = await event.snapshot.value as Map<dynamic, dynamic>?; 
-      Map<String, dynamic> matchUserData = {}; // Create a local variable to store data
+  // Function for getting pfp of chatUsers in chatPage
+  static Future<String> getImagesFromStorageForChats(key) async {
+    // Check if there is image in Map     
+    if (userValues.chatUserImages[key] == null){
+      // If not get downloadURLs 
+      final storageRef = FirebaseStorage.instance.ref().child("/UserImages/$key/");
+      final result = await storageRef.listAll();
+      var item = result.items[0];
+      String downloadURL = "https://firebasestorage.googleapis.com/v0/b/mujdating.appspot.com/o/UserImages%2F${key}%2F${item.name}?alt=media&token";
       
-      void checkTasksCompletion() {
-        tasksCount--;
-        if (tasksCount == 0) {
-          flagChecker.matchQueFetched = true;
-          completer.complete(matchUserData); 
-        }
-      }
+      // Finally save the downloadURL
+      userValues.chatUserImages[key] = downloadURL;
+    }
 
-      data?.forEach((key, value) async {
-        matchUserData[key] = {};
-        value.forEach((uniqueIDandName, names) {
-          pathAndName.pathAndNameData[key] = names.split(",")[1];
-          pathAndName.pathAndNameData[key] = names.split(",")[0];
-          matchUserData[key]["userName"] = names.split(",")[1];
-          matchUserData[key]["uniquePath"] = names.split(",")[0];
-        });
-        tasksCount++;
-        await firebaseCalls.getImagesFromStorage(key, matchUserData, checkTasksCompletion);
+    // Return the saved downloadURL
+    return userValues.chatUserImages[key];
+  }
 
+  // Function for getting all the matched users and then appending them to the map uservalues.matchUserData 
+  static getMatchedUsers() async {
+    DatabaseReference userMatchRef = FirebaseDatabase.instance.ref('/UserMatchingDetails/${userValues.uid}/MatchUID/');
+
+    var event = await userMatchRef.once();
+
+    final data = await event.snapshot.value as Map<dynamic, dynamic>?; 
+    Map<String, dynamic> localMatchUserData = {}; // Create a local variable to store data
+
+    data?.forEach((key, value) async {
+      // Create empty map for storing them locally in this function
+      localMatchUserData[key] = {}; // Key is uid of user
+
+      value.forEach((uniqueIDandName, names) {
+        localMatchUserData[key]["userName"] = names.split(",")[1];   //   Path and name are 
+        localMatchUserData[key]["uniquePath"] = names.split(",")[0]; //         saved as (Path, Name)
       });
+      
+      await firebaseCalls.getImagesFromStorage(key, localMatchUserData);
     });
-    return completer.future;
+
+    userValues.matchedUsers = localMatchUserData;
+    return localMatchUserData;
+  }
+
+  static getChatUsers() async {
+    final chatUserRef = FirebaseDatabase.instance.ref('/UserMatchingDetails/${userValues.uid}/ChatUID/');
+
+    var event = await chatUserRef.once();
+
+    final data = await event.snapshot.value as Map<dynamic, dynamic>?; 
+    Map<String, dynamic> localMatchUserData = {}; // Create a local variable to store data
+
+    data?.forEach((key, value) async {
+      // Create empty map for storing them locally in this function
+      localMatchUserData[key] = {}; // Key is uid of user
+
+      value.forEach((uniqueIDandName, names) { 
+        // Value saved as [name, path, imageLink]
+        var splitted = names.split(",");
+
+        localMatchUserData[key]["uniquePath"] = splitted[0]; 
+        localMatchUserData[key]["userName"] = splitted[1];  
+        localMatchUserData[key]["imageLink"] = splitted[2]; 
+
+        userValues.chatUserImages[key] = localMatchUserData[key]["imageLink"];
+      });
+      
+    });
+
+    userValues.chatUsers = localMatchUserData;
+    return localMatchUserData;
   }
 
   static updateImageValuesinDatabase(String imageName) async {
@@ -379,9 +431,8 @@ class firebaseCalls {
     }
   }
 
-  static fetchUserData() async{
-    User? user = FirebaseAuth.instance.currentUser;
-    final ref = FirebaseDatabase.instance.ref().child("/UsersMetaData/${user?.uid}/");
+  fetchUserData() async{
+    final ref = FirebaseDatabase.instance.ref().child("/UsersMetaData/${userValues.uid}/");
     
     final snapshot = await ref.once();
     final data = snapshot.snapshot.value as Map<dynamic, dynamic>?;
@@ -390,13 +441,7 @@ class firebaseCalls {
     userValues.userImageData = data?["ImageDetails"] as List;
 
     userValues.matchedUsers = await firebaseCalls.getMatchedUsers();
-
-    ref.onValue.listen((event) {
-      userValues.userData = (event.snapshot.value as Map<dynamic, dynamic>)["UserDetails"];
-      userValues.userImageData = (event.snapshot.value as Map<dynamic, dynamic>)["ImageDetails"];
-    },);
-
-
+    userValues.chatUsers = await firebaseCalls.getChatUsers();
   }
 
   // Instance for Firebase Messaging
@@ -410,7 +455,5 @@ class firebaseCalls {
 
     // Fetch FCM Token
     userValues.fCMToken = await FBMessaging.getToken();
-
   }
-  // Fun
 }

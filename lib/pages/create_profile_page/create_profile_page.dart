@@ -1,8 +1,8 @@
 // ignore_for_file: camel_case_types, library_private_types_in_public_api, use_super_parameters
 
-import 'package:demo/api/api_calls.dart';
-import 'package:demo/elements/create_profile_elements/elements.dart';
-import 'package:demo/main_page.dart';
+import 'package:linkup/api/api_calls.dart';
+import 'package:linkup/elements/create_profile_elements/elements.dart';
+import 'package:linkup/main_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:google_fonts/google_fonts.dart';

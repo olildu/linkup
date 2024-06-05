@@ -1,4 +1,4 @@
-package com.example.demo
+package com.olildu.linkup
 
 import io.flutter.embedding.android.FlutterActivity
 

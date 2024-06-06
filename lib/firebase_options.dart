@@ -67,4 +67,5 @@ class DefaultFirebaseOptions {
     storageBucket: 'mujdating.appspot.com',
     iosBundleId: 'com.olildu.linkup',
   );
+
 }

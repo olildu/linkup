@@ -3,7 +3,6 @@
 import 'dart:async';
 
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:flutter/widgets.dart';
 import 'package:linkup/api/api_calls.dart';
 import 'package:linkup/elements/chat_elements/elements.dart';
 import 'package:linkup/colors/colors.dart';
@@ -57,7 +56,7 @@ class _ChatDetailsPageState extends State<ChatDetailsPage> {
 
     myFocusNode.addListener(() {
       if(myFocusNode.hasFocus){
-        Future.delayed(const Duration(milliseconds: 500), () => scrollDown());
+        Future.delayed(const Duration(milliseconds: 700), () => scrollDown());
       }
     });
   }
@@ -148,7 +147,7 @@ class _ChatDetailsPageState extends State<ChatDetailsPage> {
                 ),
               ),
               SizedBox(width: 10),
-              Text(widget.appBarTitle),
+              Text(widget.appBarTitle, style: GoogleFonts.poppins(),),
             ],
           ),
         ),

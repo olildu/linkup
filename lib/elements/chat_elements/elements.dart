@@ -2,6 +2,7 @@
 import 'dart:async';
 
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 import 'package:linkup/colors/colors.dart';
 import 'package:linkup/api/api_calls.dart';
@@ -97,6 +98,8 @@ class _ChatDetailsState extends State<ChatDetails> {
           isCurrentUserLastSender = true;
         }
         lastMessage = lastMessageDetails["lastMessage"];
+        print(isCurrentUserLastSender);
+        print(lastMessegedUser);
       });
     });
   }
@@ -120,61 +123,63 @@ class _ChatDetailsState extends State<ChatDetails> {
         );
       },
       
-      child: Padding(
-        padding: EdgeInsets.only(left: 20),
-        child: Container(
-          height: 90,
-          color: Colors.transparent,
-          child: Row(
-            children: [
-              ClipOval(
-                child: CachedNetworkImage(
-                  imageUrl: "https://firebasestorage.googleapis.com/v0/b/mujdating.appspot.com/o/UserImages%2F${widget.matchUID}%2F${userValues.chatUsers[widget.matchUID]["imageLink"]}?alt=media&token",
-                  fit: BoxFit.cover,
-                  width: 65,
-                  height: 65,
-                ),
+      child: Container(
+        width: MediaQuery.of(context).size.width,
+        color: Colors.transparent, // Color set to transparent for some reason the click doesnt count if there is no color
+        padding: EdgeInsets.symmetric(horizontal: 10),
+        height: 90,
+        child: Row(
+          children: [
+            ClipOval(
+              child: CachedNetworkImage(
+                imageUrl: "https://firebasestorage.googleapis.com/v0/b/mujdating.appspot.com/o/UserImages%2F${widget.matchUID}%2F${userValues.chatUsers[widget.matchUID]["imageLink"]}?alt=media&token",
+                fit: BoxFit.cover,
+                width: 65,
+                height: 65,
               ),
-              SizedBox(width: 13),
-              Expanded(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
+            ),
+            SizedBox(width: 13),
+
+            Expanded(
+              child: Container(
+                child: Row(
                   children: [
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          widget.name,
-                          textAlign: TextAlign.left,
-                          style: GoogleFonts.poppins(fontWeight : FontWeight.w500, fontSize: 16),
-                        ),
-                        Text(
-                          lastMessage,
-                          textAlign: TextAlign.left,
-                          overflow: TextOverflow.ellipsis,
-                          style: GoogleFonts.poppins(fontWeight : FontWeight.w300),
-                        ),
-                      ],
+                    Expanded(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            widget.name,
+                            textAlign: TextAlign.left,
+                            style: GoogleFonts.poppins(fontWeight: FontWeight.w500, fontSize: 16),
+                          ),
+                          Text(
+                            lastMessage,
+                            textAlign: TextAlign.left,
+                            overflow: TextOverflow.ellipsis,
+                            style: GoogleFonts.poppins(fontWeight: FontWeight.w300),
+                          ),
+                        ],
+                      ),
                     ),
+                    SizedBox(width: 8), 
+
+                    // If last message user is currentUser then return only container else return notifation dot
+                    isCurrentUserLastSender ? Container()
+                    : Container(
+                        width: 15,
+                        height: 15,
+                        decoration: BoxDecoration(
+                          color: Theme.of(context).splashColor,
+                          shape: BoxShape.circle,
+                        ),
+                      )
                   ],
                 ),
               ),
-              SizedBox(width: 10),
-              Spacer(),
-              if (!isCurrentUserLastSender)
-                Transform.translate(
-                  offset: Offset(-13,0),
-                  child: Container(
-                    width: 20,
-                    height: 20,
-                    decoration: BoxDecoration(
-                      color: reuseableColors.accentColor,
-                      borderRadius: BorderRadius.circular(50)
-                    ),
-                  ),
-                )
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
@@ -577,72 +582,72 @@ Future<Map> fetchData(String key) async {
 // This is where the matchUsers pfp is worked also active listener for new data
 
 Widget MessageContent(messages, ScrollController _scrollController){
-  return Positioned.fill(
-    child: SingleChildScrollView(
-      controller: _scrollController,
-      padding: const EdgeInsets.only(bottom: 120),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          SizedBox(height: 10,),
-          Wrap(
-            alignment: WrapAlignment.spaceBetween,
-            children: [
-              for (var message in messages)
-                Padding(
-                  padding: EdgeInsets.only(top: 2),
-                  child: message["sender"] == "user2" ? Padding(
-                    padding: const EdgeInsets.only(bottom: 0.0, left: 8.0, top: 4.0),
-                    child: Align(
-                      alignment: Alignment.centerLeft,
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: const Color.fromARGB(255, 226, 226, 226),
-                          borderRadius: BorderRadius.circular(20.0),
-                        ),
-                        padding: EdgeInsets.all(8.0),
-                        child: ConstrainedBox(
-                          constraints: BoxConstraints(maxWidth: 300), // Set maximum width here
-                          child: Padding(
-                            padding: const EdgeInsets.only(left: 8.0, right: 8.0, top: 4.0, bottom: 4.0),
-                            child: Text(
-                              message["text"],
-                              style: TextStyle(color: Colors.black),
-                            ),
-                          ),
+  return SingleChildScrollView(
+    controller: _scrollController,
+    padding: const EdgeInsets.only(bottom: 120),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        SizedBox(height: 10,),
+        Wrap(
+          alignment: WrapAlignment.spaceBetween,
+          children: [
+            for (var message in messages)
+              Padding(
+                padding: EdgeInsets.only(top: 2),
+                // If not currentUser message 
+                child: message["sender"] == "user2" ? Padding(
+                  // Padding for gap between messages
+                  padding: const EdgeInsets.only(bottom: 0.0, left: 8.0, top: 4.0),
+                  child: Align(
+                    alignment: Alignment.centerLeft,
+                    child: Container(
+                      // Padding for message content in the box
+                      padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 10),
+                      decoration: BoxDecoration(
+                        color: const Color.fromARGB(255, 226, 226, 226),
+                        borderRadius: BorderRadius.circular(20.0),
+                      ),
+                      child: ConstrainedBox(
+                        constraints: BoxConstraints(maxWidth: 300, minWidth: 20), // Maximum, miniumum width 
+                        child: Text(
+                          message["text"],
+                          style: GoogleFonts.poppins(fontSize: 16, fontWeight: FontWeight.w400, color: Colors.black),
+                          textAlign: message["text"].length >= 10 ? TextAlign.left : TextAlign.center,
                         ),
                       ),
                     ),
-                  ) : Padding(
-                    padding: const EdgeInsets.only(bottom: 0.0, right: 8.0, top: 4.0),
-                    child: Align(
-                      alignment: Alignment.centerRight,
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: Color(0xFF193046),
-                          borderRadius: BorderRadius.circular(20.0),
-                        ),
-                        padding: EdgeInsets.all(8.0),
-                        child: ConstrainedBox(
-                          constraints: BoxConstraints(maxWidth: 300), // Set maximum width here
-                          child: Padding(
-                            padding: const EdgeInsets.only(left: 8.0, right: 8.0, top: 4.0, bottom: 4.0),
-                            child: Text(
-                              message["text"],
-                              style: TextStyle(color: Colors.white),
-                            ),
-                          ),
+                  ),
+                // If currentUser message
+                ) : Padding(
+                  // Padding for gap between messages
+                  padding: const EdgeInsets.only(bottom: 0.0, right: 8.0, top: 4.0),
+                  child: Align(
+                    alignment: Alignment.centerRight,
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: Color(0xFF193046),
+                        borderRadius: BorderRadius.only(bottomLeft: Radius.circular(20), bottomRight: Radius.circular(20), topLeft: Radius.circular(20), topRight: Radius.circular(20),),
+                      ),
+                      // Padding for messages inside the box
+                      padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 10),
+                      child: ConstrainedBox(
+                        constraints: BoxConstraints(maxWidth: 300, minWidth: 20), // Maximum, miniumum width 
+                        child: Text(
+                          message["text"],
+                          style: GoogleFonts.poppins(fontSize: 16, fontWeight: FontWeight.w300),
+                          textAlign: message["text"].length >= 10 ? TextAlign.left : TextAlign.center,
                         ),
                       ),
                     ),
                   ),
                 ),
-            ],
-          ),
-        ],
-      ),
+              ),
+          ],
+        ),
+      ],
     ),
-    );
+  );
 }
 
 Widget ActionWidget(String matchUID){

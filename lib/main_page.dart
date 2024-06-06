@@ -1,6 +1,6 @@
 // ignore_for_file: camel_case_types, prefer_const_constructors, prefer_const_literals_to_create_immutables
 
-import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:linkup/colors/colors.dart';
 import 'package:linkup/pages/appbar_pages/filters_page.dart';
 import 'package:linkup/pages/main_pages/candidate_page.dart';
@@ -11,12 +11,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:google_nav_bar/google_nav_bar.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:linkup/api/api_calls.dart';
 import 'package:linkup/api/common_functions.dart';
 import 'package:flutter/services.dart';
 import 'package:internet_connection_checker/internet_connection_checker.dart';
 import "dart:async";
-import 'package:in_app_notification/in_app_notification.dart';
 import 'package:linkup/pages/notification_page/notification.dart';
 
 class mainPage extends StatefulWidget {
@@ -37,6 +35,8 @@ class mainPageState extends State<mainPage> {
 
   late StreamSubscription networkChecker;
   late bool internetStatus = true;
+
+  FirebaseAnalytics analytics = FirebaseAnalytics.instance;
 
   final List<Widget> _pages = [
     ProfilePage(),
@@ -119,7 +119,11 @@ class mainPageState extends State<mainPage> {
       internetChecker(event);
     });
 
+    // Init notification listeners
     notificationHandlers().setupFirebaseMessaging(context);
+
+    //
+    analytics.setAnalyticsCollectionEnabled(true);
   }
   
   Widget buildNoInternetWidget(String width) {
@@ -207,7 +211,18 @@ class mainPageState extends State<mainPage> {
             child: Transform.translate(
               offset: Offset(0,10),
               child: GNav(
-                onTabChange: (value) => {navigateBottomBar(value)},
+                onTabChange: (value) async{
+                  navigateBottomBar(value);
+                  
+                  // Testing analytics here
+                  await analytics.logEvent(
+                    name: "pages_tracked",
+                    parameters: {
+                      "page_name" : appBarTitle,
+                      "page_index" : value
+                    }
+                  );
+                },
                 selectedIndex: 1,
                 tabs: [
                   GButton(icon: profileIcon, ),

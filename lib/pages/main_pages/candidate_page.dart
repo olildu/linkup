@@ -243,7 +243,7 @@ class _CandidatePageState extends State<CandidatePage> {
                       };
                       ApiCalls.swipeActionsMatch(data).then((response) {
                         dynamic decodedResponse = jsonDecode(response);
-                        if (decodedResponse["identifier"] == 1){
+                        if (decodedResponse["identifier"] == 1){ // Identifier 1 means match found
                           Navigator.push(context, MaterialPageRoute(builder: (context) => matchedBannerPage(matchUID: decodedResponse["uid"], imageName: decodedResponse["imageName"],)),);
                         }
                       });

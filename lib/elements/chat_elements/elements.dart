@@ -3,6 +3,7 @@ import 'dart:async';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/widgets.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:get/get.dart';
 import 'package:linkup/colors/colors.dart';
 import 'package:linkup/api/api_calls.dart';
@@ -98,8 +99,6 @@ class _ChatDetailsState extends State<ChatDetails> {
           isCurrentUserLastSender = true;
         }
         lastMessage = lastMessageDetails["lastMessage"];
-        print(isCurrentUserLastSender);
-        print(lastMessegedUser);
       });
     });
   }
@@ -208,23 +207,16 @@ class _MatchedUserWidgetState extends State<MatchedUserWidget> {
     matchUsersRef.onChildAdded.listen((event) async { // Constantly listen to children being added and then make change
       final data = await event.snapshot.value as Map; 
 
-      data.forEach((key, value) async {
+      if (localMatchUserData[event.snapshot.key.toString()] == null){ // If matchUser is new then create new map and start
+        localMatchUserData[event.snapshot.key.toString()] = {};
+      }
 
-        // Value saved as [name, path, imageLink]
-        var splitted = value.split(",");
+      localMatchUserData[event.snapshot.key.toString()]["uniquePath"] = data["uniquePath"]; 
+      localMatchUserData[event.snapshot.key.toString()]["userName"] = data["matchName"];  
+      localMatchUserData[event.snapshot.key.toString()]["userImage1"] = "https://firebasestorage.googleapis.com/v0/b/mujdating.appspot.com/o/UserImages%2F${event.snapshot.key.toString()}%2F${data["imageName"]}?alt=media&token" ; 
 
-
-        if (localMatchUserData[event.snapshot.key.toString()] == null){
-          localMatchUserData[event.snapshot.key.toString()] = {};
-        }
-
-        localMatchUserData[event.snapshot.key.toString()]["uniquePath"] = splitted[0]; 
-        localMatchUserData[event.snapshot.key.toString()]["userName"] = splitted[1];  
-        localMatchUserData[event.snapshot.key.toString()]["userImage1"] = "https://firebasestorage.googleapis.com/v0/b/mujdating.appspot.com/o/UserImages%2F${event.snapshot.key.toString()}%2F${splitted[2]}?alt=media&token" ; 
-
-        // userValues.chatUserImages[event.snapshot.key.toString()] = localMatchUserData[event.snapshot.key.toString()]["imageLink"];
-      });
-      
+      // userValues.chatUserImages[event.snapshot.key.toString()] = localMatchUserData[event.snapshot.key.toString()]["imageLink"];
+    
       setState(() {
         localMatchUserData;
       });
@@ -326,6 +318,7 @@ class _chatDetailsChatPageState extends State<chatDetailsChatPage> {
   @override
   void initState() {
     super.initState();
+
     fetchChatsRealtime(); // Get chats from database realtime
   }
 
@@ -337,6 +330,7 @@ class _chatDetailsChatPageState extends State<chatDetailsChatPage> {
 
       data.forEach((key, value) async {
         // Create empty map for storing them locally in this function
+
         localMatchUserData[event.snapshot.key.toString()] = {}; // Key is uid of user
 
         // Value saved as [name, path, imageLink]
@@ -347,12 +341,15 @@ class _chatDetailsChatPageState extends State<chatDetailsChatPage> {
         localMatchUserData[event.snapshot.key.toString()]["imageLink"] = splitted[2]; 
 
         userValues.chatUserImages[event.snapshot.key.toString()] = localMatchUserData[event.snapshot.key.toString()]["imageLink"];
+
+
       });
       
       setState(() {
         localMatchUserData;
       });
     },);
+
   }
 
 
@@ -393,6 +390,7 @@ class _chatDetailsChatPageState extends State<chatDetailsChatPage> {
         child: ListView.builder(
           itemCount: localMatchUserData.length,
           itemBuilder: (_, index) {
+            print(index);
             // Access key and value within the loop
             String key = localMatchUserData.keys.elementAt(index);
             String path = localMatchUserData.values.elementAt(index)["uniquePath"];
@@ -401,7 +399,26 @@ class _chatDetailsChatPageState extends State<chatDetailsChatPage> {
         
             return Column(
               children: [
-                ChatDetails(index: index, matchUID: key, path: path, name: name,),
+                Slidable(
+                  endActionPane: ActionPane(
+                    motion: ScrollMotion(),
+                    extentRatio: 0.25,
+                    children: [
+                      SlidableAction(
+                        onPressed: (v){
+                          // Delete chat
+                          
+                        },
+                        backgroundColor: Color(0xFFFE4A49),
+                        autoClose: true,
+                        padding: EdgeInsets.zero,
+                        foregroundColor: Colors.white,
+                        icon: Icons.delete,
+                      )
+                    ],
+                  ),
+                  child: ChatDetails(index: index, matchUID: key, path: path, name: name,)
+                ),
                 SizedBox(height: 10),
               ],
             );
@@ -582,70 +599,72 @@ Future<Map> fetchData(String key) async {
 // This is where the matchUsers pfp is worked also active listener for new data
 
 Widget MessageContent(messages, ScrollController _scrollController){
-  return SingleChildScrollView(
-    controller: _scrollController,
-    padding: const EdgeInsets.only(bottom: 120),
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        SizedBox(height: 10,),
-        Wrap(
-          alignment: WrapAlignment.spaceBetween,
-          children: [
-            for (var message in messages)
-              Padding(
-                padding: EdgeInsets.only(top: 2),
-                // If not currentUser message 
-                child: message["sender"] == "user2" ? Padding(
-                  // Padding for gap between messages
-                  padding: const EdgeInsets.only(bottom: 0.0, left: 8.0, top: 4.0),
-                  child: Align(
-                    alignment: Alignment.centerLeft,
-                    child: Container(
-                      // Padding for message content in the box
-                      padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 10),
-                      decoration: BoxDecoration(
-                        color: const Color.fromARGB(255, 226, 226, 226),
-                        borderRadius: BorderRadius.circular(20.0),
-                      ),
-                      child: ConstrainedBox(
-                        constraints: BoxConstraints(maxWidth: 300, minWidth: 20), // Maximum, miniumum width 
-                        child: Text(
-                          message["text"],
-                          style: GoogleFonts.poppins(fontSize: 16, fontWeight: FontWeight.w400, color: Colors.black),
-                          textAlign: message["text"].length >= 10 ? TextAlign.left : TextAlign.center,
+  return Positioned.fill (
+    child: SingleChildScrollView(
+      controller: _scrollController,
+      padding: const EdgeInsets.only(bottom: 120),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          SizedBox(height: 10,),
+          Wrap(
+            alignment: WrapAlignment.spaceBetween,
+            children: [
+              for (var message in messages)
+                Padding(
+                  padding: EdgeInsets.only(top: 2),
+                  // If not currentUser message 
+                  child: message["sender"] == "user2" ? Padding(
+                    // Padding for gap between messages
+                    padding: const EdgeInsets.only(bottom: 0.0, left: 8.0, top: 4.0),
+                    child: Align(
+                      alignment: Alignment.centerLeft,
+                      child: Container(
+                        // Padding for message content in the box
+                        padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 10),
+                        decoration: BoxDecoration(
+                          color: const Color.fromARGB(255, 226, 226, 226),
+                          borderRadius: BorderRadius.circular(20.0),
+                        ),
+                        child: ConstrainedBox(
+                          constraints: BoxConstraints(maxWidth: 300, minWidth: 20), // Maximum, miniumum width 
+                          child: Text(
+                            message["text"],
+                            style: GoogleFonts.poppins(fontSize: 16, fontWeight: FontWeight.w400, color: Colors.black),
+                            textAlign: message["text"].length >= 10 ? TextAlign.left : TextAlign.center,
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                // If currentUser message
-                ) : Padding(
-                  // Padding for gap between messages
-                  padding: const EdgeInsets.only(bottom: 0.0, right: 8.0, top: 4.0),
-                  child: Align(
-                    alignment: Alignment.centerRight,
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: Color(0xFF193046),
-                        borderRadius: BorderRadius.only(bottomLeft: Radius.circular(20), bottomRight: Radius.circular(20), topLeft: Radius.circular(20), topRight: Radius.circular(20),),
-                      ),
-                      // Padding for messages inside the box
-                      padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 10),
-                      child: ConstrainedBox(
-                        constraints: BoxConstraints(maxWidth: 300, minWidth: 20), // Maximum, miniumum width 
-                        child: Text(
-                          message["text"],
-                          style: GoogleFonts.poppins(fontSize: 16, fontWeight: FontWeight.w300),
-                          textAlign: message["text"].length >= 10 ? TextAlign.left : TextAlign.center,
+                  // If currentUser message
+                  ) : Padding(
+                    // Padding for gap between messages
+                    padding: const EdgeInsets.only(bottom: 0.0, right: 8.0, top: 4.0),
+                    child: Align(
+                      alignment: Alignment.centerRight,
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: Color(0xFF193046),
+                          borderRadius: BorderRadius.only(bottomLeft: Radius.circular(20), bottomRight: Radius.circular(20), topLeft: Radius.circular(20), topRight: Radius.circular(20),),
+                        ),
+                        // Padding for messages inside the box
+                        padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 10),
+                        child: ConstrainedBox(
+                          constraints: BoxConstraints(maxWidth: 300, minWidth: 20), // Maximum, miniumum width 
+                          child: Text(
+                            message["text"],
+                            style: GoogleFonts.poppins(fontSize: 16, fontWeight: FontWeight.w300),
+                            textAlign: message["text"].length >= 10 ? TextAlign.left : TextAlign.center,
+                          ),
                         ),
                       ),
                     ),
                   ),
                 ),
-              ),
-          ],
-        ),
-      ],
+            ],
+          ),
+        ],
+      ),
     ),
   );
 }

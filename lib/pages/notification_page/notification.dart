@@ -1,12 +1,12 @@
 import 'dart:ui';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:in_app_notification/in_app_notification.dart';
 import 'package:linkup/api/api_calls.dart';
 import 'package:linkup/pages/chat_sub_pages/chat_details.dart';
-import 'package:linkup/pages/main_pages/chat_page.dart';
 
 FirebaseMessaging messaging = FirebaseMessaging.instance;
 
@@ -14,11 +14,15 @@ class notificationHandlers {
   void setupFirebaseMessaging(BuildContext context) {
     FirebaseMessaging.onMessage.listen((RemoteMessage message) {
       if (message.data["type"] == "messageNotification"){
+        // Reorder userList in chatPage here
+        
+
         if ((message.data["uidFor"] != userValues.notificationHandlers["currentMatchUID"]) && (userValues.notificationHandlers["allowNotification"])){
-          print(userValues.chatUsers[message.data["uidFor"]]);
+
           InAppNotification.show(
             child: NotificationBody(
-              title: message.notification!.title.toString()
+              title: message.notification!.title.toString(),
+              userProfileURL: "https://firebasestorage.googleapis.com/v0/b/mujdating.appspot.com/o/UserImages%2F${message.data["uidFor"]}%2F${userValues.chatUsers[message.data["uidFor"]]["imageLink"]}?alt=media&token",
             ),
             context: context,
             duration: Duration(milliseconds: 6000),
@@ -52,11 +56,13 @@ class notificationHandlers {
 class NotificationBody extends StatelessWidget {
   final String title;
   final double minHeight;
+  final String userProfileURL;
 
   NotificationBody({
     Key? key,
     this.title = "",
     this.minHeight = 0.0,
+    required this.userProfileURL
   }) : super(key: key);
 
   @override
@@ -93,9 +99,17 @@ class NotificationBody extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
                         // User logo
-                        FlutterLogo(),
+                        ClipOval(
+                          child: CachedNetworkImage(
+                            imageUrl: userProfileURL,
+                            fit: BoxFit.cover,
+                            width: 35,
+                            placeholder: (context, url) => Center(child: CircularProgressIndicator(color: Theme.of(context).colorScheme.secondaryContainer,)),
+                            height: 35,
+                          ),
+                        ),
 
-                        SizedBox(width: 20),
+                        SizedBox(width: 10),
                         
                         // Message from the notification
                         Expanded(

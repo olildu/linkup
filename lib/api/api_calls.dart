@@ -43,7 +43,7 @@ class userValues extends ChangeNotifier{
 
   // Values that keep track of usersNotification
   static Map <String, dynamic> notificationHandlers = {
-    "allowNotification" : true,
+    "allowNotification" : true, // Initially set to true as it loads to candidate page on start
     "currentMatchUID" : null
   };
 
@@ -355,11 +355,9 @@ class firebaseCalls with ChangeNotifier {
     data?.forEach((key, value) async {
       // Create empty map for storing them locally in this function
       localMatchUserData[key] = {}; // Key is uid of user
-
-      value.forEach((uniqueIDandName, names) {
-        localMatchUserData[key]["userName"] = names.split(",")[1];   //   Path and name are 
-        localMatchUserData[key]["uniquePath"] = names.split(",")[0]; //         saved as (Path, Name)
-      });
+      
+      localMatchUserData[key]["userName"] = value["matchName"];   //   Path and name are 
+      localMatchUserData[key]["uniquePath"] = value["uniquePath"]; //         saved as (Path, Name)
       
       await firebaseCalls.getImagesFromStorage(key, localMatchUserData);
     });
@@ -379,7 +377,7 @@ class firebaseCalls with ChangeNotifier {
     data?.forEach((key, value) async {
       // Create empty map for storing them locally in this function
       localMatchUserData[key] = {}; // Key is uid of user
-
+      
       value.forEach((uniqueIDandName, names) { 
         // Value saved as [name, path, imageLink]
         var splitted = names.split(",");

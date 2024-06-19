@@ -15,7 +15,7 @@ Widget buttonBuilder(String title, IconData? iconData, BuildContext context){
           child: Row(
             children: [
               Text(title, style: GoogleFonts.poppins(fontSize: 18),),
-              Spacer(),
+              const Spacer(),
               Icon(iconData),
             ],
           ),
@@ -25,7 +25,7 @@ Widget buttonBuilder(String title, IconData? iconData, BuildContext context){
   );
 }
 
-Widget DisableNotificationsButton(bool isSwitchOn, VoidCallback onPressed, BuildContext context) {
+Widget disableNotificationsButton(bool isSwitchOn, VoidCallback onPressed, BuildContext context) {
   return Row(
     children: [
       Expanded(
@@ -41,7 +41,7 @@ Widget DisableNotificationsButton(bool isSwitchOn, VoidCallback onPressed, Build
                 "Switch to light mode",
                 style: GoogleFonts.poppins(fontSize: 18),
               ),
-              Spacer(),
+              const Spacer(),
               Switch(
                 value: isSwitchOn,
                 onChanged: (value) {

@@ -22,10 +22,10 @@ class ChatDetailsPage extends StatefulWidget {
   const ChatDetailsPage({super.key, required this.appBarTitle, required this.imageUrl, required this.path, required this.matchUID, this.notChatPage = true});
 
   @override
-  _ChatDetailsPageState createState() => _ChatDetailsPageState();
+  ChatDetailsPageState createState() => ChatDetailsPageState();
 }
 
-class _ChatDetailsPageState extends State<ChatDetailsPage> {
+class ChatDetailsPageState extends State<ChatDetailsPage> {
   TextEditingController _messageController = TextEditingController();
   FocusNode myFocusNode = FocusNode();
   final ScrollController _scrollController = ScrollController();
@@ -47,10 +47,10 @@ class _ChatDetailsPageState extends State<ChatDetailsPage> {
     fetchChatMessages();
 
     // Change required notificationHandlers
-    userValues.notificationHandlers["allowNotification"] = true;
-    userValues.notificationHandlers["currentMatchUID"] = widget.matchUID;
+    UserValues.notificationHandlers["allowNotification"] = true;
+    UserValues.notificationHandlers["currentMatchUID"] = widget.matchUID;
 
-    userValues.shouldLoad = true;
+    UserValues.shouldLoad = true;
 
     Future.delayed(const Duration(milliseconds: 500), () => scrollDown());
 
@@ -64,10 +64,14 @@ class _ChatDetailsPageState extends State<ChatDetailsPage> {
   @override
   void dispose() {
     if (!widget.notChatPage){
-      userValues.notificationHandlers["allowNotification"] = false;
+      UserValues.notificationHandlers["allowNotification"] = false;
+      if (UserValues.usersNotificationCounter.contains(widget.matchUID)){
+        
+        UserValues.notificationCount--;
+      }
     }
 
-    userValues.notificationHandlers["currentMatchUID"] = null;
+    UserValues.notificationHandlers["currentMatchUID"] = null;
 
     myFocusNode.dispose();
     _messageController.dispose();
@@ -90,15 +94,15 @@ class _ChatDetailsPageState extends State<ChatDetailsPage> {
       String message = messages["content"];
       String sender = messages["uid"];
 
-      if (sender == userValues.uid) {
+      if (sender == UserValues.uid) {
         sender = "user1";
       } else {
         sender = "user2";
       }
       
-      /* userValues.shouldLoad will be set to false if the users has sent a message
+      /* UserValues.shouldLoad will be set to false if the users has sent a message
             because else there will messages coming twice in the UI */
-      if ((userValues.shouldLoad == true) || (messages["uid"] != userValues.uid)){
+      if ((UserValues.shouldLoad == true) || (messages["uid"] != UserValues.uid)){
         _addMessage({
           "text": message,
           "sender": sender
@@ -110,9 +114,9 @@ class _ChatDetailsPageState extends State<ChatDetailsPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-    backgroundColor: Theme.of(context).colorScheme.background,
+    backgroundColor: Theme.of(context).colorScheme.surface,
     appBar: AppBar(
-      backgroundColor: Theme.of(context).colorScheme.background,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       shadowColor: Colors.black,
       leading: InkWell(
         onTap: () {
@@ -127,8 +131,8 @@ class _ChatDetailsPageState extends State<ChatDetailsPage> {
       ),
       title: GestureDetector(
         onTap: () {
-          userValues.matchedUsers.forEach((key, value) {
-            popupMatchDetails(context, value, key, userValues.matchedUsers);
+          UserValues.matchedUsers.forEach((key, value) {
+            popupMatchDetails(context, value, key, UserValues.matchedUsers);
             }
           );
         },
@@ -153,13 +157,13 @@ class _ChatDetailsPageState extends State<ChatDetailsPage> {
         ),
       ),
       actions: [
-        ActionWidget(widget.matchUID)
+        actionWidget(widget.matchUID)
       ],
     
     ),
     body: Stack(
       children: [
-        MessageContent(_messages, _scrollController),
+        messageContent(_messages, _scrollController),
         TextFieldWithDynamicColor(sendMessage: _addMessage, path: widget.path, matchUID: widget.matchUID, focusNode: myFocusNode,),
       ],
     ),
@@ -175,12 +179,12 @@ class TextFieldWithDynamicColor extends StatefulWidget {
   final String matchUID;
   final FocusNode focusNode;
 
-  TextFieldWithDynamicColor({required this.sendMessage, required this.path, required, required this.matchUID, required this.focusNode});
+  const TextFieldWithDynamicColor({super.key, required this.sendMessage, required this.path, required, required this.matchUID, required this.focusNode});
   @override
-  _TextFieldWithDynamicColorState createState() => _TextFieldWithDynamicColorState();
+  TextFieldWithDynamicColorState createState() => TextFieldWithDynamicColorState();
 }
 
-class _TextFieldWithDynamicColorState extends State<TextFieldWithDynamicColor> {
+class TextFieldWithDynamicColorState extends State<TextFieldWithDynamicColor> {
   TextEditingController messageController = TextEditingController();
   Color containerColor = Colors.grey;
   String imagePath = "lib/images/send-icon-disabled.png";
@@ -193,7 +197,7 @@ class _TextFieldWithDynamicColorState extends State<TextFieldWithDynamicColor> {
         // Change color to enabled when text is available
         if (messageController.text.trim().isNotEmpty) {
           imagePath = "lib/images/send-icon-enabled.png";
-          containerColor = reuseableColors.primaryColor;
+          containerColor = ReuseableColors.primaryColor;
 
         // Change color to disable when text is not there or are just some spaces
         } else {
@@ -206,7 +210,7 @@ class _TextFieldWithDynamicColorState extends State<TextFieldWithDynamicColor> {
 
   @override
   Widget build(BuildContext context) {
-    return NewTextField(sendMessage: widget.sendMessage, messageController: messageController, containerColor: containerColor, imagePath: imagePath, path: widget.path, matchUID: widget.matchUID, context: context, focusNode: widget.focusNode);
+    return newTextField(sendMessage: widget.sendMessage, messageController: messageController, containerColor: containerColor, imagePath: imagePath, path: widget.path, matchUID: widget.matchUID, context: context, focusNode: widget.focusNode);
   }
 
   @override
@@ -216,7 +220,7 @@ class _TextFieldWithDynamicColorState extends State<TextFieldWithDynamicColor> {
   }
 }
 
-Widget NewTextField({required BuildContext context, required SendMessageCallback sendMessage, required TextEditingController messageController, required Color containerColor, required String imagePath, required String path, required String matchUID, required FocusNode focusNode}) {
+Widget newTextField({required BuildContext context, required SendMessageCallback sendMessage, required TextEditingController messageController, required Color containerColor, required String imagePath, required String path, required String matchUID, required FocusNode focusNode}) {
   return Positioned(
     left: 0,
     right: 0,
@@ -224,7 +228,7 @@ Widget NewTextField({required BuildContext context, required SendMessageCallback
     child: Container(
       padding: EdgeInsets.all(10),
       decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.background
+        color: Theme.of(context).colorScheme.surface
       ),
       child: Row(
         children: [
@@ -265,7 +269,7 @@ Widget NewTextField({required BuildContext context, required SendMessageCallback
                 writeChatData["uniquePath"] = path; 
                 writeChatData["matchUID"] = matchUID;   
 
-                userValues.shouldLoad = false;
+                UserValues.shouldLoad = false;
 
                 ApiCalls.writeChatContent(writeChatData);
                 messageController.clear();
@@ -385,7 +389,7 @@ Future popupMatchDetails(BuildContext context, Map value, String key, Map<String
                                 IntrinsicHeight(
                                   child: Material(
                                     child: aboutMeAndTags(data: matchUserData),
-                                    color: reuseableColors.primaryColor,
+                                    color: ReuseableColors.primaryColor,
                                   ),
                                 ),
                                 //Match user userImage1
@@ -405,7 +409,7 @@ Future popupMatchDetails(BuildContext context, Map value, String key, Map<String
                                 IntrinsicHeight(
                                   child: Material(
                                     child: fromOrStreamDetails(buttonsNeeded: false, candidateDetails: matchUserData),
-                                    color: reuseableColors.primaryColor,
+                                    color: ReuseableColors.primaryColor,
                                   ),
                                 ),
                               ],

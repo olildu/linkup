@@ -2,8 +2,8 @@
 // ignore_for_file: non_constant_identifier_names, prefer_const_constructors
 
 import 'dart:io';
-
 import 'package:linkup/api/api_calls.dart';
+import 'package:linkup/api/common_functions.dart';
 import 'package:linkup/elements/profile_elements/elements.dart';
 import 'package:dotted_border/dotted_border.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -22,7 +22,7 @@ Map<String, File?> images = {
 class LookingForContainer extends StatelessWidget {
   final Function()? onOptionSelected;
 
-  const LookingForContainer({Key? key, this.onOptionSelected}) : super(key: key);
+  const LookingForContainer({super.key, this.onOptionSelected});
 
   @override
   Widget build(BuildContext context) {
@@ -30,40 +30,37 @@ class LookingForContainer extends StatelessWidget {
       alignment: Alignment.topCenter,
       child: Column(
         children: [
-          Container(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                const SizedBox(height: 20,),
-                titleAndSubtitle("What do you want from dates?", "Let's get to know you better", titleColor: Colors.white, subTitleColor: const Color(0xFFC0C0C0)),
-
-                const SizedBox(height: 50,),
-                Row(
-                  children: [
-                    Expanded(
-                      child: SizedBox(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
-                          children: [
-                            OptionChildrenBuilder("Relationship", "LookingFor", onOptionSelected),
-                            const SizedBox(height: 10,),
-                            OptionChildrenBuilder("Something Casual", "LookingFor", onOptionSelected),
-                            const SizedBox(height: 10,),
-                            OptionChildrenBuilder("Don't know yet", "LookingFor", onOptionSelected),
-                            const SizedBox(height: 10,),
-                            OptionChildrenBuilder("Skip", "LookingFor", onOptionSelected),
-                          ],
-                        ),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              const SizedBox(height: 20,),
+              titleAndSubtitle("What do you want from dates?", "Let's get to know you better", titleColor: Colors.white, subTitleColor: const Color(0xFFC0C0C0)),
+          
+              const SizedBox(height: 50,),
+              Row(
+                children: [
+                  Expanded(
+                    child: SizedBox(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          OptionChildrenBuilder(context,"Relationship", "LookingFor", onOptionSelected),
+                          const SizedBox(height: 10,),
+                          OptionChildrenBuilder(context,"Something Casual", "LookingFor", onOptionSelected),
+                          const SizedBox(height: 10,),
+                          OptionChildrenBuilder(context,"Don't know yet", "LookingFor", onOptionSelected),
+                          const SizedBox(height: 10,),
+                          OptionChildrenBuilder(context,"Skip", "LookingFor", onOptionSelected),
+                        ],
                       ),
                     ),
-                  ],
-                ),
-
-                const SizedBox(height: 30,),
-                Text("Skip", style: GoogleFonts.poppins(fontSize: 18, fontWeight: FontWeight.w500),)
-              ],
-            ),
+                  ),
+                ],
+              ),
+          
+              const SizedBox(height: 30,),
+            ],
           )
         ],
       ),
@@ -74,7 +71,7 @@ class LookingForContainer extends StatelessWidget {
 class ReligionContainer extends StatelessWidget {
   final Function()? onOptionSelected;
 
-  const ReligionContainer({Key? key, this.onOptionSelected}) : super(key: key);
+  const ReligionContainer({super.key, this.onOptionSelected});
 
   @override
   Widget build(BuildContext context) {
@@ -83,50 +80,48 @@ class ReligionContainer extends StatelessWidget {
         alignment: Alignment.topCenter,
         child: Column(
           children: [
-            Container(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                const SizedBox(height: 20,),
-                titleAndSubtitle("Do you identify with a religion?", "Let's get to know you better", titleColor: Colors.white, subTitleColor: const Color(0xFFC0C0C0)),
-
-                const SizedBox(height: 50,),
-                  Container(
-                    height: MediaQuery.of(context).size.height * 0.6, // Adjust the height as needed
-                    child: ListView(
-                      children: [
-                        OptionChildrenBuilder("Agnostic", "Religion", onOptionSelected),
-                        const SizedBox(height: 10,),
-                        OptionChildrenBuilder("Atheist", "Religion", onOptionSelected),
-                        const SizedBox(height: 10,),
-                        OptionChildrenBuilder("Buddhist", "Religion", onOptionSelected),
-                        const SizedBox(height: 10,),
-                        OptionChildrenBuilder("Catholic", "Religion", onOptionSelected),
-                        const SizedBox(height: 10,),
-                        OptionChildrenBuilder("Christian", "Religion", onOptionSelected),
-                        const SizedBox(height: 10,),
-                        OptionChildrenBuilder("Hindu", "Religion", onOptionSelected),
-                        const SizedBox(height: 10,),
-                        OptionChildrenBuilder("Jain", "Religion", onOptionSelected),
-                        const SizedBox(height: 10,),
-                        OptionChildrenBuilder("Jewish", "Religion", onOptionSelected),
-                        const SizedBox(height: 10,),
-                        OptionChildrenBuilder("Mormon", "Religion", onOptionSelected),
-                        const SizedBox(height: 10,),
-                        OptionChildrenBuilder("Muslim", "Religion", onOptionSelected),
-                        const SizedBox(height: 10,),
-                        OptionChildrenBuilder("Sikh", "Religion", onOptionSelected),
-                        const SizedBox(height: 10,),
-                        OptionChildrenBuilder("Other", "Religion", onOptionSelected),
-                        const SizedBox(height: 10,),
-                        OptionChildrenBuilder("Skip", "Religion", onOptionSelected),
-                      ],
-                    ),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+              const SizedBox(height: 20,),
+              titleAndSubtitle("Do you identify with a religion?", "Let's get to know you better", titleColor: Colors.white, subTitleColor: const Color(0xFFC0C0C0)),
+            
+              const SizedBox(height: 50,),
+                SizedBox(
+                  height: MediaQuery.of(context).size.height * 0.6, // Adjust the height as needed
+                  child: ListView(
+                    children: [
+                      OptionChildrenBuilder(context,"Agnostic", "Religion", onOptionSelected),
+                      const SizedBox(height: 10,),
+                      OptionChildrenBuilder(context,"Atheist", "Religion", onOptionSelected),
+                      const SizedBox(height: 10,),
+                      OptionChildrenBuilder(context,"Buddhist", "Religion", onOptionSelected),
+                      const SizedBox(height: 10,),
+                      OptionChildrenBuilder(context,"Catholic", "Religion", onOptionSelected),
+                      const SizedBox(height: 10,),
+                      OptionChildrenBuilder(context,"Christian", "Religion", onOptionSelected),
+                      const SizedBox(height: 10,),
+                      OptionChildrenBuilder(context,"Hindu", "Religion", onOptionSelected),
+                      const SizedBox(height: 10,),
+                      OptionChildrenBuilder(context,"Jain", "Religion", onOptionSelected),
+                      const SizedBox(height: 10,),
+                      OptionChildrenBuilder(context,"Jewish", "Religion", onOptionSelected),
+                      const SizedBox(height: 10,),
+                      OptionChildrenBuilder(context,"Mormon", "Religion", onOptionSelected),
+                      const SizedBox(height: 10,),
+                      OptionChildrenBuilder(context,"Muslim", "Religion", onOptionSelected),
+                      const SizedBox(height: 10,),
+                      OptionChildrenBuilder(context,"Sikh", "Religion", onOptionSelected),
+                      const SizedBox(height: 10,),
+                      OptionChildrenBuilder(context,"Other", "Religion", onOptionSelected),
+                      const SizedBox(height: 10,),
+                      OptionChildrenBuilder(context,"Skip", "Religion", onOptionSelected),
+                    ],
                   ),
-
-                ],
-              ),
+                ),
+            
+              ],
             )
           ],
         ),
@@ -138,7 +133,7 @@ class ReligionContainer extends StatelessWidget {
 class SmokingContainer extends StatelessWidget {
   final Function()? onOptionSelected;
 
-  const SmokingContainer({Key? key, this.onOptionSelected}) : super(key: key);
+  const SmokingContainer({super.key, this.onOptionSelected});
 
   @override
   Widget build(BuildContext context) {
@@ -146,38 +141,34 @@ class SmokingContainer extends StatelessWidget {
       alignment: Alignment.topCenter,
       child: Column(
         children: [
-          Container(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                const SizedBox(height: 20,),
-                titleAndSubtitle("Do you smoke?", "Let's get to know you better", titleColor: Colors.white, subTitleColor: const Color(0xFFC0C0C0)),
-                const SizedBox(height: 50,),
-                Row(
-                  children: [
-                    Expanded(
-                      child: SizedBox(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
-                          children: [
-                            OptionChildrenBuilder("Socially", "Smoking", onOptionSelected),
-                            const SizedBox(height: 10,),
-                            OptionChildrenBuilder("Regularly", "Smoking", onOptionSelected),
-                            const SizedBox(height: 10,),
-                            OptionChildrenBuilder("Never", "Smoking", onOptionSelected),
-                            const SizedBox(height: 10,),
-                            OptionChildrenBuilder("Skip", "Smoking", onOptionSelected),
-                          ],
-                        ),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              const SizedBox(height: 20,),
+              titleAndSubtitle("Do you smoke?", "Let's get to know you better", titleColor: Colors.white, subTitleColor: const Color(0xFFC0C0C0)),
+              const SizedBox(height: 50,),
+              Row(
+                children: [
+                  Expanded(
+                    child: SizedBox(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          OptionChildrenBuilder(context,"Socially", "Smoking", onOptionSelected),
+                          const SizedBox(height: 10,),
+                          OptionChildrenBuilder(context,"Regularly", "Smoking", onOptionSelected),
+                          const SizedBox(height: 10,),
+                          OptionChildrenBuilder(context,"Never", "Smoking", onOptionSelected),
+                          const SizedBox(height: 10,),
+                          OptionChildrenBuilder(context,"Skip", "Smoking", onOptionSelected),
+                        ],
                       ),
                     ),
-                  ],
-                ),
-                const SizedBox(height: 30,),
-                Text("Skip", style: GoogleFonts.poppins(fontSize: 18, fontWeight: FontWeight.w500),)
-              ],
-            ),
+                  ),
+                ],
+              ),
+            ],
           )
         ],
       ),
@@ -188,7 +179,7 @@ class SmokingContainer extends StatelessWidget {
 class GenderContainer extends StatelessWidget {
   final Function()? onOptionSelected;
 
-  const GenderContainer({Key? key, this.onOptionSelected}) : super(key: key);
+  const GenderContainer({super.key, this.onOptionSelected});
 
   @override
   Widget build(BuildContext context) {
@@ -196,36 +187,32 @@ class GenderContainer extends StatelessWidget {
       alignment: Alignment.topCenter,
       child: Column(
         children: [
-          Container(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                const SizedBox(height: 20,),
-                titleAndSubtitle("What do you identify as?", "This will help you with better matches", titleColor: Colors.white, subTitleColor: const Color(0xFFC0C0C0)),
-                const SizedBox(height: 50,),
-                Row(
-                  children: [
-                    Expanded(
-                      child: SizedBox(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
-                          children: [
-                            OptionChildrenBuilder("Male", "Gender", onOptionSelected),
-                            const SizedBox(height: 10,),
-                            OptionChildrenBuilder("Female", "Gender", onOptionSelected),
-                            const SizedBox(height: 10,),
-                            OptionChildrenBuilder("Others", "Gender", onOptionSelected),
-                          ],
-                        ),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              const SizedBox(height: 20,),
+              titleAndSubtitle("What do you identify as?", "This will help you with better matches", titleColor: Colors.white, subTitleColor: const Color(0xFFC0C0C0)),
+              const SizedBox(height: 50,),
+              Row(
+                children: [
+                  Expanded(
+                    child: SizedBox(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          OptionChildrenBuilder(context,"Male", "Gender", onOptionSelected),
+                          const SizedBox(height: 10,),
+                          OptionChildrenBuilder(context,"Female", "Gender", onOptionSelected),
+                          const SizedBox(height: 10,),
+                          OptionChildrenBuilder(context,"Others", "Gender", onOptionSelected),
+                        ],
                       ),
                     ),
-                  ],
-                ),
-                const SizedBox(height: 30,),
-                Text("Skip", style: GoogleFonts.poppins(fontSize: 18, fontWeight: FontWeight.w500),)
-              ],
-            ),
+                  ),
+                ],
+              ),
+            ],
           )
         ],
       ),
@@ -233,11 +220,10 @@ class GenderContainer extends StatelessWidget {
   }
 }
 
-
 class HeightContainer extends StatefulWidget {
   final VoidCallback moveAction;
 
-  const HeightContainer({Key? key, required this.moveAction}) : super(key: key);
+  const HeightContainer({super.key, required this.moveAction});
 
   @override
   State<HeightContainer> createState() => _HeightContainerState();
@@ -246,67 +232,103 @@ class HeightContainer extends StatefulWidget {
 class _HeightContainerState extends State<HeightContainer> {
   String heightValue = "Choose your height";
   
+  @override
   Widget build(BuildContext context) {
     return Container(
       alignment: Alignment.topCenter,
       child: Column(
         children: [
-          Container(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                const SizedBox(height: 20,),
-                titleAndSubtitle("What is your height?", "Let's get to know you better", titleColor: Colors.white, subTitleColor: const Color(0xFFC0C0C0)),
-                const SizedBox(height: 50,),
-
-                Container(
-                  padding: const EdgeInsets.symmetric(vertical: 20),
+          GestureDetector(
+            onTap: (){
+              showCupertinoModalPopup(context: context, builder: (BuildContext context) => SizedBox(
+                height: 250,
+                child: Container(
                   decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(5),
-                    border: Border.all(color: Colors.white)
+                    color: Theme.of(context).colorScheme.surface
                   ),
-                  child: GestureDetector(
-                    onTap: (){
-                      showCupertinoModalPopup(context: context, builder: (BuildContext context) => SizedBox(
-                        height: 250,
-                        child: Container(
-                          decoration: const BoxDecoration(
-                            color: Colors.white
-                          ),
-                          child: CupertinoPicker(
-                            backgroundColor: Colors.white,
-                            itemExtent: 40,
-                            scrollController: FixedExtentScrollController(),
-                            children: List.generate(
-                              71, 
-                              (index) {
-                                final height = 150 + index;
-                                return Text(
-                                  "$height cm",
-                                  style: GoogleFonts.poppins(), 
-                                );
+                  child: CupertinoPicker(
+                    backgroundColor: Theme.of(context).colorScheme.surface,
+                    itemExtent: 40,
+                    scrollController: FixedExtentScrollController(),
+                    children: List.generate(
+                      71, 
+                      (index) {
+                        final height = 150 + index;
+                        return Text(
+                          "$height cm",
+                          style: GoogleFonts.poppins(), 
+                        );
+                      },
+                    ),
+                    onSelectedItemChanged: (value) {
+                      widget.moveAction();
+                      setState(() {
+                        heightValue = "${value+150} cm";
+                      });
+                      userDataTags["height"] = "${value+150} cm";
+                    },
+                  ),
+                ),
+              ));
+            },
+            child: Container(
+              color: Colors.transparent,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  const SizedBox(height: 20,),
+                  titleAndSubtitle("What is your height?", "Let's get to know you better", titleColor: Colors.white, subTitleColor: const Color(0xFFC0C0C0)),
+                  const SizedBox(height: 50,),
+            
+                  Container(
+                    padding: const EdgeInsets.symmetric(vertical: 20),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(5),
+                      border: Border.all(color: Colors.white)
+                    ),
+                    child: GestureDetector(
+                      onTap: (){
+                        showCupertinoModalPopup(context: context, builder: (BuildContext context) => SizedBox(
+                          height: 250,
+                          child: Container(
+                            decoration: BoxDecoration(
+                              color: Theme.of(context).colorScheme.surface
+                            ),
+                            child: CupertinoPicker(
+                              backgroundColor: Theme.of(context).colorScheme.surface,
+                              itemExtent: 40,
+                              scrollController: FixedExtentScrollController(),
+                              children: List.generate(
+                                71, 
+                                (index) {
+                                  final height = 150 + index;
+                                  return Text(
+                                    "$height cm",
+                                    style: GoogleFonts.poppins(), 
+                                  );
+                                },
+                              ),
+                              onSelectedItemChanged: (value) {
+                                widget.moveAction();
+                                setState(() {
+                                  heightValue = "${value+150} cm";
+                                });
+                                userDataTags["height"] = "${value+150} cm";
                               },
                             ),
-                            onSelectedItemChanged: (value) {
-                              widget.moveAction();
-                              setState(() {
-                                heightValue = "${value+150} cm";
-                              });
-                              userDataTags["height"] = "${value+150} cm";
-                            },
                           ),
-                        ),
-                      ));
-                    },
-                    child: Center(
-                      child: Text(heightValue, style: GoogleFonts.poppins(color:  Colors.white, fontSize: 20),),
+                        ));
+                      },
+                      child: Center(
+                        child: Text(heightValue, style: GoogleFonts.poppins(color:  Colors.white, fontSize: 20),),
+                      ),
                     ),
+            
                   ),
-
-                ),
-
-              ],
+            
+                ],
+              ),
             ),
           )
         ],
@@ -318,7 +340,7 @@ class _HeightContainerState extends State<HeightContainer> {
 class DrinkingContainer extends StatelessWidget {
   final Function()? onOptionSelected;
 
-  const DrinkingContainer({Key? key, this.onOptionSelected}) : super(key: key);
+  const DrinkingContainer({super.key, this.onOptionSelected});
 
   @override
   Widget build(BuildContext context) {
@@ -326,44 +348,39 @@ class DrinkingContainer extends StatelessWidget {
       alignment: Alignment.topCenter,
       child: Column(
         children: [
-          Container(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                const SizedBox(height: 20,),
-                titleAndSubtitle("Do you drink?", "Let's get to know you better", titleColor: Colors.white, subTitleColor: const Color(0xFFC0C0C0)),
-
-                const SizedBox(height: 50,),
-                Row(
-                  children: [
-                    Expanded(
-                      child: SizedBox(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
-                          children: [
-                            OptionChildrenBuilder("Frequently", "Drinking", onOptionSelected),
-                            const SizedBox(height: 10,),
-                            OptionChildrenBuilder("Socially", "Drinking", onOptionSelected),
-                            const SizedBox(height: 10,),
-                            OptionChildrenBuilder("Rarely", "Drinking", onOptionSelected),
-                            const SizedBox(height: 10,),
-                            OptionChildrenBuilder("Never", "Drinking", onOptionSelected),
-                            const SizedBox(height: 10,),
-                            OptionChildrenBuilder("Sober", "Drinking", onOptionSelected),
-                            const SizedBox(height: 10,),
-                            OptionChildrenBuilder("Skip", "Drinking", onOptionSelected),
-                          ],
-                        ),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              const SizedBox(height: 20,),
+              titleAndSubtitle("Do you drink?", "Let's get to know you better", titleColor: Colors.white, subTitleColor: const Color(0xFFC0C0C0)),
+          
+              const SizedBox(height: 50,),
+              Row(
+                children: [
+                  Expanded(
+                    child: SizedBox(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          OptionChildrenBuilder(context,"Frequently", "Drinking", onOptionSelected),
+                          const SizedBox(height: 10,),
+                          OptionChildrenBuilder(context,"Socially", "Drinking", onOptionSelected),
+                          const SizedBox(height: 10,),
+                          OptionChildrenBuilder(context,"Rarely", "Drinking", onOptionSelected),
+                          const SizedBox(height: 10,),
+                          OptionChildrenBuilder(context,"Never", "Drinking", onOptionSelected),
+                          const SizedBox(height: 10,),
+                          OptionChildrenBuilder(context,"Sober", "Drinking", onOptionSelected),
+                          const SizedBox(height: 10,),
+                          OptionChildrenBuilder(context,"Skip", "Drinking", onOptionSelected),
+                        ],
                       ),
                     ),
-                  ],
-                ),
-
-                const SizedBox(height: 30,),
-                Text("Skip", style: GoogleFonts.poppins(fontSize: 18, fontWeight: FontWeight.w500),)
-              ],
-            ),
+                  ),
+                ],
+              ),
+            ],
           )
         ],
       ),
@@ -429,105 +446,105 @@ class _YearStreamContainerNewState extends State<YearStreamContainerNew> {
     children: [
       titleAndSubtitle("Select your stream and year", "This can you help you with better matchmaking", titleColor: Colors.white, subTitleColor: const Color(0xFFC0C0C0)),
       const SizedBox(height: 30,),
-      Container(
-        child: Row(
-          children: [
-            GestureDetector(
-              onTap: () {
-                showCupertinoModalPopup(context: context, builder: (BuildContext context) => SizedBox(
+      Row(
+        children: [
+          GestureDetector(
+            onTap: () {
+              showCupertinoModalPopup(context: context, builder: (BuildContext context) => SizedBox(
+                height: 250,
+                child: Container(
+                  decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.surface
+                  ),
+                  child: CupertinoPicker(
+                    backgroundColor: Theme.of(context).colorScheme.surface,
+                    itemExtent: 40,
+                    scrollController: FixedExtentScrollController(
+                      initialItem: 10
+                    ),
+                    children: streamsData.map((stream) {
+                      return Text(
+                        stream,
+                        style: GoogleFonts.poppins(),
+                      );
+                    }).toList(),
+                    onSelectedItemChanged: (value) {
+      
+                      _streamSelected = true;
+      
+                      if (_yearSelected) {
+                        widget.moveAction();
+                      }
+      
+                      userDataTags["stream"] = streamsData[value];
+                      setState(() {
+                        streamValue = streamsData[value];
+                      });
+                    },
+                  ),
+                ),
+              ));
+            },
+      
+            child: Container(
+              padding: const EdgeInsets.all(15),
+              decoration: BoxDecoration(
+                color: const Color(0xFFD9D9D9),
+                borderRadius: BorderRadius.circular(5)
+              ),
+              child: Text(streamValue, style: GoogleFonts.poppins(color: Colors.white, fontSize: 20)),
+            ),
+          ),
+          const SizedBox(width: 10,),
+          
+          
+          GestureDetector(
+            onTap: () {
+              showCupertinoModalPopup(context: context, builder: (BuildContext context) => SizedBox(
                   height: 250,
                   child: Container(
-                    decoration: const BoxDecoration(
-                      color: Colors.white
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.surface
                     ),
                     child: CupertinoPicker(
-                      backgroundColor: Colors.white,
+                      backgroundColor: Theme.of(context).colorScheme.surface,
                       itemExtent: 40,
                       scrollController: FixedExtentScrollController(
-                        initialItem: 10
+                        initialItem: 2
                       ),
-                      children: streamsData.map((stream) {
+                      children: yearList.map((stream) {
                         return Text(
                           stream,
                           style: GoogleFonts.poppins(),
                         );
                       }).toList(),
                       onSelectedItemChanged: (value) {
-
-                        _streamSelected = true;
-
-                        if (_yearSelected)
-                          widget.moveAction();
-
-                        userDataTags["stream"] = streamsData[value];
+      
+                      _yearSelected = true;
+      
+                      if (_streamSelected) {
+                        widget.moveAction();
+                      }
+      
+                        userDataTags["year"] = value+1;
                         setState(() {
-                          streamValue = streamsData[value];
+                          yearValue = yearList[value];
                         });
                       },
                     ),
                   ),
                 ));
-              },
-
-              child: Container(
-                padding: const EdgeInsets.all(15),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFD9D9D9),
-                  borderRadius: BorderRadius.circular(5)
-                ),
-                child: Text(streamValue, style: GoogleFonts.poppins(color: Colors.white, fontSize: 20)),
+            },
+            child: Container(
+              padding: const EdgeInsets.all(15),
+              decoration: BoxDecoration(
+                color: const Color(0xFFD9D9D9),
+                borderRadius: BorderRadius.circular(5)
               ),
+              child: Text(yearValue, style: GoogleFonts.poppins(color: Colors.white, fontSize: 20)),
             ),
-            const SizedBox(width: 10,),
-            
-            
-            GestureDetector(
-              onTap: () {
-                showCupertinoModalPopup(context: context, builder: (BuildContext context) => SizedBox(
-                    height: 250,
-                    child: Container(
-                      decoration: const BoxDecoration(
-                        color: Colors.white
-                      ),
-                      child: CupertinoPicker(
-                        backgroundColor: Colors.white,
-                        itemExtent: 40,
-                        scrollController: FixedExtentScrollController(
-                          initialItem: 2
-                        ),
-                        children: yearList.map((stream) {
-                          return Text(
-                            stream,
-                            style: GoogleFonts.poppins(),
-                          );
-                        }).toList(),
-                        onSelectedItemChanged: (value) {
-
-                        _yearSelected = true;
-
-                        if (_streamSelected)
-                          widget.moveAction();
-
-                          userDataTags["year"] = value+1;
-                          setState(() {
-                            yearValue = yearList[value];
-                          });
-                        },
-                      ),
-                    ),
-                  ));
-              },
-              child: Container(
-                padding: const EdgeInsets.all(15),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFD9D9D9),
-                  borderRadius: BorderRadius.circular(5)
-                ),
-                child: Text(yearValue, style: GoogleFonts.poppins(color: Colors.white, fontSize: 20)),
-              ),
-            ),
-          ],
-        ),
+          ),
+        ],
       )
     ],
   );
@@ -541,28 +558,26 @@ Widget YearStreamContainer(){
     children: [
       titleAndSubtitle("Select your stream and year", "This can you help you with better matchmaking", titleColor: Colors.white, subTitleColor: const Color(0xFFC0C0C0)),
       const SizedBox(height: 30,),
-      Container(
-        child: Row(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(10),
-              decoration: BoxDecoration(
-                color: const Color(0xFFD9D9D9),
-                borderRadius: BorderRadius.circular(5)
-              ),
-              child: Text("Stream", style: GoogleFonts.poppins(color: Colors.white, fontSize: 20)),
+      Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              color: const Color(0xFFD9D9D9),
+              borderRadius: BorderRadius.circular(5)
             ),
-            const SizedBox(width: 10,),
-            Container(
-              padding: const EdgeInsets.all(10),
-              decoration: BoxDecoration(
-                color: const Color(0xFFD9D9D9),
-                borderRadius: BorderRadius.circular(5)
-              ),
-              child: Text("Year", style: GoogleFonts.poppins(color: Colors.white, fontSize: 20)),
+            child: Text("Stream", style: GoogleFonts.poppins(color: Colors.white, fontSize: 20)),
+          ),
+          const SizedBox(width: 10,),
+          Container(
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              color: const Color(0xFFD9D9D9),
+              borderRadius: BorderRadius.circular(5)
             ),
-          ],
-        ),
+            child: Text("Year", style: GoogleFonts.poppins(color: Colors.white, fontSize: 20)),
+          ),
+        ],
       )
     ],
   );
@@ -600,10 +615,10 @@ class _DateContainerNewState extends State<DateContainerNew> {
                 height: 250,
                 width: MediaQuery.of(context).size.width,
                 child: Container(
-                  color: Colors.white,
+                  color: Theme.of(context).colorScheme.surface,
                   child: CupertinoDatePicker(
                     mode: CupertinoDatePickerMode.date,
-                    backgroundColor: Colors.white,
+                    backgroundColor: Theme.of(context).colorScheme.surface,
                     initialDateTime: DateTime(2001),
                     minimumDate: DateTime(1990),
                     maximumDate: maximumDate,
@@ -685,6 +700,7 @@ Widget NameContainer(bool isContainerEnabled, TextEditingController nameControll
       TextField(
         controller: nameController, // Assign the controller
         textCapitalization: TextCapitalization.words,
+        style: const TextStyle(color: Colors.black), // Set text color to black
         decoration: InputDecoration(
           hintText: 'Enter your name',
           hintStyle: const TextStyle(color: Colors.grey),
@@ -713,9 +729,18 @@ Widget NextButton(bool isContainerEnabled, TextEditingController nameController,
               userDataTags["name"] = nameController.text.trim();
               startAnimation();
               if (uploadImageBool != null && uploadImageBool) {
+                Map imageNames = {};
                 await Future.wait(images.values.whereType<File>().map((value) async {
-                  await firebaseCalls.uploadImage(value);
+                  imageNames[value] = await CommonFunction().returnmd5Hash(value);
                 }));
+                
+                // Make hashmapping in database for the images
+                await FirebaseCalls.updateImageValuesinDatabase(imageNames);
+
+                // Upload userMetaDetails to the database
+                userDataTags["key"] = UserValues.cookieValue;
+                await ApiCalls.uploadUserData(userDataTags);
+    
                 onCompletion!();
               }
             }
@@ -732,9 +757,13 @@ Map userDataTags = {
   'type': 'CreateUserMetaDetails',
 };
 
-Widget OptionChildrenBuilder(String optionText, String Type, [Function()? onOptionSelected]) {
+Widget OptionChildrenBuilder(BuildContext context, String optionText, String Type, [Function()? onOptionSelected]) {
   return GestureDetector(
     onTap: () {
+      if (optionText == "Skip"){
+        onOptionSelected!(); 
+        return;
+      }
       switch(Type){
         case "Drinking":
           userDataTags["drinkingStatus"] = optionText;
@@ -759,8 +788,8 @@ Widget OptionChildrenBuilder(String optionText, String Type, [Function()? onOpti
     child: Container(
       padding: const EdgeInsets.symmetric(vertical: 15),
       decoration: BoxDecoration(
-        color: Colors.white,
-        border: Border.all(color: const Color.fromARGB(255, 233, 233, 233)),
+        color: Theme.of(context).colorScheme.primary,
+        border: Border.all(color: Theme.of(context).colorScheme.secondary,),
         borderRadius: BorderRadius.circular(40),
       ),
       child: Center(
@@ -790,20 +819,18 @@ class _PhotoContainerState extends State<PhotoContainer> {
           alignment: Alignment.topCenter,
           child: Column(
             children: [
-              Container(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    const SizedBox(height: 20,),
-                    titleAndSubtitle("Add your Photos", "Add photos that show your true self", titleColor: Colors.white, subTitleColor: const Color(0xFFC0C0C0)),
-
-                    SizedBox(height: 50,),
-
-                    PhotosWidget(moveAction: widget.moveAction, valueReject: widget.valueReject)
-
-                  ],
-                ),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  const SizedBox(height: 20,),
+                  titleAndSubtitle("Add your Photos", "Add photos that show your true self", titleColor: Colors.white, subTitleColor: const Color(0xFFC0C0C0)),
+              
+                  SizedBox(height: 50,),
+              
+                  PhotosWidget(moveAction: widget.moveAction, valueReject: widget.valueReject)
+              
+                ],
               )
             ],
           ),
@@ -817,11 +844,11 @@ class PhotosWidget extends StatefulWidget {
 
   const PhotosWidget({super.key, required this.moveAction, required this.valueReject});
   @override
-  _PhotosWidgetState createState() => _PhotosWidgetState();
+  PhotosWidgetState createState() => PhotosWidgetState();
 }
 
-class _PhotosWidgetState extends State<PhotosWidget> {
-  late int counter = 0;
+class PhotosWidgetState extends State<PhotosWidget> {
+  int counter = 0;
 
   Future confirmationPopup(BuildContext context, int index){
     return showCupertinoModalPopup(

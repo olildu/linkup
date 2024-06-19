@@ -1,10 +1,8 @@
-// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables, sized_box_for_whitespace, sort_child_properties_last, library_private_types_in_public_api
+// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables, sized_box_for_whitespace, sort_child_properties_last, library_private_types_in_public_api, await_only_futures
 import 'dart:async';
 
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
-import 'package:get/get.dart';
 import 'package:linkup/colors/colors.dart';
 import 'package:linkup/api/api_calls.dart';
 import 'package:linkup/elements/candidate_page_elements/elements.dart';
@@ -17,14 +15,14 @@ import 'package:google_fonts/google_fonts.dart';
 typedef SendMessageCallback = void Function(Map<String, dynamic> message);
 
 Map chatUserDetails = {
-  "uid": userValues.uid,
-  "key" : userValues.cookieValue,
+  "uid": UserValues.uid,
+  "key" : UserValues.cookieValue,
   'type': 'GetChatUserDetails',
 };
 
 Map writeChatData = {
-  "uid": userValues.uid,
-  "key" : userValues.cookieValue,
+  "uid": UserValues.uid,
+  "key" : UserValues.cookieValue,
   'type': 'WriteChats',
 };
 
@@ -65,15 +63,24 @@ class ChatDetails extends StatefulWidget {
   final String path;
   final String matchUID;
   final String name;
+  final String lastMessage;
+  final bool isCurrentUserLastSender;
 
-  const ChatDetails({super.key, required this.index, required this.matchUID, required this.path, required this.name});
+  const ChatDetails({
+    super.key,
+    required this.index,
+    required this.matchUID,
+    required this.path,
+    required this.name,
+    required this.lastMessage,
+    required this.isCurrentUserLastSender,
+  });
 
   @override
   _ChatDetailsState createState() => _ChatDetailsState();
 }
 
 class _ChatDetailsState extends State<ChatDetails> {
-  String lastMessage = '';
   bool isCurrentUserLastSender = true;
   String? chatUserImage; // Define a variable to store the chat user image URL
   bool isImageLoaded = false; // Track whether the image is already loaded
@@ -93,12 +100,12 @@ class _ChatDetailsState extends State<ChatDetails> {
       String lastMessegedUser = lastMessageDetails["lastMessageUser"];
 
       setState(() {
-        if (lastMessegedUser.trim() != userValues.uid) {
+        if (lastMessegedUser.trim() != UserValues.uid) {
           isCurrentUserLastSender = false;
         } else {
           isCurrentUserLastSender = true;
         }
-        lastMessage = lastMessageDetails["lastMessage"];
+        // lastMessage = lastMessageDetails["lastMessage"];
       });
     });
   }
@@ -113,10 +120,10 @@ class _ChatDetailsState extends State<ChatDetails> {
           MaterialPageRoute(
             builder: (context) => ChatDetailsPage(
               appBarTitle: widget.name,
-              imageUrl: "https://firebasestorage.googleapis.com/v0/b/mujdating.appspot.com/o/UserImages%2F${widget.matchUID}%2F${userValues.chatUsers[widget.matchUID]["imageLink"]}?alt=media&token",
+              imageUrl: "https://firebasestorage.googleapis.com/v0/b/mujdating.appspot.com/o/UserImages%2F${widget.matchUID}%2F${UserValues.chatUsers[widget.matchUID]["imageLink"]}?alt=media&token",
               path: widget.path,
               matchUID: widget.matchUID,
-              notChatPage: true,
+              notChatPage: false,
             ),
           ),
         );
@@ -131,7 +138,7 @@ class _ChatDetailsState extends State<ChatDetails> {
           children: [
             ClipOval(
               child: CachedNetworkImage(
-                imageUrl: "https://firebasestorage.googleapis.com/v0/b/mujdating.appspot.com/o/UserImages%2F${widget.matchUID}%2F${userValues.chatUsers[widget.matchUID]["imageLink"]}?alt=media&token",
+                imageUrl: "https://firebasestorage.googleapis.com/v0/b/mujdating.appspot.com/o/UserImages%2F${widget.matchUID}%2F${UserValues.chatUsers[widget.matchUID]["imageLink"]}?alt=media&token",
                 fit: BoxFit.cover,
                 width: 65,
                 height: 65,
@@ -140,42 +147,40 @@ class _ChatDetailsState extends State<ChatDetails> {
             SizedBox(width: 13),
 
             Expanded(
-              child: Container(
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            widget.name,
-                            textAlign: TextAlign.left,
-                            style: GoogleFonts.poppins(fontWeight: FontWeight.w500, fontSize: 16),
-                          ),
-                          Text(
-                            lastMessage,
-                            textAlign: TextAlign.left,
-                            overflow: TextOverflow.ellipsis,
-                            style: GoogleFonts.poppins(fontWeight: FontWeight.w300),
-                          ),
-                        ],
-                      ),
-                    ),
-                    SizedBox(width: 8), 
-
-                    // If last message user is currentUser then return only container else return notifation dot
-                    isCurrentUserLastSender ? Container()
-                    : Container(
-                        width: 15,
-                        height: 15,
-                        decoration: BoxDecoration(
-                          color: Theme.of(context).splashColor,
-                          shape: BoxShape.circle,
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          widget.name,
+                          textAlign: TextAlign.left,
+                          style: GoogleFonts.poppins(fontWeight: FontWeight.w500, fontSize: 16),
                         ),
-                      )
-                  ],
-                ),
+                        Text(
+                          widget.lastMessage,
+                          textAlign: TextAlign.left,
+                          overflow: TextOverflow.ellipsis,
+                          style: GoogleFonts.poppins(fontWeight: FontWeight.w300),
+                        ),
+                      ],
+                    ),
+                  ),
+                  SizedBox(width: 8), 
+              
+                  // If last message user is currentUser then return only container else return notifation dot
+                  isCurrentUserLastSender ? Container()
+                  : Container(
+                      width: 15,
+                      height: 15,
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).splashColor,
+                        shape: BoxShape.circle,
+                      ),
+                    )
+                ],
               ),
             ),
           ],
@@ -187,13 +192,14 @@ class _ChatDetailsState extends State<ChatDetails> {
 
 // Matches you see under Match Queue
 class MatchedUserWidget extends StatefulWidget {
-  
+  const MatchedUserWidget({super.key});
+
   @override
   State<MatchedUserWidget> createState() => _MatchedUserWidgetState();
 }
 
 class _MatchedUserWidgetState extends State<MatchedUserWidget> {
-  Map <String, dynamic> localMatchUserData = userValues.matchedUsers;
+  Map <String, dynamic> localMatchUserData = UserValues.matchedUsers;
 
   @override
   void initState(){
@@ -202,7 +208,7 @@ class _MatchedUserWidgetState extends State<MatchedUserWidget> {
   }
 
   void fetchMatchesRealtime() async{
-    final matchUsersRef = FirebaseDatabase.instance.ref().child("/UserMatchingDetails/${userValues.uid}/MatchUID");
+    final matchUsersRef = FirebaseDatabase.instance.ref().child("/UserMatchingDetails/${UserValues.uid}/MatchUID");
     
     matchUsersRef.onChildAdded.listen((event) async { // Constantly listen to children being added and then make change
       final data = await event.snapshot.value as Map; 
@@ -215,19 +221,19 @@ class _MatchedUserWidgetState extends State<MatchedUserWidget> {
       localMatchUserData[event.snapshot.key.toString()]["userName"] = data["matchName"];  
       localMatchUserData[event.snapshot.key.toString()]["userImage1"] = "https://firebasestorage.googleapis.com/v0/b/mujdating.appspot.com/o/UserImages%2F${event.snapshot.key.toString()}%2F${data["imageName"]}?alt=media&token" ; 
 
-      // userValues.chatUserImages[event.snapshot.key.toString()] = localMatchUserData[event.snapshot.key.toString()]["imageLink"];
+      // UserValues.chatUserImages[event.snapshot.key.toString()] = localMatchUserData[event.snapshot.key.toString()]["imageLink"];
     
       setState(() {
         localMatchUserData;
       });
 
-      userValues.matchedUsers = localMatchUserData;
+      UserValues.matchedUsers = localMatchUserData;
     },);
 
     matchUsersRef.onChildRemoved.listen((event) async{
       localMatchUserData.remove(event.snapshot.key);
-      userValues.matchedUsers.remove(event.snapshot.key);
-      userValues.matchUserData.remove(event.snapshot.key);
+      UserValues.matchedUsers.remove(event.snapshot.key);
+      UserValues.matchUserData.remove(event.snapshot.key);
       
       setState(() {
         localMatchUserData;
@@ -235,6 +241,7 @@ class _MatchedUserWidgetState extends State<MatchedUserWidget> {
     });
   }
 
+  @override
   Widget build(BuildContext context) {
     // Widgets built will be stored here
     List<Widget> userImages = [];
@@ -252,7 +259,8 @@ class _MatchedUserWidgetState extends State<MatchedUserWidget> {
             ),
             SizedBox(width: 10),
             Text(
-              "Your matches will appear here",
+              // "Your matches will appear here",
+              "For now",
               style: GoogleFonts.poppins(),
             ),
           ],
@@ -307,55 +315,103 @@ class _MatchedUserWidgetState extends State<MatchedUserWidget> {
 }
 
 
-class chatDetailsChatPage extends StatefulWidget {
+class ChatDetailsChatPage extends StatefulWidget {
+  const ChatDetailsChatPage({super.key});
+
   @override
-  State<chatDetailsChatPage> createState() => _chatDetailsChatPageState();
+  State<ChatDetailsChatPage> createState() => _ChatDetailsChatPageState();
 }
 
-class _chatDetailsChatPageState extends State<chatDetailsChatPage> {
-  Map<String, dynamic> localMatchUserData = userValues.chatUsers; // Create a local variable to store data
+class _ChatDetailsChatPageState extends State<ChatDetailsChatPage> {
+  Map<String, dynamic> localMatchUserData = UserValues.chatUsers; // Create a local variable to store data
+  List<String> sortedUserKeys = [];
+  bool isLoading = true; // Initial loading state
 
   @override
   void initState() {
     super.initState();
-
-    fetchChatsRealtime(); // Get chats from database realtime
+    fetchChatUsersRealtime(); // Get chats from database realtime
   }
 
-  void fetchChatsRealtime() async{
-    final chatUserRef = FirebaseDatabase.instance.ref('/UserMatchingDetails/${userValues.uid}/ChatUID/');
-    
+  void fetchChatUsersRealtime() async {
+    final chatUserRef = FirebaseDatabase.instance.ref('/UserMatchingDetails/${UserValues.uid}/ChatUID/');
+
     chatUserRef.onChildAdded.listen((event) async { // Constantly listen to children being added and then make change
-      final data = await event.snapshot.value as Map; 
+      final data = await event.snapshot.value as Map;
 
-      data.forEach((key, value) async {
-        // Create empty map for storing them locally in this function
+      localMatchUserData[event.snapshot.key.toString()] = {
+        "uniquePath": data["uniquePath"],
+        "userName": data["matchName"],
+        "imageLink": data["imageName"],
+        "lastMessageTime": data["timeStamp"] ?? 0, // Provide a default value if null
+      };
 
-        localMatchUserData[event.snapshot.key.toString()] = {}; // Key is uid of user
+      UserValues.chatUserImages[event.snapshot.key.toString()] = localMatchUserData[event.snapshot.key.toString()]["imageLink"];
 
-        // Value saved as [name, path, imageLink]
-        var splitted = value.split(",");
+      sortedUserKeys = localMatchUserData.keys.toList()
+        ..sort((a, b) {
+          var timeA = localMatchUserData[a]["lastMessageTime"] ?? 0;
+          var timeB = localMatchUserData[b]["lastMessageTime"] ?? 0;
+          return timeB.compareTo(timeA);
+        });
 
-        localMatchUserData[event.snapshot.key.toString()]["uniquePath"] = splitted[0]; 
-        localMatchUserData[event.snapshot.key.toString()]["userName"] = splitted[1];  
-        localMatchUserData[event.snapshot.key.toString()]["imageLink"] = splitted[2]; 
-
-        userValues.chatUserImages[event.snapshot.key.toString()] = localMatchUserData[event.snapshot.key.toString()]["imageLink"];
-
-
+      setState(() {
+        isLoading = false;
+        localMatchUserData;
       });
-      
+
+      _fetchLastMessage(event.snapshot.key.toString(), data["uniquePath"]);
+    });
+
+    chatUserRef.onChildChanged.listen((event) async { // Constantly listen for changes in children (TimeStamp Mostly Here)
+      final data = await event.snapshot.value as Map;
+
+      localMatchUserData[event.snapshot.key.toString()] = {
+        "uniquePath": data["uniquePath"],
+        "userName": data["matchName"],
+        "imageLink": data["imageName"],
+        "lastMessageTime": data["timeStamp"], // Placeholder for last message timestamp
+      };
+
+      UserValues.chatUserImages[event.snapshot.key.toString()] = localMatchUserData[event.snapshot.key.toString()]["imageLink"];
+
+      sortedUserKeys = localMatchUserData.keys.toList()
+        ..sort((a, b) {
+          var timeA = localMatchUserData[a]["lastMessageTime"] ?? 0;
+          var timeB = localMatchUserData[b]["lastMessageTime"] ?? 0;
+          return timeB.compareTo(timeA);
+        });
+
       setState(() {
         localMatchUserData;
       });
-    },);
 
+      _fetchLastMessage(event.snapshot.key.toString(), data["uniquePath"]);
+    });
   }
 
+  void _fetchLastMessage(String userId, String uniquePath) async {
+    DatabaseReference lastMessageRef = FirebaseDatabase.instance.ref('/UserChats/$uniquePath/ChatDetails/LastMessageDetails/');
 
+    lastMessageRef.onValue.listen((event) {
+      if (event.snapshot.value != null) {
+        Map lastMessageDetails = event.snapshot.value as Map;
+        String lastMessage = lastMessageDetails["lastMessage"];
+
+        setState(() {
+          localMatchUserData[userId]["lastMessage"] = lastMessage;
+        });
+      }
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
+    // Show loading screen while fetching and sorting
+
+
     // This will return only if the chatlist is empty i.e if the user has no one to message 
-    if (userValues.chatUsers.isEmpty){
+    if (UserValues.chatUsers.isEmpty || isLoading) {
       return Expanded(
         child: Center(
           child: Column(
@@ -377,59 +433,61 @@ class _chatDetailsChatPageState extends State<chatDetailsChatPage> {
               Text("Step 1: You swipe right", textAlign: TextAlign.center, style: GoogleFonts.poppins(fontSize: 16, color: Colors.grey ),),
               Text("Step 2: They swipe right, too", textAlign: TextAlign.center, style: GoogleFonts.poppins(fontSize: 16, color: Colors.grey),),
               Text("Step 3: It's a match", textAlign: TextAlign.center, style: GoogleFonts.poppins(fontSize: 16, color: Colors.grey),),
-
             ],
-          )
-        )
+          ),
+        ),
       );
     }
 
     // This is when the user has other users to message to 
-    else{
-      return Expanded(
-        child: ListView.builder(
-          itemCount: localMatchUserData.length,
-          itemBuilder: (_, index) {
-            print(index);
-            // Access key and value within the loop
-            String key = localMatchUserData.keys.elementAt(index);
-            String path = localMatchUserData.values.elementAt(index)["uniquePath"];
-            String name = localMatchUserData.values.elementAt(index)["userName"];
-            // Use key and value to build ChatDetails widget
-        
-            return Column(
-              children: [
-                Slidable(
-                  endActionPane: ActionPane(
-                    motion: ScrollMotion(),
-                    extentRatio: 0.25,
-                    children: [
-                      SlidableAction(
-                        onPressed: (v){
-                          // Delete chat
-                          
-                        },
-                        backgroundColor: Color(0xFFFE4A49),
-                        autoClose: true,
-                        padding: EdgeInsets.zero,
-                        foregroundColor: Colors.white,
-                        icon: Icons.delete,
-                      )
-                    ],
-                  ),
-                  child: ChatDetails(index: index, matchUID: key, path: path, name: name,)
+    return Expanded(
+      child: ListView.builder(
+        itemCount: sortedUserKeys.length,
+        itemBuilder: (_, index) {
+          // Access key and value within the loop
+          String key = sortedUserKeys[index];
+          String path = localMatchUserData[key]["uniquePath"];
+          String name = localMatchUserData[key]["userName"];
+          String lastMessage = localMatchUserData[key]["lastMessage"] ?? '';
+          bool isCurrentUserLastSender = localMatchUserData[key]["lastMessageUser"] == UserValues.uid;
+          // Use key and value to build ChatDetails widget
+
+          return Column(
+            children: [
+              Slidable(
+                endActionPane: ActionPane(
+                  motion: ScrollMotion(),
+                  extentRatio: 0.25,
+                  children: [
+                    SlidableAction(
+                      onPressed: (v) {
+                        // Delete chat
+                      },
+                      backgroundColor: Color(0xFFFE4A49),
+                      autoClose: true,
+                      padding: EdgeInsets.zero,
+                      foregroundColor: Colors.white,
+                      icon: Icons.delete,
+                    ),
+                  ],
                 ),
-                SizedBox(height: 10),
-              ],
-            );
-          },
-        ),
-      );
-    }
+                child: ChatDetails(
+                  index: index,
+                  matchUID: key,
+                  path: path,
+                  name: name,
+                  lastMessage: lastMessage,
+                  isCurrentUserLastSender: isCurrentUserLastSender,
+                ),
+              ),
+              SizedBox(height: 10),
+            ],
+          );
+        },
+      ),
+    );
   }
 }
-
-
 Widget matchedUsers() {
   return Padding(
     padding: const EdgeInsets.only(left: 8.0, top: 10),
@@ -523,7 +581,7 @@ Future popupMatchDetails(BuildContext context, Map value, String key, Map<String
                               IntrinsicHeight(
                                 child: Material(
                                   child: aboutMeAndTags(data: matchUserData),
-                                  color: reuseableColors.primaryColor,
+                                  color: ReuseableColors.primaryColor,
                                 ),
                               ),
                               // Match user userImage2
@@ -543,7 +601,7 @@ Future popupMatchDetails(BuildContext context, Map value, String key, Map<String
                               IntrinsicHeight(
                                 child: Material(
                                   child: fromOrStreamDetails(buttonsNeeded: false, candidateDetails: matchUserData),
-                                  color: reuseableColors.primaryColor,
+                                  color: ReuseableColors.primaryColor,
                                 ),
                               ),
                             ],
@@ -567,9 +625,9 @@ Future popupMatchDetails(BuildContext context, Map value, String key, Map<String
                       padding: EdgeInsets.all(15),
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(50),
-                        color: reuseableColors.accentColor,
+                        color: ReuseableColors.accentColor,
                       ),
-                      child: Center(child: Material(color: reuseableColors.accentColor, child: Text("Start Messaging", style: GoogleFonts.poppins(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w500),)),),
+                      child: Center(child: Material(color: ReuseableColors.accentColor, child: Text("Start Messaging", style: GoogleFonts.poppins(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w500),)),),
                     ),
                   )
                 ],
@@ -588,20 +646,20 @@ Future<Map> fetchData(String key) async {
   chatUserDetails["chatUID"] = key;
 
   // Check if data already exists if yes then skip this 
-  if (userValues.matchUserData[key] == null){
+  if (UserValues.matchUserData[key] == null){
     // If no then get data and return
     await ApiCalls.getChatUserData(chatUserDetails);
   }
   
-  return userValues.matchUserData[key];
+  return UserValues.matchUserData[key];
 }
 
 // This is where the matchUsers pfp is worked also active listener for new data
 
-Widget MessageContent(messages, ScrollController _scrollController){
+Widget messageContent(messages, ScrollController scrollController){
   return Positioned.fill (
     child: SingleChildScrollView(
-      controller: _scrollController,
+      controller: scrollController,
       padding: const EdgeInsets.only(bottom: 120),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -669,7 +727,7 @@ Widget MessageContent(messages, ScrollController _scrollController){
   );
 }
 
-Widget ActionWidget(String matchUID){
+Widget actionWidget(String matchUID){
   return ClipRRect(
     borderRadius: BorderRadius.circular(20), // Adjust the border radius as needed
     child: PopupMenuButton(
@@ -688,7 +746,7 @@ Widget ActionWidget(String matchUID){
           case 'option1':
             Map unMatchUser = {
               "type": "UnmatchUser",
-              "key" : userValues.cookieValue,
+              "key" : UserValues.cookieValue,
               "matchUserID": matchUID
             };
             break;

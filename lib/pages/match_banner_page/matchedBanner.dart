@@ -7,17 +7,17 @@ import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-class matchedBannerPage extends StatefulWidget {
+class MatchedBannerPage extends StatefulWidget {
   final String matchUID;
   final String imageName;
 
-  const matchedBannerPage({Key? key, required this.imageName, required this.matchUID}) : super(key: key);
+  const MatchedBannerPage({super.key, required this.imageName, required this.matchUID});
 
   @override
-  State<matchedBannerPage> createState() => _matchedBannerPageState();
+  State<MatchedBannerPage> createState() => MatchedBannerPageState();
 }
 
-class _matchedBannerPageState extends State<matchedBannerPage> {
+class MatchedBannerPageState extends State<MatchedBannerPage> {
   final conffettiController = ConfettiController();
   final audioController = AudioPlayer();
 
@@ -25,7 +25,7 @@ class _matchedBannerPageState extends State<matchedBannerPage> {
   void initState(){
     super.initState();
     conffettiController.play();
-    Future.delayed(Duration(seconds: 2)).then((value) {
+    Future.delayed(const Duration(seconds: 2)).then((value) {
       conffettiController.stop();
     });
     playSound();
@@ -42,19 +42,20 @@ class _matchedBannerPageState extends State<matchedBannerPage> {
     conffettiController.dispose();
     super.dispose();
   }
+  @override
   Widget build(BuildContext context) {
     List<Shadow> shadows = [];
     for (int i = -8; i < 0; i++) {
       shadows.add(
         Shadow(
-          color: reuseableColors.primaryColor,
+          color: ReuseableColors.primaryColor,
           offset: Offset(i.toDouble(), 8),
         ),
       );
     }
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: reuseableColors.secondaryColor,
+        backgroundColor: ReuseableColors.secondaryColor,
         leading: GestureDetector(
           onTap: () {
             Navigator.of(context).pop();
@@ -70,8 +71,8 @@ class _matchedBannerPageState extends State<matchedBannerPage> {
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
                 colors: [
-                  reuseableColors.secondaryColor,
-                  reuseableColors.primaryColor,
+                  ReuseableColors.secondaryColor,
+                  ReuseableColors.primaryColor,
                 ],
               ),
             )
@@ -109,7 +110,7 @@ class _matchedBannerPageState extends State<matchedBannerPage> {
                     padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 15),
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(30),
-                      color: reuseableColors.accentColor
+                      color: ReuseableColors.accentColor
                     ),
                     child: Center(child: Text("Continue Swiping", style: GoogleFonts.poppins(color: Colors.white, fontWeight: FontWeight.w500, fontSize: 20),)),
                   ),

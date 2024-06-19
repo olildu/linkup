@@ -1,4 +1,4 @@
-// ignore_for_file: non_constant_identifier_names
+// ignore_for_file: non_constant_identifier_names, await_only_futures
 
 import 'dart:async';
 import 'dart:convert';
@@ -11,7 +11,7 @@ import 'package:http/http.dart' as http;
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class userValues extends ChangeNotifier{
+class UserValues extends ChangeNotifier{
   // Essential tokens for current user
   static String uid = FirebaseAuth.instance.currentUser!.uid;
   static String ?cookieValue;
@@ -32,7 +32,7 @@ class userValues extends ChangeNotifier{
   
   // Values for current UserData
   static Map userData = {}; // Current UserDetails will be store here (Change always listening in here)
-  static List userImageData = []; // Current UserImageDetails here
+  static List userImageData = List.empty(growable: true); // Current UserImageDetails here
 
   // Values for chatUserData in chatPage
   static Map chatUserImages = {};
@@ -46,37 +46,43 @@ class userValues extends ChangeNotifier{
     "allowNotification" : true, // Initially set to true as it loads to candidate page on start
     "currentMatchUID" : null
   };
+  static int notificationCount = 0;
+
+  static List<String> usersNotificationCounter = [];
+
 
   static bool goToMainPage = false;
-  static late List<dynamic> userMatchCandidates = []; 
+  static List<dynamic> userMatchCandidates = []; 
 
   static List<Map<String, dynamic>> matchUserDetails = [];
 }
 
-class flagChecker{
-  static bool matchQueFetched = false;
-}
-
 class ApiCalls {
-  static Future<String> fetchCookieDoggie() async {
+  static Future<String> fetchCookieDoggie(bool newUser) async {
       SharedPreferences prefs = await SharedPreferences.getInstance();
-      firebaseCalls().fetchUserData();
+      if (newUser == false){
+        FirebaseCalls().fetchUserData();
+      }
+      else{
+        await prefs.remove('cookieValue');
+      }
 
       String? localCookieValue = prefs.getString('cookieValue');
 
       // If already cookie is there in localStorage just return that
       if (localCookieValue != null){
-        userValues.cookieValue = localCookieValue;
+        UserValues.cookieValue = localCookieValue;
         
         // Upload to server 
-        ApiCalls.uploadfCMToken(userValues.fCMToken);
+        ApiCalls.uploadfCMToken(UserValues.fCMToken);
         return localCookieValue;
       }
 
       var data = {
-        'uid': userValues.uid,
+        'uid': UserValues.uid,
         'type': 'CookieCreation',
       };
+
 
       String jsonData = jsonEncode(data);
 
@@ -90,14 +96,14 @@ class ApiCalls {
         body: jsonData,
       );
 
-      userValues.cookieValue = response.body;
+      UserValues.cookieValue = response.body;
 
       // Save cookie to localStorage to avoid fetching cookie repeatedly
       await prefs.setString('cookieValue', response.body);
       
       // Upload to server 
-      ApiCalls.uploadfCMToken(userValues.fCMToken);
-
+      ApiCalls.uploadfCMToken(UserValues.fCMToken);
+      
       return response.body;
   }
 
@@ -107,20 +113,20 @@ class ApiCalls {
         'Content-Type': 'application/json',
       };
 
+
       var response = await http.post(
         Uri.parse('https://65b14d8f6e5d33340fe7.appwrite.global/'),
         headers: headers,
         body: jsonData,
       );
-      
       return response.body;
   }
 
   // Function to upload fCMToken to the server just gives the token and key and is stored in /fCMTokens/
   static uploadfCMToken(String ?token) async {
     Map storeTokenData = {
-      "key" : userValues.cookieValue,
-      "uid" : userValues.uid,
+      "key" : UserValues.cookieValue,
+      "uid" : UserValues.uid,
       "token" : token,
       "type" : "storefCMToken"
     };
@@ -168,7 +174,7 @@ class ApiCalls {
       body: jsonData,
     );
     
-    userValues.matchUserData[data["chatUID"]] = jsonDecode(jsonDecode(response.body));
+    UserValues.matchUserData[data["chatUID"]] = jsonDecode(jsonDecode(response.body));
 
     return response.body;
 }
@@ -190,8 +196,8 @@ class ApiCalls {
 
   static Future<List<Map<String, dynamic>>> getMatchCandidates() async {
     Map<String, dynamic> data = {
-      "uid": userValues.uid,
-      "key": userValues.cookieValue,
+      "uid": UserValues.uid,
+      "key": UserValues.cookieValue,
       "gender": "Female",
       'type': 'GetUIDs'
     };
@@ -208,21 +214,28 @@ class ApiCalls {
       body: jsonData,
     );
 
+
     // If user is in snoozeMode then code will handle here
     if (response.body == '{"snoozeEnabled":true}') {
       // Return response.body as a List<Map<String, dynamic>>
-      userValues.snoozeEnabled = true;
+      UserValues.snoozeEnabled = true;
       return [];
     }
 
+    // If none of the users timeStamp has crossed the required 18 hours then show message "Out of likes"
+    if (response.body == '{"likesOver":true}' || response.body == '[]') {
+      // Return response.body as a List<Map<String, dynamic>>
+      UserValues.limitReached = true;
+      return [];
+    }
 
     List<dynamic> jsonList = jsonDecode(response.body);
 
     // Convert each element of jsonList to Map<String, dynamic>
     List<Map<String, dynamic>> matchCandidates = jsonList.map((e) => e as Map<String, dynamic>).toList();
 
-    userValues.userMatchCandidates = matchCandidates;
-    userValues.snoozeEnabled = false;
+    UserValues.userMatchCandidates = matchCandidates;
+    UserValues.snoozeEnabled = false;
 
     return matchCandidates;
   }
@@ -264,8 +277,8 @@ class ApiCalls {
 
   static enableSnoozeMode() async{
     Map<String, dynamic> data = {
-      "uid": userValues.uid,
-      "key": userValues.cookieValue,
+      "uid": UserValues.uid,
+      "key": UserValues.cookieValue,
       'type': 'snoozeUser'
     };
     
@@ -281,15 +294,15 @@ class ApiCalls {
       body: jsonData,
     );
 
-    userValues.snoozeEnabled = true;
+    UserValues.snoozeEnabled = true;
 
     return response.body;
   }
 
   static disableSnoozeMode() async{
     Map<String, dynamic> data = {
-      "uid": userValues.uid,
-      "key": userValues.cookieValue,
+      "uid": UserValues.uid,
+      "key": UserValues.cookieValue,
       'type': 'disableSnoozeUser'
     };
     
@@ -305,13 +318,13 @@ class ApiCalls {
       body: jsonData,
     );
 
-    userValues.snoozeEnabled = false;
+    UserValues.snoozeEnabled = false;
 
     return response.body;
   }
 }
 
-class firebaseCalls with ChangeNotifier {
+class FirebaseCalls with ChangeNotifier {
   
   static Future<void> getImagesFromStorage(key, Map<String, dynamic> matchUserData) async {
     final storageRef = FirebaseStorage.instance.ref().child("/UserImages/$key/");
@@ -319,7 +332,7 @@ class firebaseCalls with ChangeNotifier {
     var items = result.items;
     int counter  = 1;
     for (var item in items) {
-      String downloadURL = "https://firebasestorage.googleapis.com/v0/b/mujdating.appspot.com/o/UserImages%2F${key}%2F${item.name}?alt=media&token";
+      String downloadURL = "https://firebasestorage.googleapis.com/v0/b/mujdating.appspot.com/o/UserImages%2F$key%2F${item.name}?alt=media&token";
       matchUserData[key]["userImage$counter"] = downloadURL;
       counter++;
     }
@@ -328,24 +341,24 @@ class firebaseCalls with ChangeNotifier {
   // Function for getting pfp of chatUsers in chatPage
   static Future<String> getImagesFromStorageForChats(key) async {
     // Check if there is image in Map     
-    if (userValues.chatUserImages[key] == null){
+    if (UserValues.chatUserImages[key] == null){
       // If not get downloadURLs 
       final storageRef = FirebaseStorage.instance.ref().child("/UserImages/$key/");
       final result = await storageRef.listAll();
       var item = result.items[0];
-      String downloadURL = "https://firebasestorage.googleapis.com/v0/b/mujdating.appspot.com/o/UserImages%2F${key}%2F${item.name}?alt=media&token";
+      String downloadURL = "https://firebasestorage.googleapis.com/v0/b/mujdating.appspot.com/o/UserImages%2F$key%2F${item.name}?alt=media&token";
       
       // Finally save the downloadURL
-      userValues.chatUserImages[key] = downloadURL;
+      UserValues.chatUserImages[key] = downloadURL;
     }
 
     // Return the saved downloadURL
-    return userValues.chatUserImages[key];
+    return UserValues.chatUserImages[key];
   }
 
-  // Function for getting all the matched users and then appending them to the map uservalues.matchUserData 
+  // Function for getting all the matched users and then appending them to the map UserValues.matchUserData 
   static getMatchedUsers() async {
-    DatabaseReference userMatchRef = FirebaseDatabase.instance.ref('/UserMatchingDetails/${userValues.uid}/MatchUID/');
+    DatabaseReference userMatchRef = FirebaseDatabase.instance.ref('/UserMatchingDetails/${UserValues.uid}/MatchUID/');
 
     var event = await userMatchRef.once();
 
@@ -359,15 +372,15 @@ class firebaseCalls with ChangeNotifier {
       localMatchUserData[key]["userName"] = value["matchName"];   //   Path and name are 
       localMatchUserData[key]["uniquePath"] = value["uniquePath"]; //         saved as (Path, Name)
       
-      await firebaseCalls.getImagesFromStorage(key, localMatchUserData);
+      await FirebaseCalls.getImagesFromStorage(key, localMatchUserData);
     });
 
-    userValues.matchedUsers = localMatchUserData;
+    UserValues.matchedUsers = localMatchUserData;
     return localMatchUserData;
   }
 
   static getChatUsers() async {
-    final chatUserRef = FirebaseDatabase.instance.ref('/UserMatchingDetails/${userValues.uid}/ChatUID/');
+    final chatUserRef = FirebaseDatabase.instance.ref('/UserMatchingDetails/${UserValues.uid}/ChatUID/');
 
     var event = await chatUserRef.once();
 
@@ -377,47 +390,43 @@ class firebaseCalls with ChangeNotifier {
     data?.forEach((key, value) async {
       // Create empty map for storing them locally in this function
       localMatchUserData[key] = {}; // Key is uid of user
-      
-      value.forEach((uniqueIDandName, names) { 
-        // Value saved as [name, path, imageLink]
-        var splitted = names.split(",");
 
-        localMatchUserData[key]["uniquePath"] = splitted[0]; 
-        localMatchUserData[key]["userName"] = splitted[1];  
-        localMatchUserData[key]["imageLink"] = splitted[2]; 
+      localMatchUserData[key]["uniquePath"] = value["uniquePath"]; 
+      localMatchUserData[key]["userName"] = value["matchName"];  
+      localMatchUserData[key]["imageLink"] = value["imageName"]; 
 
-        userValues.chatUserImages[key] = localMatchUserData[key]["imageLink"];
-      });
+      UserValues.chatUserImages[key] = localMatchUserData[key]["imageLink"];
       
     });
 
-    userValues.chatUsers = localMatchUserData;
+    UserValues.chatUsers = localMatchUserData;
     return localMatchUserData;
   }
 
-  static updateImageValuesinDatabase(String imageName) async {
+  static updateImageValuesinDatabase(Map data) async { // Change or add name to database when imageUploaded for hashing
     final ref = FirebaseDatabase.instance.ref();
-    final snapshot = await ref.child('/UsersMetaData/${userValues.uid}/ImageDetails').get();
-    
+    final snapshot = await ref.child('/UsersMetaData/${UserValues.uid}/ImageDetails').get();
+
+    List imageNamesList = data.values.toList();
+    List fileNamesList = data.keys.toList();
+
     if (snapshot.exists) {
-      final dataList = snapshot.value as List<Object?>?;
-      final List<Object?> listWithoutNulls = dataList?.where((element) => element != null).toList() ?? [];
-
-    final Map<String, String> uploadData = {
-      (listWithoutNulls.length + 1).toString(): imageName
-    };
-
-      await ref.child('/UsersMetaData/${userValues.uid}/ImageDetails').update(uploadData);
+      List imageNames = snapshot.value as List;
+      await uploadImage(File(fileNamesList[0]), imageNamesList[0]);
+      await ref.child('/UsersMetaData/${UserValues.uid}/ImageDetails').update({imageNames.length.toString() : imageNamesList[0]});
+    }
+    else{
+      for (int x = 0; x < imageNamesList.length; x++){
+        await uploadImage(fileNamesList[x], imageNamesList[x]);
+        ref.child('/UsersMetaData/${UserValues.uid}/ImageDetails').update({x.toString() : imageNamesList[x]});
+      }
     }
   }
 
-  static uploadImage(File imageFile) async {
+  static uploadImage(File imageFile, String imageName) async {
     final storageRef = FirebaseStorage.instance.ref();
-    final String imageName = "image${DateTime.now().millisecondsSinceEpoch}.jpg";
-    final imageRef = storageRef.child("/UserImages/${userValues.uid}/$imageName");
-
-    await imageRef.putFile(imageFile);
-    await updateImageValuesinDatabase(imageName);
+    final imageRef = storageRef.child("/UserImages/${UserValues.uid}/$imageName");
+    await imageRef.putFile(imageFile);  
   }
 
   static Future<String> getCandidateImages(String uid, String imageName) async {
@@ -429,17 +438,17 @@ class firebaseCalls with ChangeNotifier {
     }
   }
 
-  fetchUserData() async{
-    final ref = FirebaseDatabase.instance.ref().child("/UsersMetaData/${userValues.uid}/");
+  Future<void> fetchUserData() async{
+    final ref = FirebaseDatabase.instance.ref().child("/UsersMetaData/${UserValues.uid}/");
     
     final snapshot = await ref.once();
     final data = snapshot.snapshot.value as Map<dynamic, dynamic>?;
 
-    userValues.userData = data?["UserDetails"];
-    userValues.userImageData = data?["ImageDetails"] as List;
+    UserValues.userData = data?["UserDetails"];
+    UserValues.userImageData = data?["ImageDetails"] as List;
 
-    userValues.matchedUsers = await firebaseCalls.getMatchedUsers();
-    userValues.chatUsers = await firebaseCalls.getChatUsers();
+    UserValues.matchedUsers = await FirebaseCalls.getMatchedUsers();
+    UserValues.chatUsers = await FirebaseCalls.getChatUsers();
   }
 
   // Instance for Firebase Messaging
@@ -452,6 +461,6 @@ class firebaseCalls with ChangeNotifier {
     await FBMessaging.requestPermission();
 
     // Fetch FCM Token
-    userValues.fCMToken = await FBMessaging.getToken();
+    UserValues.fCMToken = await FBMessaging.getToken();
   }
 }

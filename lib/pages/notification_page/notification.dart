@@ -1,3 +1,5 @@
+// ignore_for_file: unnecessary_brace_in_string_interps
+
 import 'dart:ui';
 
 import 'package:cached_network_image/cached_network_image.dart';
@@ -10,60 +12,86 @@ import 'package:linkup/pages/chat_sub_pages/chat_details.dart';
 
 FirebaseMessaging messaging = FirebaseMessaging.instance;
 
-class notificationHandlers {
+class NotificationHandlers {
+  Function()? onNotificationReceived;
+
+  void registerCallback(Function() callback) {
+    onNotificationReceived = callback;
+  }
+
   void setupFirebaseMessaging(BuildContext context) {
     FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-      if (message.data["type"] == "messageNotification"){
-        // Reorder userList in chatPage here
-        
+      if (message.data["type"] == "messageNotification") {
+        String notificationUID = message.data["uidFor"];
 
-        if ((message.data["uidFor"] != userValues.notificationHandlers["currentMatchUID"]) && (userValues.notificationHandlers["allowNotification"])){
+        // Check wether on chatPage or wether on the notification recieved user page
+        if ((notificationUID != UserValues.notificationHandlers["currentMatchUID"]) && (UserValues.notificationHandlers["allowNotification"])) {
 
-          InAppNotification.show(
+          if (!UserValues.usersNotificationCounter.contains(notificationUID)) { // See if user is there in the list or not then only increment
+            // Notification dots to add up here        
+            UserValues.notificationCount++; // Increment when notification is received
+            UserValues.usersNotificationCounter.add(notificationUID);
+            onNotificationReceived!();
+          }
+
+          // Show the notification animation
+          InAppNotification.show( 
             child: NotificationBody(
               title: message.notification!.title.toString(),
-              userProfileURL: "https://firebasestorage.googleapis.com/v0/b/mujdating.appspot.com/o/UserImages%2F${message.data["uidFor"]}%2F${userValues.chatUsers[message.data["uidFor"]]["imageLink"]}?alt=media&token",
+              userProfileURL: "https://firebasestorage.googleapis.com/v0/b/mujdating.appspot.com/o/UserImages%2F${message.data["uidFor"]}%2F${UserValues.chatUsers[message.data["uidFor"]]["imageLink"]}?alt=media&token",
             ),
             context: context,
-            duration: Duration(milliseconds: 6000),
-
+            duration: const Duration(milliseconds: 3000), // Duration for the animation
             onTap: () {
-              String matchUID = message.data["uidFor"];
-              String path = userValues.chatUsers[matchUID]["uniquePath"];
-              String name = userValues.chatUsers[matchUID]["userName"];
-              String downloadURL = "https://firebasestorage.googleapis.com/v0/b/mujdating.appspot.com/o/UserImages%2F${matchUID}%2F${userValues.chatUsers[matchUID]["imageLink"]}?alt=media&token";
-              
+              String path = UserValues.chatUsers[notificationUID]["uniquePath"];
+              String name = UserValues.chatUsers[notificationUID]["userName"];
+              String downloadURL = "https://firebasestorage.googleapis.com/v0/b/mujdating.appspot.com/o/UserImages%2F${notificationUID}%2F${UserValues.chatUsers[notificationUID]["imageLink"]}?alt=media&token";
+
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => ChatDetailsPage(path: path, appBarTitle: name, imageUrl: downloadURL, matchUID: matchUID,),
+                  builder: (context) => ChatDetailsPage(path: path, appBarTitle: name, imageUrl: downloadURL, matchUID: notificationUID),
                 ),
               );
             }
           );
+
+          // Call the callback to notify the parent widget
         }
       }
     });
 
     FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
-      print('A new onMessageOpenedApp event was published!');
+      if (message.data["type"] == "messageNotification") {
+        String notificationUID = message.data["uidFor"];
+        
+        String path = UserValues.chatUsers[notificationUID]["uniquePath"];
+        String name = UserValues.chatUsers[notificationUID]["userName"];
+        String downloadURL = "https://firebasestorage.googleapis.com/v0/b/mujdating.appspot.com/o/UserImages%2F$notificationUID%2F${UserValues.chatUsers[notificationUID]["imageLink"]}?alt=media&token";
+
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => ChatDetailsPage(path: path, appBarTitle: name, imageUrl: downloadURL, matchUID: notificationUID),
+          ),
+        );
+      }
       // Handle message tap event
     });
   }
 }
-
 
 class NotificationBody extends StatelessWidget {
   final String title;
   final double minHeight;
   final String userProfileURL;
 
-  NotificationBody({
-    Key? key,
+  const NotificationBody({
+    super.key,
     this.title = "",
     this.minHeight = 0.0,
     required this.userProfileURL
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -101,7 +129,7 @@ class NotificationBody extends StatelessWidget {
                         // User logo
                         ClipOval(
                           child: CachedNetworkImage(
-                            imageUrl: userProfileURL,
+                            imageUrl:  userProfileURL,
                             fit: BoxFit.cover,
                             width: 35,
                             placeholder: (context, url) => Center(child: CircularProgressIndicator(color: Theme.of(context).colorScheme.secondaryContainer,)),
@@ -109,7 +137,7 @@ class NotificationBody extends StatelessWidget {
                           ),
                         ),
 
-                        SizedBox(width: 10),
+                        const SizedBox(width: 10),
                         
                         // Message from the notification
                         Expanded(
@@ -121,15 +149,15 @@ class NotificationBody extends StatelessWidget {
                           ),
                         ),
 
-                        SizedBox(width: 20), // Adjust space between text and icon if needed
+                        const SizedBox(width: 20), // Adjust space between text and icon if needed
                         
                         // Decoration Icon : (>) 
                         Container(
                           decoration: BoxDecoration(
-                            color: Theme.of(context).colorScheme.background,
+                            color: Theme.of(context).colorScheme.surface,
                             borderRadius: BorderRadius.circular(50),
                           ),
-                          child: Icon(Icons.chevron_right_rounded),
+                          child: const Icon(Icons.chevron_right_rounded),
                         ),
                       ],
                     ),

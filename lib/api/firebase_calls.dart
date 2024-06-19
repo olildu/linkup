@@ -7,7 +7,7 @@ class FirebaseCalls {
   dynamic data;
 
   Future<void> getUserData() async {
-    final ref = FirebaseDatabase.instance.ref().child("/UsersMetaData/${userValues.uid}/UserDetails");
+    final ref = FirebaseDatabase.instance.ref().child("/UsersMetaData/${UserValues.uid}/UserDetails");
     final snapshot = await ref.get();
 
     if (snapshot.exists) {
@@ -18,7 +18,7 @@ class FirebaseCalls {
   }
 
   static Future<Map<dynamic, dynamic>> getChatList() async {
-    DatabaseReference userMatchRef = FirebaseDatabase.instance.ref('/UserMatchingDetails/${userValues.uid}/ChatUID/');
+    DatabaseReference userMatchRef = FirebaseDatabase.instance.ref('/UserMatchingDetails/${UserValues.uid}/ChatUID/');
 
     StreamController<Map<dynamic, dynamic>> controller = StreamController();
 

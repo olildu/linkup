@@ -8,7 +8,7 @@ class EditHometown extends StatefulWidget {
   final IconData type;
   final String data;
 
-  const EditHometown({Key? key, required this.title, required this.type, required this.data}) : super(key: key);
+  const EditHometown({super.key, required this.title, required this.type, required this.data});
 
   @override
   State<EditHometown> createState() => EditHometownState();
@@ -87,9 +87,9 @@ class CustomSearchDelegate extends SearchDelegate<String> {
   List<Widget> buildActions(BuildContext context) {
     return <Widget>[
       Transform.translate(
-        offset: Offset(-5, 0),
+        offset: const Offset(-5, 0),
         child: IconButton(
-          icon: Icon(Icons.clear),
+          icon: const Icon(Icons.clear),
           onPressed: () {
             query = '';
           },
@@ -101,7 +101,7 @@ class CustomSearchDelegate extends SearchDelegate<String> {
   @override
   Widget buildLeading(BuildContext context) {
     return IconButton(
-      icon: Icon(Icons.arrow_back_ios_new_rounded),
+      icon: const Icon(Icons.arrow_back_ios_new_rounded),
       onPressed: () {
         close(context, '');
       },
@@ -1346,9 +1346,9 @@ class CustomSearchDelegate extends SearchDelegate<String> {
             close(context, suggestion);
 
             Map userDataTags = {
-              "uid": userValues.uid,
+              "uid": UserValues.uid,
               'type': 'uploadTagData',
-              'key': userValues.cookieValue,
+              'key': UserValues.cookieValue,
               'keyToUpdate': "fromPlace",
               'value': suggestion
             };

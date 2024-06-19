@@ -4,17 +4,17 @@ import 'package:linkup/elements/about_me_edit_elements/elements.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 
-class edit_about_me extends StatefulWidget {
+class EditAboutMe extends StatefulWidget {
   final int counter;
   final int progressTrackerValue;
   final Map userData;
-  const edit_about_me({Key? key, required this.counter, required this.progressTrackerValue, required this.userData}) : super(key: key);
+  const EditAboutMe({super.key, required this.counter, required this.progressTrackerValue, required this.userData});
 
   @override
-  State<edit_about_me> createState() => _edit_about_meState();
+  State<EditAboutMe> createState() => EditAboutMeState();
 }
 
-class _edit_about_meState extends State<edit_about_me> with SingleTickerProviderStateMixin {
+class EditAboutMeState extends State<EditAboutMe> with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late int _progressTrackerValue;
   late int _counter;
@@ -56,7 +56,7 @@ class _edit_about_meState extends State<edit_about_me> with SingleTickerProvider
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
-        backgroundColor: Theme.of(context).colorScheme.background,
+        backgroundColor: Theme.of(context).colorScheme.surface,
         leading: GestureDetector(
           onTap: () {
             Navigator.of(context).pop();
@@ -140,9 +140,9 @@ class _edit_about_meState extends State<edit_about_me> with SingleTickerProvider
               // Call your second function here
               // Example: secondFunction();
             },
-            shape: CircleBorder(),
-            backgroundColor: reuseableColors.accentColor,
-            child: Icon(Icons.done_rounded, color: Colors.white),
+            shape: const CircleBorder(),
+            backgroundColor: ReuseableColors.accentColor,
+            child: const Icon(Icons.done_rounded, color: Colors.white),
           )
       : null,
     );

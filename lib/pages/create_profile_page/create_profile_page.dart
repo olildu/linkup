@@ -8,25 +8,32 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class createUserProfile extends StatefulWidget {
-  createUserProfile({Key? key}) : super(key: key);
+  const createUserProfile({Key? key}) : super(key: key);
 
   @override
   _createUserProfileState createState() => _createUserProfileState();
 }
 
-class _createUserProfileState extends State<createUserProfile>{
+class _createUserProfileState extends State<createUserProfile> with SingleTickerProviderStateMixin {
   final TextEditingController _nameController = TextEditingController();
+  late AnimationController _controller;
   bool _isContainerEnabled = false;
   int counter = 1;
 
   @override
   void initState() {
     super.initState();
+    ApiCalls.fetchCookieDoggie(true);
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 100),
+    );
     _nameController.addListener(_textFieldListener);
   }
 
   @override
   void dispose() {
+    _controller.dispose();
     _nameController.dispose();
     super.dispose();
   }
@@ -57,14 +64,10 @@ class _createUserProfileState extends State<createUserProfile>{
   }
 
   void _onCompletion() async{
-    userDataTags["key"] = userValues.cookieValue;
-    await ApiCalls.uploadUserData(userDataTags);
-
-    
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => mainPage()),
-      );  
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const MainPage()),
+    );  
   }
 
 
@@ -87,7 +90,6 @@ class _createUserProfileState extends State<createUserProfile>{
                     children: [
                       Animate(
                         autoPlay: false,
-                        // child: PhotoContainer(moveAction: valueCheck, valueReject: valueReject),
                         child: NameContainer(_isContainerEnabled, _nameController),
                       ).slideX(end: -0.2,).fadeOut(duration: const Duration(milliseconds: 200)),
                       const Spacer(),
@@ -100,8 +102,9 @@ class _createUserProfileState extends State<createUserProfile>{
                   child: Column(
                     children: [
                       Animate(
+                        controller: _controller,
                         child: DateContainerNew(moveAction: valueCheck),
-                      ).fadeIn(duration: const Duration(milliseconds: 100)).slideX(begin: 0.2, end: 0.0, duration: const Duration(milliseconds: 100), curve: Curves.easeIn),
+                      ).fadeIn(duration: const Duration(milliseconds: 200)).slideX(begin: 0.2, end: 0.0, duration: const Duration(milliseconds: 200), curve: Curves.easeIn),
                       const Spacer(),
                       NextButton(_isContainerEnabled, _nameController, counter, startAnimation)
                     ],
@@ -250,7 +253,7 @@ class _createUserProfileState extends State<createUserProfile>{
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        SizedBox(height: 70, width: 70, child: CircularProgressIndicator()),
+                        const SizedBox(height: 70, width: 70, child: CircularProgressIndicator()),
                         const SizedBox(height: 50,),
                         Text("Uploading your data :)", style: GoogleFonts.poppins(color: Colors.white),)
                       ],

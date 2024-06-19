@@ -10,7 +10,7 @@ class EditGender extends StatefulWidget {
   final IconData type;
   final String data;
 
-  const EditGender({Key? key, required this.title, required this.type, required this.data}) : super(key: key);
+  const EditGender({super.key, required this.title, required this.type, required this.data});
 
   @override
   State<EditGender> createState() => EditGenderState();
@@ -20,13 +20,13 @@ class GenderBuilder extends StatefulWidget {
   final String gender;
   final int index;
 
-  const GenderBuilder({Key? key, required this.gender, required int this.index}) : super(key: key);
+  const GenderBuilder({super.key, required this.gender, required this.index});
 
   @override
-  _GenderBuilderState createState() => _GenderBuilderState();
+  GenderBuilderState createState() => GenderBuilderState();
 }
 
-class _GenderBuilderState extends State<GenderBuilder> {
+class GenderBuilderState extends State<GenderBuilder> {
   bool _isSelected = false;
   final List <String> genderList = ["Female", "Male", "Others"];
 
@@ -37,9 +37,9 @@ class _GenderBuilderState extends State<GenderBuilder> {
         setState(() {
           _isSelected = !_isSelected;
             Map userDataTags = {
-              "uid": userValues.uid,
+              "uid": UserValues.uid,
               'type': 'uploadTagData',
-              'key': userValues.cookieValue,
+              'key': UserValues.cookieValue,
               'keyToUpdate': "gender",
               'value': genderList[widget.index]
             };

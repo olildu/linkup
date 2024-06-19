@@ -3,23 +3,26 @@ import 'package:linkup/colors/colors.dart';
 import 'package:linkup/main_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:linkup/responsive/responsive_layer.dart';
 import 'package:video_player/video_player.dart';
 
-class splashScreen extends StatefulWidget {
-  const splashScreen({super.key});
+import '../../responsive/desktop.dart';
+
+class SplashScreen extends StatefulWidget {
+  const SplashScreen({super.key});
 
   @override
-  State<splashScreen> createState() => _splashScreenState();
+  State<SplashScreen> createState() => SplashScreenState();
 }
 
-class _splashScreenState extends State<splashScreen> {
+class SplashScreenState extends State<SplashScreen> {
   late String videoUrl;  
   late VideoPlayerController _controller;
 
   @override
   void initState(){
     super.initState();
-    _controller = VideoPlayerController.asset('assets/video/animation_with_reverse.mp4')
+    _controller = VideoPlayerController.asset('assets/video/animation_with_reverse_backup.mp4')
     ..initialize().then((_) {
       setState(() {});
       _controller.play();
@@ -37,20 +40,23 @@ class _splashScreenState extends State<splashScreen> {
   Widget build(BuildContext context) {
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: SystemUiOverlayStyle(
-        systemNavigationBarColor: reuseableColors.secondaryColor,
-        statusBarColor: reuseableColors.secondaryColor,
+        systemNavigationBarColor: ReuseableColors.secondaryColor,
+        statusBarColor: ReuseableColors.secondaryColor,
       ),
       child: Scaffold(
-        backgroundColor: reuseableColors.secondaryColor,
+        backgroundColor: ReuseableColors.secondaryColor,
         body: AnimatedSplashScreen(
-          backgroundColor: reuseableColors.secondaryColor,
+          backgroundColor: ReuseableColors.secondaryColor,
           splash: Center(
             child: AspectRatio(
               aspectRatio: _controller.value.aspectRatio,
               child: VideoPlayer(_controller),
             )
           ),
-          nextScreen: const mainPage(),
+          nextScreen: const ResponsiveLayer(
+            mobileScaffold: MainPage(),
+            desktopScaffold: DesktopUI(),
+          )
         ),
       ),
     );

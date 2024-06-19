@@ -88,13 +88,11 @@ Widget joinTodayButton(BuildContext context){
       if (kIsWeb) {
         try {
           await FirebaseAuth.instance.signInWithRedirect(provider);
-
         } catch (e) {
         }
       } else {
         try {
           await FirebaseAuth.instance.signInWithProvider(provider);
-
         } catch (e) {
         }
       }

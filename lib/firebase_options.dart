@@ -17,10 +17,7 @@ import 'package:flutter/foundation.dart'
 class DefaultFirebaseOptions {
   static FirebaseOptions get currentPlatform {
     if (kIsWeb) {
-      throw UnsupportedError(
-        'DefaultFirebaseOptions have not been configured for web - '
-        'you can reconfigure this by running the FlutterFire CLI again.',
-      );
+      return web;
     }
     switch (defaultTargetPlatform) {
       case TargetPlatform.android:
@@ -49,9 +46,20 @@ class DefaultFirebaseOptions {
     }
   }
 
+  static const FirebaseOptions web = FirebaseOptions(
+    apiKey: 'AIzaSyC-9Qn2vcSYGZbLngJXB2ZFAapVQsj0LW0',
+    appId: '1:889381416201:web:aa0047d6a359acb71cb7d8',
+    messagingSenderId: '889381416201',
+    projectId: 'mujdating',
+    authDomain: 'mujdating.firebaseapp.com',
+    databaseURL: 'https://mujdating-default-rtdb.asia-southeast1.firebasedatabase.app',
+    storageBucket: 'mujdating.appspot.com',
+    measurementId: 'G-BNYC1BCL9H',
+  );
+
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyBc3slZkIZeEx-LTp-ORB5YxoCqXDxe-Lk',
-    appId: '1:889381416201:android:e021e46955407c441cb7d8',
+    apiKey: 'AIzaSyAj485qebe5EpZvgV1OsLqnytDd8jRF5Lw',
+    appId: '1:889381416201:android:3c5e9ab99e75112e1cb7d8',
     messagingSenderId: '889381416201',
     projectId: 'mujdating',
     databaseURL: 'https://mujdating-default-rtdb.asia-southeast1.firebasedatabase.app',
@@ -60,12 +68,11 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions ios = FirebaseOptions(
     apiKey: 'AIzaSyCWs65a8xw3TcaPNZCX9wRi7h8tKkDi15A',
-    appId: '1:889381416201:ios:8779967ebd82ec891cb7d8',
+    appId: '1:889381416201:ios:71d0de4567d3a4651cb7d8',
     messagingSenderId: '889381416201',
     projectId: 'mujdating',
     databaseURL: 'https://mujdating-default-rtdb.asia-southeast1.firebasedatabase.app',
     storageBucket: 'mujdating.appspot.com',
     iosBundleId: 'com.olildu.linkup',
   );
-
 }

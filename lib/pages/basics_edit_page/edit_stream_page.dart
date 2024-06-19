@@ -8,7 +8,7 @@ class EditStream extends StatefulWidget {
   final IconData type;
   final String data;
 
-  const EditStream({Key? key, required this.title, required this.type, required this.data}) : super(key: key);
+  const EditStream({super.key, required this.title, required this.type, required this.data});
 
   @override
   State<EditStream> createState() => EditStreamState();
@@ -149,9 +149,9 @@ class CustomSearchDelegate extends SearchDelegate<String> {
           onTap: () {
             close(context, suggestion);
             Map userDataTags = {
-              "uid": userValues.uid,
+              "uid": UserValues.uid,
               'type': 'uploadTagData',
-              'key': userValues.cookieValue,
+              'key': UserValues.cookieValue,
               'keyToUpdate': "stream",
               'value': suggestion
             };

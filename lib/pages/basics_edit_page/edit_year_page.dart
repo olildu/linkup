@@ -11,7 +11,7 @@ class EditYear extends StatefulWidget {
   final IconData type;
   final String data;
 
-  const EditYear({Key? key, required this.title, required this.type, required this.data}) : super(key: key);
+  const EditYear({super.key, required this.title, required this.type, required this.data});
 
   @override
   State<EditYear> createState() => EditYearState();
@@ -73,9 +73,9 @@ class EditYearState extends State<EditYear> {
                                   return GestureDetector(
                                     onTap: () {
                                       Map userDataTags = {
-                                        "uid": userValues.uid,
+                                        "uid": UserValues.uid,
                                         'type': 'uploadTagData',
-                                        'key': userValues.cookieValue,
+                                        'key': UserValues.cookieValue,
                                         'keyToUpdate': "year",
                                         'value': stream.toString()
                                       };

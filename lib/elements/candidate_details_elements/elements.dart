@@ -14,21 +14,17 @@ class ProfileImageFullscreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.background,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       body: GestureDetector(
           onTap: () {
             Navigator.pop(context);
           },
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 200.0),
-          child: Center(
-            child: Container(
-              decoration: BoxDecoration(
-                image: DecorationImage(
-                  fit: BoxFit.fitWidth,
-                  image: CachedNetworkImageProvider(imagePath),
-                )
-              ),
+        child: Center(
+          child: Container(
+            decoration: BoxDecoration(
+              image: DecorationImage(
+                image: CachedNetworkImageProvider(imagePath),
+              )
             ),
           ),
         ),
@@ -42,7 +38,7 @@ class CandidateDetailsContainer extends StatefulWidget {
   final Map<String, dynamic> candidateDetails;
   final List userImageList;
 
-  const CandidateDetailsContainer({required this.scrollController, required this.candidateDetails, required this.userImageList});
+  const CandidateDetailsContainer({super.key, required this.scrollController, required this.candidateDetails, required this.userImageList});
 
   @override
   State<CandidateDetailsContainer> createState() => _CandidateDetailsContainerState();

@@ -40,31 +40,39 @@ class _CandidatePageState extends State<CandidatePage> {
 
     // Checking if wether there is data in this while switching pages
     // Have to implement time feature also
-    if (userValues.matchUserDetails.isEmpty && userValues.snoozeEnabled == false){
-      userValues.matchUserDetails = await ApiCalls.getMatchCandidates();
+    if (UserValues.matchUserDetails.isEmpty && UserValues.snoozeEnabled == false){
+      UserValues.matchUserDetails = await ApiCalls.getMatchCandidates();
+
+
+      // Temporary solution, cant find solution for only when 1 user is available
+      if (UserValues.matchUserDetails.length == 1){
+        setState(() {
+          UserValues.limitReached = true;
+        });
+      }
 
       /* This will trigger only if matchUserDetails is empty and it is returned empty since snoozeMode is on also will check if the 
-        the userValues.snoozeEnabled is true if it is not then its likely means there are no candidates the user can see */
-      if (userValues.matchUserDetails.isEmpty && userValues.snoozeEnabled == true){
+        the UserValues.snoozeEnabled is true if it is not then its likely means there are no candidates the user can see */
+      if (UserValues.matchUserDetails.isEmpty && UserValues.snoozeEnabled == true){
         setState(() {
           isLoading = false; 
-          userValues.snoozeEnabled = true;
+          UserValues.snoozeEnabled = true;
         });
         return;
       }
 
       // This will trigger when matchUserDetails is empty meaning there is no candidates for the user to see and hence shows the message
-      if (userValues.matchUserDetails.isEmpty){
+      if (UserValues.matchUserDetails.isEmpty){
         setState(() {
           isLoading = false; 
-          userValues.limitReached = true;
+          UserValues.limitReached = true;
         });
         return;
       }
 
       await getUserImages();
 
-      userValues.counterCandidatesAvailable = userValues.matchUserDetails.length;
+      UserValues.counterCandidatesAvailable = UserValues.matchUserDetails.length;
 
       // Once data fetching is over then flags will be automatically updated to show the screen to the user
       setState(() {
@@ -77,18 +85,18 @@ class _CandidatePageState extends State<CandidatePage> {
     }
   }
 
-  // This function will get all the users from userValues.matchUserDetails images and store it in the userValues.userImageURLs
+  // This function will get all the users from UserValues.matchUserDetails images and store it in the UserValues.userImageURLs
   Future<void> getUserImages() async {
-    for (int c = 0; c < userValues.matchUserDetails.length; c++ ){
-      List<dynamic> dataList = userValues.matchUserDetails[c]["ImageDetails"];
+    for (int c = 0; c < UserValues.matchUserDetails.length; c++ ){
+      List<dynamic> dataList = UserValues.matchUserDetails[c]["ImageDetails"];
       List filteredList = dataList.where((element) => element != null).toList();
       List counterUserImages = [];
 
       for (var imageString in filteredList) {
-        var imageUrl = await firebaseCalls.getCandidateImages(userValues.matchUserDetails[c]["UserDetails"]["uid"], imageString);
+        var imageUrl = await FirebaseCalls.getCandidateImages(UserValues.matchUserDetails[c]["UserDetails"]["uid"], imageString);
         counterUserImages.add(imageUrl);
       }
-      userValues.userImageURLs.add(counterUserImages);
+      UserValues.userImageURLs.add(counterUserImages);
     }
   }
 
@@ -96,7 +104,7 @@ class _CandidatePageState extends State<CandidatePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.background,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       body: isLoading
           ? Center(
               child: Padding(
@@ -105,20 +113,22 @@ class _CandidatePageState extends State<CandidatePage> {
                   width: MediaQuery.of(context).size.width,
                   height: MediaQuery.of(context).size.height,
                   decoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.secondary,
+                  color: Colors.transparent,
                     borderRadius: BorderRadius.circular(10),
                     border: Border.all(color: Theme.of(context).colorScheme.secondary)
                   ),
-                  child: Center(child: CircularProgressIndicator()),
+                  child: Center(child: CircularProgressIndicator(
+                    color: Theme.of(context).colorScheme.primary,
+                  )),
                 ),
               ), 
             )
 
-          : userValues.snoozeEnabled ? 
+          : UserValues.snoozeEnabled ? 
             // Shown if in snooze mode is enabled
             Center(
               child: Padding(
-                padding: EdgeInsets.all(30),
+                padding: const EdgeInsets.all(30),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -129,27 +139,27 @@ class _CandidatePageState extends State<CandidatePage> {
                         height: 100,
                         width: 100,
                     ),
-                    SizedBox(height: 20,),
+                    const SizedBox(height: 20,),
 
                     // Snooze Mode Text
                     Text("Snooze Mode,\n Activated", style: GoogleFonts.poppins(fontSize: 30, fontWeight: FontWeight.bold),textAlign: TextAlign.center,),
-                    SizedBox(height: 10,),
+                    const SizedBox(height: 10,),
 
                     Text("Your profile will be hidden from other's untill you turn off Snooze Mode", style: GoogleFonts.poppins(fontWeight: FontWeight.w400), textAlign: TextAlign.center,),
-                    SizedBox(height: 20,),
+                    const SizedBox(height: 20,),
 
                     // Button to turn off snooze mode
                     GestureDetector(
                       onTap: () {
                         ApiCalls.disableSnoozeMode();
                         setState(() {
-                          userValues.snoozeEnabled = false;
+                          UserValues.snoozeEnabled = false;
                         });
                       },
                       child: Container(
-                        padding: EdgeInsets.symmetric(vertical: 15, horizontal: 50),
+                        padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 50),
                         decoration: BoxDecoration(
-                          color: reuseableColors.accentColor,
+                          color: ReuseableColors.accentColor,
                           borderRadius: BorderRadius.circular(25)
                         ),
                         child: Text("Turn off your Snooze Mode", style: GoogleFonts.poppins(color: Colors.white, fontWeight: FontWeight.w600, fontSize: 16),),
@@ -160,11 +170,11 @@ class _CandidatePageState extends State<CandidatePage> {
               ),
               ) 
 
-          // When the user has no Candidates to see or has finished their quota
-          : userValues.limitReached ? 
+          // When the user has finished their like quota
+          : UserValues.limitReached ? 
             Center(
               child: Padding(
-                padding: EdgeInsets.all(30),
+                padding: const EdgeInsets.all(30),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -175,14 +185,14 @@ class _CandidatePageState extends State<CandidatePage> {
                         height: 100,
                         width: 100,
                     ),
-                    SizedBox(height: 20,),
+                    const SizedBox(height: 20,),
 
                     // No more likes Text
-                    Text("Whoops!\nYou're Out of Likes!", style: GoogleFonts.poppins(fontSize: 30, fontWeight: FontWeight.bold),textAlign: TextAlign.center,),
-                    SizedBox(height: 20,),
+                    Text("Whoops!\nThat's all we have!", style: GoogleFonts.poppins(fontSize: 30, fontWeight: FontWeight.bold),textAlign: TextAlign.center,),
+                    const SizedBox(height: 20,),
 
                     Text("You've spread all the love you can for now. Come back later to find more amazing people!", style: GoogleFonts.poppins(fontWeight: FontWeight.w400), textAlign: TextAlign.center,),
-                    SizedBox(height: 20,),
+                    const SizedBox(height: 20,),
                   ],
                 ),
               ),
@@ -195,7 +205,7 @@ class _CandidatePageState extends State<CandidatePage> {
                 borderRadius: BorderRadius.circular(10),
                 child: CardSwiper(
                   padding: EdgeInsets.zero,
-                  cardsCount: userValues.matchUserDetails.length,
+                  cardsCount: UserValues.matchUserDetails.length,
                   isLoop: false,
                   isDisabled: canSwipe,
                   backCardOffset: const Offset(0, 0),
@@ -216,18 +226,14 @@ class _CandidatePageState extends State<CandidatePage> {
                     // });
 
                     // This int keeps track of how many users have been swiped and then if the user visits any other page then deletes them from the list
-                    userValues.userVisited++;
+                    UserValues.userVisited++;
 
                     // This int keeps track of how many candidates the user has seen and when it becomes zero no more matches available is shown
-                    userValues.counterCandidatesAvailable--;
-                    print(userValues.counterCandidatesAvailable);
+                    UserValues.counterCandidatesAvailable--;
 
-                    if (userValues.counterCandidatesAvailable <= 0) {
-                      print("Problem");
-                      print(userValues.counterCandidatesAvailable);
-
+                    if (UserValues.counterCandidatesAvailable <= 0) {
                       setState(() {
-                        userValues.limitReached = true;
+                        UserValues.limitReached = true;
                       });
                     }
 
@@ -235,16 +241,16 @@ class _CandidatePageState extends State<CandidatePage> {
                       // Pass the data to call the api (Liked User) 
                       Map data = {
                         "type": "LikedUser",
-                        "uid": userValues.uid,
-                        "key": userValues.cookieValue,
-                        "matchUID": userValues.matchUserDetails[previousIndex]["UserDetails"]["uid"],
-                        "matchName": userValues.matchUserDetails[previousIndex]["UserDetails"]["name"],
-                        "userName": userValues.userData["name"]
+                        "uid": UserValues.uid,
+                        "key": UserValues.cookieValue,
+                        "matchUID": UserValues.matchUserDetails[previousIndex]["UserDetails"]["uid"],
+                        "matchName": UserValues.matchUserDetails[previousIndex]["UserDetails"]["name"],
+                        "userName": UserValues.userData["name"]
                       };
                       ApiCalls.swipeActionsMatch(data).then((response) {
                         dynamic decodedResponse = jsonDecode(response);
                         if (decodedResponse["identifier"] == 1){ // Identifier 1 means match found
-                          Navigator.push(context, MaterialPageRoute(builder: (context) => matchedBannerPage(matchUID: decodedResponse["uid"], imageName: decodedResponse["imageName"],)),);
+                          Navigator.push(context, MaterialPageRoute(builder: (context) => MatchedBannerPage(matchUID: decodedResponse["uid"], imageName: decodedResponse["imageName"],)),);
                         }
                       });
                     }
@@ -252,16 +258,16 @@ class _CandidatePageState extends State<CandidatePage> {
                       // Pass the data to call the api (Disliked User) 
                       Map data = {
                         "type": "DislikedUser",
-                        "uid": userValues.uid,
-                        "key": userValues.cookieValue,
-                        "matchUID": userValues.matchUserDetails[previousIndex]["UserDetails"]["uid"]
+                        "uid": UserValues.uid,
+                        "key": UserValues.cookieValue,
+                        "matchUID": UserValues.matchUserDetails[previousIndex]["UserDetails"]["uid"]
                       };
                       ApiCalls.swipeActionsMatch(data);
                     }
                     return true;
                   },
                   cardBuilder: (context, index, x, y) {
-                      return CandidateDetailsContainer(scrollController: _scrollController, candidateDetails: userValues.matchUserDetails[index], userImageList: userValues.userImageURLs[index]);
+                      return CandidateDetailsContainer(scrollController: _scrollController, candidateDetails: UserValues.matchUserDetails[index], userImageList: UserValues.userImageURLs[index]);
                   },
                 ),
               ),

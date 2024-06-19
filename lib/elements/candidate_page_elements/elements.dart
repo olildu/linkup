@@ -17,20 +17,16 @@ Widget buildProfileImage(BuildContext context, Map candidateDetails, String imag
       alignment: Alignment.topLeft,
       child: Stack(
         children: [
-          SizedBox(
-            height: 665,
-            width: MediaQuery.of(context).size.width,
-            child: Column(
-              children: [
-                Expanded(
-                  child: CachedNetworkImage(
-                    imageUrl: imageUrl,
-                    placeholder: (context, url) => Center(child: CircularProgressIndicator()), // Placeholder widget while image is loading
-                    // errorWidget: (context, url, error) => Text((Key.currentContext?.size?.height).toString()), // Widget to display in case of error loading image
-                    fit: BoxFit.cover,
-                  ),
-                ),
-              ],
+          ClipRRect( // If the size of screen gets too small then this widget clips the rest of the part away
+            child: SizedBox(
+              height: imageHeight,
+              width: double.infinity,
+              child: CachedNetworkImage(
+                imageUrl: imageUrl,
+                placeholder: (context, url) => const Center(child: CircularProgressIndicator()), // Placeholder widget while image is loading
+                errorWidget: (context, url, error) => const Icon(Icons.error), // Widget to display in case of error loading image
+                fit: BoxFit.cover,
+              ),
             ),
           ),
           Positioned(
@@ -68,28 +64,20 @@ Widget buildProfileImage(BuildContext context, Map candidateDetails, String imag
     ),
   );
 }
-
 Widget nextImages(BuildContext context, Map candidateDetails, double imageHeight, {String? secondImageURL, String? thirdImageURL}) {
-  String imageName = secondImageURL != null ? secondImageURL : thirdImageURL ?? ""; // Use filteredList if not null, otherwise use nextImageName
+  String imageName = secondImageURL ?? thirdImageURL ?? ""; // Use filteredList if not null, otherwise use nextImageName
   return Align(
     alignment: Alignment.topLeft,
     child: Stack(
       children: [
         GestureDetector(
           child: SizedBox(
-            height: 665,
-            width: MediaQuery.of(context).size.width,
-            child: Column(
-              children: [
-                Expanded(
-                  child: CachedNetworkImage(
-                    imageUrl: imageName,
-                    placeholder: (context, url) => Center(child: CircularProgressIndicator()), // Placeholder widget while image is loading
-                    errorWidget: (context, url, error) => Icon(Icons.error),
-                    fit: BoxFit.cover, // Widget to display in case of error loading image
-                  ),
-                ),
-              ],
+            width: double.infinity,
+            child: CachedNetworkImage(
+              imageUrl: imageName,
+              placeholder: (context, url) => const Center(child: CircularProgressIndicator()), // Placeholder widget while image is loading
+              errorWidget: (context, url, error) => const Icon(Icons.error),
+              fit: BoxFit.cover, // Widget to display in case of error loading image
             ),
           ),
           onTap: () {
@@ -208,31 +196,29 @@ Widget aboutMeAndTags({Map? data, Map? candidateDetails}) {
                   ),
                 ),
                 const SizedBox(height: 25),
-                Container(
-                  child: Column(
-                    children: [
-                      Align(
-                        alignment: Alignment.topLeft,
-                        child: Transform.translate(
-                          offset: const Offset(6, 0),
-                          child: Text(
-                            "My Basics",
-                            textAlign: TextAlign.left,
-                            style: GoogleFonts.poppins(
-                              color: const Color.fromARGB(255, 255, 255, 255),
-                              fontWeight: FontWeight.w600,
-                              fontSize: 16,
-                            ),
+                Column(
+                  children: [
+                    Align(
+                      alignment: Alignment.topLeft,
+                      child: Transform.translate(
+                        offset: const Offset(6, 0),
+                        child: Text(
+                          "My Basics",
+                          textAlign: TextAlign.left,
+                          style: GoogleFonts.poppins(
+                            color: const Color.fromARGB(255, 255, 255, 255),
+                            fontWeight: FontWeight.w600,
+                            fontSize: 16,
                           ),
                         ),
                       ),
-                      const SizedBox(height: 10),
-                      Align(
-                        alignment: Alignment.topLeft,
-                        child: candidateTags(data: data, candidateDetails: candidateDetails),
-                      ),
-                    ],
-                  ),
+                    ),
+                    const SizedBox(height: 10),
+                    Align(
+                      alignment: Alignment.topLeft,
+                      child: candidateTags(data: data, candidateDetails: candidateDetails),
+                    ),
+                  ],
                 )
               ],
             ),
@@ -271,23 +257,19 @@ Widget fromOrStreamDetails({bool buttonsNeeded = true, Map? candidateDetails}) {
         
         // Candidate HomeTown
         SizedBox(
-          child: Container(
-            child: Column(
-              children: [
-                Container(
-                  child: Align(
-                    alignment: Alignment.centerLeft,
-                    child: Text(
-                      fromOrStreamString,
-                      style: GoogleFonts.poppins(
-                        color: Colors.white,
-                        fontSize: 16,
-                      ),
-                    ),
+          child: Column(
+            children: [
+              Align(
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  fromOrStreamString,
+                  style: GoogleFonts.poppins(
+                    color: Colors.white,
+                    fontSize: 16,
                   ),
-                )
-              ],
-            ),
+                ),
+              )
+            ],
           ),
         ),
 
@@ -299,7 +281,7 @@ Widget fromOrStreamDetails({bool buttonsNeeded = true, Map? candidateDetails}) {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Container(
-                decoration: BoxDecoration(
+                decoration: const BoxDecoration(
                   shape: BoxShape.circle,
                   color: Colors.white,
                 ),
@@ -308,7 +290,7 @@ Widget fromOrStreamDetails({bool buttonsNeeded = true, Map? candidateDetails}) {
               ),
               const SizedBox(width: 20,),
               Container(
-                decoration: BoxDecoration(
+                decoration: const BoxDecoration(
                   shape: BoxShape.circle,
                   color: Colors.white, 
                 ),

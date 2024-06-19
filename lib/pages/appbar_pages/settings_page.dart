@@ -4,7 +4,7 @@ import 'package:linkup/colors/colors.dart';
 import 'package:linkup/api/api_calls.dart';
 import 'package:linkup/elements/settings_elements/elements.dart';
 import 'package:linkup/pages/login_page/login_page.dart';
-import 'package:linkup/pages/providers/provider.dart';
+import 'package:linkup/pages/providers/theme_provider.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -21,20 +21,20 @@ TextStyle avoidMaterial = GoogleFonts.poppins(
 
 
 class Settings extends StatefulWidget {
-  const Settings({Key? key}) : super(key: key);
+  const Settings({super.key});
 
   @override
-  _SettingsState createState() => _SettingsState();
+  SettingsState createState() => SettingsState();
 }
 
-class _SettingsState extends State<Settings> {
-  bool isSwitchOn = userValues.darkTheme;
+class SettingsState extends State<Settings> {
+  bool isSwitchOn = UserValues.darkTheme;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.background,
+        backgroundColor: Theme.of(context).colorScheme.surface,
         title: Text(
           "Settings",
           style: GoogleFonts.poppins(),
@@ -66,7 +66,7 @@ class _SettingsState extends State<Settings> {
                               crossAxisAlignment: CrossAxisAlignment.center,
                               children: [
                                 Text(
-                                  userValues.snoozeEnabled ? "Turn off snooze mode and let your profile be seen?" : "Do you want to turn on snooze and become ghost?" ,
+                                  UserValues.snoozeEnabled ? "Turn off snooze mode and let your profile be seen?" : "Do you want to turn on snooze and become ghost?" ,
                                   style: GoogleFonts.poppins(
                                     fontSize: 20,
                                     fontWeight: FontWeight.normal,
@@ -83,9 +83,9 @@ class _SettingsState extends State<Settings> {
                                     GestureDetector(
                                       onTap: ()  {
                                         setState(() {
-                                          userValues.snoozeEnabled = !userValues.snoozeEnabled; // Toggle the snoozeMode
+                                          UserValues.snoozeEnabled = !UserValues.snoozeEnabled; // Toggle the snoozeMode
                                         });
-                                        if (userValues.snoozeEnabled) {
+                                        if (UserValues.snoozeEnabled) {
                                           ApiCalls.enableSnoozeMode();
                                         } else {
                                           ApiCalls.disableSnoozeMode();
@@ -112,7 +112,7 @@ class _SettingsState extends State<Settings> {
                                         width: 100,
                                         padding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
                                         decoration: BoxDecoration(
-                                          color: reuseableColors.accentColor,
+                                          color: ReuseableColors.accentColor,
                                           borderRadius: BorderRadius.circular(30)
                                         ),
                                         child: Center(child: Text("No", style: avoidMaterial),),
@@ -128,20 +128,18 @@ class _SettingsState extends State<Settings> {
                     ),
                   );
                 },
-                child: Container(
-                  child: Column(
-                    children: [
-                      buttonBuilder(userValues.snoozeEnabled ? "Disable Snooze" : "Snooze", null, context),
-                      SizedBox(height: 15,),
-                      Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 5),
-                        child: Text(
-                          "Temporarily hide your profile. If you do this, you won’t lose any connections or chats.",
-                          style: GoogleFonts.poppins(),
-                        ),
+                child: Column(
+                  children: [
+                    buttonBuilder(UserValues.snoozeEnabled ? "Disable Snooze" : "Snooze", null, context),
+                    SizedBox(height: 15,),
+                    Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 5),
+                      child: Text(
+                        "Temporarily hide your profile. If you do this, you won’t lose any connections or chats.",
+                        style: GoogleFonts.poppins(),
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
               ),
         
@@ -154,7 +152,7 @@ class _SettingsState extends State<Settings> {
               //       DisableNotificationsButton(isSwitchOn, () async{
               //         setState(() {
               //           isSwitchOn = !isSwitchOn;
-              //           userValues.darkTheme = false;
+              //           UserValues.darkTheme = false;
               //         });
               //         Provider.of<ThemeProvider>(context, listen: false).toggleTheme();
               //         print(isSwitchOn);
@@ -179,23 +177,21 @@ class _SettingsState extends State<Settings> {
                 onTap: () async{
                   SharedPreferences prefs = await SharedPreferences.getInstance();
                   Provider.of<ThemeProvider>(context, listen: false).toggleTheme();
-                  await prefs.setBool('darkTheme', userValues.darkTheme);
+                  await prefs.setBool('darkTheme', UserValues.darkTheme);
                 },
-                child: Container(
-                    child: Column(
-                      children: [
-                        buttonBuilder(userValues.darkTheme ? "Switch to light mode" : "Switch to dark mode", null, context),
-                        SizedBox(height: 15,),
-                        Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 5),
-                          child: Text(
-                            "Switch to light mode or dark mode, Dark mode choosen as default",
-                            style: GoogleFonts.poppins(),
-                          ),
-                        ),
-                      ],
+                child: Column(
+                  children: [
+                    buttonBuilder(UserValues.darkTheme ? "Switch to light mode" : "Switch to dark mode", null, context),
+                    SizedBox(height: 15,),
+                    Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 5),
+                      child: Text(
+                        "Switch to light mode or dark mode, Dark mode choosen as default",
+                        style: GoogleFonts.poppins(),
+                      ),
                     ),
-                  ),
+                  ],
+                ),
               ),
         
               SizedBox(height: 40,),
@@ -211,9 +207,18 @@ class _SettingsState extends State<Settings> {
         
               // Log Out Button
               GestureDetector(
-                onTap: () {
+                onTap: () async {
+                  // Pop from screen
                   Navigator.of(context).pop();
+
+                  // Delete saved cookies in storage
+                  SharedPreferences prefs = await SharedPreferences.getInstance();
+                  await prefs.remove('cookieValue');
+
+                  // Sign out
                   FirebaseAuth.instance.signOut();
+
+                  // Finally go to login page
                   Navigator.of(context).push(MaterialPageRoute(builder: (context) => LoginPage()));
                 },
                 child: buttonBuilder("Log Out", Icons.arrow_forward_ios_rounded, context)),

@@ -17,10 +17,10 @@ class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
 
   @override
-  _LoginPageState createState() => _LoginPageState();
+  LoginPageState createState() => LoginPageState();
 }
 
-class _LoginPageState extends State<LoginPage> {
+class LoginPageState extends State<LoginPage> {
   bool isIconVisible = true;
 
   @override
@@ -55,7 +55,6 @@ class _LoginPageState extends State<LoginPage> {
                     SizedBox(height: 100),
           
                     // Images Love and Hands Symbol
-          
           
                     const Spacer(),
                     

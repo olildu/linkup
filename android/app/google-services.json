@@ -8,7 +8,7 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:889381416201:android:e021e46955407c441cb7d8",
+        "mobilesdk_app_id": "1:889381416201:android:3c5e9ab99e75112e1cb7d8",
         "android_client_info": {
           "package_name": "com.olildu.linkup"
         }
@@ -16,7 +16,7 @@
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyBc3slZkIZeEx-LTp-ORB5YxoCqXDxe-Lk"
+          "current_key": "AIzaSyAj485qebe5EpZvgV1OsLqnytDd8jRF5Lw"
         }
       ],
       "services": {

@@ -18,7 +18,7 @@ class SystemUiOverlayStyleProvider extends ChangeNotifier {
   }
 }
 
-class reuseableColors{
+class ReuseableColors{
   static Color secondaryColor = Color.fromRGBO(12, 25, 44, 1);
   static Color primaryColor = Color.fromRGBO(25, 48, 70, 1);
   static Color accentColor = Color(0xFFFFC629);

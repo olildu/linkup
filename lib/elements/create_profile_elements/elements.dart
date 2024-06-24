@@ -741,6 +741,9 @@ Widget NextButton(bool isContainerEnabled, TextEditingController nameController,
                 userDataTags["key"] = UserValues.cookieValue;
                 await ApiCalls.uploadUserData(userDataTags);
     
+                // Make hashmapping in database for the images
+                await FirebaseCalls.updateImageValuesinDatabase(results[1] as Map);
+              }
                 onCompletion!();
               }
             }

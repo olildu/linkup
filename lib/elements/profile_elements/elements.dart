@@ -15,9 +15,12 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:linkup/ImageHashing/decode.dart';
+import 'package:octo_image/octo_image.dart';
 
 TextEditingController controller = TextEditingController();
-
+List<dynamic> userImages = [];
+List<dynamic> userImagesHash = [];
 
 Widget titleAndSubtitle(String title, String subTitle, {Color? titleColor, Color? subTitleColor}) {
   Color defaultSubtitleColor = const Color(0xFF6C6C6C);
@@ -46,23 +49,13 @@ Widget titleAndSubtitle(String title, String subTitle, {Color? titleColor, Color
   );
 }
 
-Widget _loadImage(dynamic imagePath) {
-  if (imagePath.runtimeType == String) {
-    // If the imagePath is a URL, load it using CachedNetworkImage
-    return CachedNetworkImage(
-      imageUrl: imagePath,
-      fit: BoxFit.cover,
-      placeholder: (context, url) => const Center(child: CircularProgressIndicator()),
-      errorWidget: (context, url, error) => const Icon(Icons.error),
-    );
-  } else {
-    // If the imagePath is a local file path, load it using Image.file
-    return Image.file(
-      imagePath,
-      fit: BoxFit.cover,
-      errorBuilder: (context, error, stackTrace) => const Icon(Icons.error),
-    );
-  }
+Widget _loadImage(dynamic imagePath, int index) {
+  // Load Image Using OctoImage and Use blurhash to transistion
+  return OctoImage(
+    image: CachedNetworkImageProvider(imagePath),
+    placeholderBuilder: OctoBlurHashFix.placeHolder(userImagesHash[index]),
+    fit: BoxFit.cover,
+  );
 }
 
 Map<String, dynamic> images = {
@@ -79,9 +72,8 @@ class PhotosWidget extends StatefulWidget {
   PhotosWidgetState createState() => PhotosWidgetState();
 }
 
-class PhotosWidgetState extends State<PhotosWidget> {
-  List<dynamic> userImages = [];
-    
+class PhotosWidgetState extends State<PhotosWidget> {    
+
   @override
   void initState() {
     super.initState();
@@ -147,13 +139,17 @@ class PhotosWidgetState extends State<PhotosWidget> {
   }
 
   Future<void> fetchUserData() async{
+
     final imageDetailsref = FirebaseDatabase.instance.ref().child("/UsersMetaData/${UserValues.uid}/ImageDetails");
 
-    imageDetailsref.onChildAdded.listen((event) {
-      if (!userImages.contains(event.snapshot.value)) {
-        setState(() {
-          userImages.add(event.snapshot.value);
-          getImagesFromStorage();
+    imageDetailsref.onChildAdded.listen((event) { // Listen for child elements added also this will load every time profile page is visited
+      dynamic imageData = event.snapshot.value; // Ready the data for seperating as imageName and imageHash
+
+      if (!userImages.contains(imageData["imageName"])) {
+        setState(() async{
+          userImages.add(imageData["imageName"]); // Add names to list so that getImagesFromStorage() can loop through this and get downloadURL
+          userImagesHash.add(imageData["imageHash"]); // Add imageHashes so that the blurHash can work on images
+          await getImagesFromStorage(); // Get downloadURLs by looping userImages
         });
       }
     });
@@ -163,14 +159,12 @@ class PhotosWidgetState extends State<PhotosWidget> {
     int counter = 0;
 
     for (dynamic imagePath in userImages) {
-      // Some values are null for some reason those get skipped
       if (imagePath == null) continue;
       // Download URL time saved here by not needing to retrieve it everyTime
       String downloadURL = "https://firebasestorage.googleapis.com/v0/b/mujdating.appspot.com/o/UserImages%2F${UserValues.uid}%2F$imagePath?alt=media&token";
       setState(() {
         images["image$counter"] = downloadURL;
       });
-
       counter++;
     }
   }
@@ -235,7 +229,7 @@ class PhotosWidgetState extends State<PhotosWidget> {
                                 borderRadius: BorderRadius.circular(10),
                               ),
                               child: images["image0"] != null
-                                ? _loadImage(images["image0"]!)
+                                ? _loadImage(images["image0"]!, 0)
                                 : const Icon(Icons.add_rounded, size: 50, color: Colors.white),
                             ),
                           ),
@@ -269,7 +263,7 @@ class PhotosWidgetState extends State<PhotosWidget> {
                               borderRadius: BorderRadius.circular(10),
                             ),
                           child: images["image1"] != null
-                            ? _loadImage(images["image1"]!)
+                            ? _loadImage(images["image1"]!, 1)
                             : const Icon(Icons.add_rounded, size: 50, color: Colors.white),
                           ),
                         ),
@@ -309,7 +303,7 @@ class PhotosWidgetState extends State<PhotosWidget> {
                               borderRadius: BorderRadius.circular(10),
                             ),
                           child: images["image2"] != null
-                            ? _loadImage(images["image2"]!)
+                            ? _loadImage(images["image2"]!, 2)
                             : const Icon(Icons.add_rounded, size: 50, color: Colors.white),
                           ),
                         ),
@@ -343,7 +337,7 @@ class PhotosWidgetState extends State<PhotosWidget> {
                               borderRadius: BorderRadius.circular(10),
                             ),
                           child: images["image3"] != null
-                            ? _loadImage(images["image3"]!)
+                            ? _loadImage(images["image3"]!, 3)
                             : const Icon(Icons.add_rounded, size: 50, color: Colors.white),
                           ),
                         ),
@@ -404,61 +398,37 @@ Widget aboutMeContainer({String initialValue = '', required VoidCallback onPress
   );
 }
 
-Widget childrenBuilder(IconData type, String childText) {
-  return Row(
-    children: [
-      Icon(
-        type,
-        size: 27,
-      ),
-      const SizedBox(width: 14),
-      Text(
-        childText,
-        style: GoogleFonts.poppins(
-          fontSize: 16,
-        ),
-      ),
-      const Spacer(),
-      Text(
-        "Add",
-        style: GoogleFonts.poppins(
-          fontSize: 16,
-        ),
-      ),
-      const Icon(
-        Icons.chevron_right_rounded,
-        size: 30,
-      ),
-    ],
-  );
-}
-
 Widget childrenBuilder1(IconData type, String childText, data) {
-  return Row(
-    children: [
-      Icon(
-        type,
-        size: 27,
-      ),
-      const SizedBox(width: 14),
-      Text(
-        childText,
-        style: GoogleFonts.poppins(
-          fontSize: 16,
+  return Container(
+    color: Colors.transparent,
+    child: Row(
+      children: [
+        Icon(
+          type,
+          size: 27,
         ),
-      ),
-      const Spacer(),
-      Text(
-        data.toString(),
-        style: GoogleFonts.poppins(
-          fontSize: 16,
+        const SizedBox(width: 14),
+        Text(
+          childText,
+          style: GoogleFonts.poppins(
+            fontSize: 16,
+          ),
         ),
-      ),
-      const Icon(
-        Icons.chevron_right_rounded,
-        size: 30,
-      ),
-    ],
+        const Spacer(),
+        Text(
+          data.toString(),
+          style: GoogleFonts.poppins(
+            fontSize: 16,
+          ),
+          overflow: TextOverflow.ellipsis,
+          maxLines: 1, // You can adjust this value to allow more lines if needed
+        ),
+        const Icon(
+          Icons.chevron_right_rounded,
+          size: 30,
+        ),
+      ],
+    ),
   );
 }
 

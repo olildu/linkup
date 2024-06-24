@@ -1,7 +1,6 @@
 import "dart:io";
 import 'package:crypto/crypto.dart';
 import "package:flutter/material.dart";
-import "package:get/get.dart";
 import "package:google_fonts/google_fonts.dart";
 import "package:linkup/colors/colors.dart";
 import "package:linkup/pages/appbar_pages/filters_page.dart";
@@ -34,7 +33,7 @@ class CommonFunction {
     if (localDarkThemeValue != null){
       UserValues.darkTheme = localDarkThemeValue;
       if (localDarkThemeValue == false){
-        Provider.of<ThemeProvider>(context, listen: true).toggleTheme();
+        Provider.of<ThemeProvider>(context, listen: false).toggleTheme();
       }
       UserValues.didFunctionRun = true;
     }
@@ -44,7 +43,7 @@ class CommonFunction {
     if (bottomBarIndex != 1){
       for (int x = 0; x < UserValues.userVisited; x++){
         UserValues.matchUserDetails.removeAt(0);
-        UserValues.userImageURLs.removeAt(0);
+        UserValues.candidateImageURLs.removeAt(0);
       }
       UserValues.userVisited = 0;
     }

@@ -37,8 +37,9 @@ class CandidateDetailsContainer extends StatefulWidget {
   final ScrollController scrollController;
   final Map<String, dynamic> candidateDetails;
   final List userImageList;
+  final List userImageHash;
 
-  const CandidateDetailsContainer({super.key, required this.scrollController, required this.candidateDetails, required this.userImageList});
+  const CandidateDetailsContainer({super.key, required this.scrollController, required this.candidateDetails, required this.userImageList, required this.userImageHash});
 
   @override
   State<CandidateDetailsContainer> createState() => _CandidateDetailsContainerState();
@@ -62,27 +63,30 @@ class _CandidateDetailsContainerState extends State<CandidateDetailsContainer> {
         return SingleChildScrollView(
           controller: widget.scrollController,
           child: Container(
-            color: Color(0xFF193046),
+            color: Theme.of(context).colorScheme.surface,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 // Candidate First Image
-                buildProfileImage(context, widget.candidateDetails, widget.userImageList[0], constraints.maxHeight),
+                buildProfileImage(context, widget.candidateDetails, widget.userImageList[0], widget.userImageHash[0],constraints.maxHeight, constraints.maxWidth),
+
+                SizedBox(height: 5,),
 
                 // Candidate About Me and Tags
-                aboutMeAndTags(candidateDetails: widget.candidateDetails["UserDetails"]),
+                aboutMeAndTags(candidateDetails: widget.candidateDetails["UserDetails"], context),
+
+                SizedBox(height: 5,),
 
                 // Remaining Candidate Images
-                nextImages(context, widget.candidateDetails, constraints.maxHeight, secondImageURL: widget.userImageList[1],),
+                nextImages(context, widget.candidateDetails, constraints.maxHeight, widget.userImageList[1], widget.userImageHash[1]),
 
                 if (filteredList.length == 3)
-                  nextImages(context, widget.candidateDetails, constraints.maxHeight, thirdImageURL: widget.userImageList[2]),
+                  nextImages(context, widget.candidateDetails, constraints.maxHeight,widget.userImageList[2], widget.userImageHash[2]),
 
                 if (filteredList.length == 4)
-                  nextImages(context, widget.candidateDetails, constraints.maxHeight, thirdImageURL: widget.userImageList[3]),
+                  nextImages(context, widget.candidateDetails, constraints.maxHeight,widget.userImageList[3], widget.userImageHash[3]),
 
                 // From Candidate Details or Stream Detail
-                fromOrStreamDetails(candidateDetails: widget.candidateDetails["UserDetails"]),
               ],
             ),
           ),

@@ -41,6 +41,7 @@ class SettingsState extends State<Settings> {
         ),
         centerTitle: true, // Centering the title text
       ),
+      backgroundColor: Theme.of(context).colorScheme.surface,
       body: SingleChildScrollView(
         child: Container(
           padding: EdgeInsets.all(20),

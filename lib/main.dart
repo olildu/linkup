@@ -12,6 +12,7 @@ import 'package:flutter/material.dart';
 import "package:firebase_core/firebase_core.dart";
 import "package:flutter/services.dart";
 import "package:provider/provider.dart";
+import "package:shake_flutter/shake_flutter.dart";
 
 void main() async{
   SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
@@ -20,9 +21,13 @@ void main() async{
     systemNavigationBarColor: ReuseableColors.secondaryColor
   ));
   WidgetsFlutterBinding.ensureInitialized();
-  // Initialize firebase options
 
+  // Initialize shakeToReport
+  Shake.start('53AgycyCdmfYRIiaH9y6bFBZ2Zh0ImxpD7NehACVUKAbUyXYJpeTETZ');
+
+  // Initialize firebase options
   await Firebase.initializeApp(
+    name: "linkup",
     options: DefaultFirebaseOptions.currentPlatform,
   );
   // Initialize firebase app check
@@ -52,7 +57,7 @@ class _MyAppState extends State<MyApp> {
     // Check for any saved user preference in the localStorage and reflects accordingly
     CommonFunction().getDarkThemeValue(context);
 
-    return InAppNotification(
+    return InAppNotification( // Dependency for inApp notification when user recieves a message in chatPage
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
         theme: Provider.of<ThemeProvider>(context).themeData,
@@ -64,7 +69,8 @@ class _MyAppState extends State<MyApp> {
                 return const CircularProgressIndicator();
               } else {
                 final user = snapshot.data;
-                if (user != null) {
+                if (user != null) { // User is logged in 
+                  Shake.registerUser(user.uid);
                   // Reload the user data to ensure emailVerified is up-to-date
                   return FutureBuilder(
                     future: user.reload().then((_) => FirebaseAuth.instance.currentUser),

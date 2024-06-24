@@ -42,6 +42,7 @@ class EditHometownState extends State<EditHometown> {
           ),
         ],
       ),
+      backgroundColor: Theme.of(context).colorScheme.surface,
       body: Container(
         padding: const EdgeInsets.all(20),
         child: Column(
@@ -1336,29 +1337,32 @@ class CustomSearchDelegate extends SearchDelegate<String> {
         ? homeTownData
         : homeTownData.where((item) => item.toLowerCase().contains(query.toLowerCase())).toList();
 
-    return ListView.builder(
-      itemCount: streams.length,
-      itemBuilder: (BuildContext context, int index) {
-        final String suggestion = streams[index];
-        return ListTile(
-          title: Text(suggestion),
-          onTap: () {
-            close(context, suggestion);
-
-            Map userDataTags = {
-              "uid": UserValues.uid,
-              'type': 'uploadTagData',
-              'key': UserValues.cookieValue,
-              'keyToUpdate': "fromPlace",
-              'value': suggestion
-            };
-
-            ApiCalls.uploadUserTagData(userDataTags);
-
-            Navigator.pop(context);
-          },
-        );
-      },
+    return Container(
+      color: Theme.of(context).colorScheme.surface,
+      child: ListView.builder(
+        itemCount: streams.length,
+        itemBuilder: (BuildContext context, int index) {
+          final String suggestion = streams[index];
+          return ListTile(
+            title: Text(suggestion),
+            onTap: () {
+              close(context, suggestion);
+      
+              Map userDataTags = {
+                "uid": UserValues.uid,
+                'type': 'uploadTagData',
+                'key': UserValues.cookieValue,
+                'keyToUpdate': "fromPlace",
+                'value': suggestion
+              };
+      
+              ApiCalls.uploadUserTagData(userDataTags);
+      
+              Navigator.pop(context);
+            },
+          );
+        },
+      ),
     );
   }
 }

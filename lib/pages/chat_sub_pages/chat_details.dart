@@ -3,6 +3,7 @@
 import 'dart:async';
 
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter/services.dart';
 import 'package:linkup/api/api_calls.dart';
 import 'package:linkup/elements/chat_elements/elements.dart';
 import 'package:linkup/colors/colors.dart';
@@ -113,61 +114,68 @@ class ChatDetailsPageState extends State<ChatDetailsPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-    backgroundColor: Theme.of(context).colorScheme.surface,
-    appBar: AppBar(
-      backgroundColor: Theme.of(context).colorScheme.surface,
-      shadowColor: Colors.black,
-      leading: InkWell(
-        onTap: () {
-          Navigator.of(context).pop();
-        },
-        child: Row(
-          children: const [
-            SizedBox(width: 20),
-            Icon(Icons.arrow_back_ios),
-          ],
-        ),
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      value: SystemUiOverlayStyle(
+        statusBarColor: Theme.of(context).secondaryHeaderColor,
+        statusBarIconBrightness: UserValues.darkTheme ? Brightness.light : Brightness.dark,
+        systemNavigationBarColor: Theme.of(context).secondaryHeaderColor,
       ),
-      title: GestureDetector(
-        onTap: () {
-          UserValues.matchedUsers.forEach((key, value) {
-            popupMatchDetails(context, value, key, UserValues.matchedUsers);
-            }
-          );
-        },
-        child: Transform.translate(
-          offset: Offset(-22, 0),
+      child: Scaffold(
+      backgroundColor: Theme.of(context).secondaryHeaderColor,
+      appBar: AppBar(
+        backgroundColor: Theme.of(context).secondaryHeaderColor,
+        shadowColor: Colors.black,
+        leading: InkWell(
+          onTap: () {
+            Navigator.of(context).pop();
+          },
           child: Row(
-            children: [
-              ClipOval(
-              child : CachedNetworkImage(
-                imageUrl: widget.imageUrl,
-                width: 38,
-                height: 38,
-                fit: BoxFit.cover,
-                placeholder: (context, url) => CircularProgressIndicator(), 
-                errorWidget: (context, url, error) => Icon(Icons.error),
-                ),
-              ),
-              SizedBox(width: 10),
-              Text(widget.appBarTitle, style: GoogleFonts.poppins(),),
+            children: const [
+              SizedBox(width: 20),
+              Icon(Icons.arrow_back_ios),
             ],
           ),
         ),
+        title: GestureDetector(
+          onTap: () {
+            UserValues.chatUsers.forEach((key, value) {
+              popupMatchDetails(context, value, key);
+              }
+            );
+          },
+          child: Transform.translate(
+            offset: Offset(-22, 0),
+            child: Row(
+              children: [
+                ClipOval(
+                child : CachedNetworkImage(
+                  imageUrl: widget.imageUrl,
+                  width: 38,
+                  height: 38,
+                  fit: BoxFit.cover,
+                  placeholder: (context, url) => CircularProgressIndicator(), 
+                  errorWidget: (context, url, error) => Icon(Icons.error),
+                  ),
+                ),
+                SizedBox(width: 10),
+                Text(widget.appBarTitle, style: GoogleFonts.poppins(),),
+              ],
+            ),
+          ),
+        ),
+        actions: [
+          actionWidget(widget.matchUID)
+        ],
+      
       ),
-      actions: [
-        actionWidget(widget.matchUID)
-      ],
-    
-    ),
-    body: Stack(
-      children: [
-        messageContent(_messages, _scrollController),
-        TextFieldWithDynamicColor(sendMessage: _addMessage, path: widget.path, matchUID: widget.matchUID, focusNode: myFocusNode,),
-      ],
-    ),
-        );
+      body: Stack(
+        children: [
+          messageContent(context, _messages, _scrollController),
+          TextFieldWithDynamicColor(sendMessage: _addMessage, path: widget.path, matchUID: widget.matchUID, focusNode: myFocusNode,),
+        ],
+      ),
+          ),
+    );
   }
 
 
@@ -228,7 +236,7 @@ Widget newTextField({required BuildContext context, required SendMessageCallback
     child: Container(
       padding: EdgeInsets.all(10),
       decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surface
+        color: Theme.of(context).secondaryHeaderColor
       ),
       child: Row(
         children: [
@@ -237,19 +245,27 @@ Widget newTextField({required BuildContext context, required SendMessageCallback
               controller: messageController,
               focusNode: focusNode,
               decoration: InputDecoration(
+                hintStyle: GoogleFonts.poppins(),
+                
+                fillColor: Theme.of(context).focusColor, // Fill Color
+                filled: true,
                 hintText: 'Aa',
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(30.0),
                 ),
                 enabledBorder: OutlineInputBorder(
-                  borderSide: BorderSide(color: Theme.of(context).colorScheme.primary), // Border color when not focused
+                  borderSide: BorderSide(color: Theme.of(context).secondaryHeaderColor), // Border color when not focused
                   borderRadius: BorderRadius.circular(30.0),
                 ),
                 focusedBorder: OutlineInputBorder(
-                  borderSide: BorderSide(color: Theme.of(context).colorScheme.surface), // Border color when focused
+                  borderSide: BorderSide(color: Theme.of(context).secondaryHeaderColor), // Border color when focused
                   borderRadius: BorderRadius.circular(30.0),
                 ),
-                contentPadding: EdgeInsets.symmetric(horizontal: 16.0),
+                contentPadding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 16),
+              ),
+              style: GoogleFonts.poppins( // Apply Google Fonts to input text
+                fontSize: 16.0,
+                fontWeight: FontWeight.w500
               ),
               textCapitalization: TextCapitalization.sentences,
               minLines: 1,
@@ -298,7 +314,7 @@ Widget newTextField({required BuildContext context, required SendMessageCallback
   );
 }
 
-Future popupMatchDetails(BuildContext context, Map value, String key, Map<String, dynamic>? matchedUsersNew) {
+Future popupMatchDetails(BuildContext context, Map value, String key) {
   chatUserDetails["chatUID"] = key;
   return showCupertinoModalPopup(
     context: context,
@@ -313,108 +329,111 @@ Future popupMatchDetails(BuildContext context, Map value, String key, Map<String
             return Center(
               child: CircularProgressIndicator(),
             );
-          } else {
-            if (snapshot.hasError) {
-              // Handle error case
-              return Center(
-                child: Text('Error: ${snapshot.error}'),
-              );
-            } else {
+          }
+          else {
               Map matchUserData = snapshot.data["UserDetails"];
+              List imageUserData = snapshot.data["ImageDetails"];
               return Padding(
                 padding: EdgeInsets.all(8.0),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
-                    CupertinoPopupSurface(
-                      child: IntrinsicHeight(
-                        child: SizedBox(
-                          height: popupHeight, 
-                          child: SingleChildScrollView(
-                            // Wrap the content in a SingleChildScrollView
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.stretch,
-                              children: [
-                                // Match user userImage1
-                                Container(
-                                  decoration: BoxDecoration(
-                                    color: Color(0xFFD9D9D9),
-                                  ),
-                                  child: Stack(
-                                    children: [
-                                      CachedNetworkImage(
-                                        imageUrl: value["userImage1"],
-                                        fit: BoxFit.cover,
-                                        height: popupHeight,
-                                        placeholder: (context, url) =>
-                                            Center(child: CircularProgressIndicator()),
-                                        errorWidget: (context, url, error) => Icon(Icons.error),
-                                      ),
-                                      Positioned(
-                                        bottom: 10,
-                                        left: 15,
-                                        child: Column(
-                                          crossAxisAlignment: CrossAxisAlignment.start,
-                                          children: [
-                                            Text(
-                                              '${matchUserData["name"]}, ${matchUserData["age"]}',
-                                              style: GoogleFonts.poppins(
-                                                color: Colors.white,
-                                                fontSize: 26,
-                                                decoration: TextDecoration.none,
-                                                fontWeight: FontWeight.bold,
-                                              ),
-                                            ),
-                                            Row(
-                                              children: [
-                                                Icon(Icons.school_outlined, color: Colors.white),
-                                                SizedBox(width: 5),
-                                                Text(
-                                                  'Doing ${matchUserData["stream"]}',
-                                                  style: GoogleFonts.poppins(
-                                                    color: Colors.white,
-                                                    fontSize: 16,
-                                                    decoration: TextDecoration.none,
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                // Match user tags
-                                IntrinsicHeight(
-                                  child: Material(
-                                    child: aboutMeAndTags(data: matchUserData),
-                                    color: ReuseableColors.primaryColor,
-                                  ),
-                                ),
-                                //Match user userImage1
-                                Container(
-                                  height: 700,
-                                  color: Color(0xFFD9D9D9),
-                                  child: CachedNetworkImage(
-                                    imageUrl: value["userImage2"],
-                                    height: popupHeight,
+                    Container(
+                      height: popupHeight, 
+                      color: Colors.transparent,
+                      child: SingleChildScrollView(
+                        // Wrap the content in a SingleChildScrollView
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            // Match user userImage1
+                            ClipRRect(
+                              borderRadius: BorderRadius.circular(20),
+                              child: Stack(
+                                children: [
+                                  CachedNetworkImage(
+                                    imageUrl: "https://firebasestorage.googleapis.com/v0/b/mujdating.appspot.com/o/UserImages%2F$key%2F${imageUserData[1]}?alt=media&token",
                                     fit: BoxFit.cover,
+                                    height: popupHeight,
                                     placeholder: (context, url) =>
                                         Center(child: CircularProgressIndicator()),
                                     errorWidget: (context, url, error) => Icon(Icons.error),
                                   ),
-                                ),
-                                //Match user location or stream details
-                                IntrinsicHeight(
-                                  child: Material(
-                                    child: fromOrStreamDetails(buttonsNeeded: false, candidateDetails: matchUserData),
-                                    color: ReuseableColors.primaryColor,
+                                  Positioned(
+                                    bottom: 10,
+                                    left: 15,
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          '${matchUserData["name"]}, ${matchUserData["age"]}',
+                                          style: GoogleFonts.poppins(
+                                            color: Colors.white,
+                                            fontSize: 26,
+                                            decoration: TextDecoration.none,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                        Row(
+                                          children: [
+                                            Icon(Icons.school_outlined, color: Colors.white),
+                                            SizedBox(width: 5),
+                                            Text(
+                                              'Doing ${matchUserData["stream"]}',
+                                              style: GoogleFonts.poppins(
+                                                color: Colors.white,
+                                                fontSize: 16,
+                                                decoration: TextDecoration.none,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ],
+                                    ),
                                   ),
-                                ),
-                              ],
+                                ],
+                              ),
                             ),
-                          ),
+
+                            SizedBox(height: 5,),
+
+                            // Match user tags
+                            IntrinsicHeight(
+                              child: Material(
+                                child: aboutMeAndTags(data: matchUserData, context),
+                                color: Colors.transparent,
+                              ),
+                            ),
+
+                            SizedBox(height: 5,),
+
+                            // Match user userImage1
+                            ClipRRect(
+                              borderRadius: BorderRadius.circular(20),
+                              child: Container(
+                                height: 700,
+                                color: Color(0xFFD9D9D9),
+                                child: CachedNetworkImage(
+                                  imageUrl: "https://firebasestorage.googleapis.com/v0/b/mujdating.appspot.com/o/UserImages%2F$key%2F${imageUserData[2]}?alt=media&token",
+                                  height: popupHeight,
+                                  fit: BoxFit.cover,
+                                  placeholder: (context, url) =>
+                                      Center(child: CircularProgressIndicator()),
+                                  errorWidget: (context, url, error) => Icon(Icons.error),
+                                ),
+                              ),
+                            ),
+                            
+                            SizedBox(height: 5,),
+
+                            //Match user location or stream details
+                            ClipRRect(
+                              borderRadius: BorderRadius.circular(20),
+                              child: Material(
+                                child: fromOrStreamDetails(buttonsNeeded: false, candidateDetails: matchUserData),
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                     ),
@@ -424,7 +443,6 @@ Future popupMatchDetails(BuildContext context, Map value, String key, Map<String
               );
             }
           }
-        },
       );
     },
   );

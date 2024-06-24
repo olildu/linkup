@@ -40,6 +40,7 @@ class EditAboutMeState extends State<EditAboutMe> with SingleTickerProviderState
     setState(() {
       if (_counter != 8){
       _counter++;
+      print("counter progressed");
       _progressTrackerValue += 40;
       }
       else{
@@ -64,6 +65,7 @@ class EditAboutMeState extends State<EditAboutMe> with SingleTickerProviderState
           child: const Icon(Icons.close_rounded, size: 25),
         ),
       ),
+      backgroundColor: Theme.of(context).colorScheme.surface,
       body: Padding(
         padding: const EdgeInsets.all(20.0),
         child: Center(

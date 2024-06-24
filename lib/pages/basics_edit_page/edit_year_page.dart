@@ -41,6 +41,7 @@ class EditYearState extends State<EditYear> {
           child: const Icon(Icons.arrow_back_ios_new_rounded),
         ),
       ),
+      backgroundColor: Theme.of(context).colorScheme.surface,
       body: Container(
         padding: const EdgeInsets.all(20),
         child: Column(

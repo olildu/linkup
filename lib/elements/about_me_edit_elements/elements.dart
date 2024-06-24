@@ -180,15 +180,15 @@ class DrinkingContainer extends StatelessWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
-                          OptionChildrenBuilder("Frequently", "Drinking", context, onOptionSelected),
+                          OptionChildrenBuilder("Frequently", "drinkingStatus", context, onOptionSelected),
                           SizedBox(height: 10),
-                          OptionChildrenBuilder("Socially", "Drinking", context, onOptionSelected),
+                          OptionChildrenBuilder("Socially", "drinkingStatus", context, onOptionSelected),
                           SizedBox(height: 10),
-                          OptionChildrenBuilder("Rarely", "Drinking", context, onOptionSelected),
+                          OptionChildrenBuilder("Rarely", "drinkingStatus", context, onOptionSelected),
                           SizedBox(height: 10),
-                          OptionChildrenBuilder("Never", "Drinking", context, onOptionSelected),
+                          OptionChildrenBuilder("Never", "drinkingStatus", context, onOptionSelected),
                           SizedBox(height: 10),
-                          OptionChildrenBuilder("Sober", "Drinking", context, onOptionSelected),
+                          OptionChildrenBuilder("Sober", "drinkingStatus", context, onOptionSelected),
                         ],
                       ),
                     ),
@@ -233,11 +233,11 @@ class SmokingContainer extends StatelessWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
-                          OptionChildrenBuilder("Socially", "Smoking", context, onOptionSelected),
+                          OptionChildrenBuilder("Socially", "smokingStatus", context, onOptionSelected),
                           SizedBox(height: 10),
-                          OptionChildrenBuilder("Regularly", "Smoking", context, onOptionSelected),
+                          OptionChildrenBuilder("Regularly", "smokingStatus", context, onOptionSelected),
                           SizedBox(height: 10),
-                          OptionChildrenBuilder("Never", "Smoking", context, onOptionSelected),
+                          OptionChildrenBuilder("Never", "smokingStatus", context, onOptionSelected),
                         ],
                       ),
                     ),
@@ -369,24 +369,26 @@ class ReligionContainer extends StatelessWidget {
 
 Widget OptionChildrenBuilder(String optionText, String Type, BuildContext context, [Function()? onOptionSelected]) {
   return GestureDetector(
-    onTap: () {
-      switch(Type){
-        case "Drinking":
+    onTap: () async {
+      print(Type);
+
+      switch(Type) {
+        case "drinkingStatus":
           userDataTags["keyToUpdate"] = "drinkingStatus";
           userDataTags["value"] = optionText;
           ApiCalls.uploadUserTagData(userDataTags);
           break;
-        case "Religion":
+        case "religionStatus":
           userDataTags["keyToUpdate"] = "religionStatus";
           userDataTags["value"] = optionText;
-          ApiCalls.uploadUserTagData(userDataTags);
+          await ApiCalls.uploadUserTagData(userDataTags);
           break;
-        case "LookingFor":
+        case "lookingFor":
           userDataTags["keyToUpdate"] = "lookingFor";
           userDataTags["value"] = optionText;
           ApiCalls.uploadUserTagData(userDataTags);
           break;
-        case "Smoking":
+        case "smokingStatus":
           userDataTags["keyToUpdate"] = "smokingStatus";
           userDataTags["value"] = optionText;
           ApiCalls.uploadUserTagData(userDataTags);

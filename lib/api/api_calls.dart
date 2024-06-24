@@ -16,15 +16,19 @@ class UserValues extends ChangeNotifier{
   static String uid = FirebaseAuth.instance.currentUser!.uid;
   static String ?cookieValue;
   static late String ?fCMToken; // We store fCMToken here so that we can call after getting key
-  static List userImageURLs = [];
   static bool darkTheme = true; // This bool is gonna keep the track of the theme
   static bool snoozeEnabled = false; // This bool will track if snoozeMode is on or off
   static bool limitReached = false; // This bool will keep track if the user has finished his like quota
   static bool didFunctionRun = false;
   
+  // Values for userProfilePage imageUpload
+  static Map userFilePathandNameHash = {};
+
   // Values for candidatePage
   static int userVisited = 0;
   static int counterCandidatesAvailable = 0;
+  static List candidateImageURLs = [];
+  static List candidateImageHashs = [];
   
   // Values for matchUsers in chatPage
   static Map <String, dynamic> matchUserData = {}; // Map for MatchedUsers used in popUpMenu to see the full details of the user
@@ -32,10 +36,9 @@ class UserValues extends ChangeNotifier{
   
   // Values for current UserData
   static Map userData = {}; // Current UserDetails will be store here (Change always listening in here)
-  static List userImageData = List.empty(growable: true); // Current UserImageDetails here
 
   // Values for chatUserData in chatPage
-  static Map chatUserImages = {};
+  static Map<String, dynamic> chatUserImages = {};
   static Map<String, dynamic> chatUsers = {}; // UserData for matchedUsers in chatPage 
 
   // Values that keep track of userChats
@@ -156,7 +159,7 @@ class ApiCalls {
         headers: headers,
         body: jsonData,
       );
-
+      print(response.body);
       return response.body;
   }
 
@@ -173,10 +176,9 @@ class ApiCalls {
       headers: headers,
       body: jsonData,
     );
-    
-    UserValues.matchUserData[data["chatUID"]] = jsonDecode(jsonDecode(response.body));
 
-    return response.body;
+    UserValues.matchUserData[data["chatUID"]] = await jsonDecode(jsonDecode(response.body));
+    return UserValues.matchUserData[data["chatUID"]];
 }
 
   static writeChatContent(data) async {
@@ -417,8 +419,10 @@ class FirebaseCalls with ChangeNotifier {
     }
     else{
       for (int x = 0; x < imageNamesList.length; x++){
-        await uploadImage(fileNamesList[x], imageNamesList[x]);
-        ref.child('/UsersMetaData/${UserValues.uid}/ImageDetails').update({x.toString() : imageNamesList[x]});
+        ref.child('/UsersMetaData/${UserValues.uid}/ImageDetails/${x.toString()}').update({
+          "imageName" : imageNamesList[x][0],
+          "imageHash" : imageNamesList[x][1],
+        });
       }
     }
   }
@@ -445,16 +449,14 @@ class FirebaseCalls with ChangeNotifier {
     final data = snapshot.snapshot.value as Map<dynamic, dynamic>?;
 
     UserValues.userData = data?["UserDetails"];
-    UserValues.userImageData = data?["ImageDetails"] as List;
 
     UserValues.matchedUsers = await FirebaseCalls.getMatchedUsers();
     UserValues.chatUsers = await FirebaseCalls.getChatUsers();
   }
 
-  // Instance for Firebase Messaging
-
   // Intialization of notifications
   Future<void> initNotifications() async {
+    // Instance for Firebase Messaging
     final FBMessaging = FirebaseMessaging.instance;
     
     // Request permission from user

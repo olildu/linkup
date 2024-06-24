@@ -3,6 +3,7 @@ import 'package:linkup/colors/colors.dart';
 import 'package:linkup/main_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:linkup/pages/create_profile_page/create_profile_page.dart';
 import 'package:linkup/responsive/responsive_layer.dart';
 import 'package:video_player/video_player.dart';
 

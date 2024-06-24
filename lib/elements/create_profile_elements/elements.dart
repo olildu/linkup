@@ -2,6 +2,8 @@
 // ignore_for_file: non_constant_identifier_names, prefer_const_constructors
 
 import 'dart:io';
+import 'dart:isolate';
+import 'package:linkup/ImageHashing/encode.dart';
 import 'package:linkup/api/api_calls.dart';
 import 'package:linkup/api/common_functions.dart';
 import 'package:linkup/elements/profile_elements/elements.dart';
@@ -35,9 +37,13 @@ class LookingForContainer extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
               const SizedBox(height: 20,),
-              titleAndSubtitle("What do you want from dates?", "Let's get to know you better", titleColor: Colors.white, subTitleColor: const Color(0xFFC0C0C0)),
+              // titleAndSubtitle("What do you want from dates?", "Let's get to know you better", titleColor: Colors.white, subTitleColor: const Color(0xFFC0C0C0)),
           
-              const SizedBox(height: 50,),
+              Title("What do you want from dates?"),
+              SizedBox(height: 10,),
+              Subtitle("Let's get to know you better"),
+
+              const SizedBox(height: 40,),
               Row(
                 children: [
                   Expanded(
@@ -85,8 +91,12 @@ class ReligionContainer extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
               const SizedBox(height: 20,),
-              titleAndSubtitle("Do you identify with a religion?", "Let's get to know you better", titleColor: Colors.white, subTitleColor: const Color(0xFFC0C0C0)),
+              // titleAndSubtitle("Do you identify with a religion?", "Let's get to know you better", titleColor: Colors.white, subTitleColor: const Color(0xFFC0C0C0)),
             
+              Title("Do you identify with a religion?"),
+              SizedBox(height: 10,),
+              Subtitle("Let's get to know you better"),
+
               const SizedBox(height: 50,),
                 SizedBox(
                   height: MediaQuery.of(context).size.height * 0.6, // Adjust the height as needed
@@ -146,8 +156,13 @@ class SmokingContainer extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
               const SizedBox(height: 20,),
-              titleAndSubtitle("Do you smoke?", "Let's get to know you better", titleColor: Colors.white, subTitleColor: const Color(0xFFC0C0C0)),
-              const SizedBox(height: 50,),
+              // titleAndSubtitle("Do you smoke?", "Let's get to know you better", titleColor: Colors.white, subTitleColor: const Color(0xFFC0C0C0)),
+
+              Title("Do you smoke?"),
+              SizedBox(height: 10,),
+              Subtitle("Let's get to know you better"),
+
+              const SizedBox(height: 40,),
               Row(
                 children: [
                   Expanded(
@@ -192,8 +207,13 @@ class GenderContainer extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
               const SizedBox(height: 20,),
-              titleAndSubtitle("What do you identify as?", "This will help you with better matches", titleColor: Colors.white, subTitleColor: const Color(0xFFC0C0C0)),
-              const SizedBox(height: 50,),
+              // titleAndSubtitle("What do you identify as?", "This will help you with better matches", titleColor: Colors.white, subTitleColor: const Color(0xFFC0C0C0)),
+
+              Title('What do you identify as?'),
+              SizedBox(height: 10,),
+              Subtitle("This will help you with better matches"),
+              
+              const SizedBox(height: 40,),
               Row(
                 children: [
                   Expanded(
@@ -278,8 +298,13 @@ class _HeightContainerState extends State<HeightContainer> {
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
                   const SizedBox(height: 20,),
-                  titleAndSubtitle("What is your height?", "Let's get to know you better", titleColor: Colors.white, subTitleColor: const Color(0xFFC0C0C0)),
-                  const SizedBox(height: 50,),
+                  // titleAndSubtitle("What is your height?", "Let's get to know you better", titleColor: Colors.white, subTitleColor: const Color(0xFFC0C0C0)),
+
+                  Title("What is your height?"),
+                  SizedBox(height: 10,),
+                  Subtitle("Let's get to know you better"),
+
+                  const SizedBox(height: 40,),
             
                   Container(
                     padding: const EdgeInsets.symmetric(vertical: 20),
@@ -353,9 +378,13 @@ class DrinkingContainer extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
               const SizedBox(height: 20,),
-              titleAndSubtitle("Do you drink?", "Let's get to know you better", titleColor: Colors.white, subTitleColor: const Color(0xFFC0C0C0)),
+              // titleAndSubtitle("Do you drink?", "Let's get to know you better", titleColor: Colors.white, subTitleColor: const Color(0xFFC0C0C0)),
+
+              Title("Do you drink?"),
+              SizedBox(height: 10,),
+              Subtitle("Let's get to know you better"),
           
-              const SizedBox(height: 50,),
+              const SizedBox(height: 40,),
               Row(
                 children: [
                   Expanded(
@@ -444,7 +473,12 @@ class _YearStreamContainerNewState extends State<YearStreamContainerNew> {
     crossAxisAlignment: CrossAxisAlignment.start,
     mainAxisAlignment: MainAxisAlignment.start,
     children: [
-      titleAndSubtitle("Select your stream and year", "This can you help you with better matchmaking", titleColor: Colors.white, subTitleColor: const Color(0xFFC0C0C0)),
+      // titleAndSubtitle("Select your stream and year", "This can you help you with better matchmaking", titleColor: Colors.white, subTitleColor: const Color(0xFFC0C0C0)),
+      
+      Title("Select your stream and year"),
+      SizedBox(height: 10,),
+      Subtitle("This can you help you with better matchmaking"),
+      
       const SizedBox(height: 30,),
       Row(
         children: [
@@ -605,7 +639,12 @@ class _DateContainerNewState extends State<DateContainerNew> {
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisAlignment: MainAxisAlignment.start,
       children: [
-        titleAndSubtitle("When were you born?", "Users above 18 can only use linkup", titleColor: Colors.white, subTitleColor: const Color(0xFFC0C0C0)),
+        // titleAndSubtitle("When were you born?", "Users above 18 can only use linkup", titleColor: Colors.white, subTitleColor: const Color(0xFFC0C0C0)),
+        
+        Title("When were you born?"),
+        const SizedBox(height: 10,),
+        Subtitle("Users above 18 can only use linkup"),
+
         const SizedBox(height: 30,),
         GestureDetector(
           onTap: () {
@@ -692,9 +731,18 @@ class _DateContainerNewState extends State<DateContainerNew> {
 
 Widget NameContainer(bool isContainerEnabled, TextEditingController nameController) {
   return Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
     children: [
-      titleAndSubtitle("What do you want people to call you?", "Your name cannot be changed afterwards", titleColor: Colors.white, subTitleColor: const Color(0xFFC0C0C0)),
-              
+      // titleAndSubtitle("What do you want people to call you?", "Your name cannot be changed afterwards", titleColor: Colors.white, subTitleColor: const Color(0xFFC0C0C0)),
+
+      Text(
+        "What do you want people to call you?", 
+        style: GoogleFonts.poppins(
+          fontSize: 35,
+          fontWeight: FontWeight.w600
+        ),
+      ),           
+
       const SizedBox(height: 30,),
 
       TextField(
@@ -705,7 +753,7 @@ Widget NameContainer(bool isContainerEnabled, TextEditingController nameControll
           hintText: 'Enter your name',
           hintStyle: const TextStyle(color: Colors.grey),
           border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(10.0),
+            borderRadius: BorderRadius.circular(5.0),
           ),
           filled: true,
           fillColor: Colors.white,
@@ -729,23 +777,30 @@ Widget NextButton(bool isContainerEnabled, TextEditingController nameController,
               userDataTags["name"] = nameController.text.trim();
               startAnimation();
               if (uploadImageBool != null && uploadImageBool) {
-                Map imageNames = {};
-                await Future.wait(images.values.whereType<File>().map((value) async {
-                  imageNames[value] = await CommonFunction().returnmd5Hash(value);
-                }));
-                
-                // Make hashmapping in database for the images
-                await FirebaseCalls.updateImageValuesinDatabase(imageNames);
-
-                // Upload userMetaDetails to the database
                 userDataTags["key"] = UserValues.cookieValue;
-                await ApiCalls.uploadUserData(userDataTags);
-    
+                Map imageNames = {};
+                
+                // Naming images "image+md5hash.jpg"
+                await Future.wait(images.values.whereType<File>().map((value) async {
+                  imageNames[value] = [await CommonFunction().returnmd5Hash(value)];
+                }));
+
+                // Running image upload and encoding concurrently
+                var results = await Future.wait([
+                  imageUploadHandler(imageNames),
+                  imageEncoderHandler(imageNames),
+                ]);
+                
+                // Extract the returned data from imageEncoderHandler
+                print(results);
+
                 // Make hashmapping in database for the images
                 await FirebaseCalls.updateImageValuesinDatabase(results[1] as Map);
+                await ApiCalls.uploadUserData(userDataTags);
+
+                print("Done uploading");
               }
-                onCompletion!();
-              }
+              onCompletion!();
             }
           : null,
       shape: const CircleBorder(),
@@ -754,6 +809,49 @@ Widget NextButton(bool isContainerEnabled, TextEditingController nameController,
   );
 }
 
+Future<String> imageUploadHandler(Map imageNames) async {
+  List<Future<void>> uploadTasks = [];
+  List imageNamesList = imageNames.values.toList();
+  List fileNamesList = imageNames.keys.toList();
+  
+  for (int x = 0; x < imageNamesList.length; x++) {
+    uploadTasks.add(FirebaseCalls.uploadImage(fileNamesList[x], imageNamesList[x][0]));
+  }
+
+  await Future.wait(uploadTasks);
+  return "Image Uploaded";
+}
+
+Future<Map> imageEncoderHandler(Map imageNames) async {
+  ReceivePort receivePort = ReceivePort();
+
+  // Spawn the isolate and pass the SendPort to communicate back
+  await Isolate.spawn(imageProcessingFunction, [receivePort.sendPort, imageNames]);
+
+  // Wait for the processed data
+  var processedData = await receivePort.first as Map;
+
+  receivePort.close();
+
+  return processedData;
+}
+
+void imageProcessingFunction(List<dynamic> message) async {
+  SendPort sendPort = message[0];
+  Map imageNames = message[1];
+
+  // Simulate image processing with a dummy return value
+  
+  final Map processedData = await hasher().encode(imageNames);
+  
+  // Send the processed data back to the main isolate
+  sendPort.send(processedData);
+}
+
+Future <String> uploadUserData() async {
+  await ApiCalls.uploadUserData(userDataTags);
+  return "UserData Uploaded";
+}
 
 Map userDataTags = {
   "uid": FirebaseAuth.instance.currentUser?.uid,
@@ -827,9 +925,13 @@ class _PhotoContainerState extends State<PhotoContainer> {
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
                   const SizedBox(height: 20,),
-                  titleAndSubtitle("Add your Photos", "Add photos that show your true self", titleColor: Colors.white, subTitleColor: const Color(0xFFC0C0C0)),
+                  // titleAndSubtitle("Add your Photos", "Add photos that show your true self", titleColor: Colors.white, subTitleColor: const Color(0xFFC0C0C0)),
+
+                  Title("Add your Photos"),
+                  SizedBox(height: 10,),
+                  Subtitle("Add photos that show your true self"),
               
-                  SizedBox(height: 50,),
+                  SizedBox(height: 40,),
               
                   PhotosWidget(moveAction: widget.moveAction, valueReject: widget.valueReject)
               
@@ -915,10 +1017,9 @@ class PhotosWidgetState extends State<PhotosWidget> {
     );
   }
 
-
   Future<void> _pickImage(ImageSource source, int imageIndex) async {
     final picker = ImagePicker();
-    final pickedImage = await picker.pickImage(source: source);
+    final pickedImage = await picker.pickImage(source: source, imageQuality: 50);
     if (pickedImage != null) {
       setState(() {
         if (counter > 0){
@@ -1141,4 +1242,24 @@ class PhotosWidgetState extends State<PhotosWidget> {
       ),
     );
   }
+}
+
+Widget Title(String title){
+  return Text(
+  title, 
+  style: GoogleFonts.poppins(
+    fontSize: 35,
+    fontWeight: FontWeight.w600
+  ),
+  );
+}
+
+Widget Subtitle(String title){
+  return Text(
+  title, 
+  style: GoogleFonts.poppins(
+    fontSize: 20,
+    fontWeight: FontWeight.w300
+  ),
+  );
 }

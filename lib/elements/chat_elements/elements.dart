@@ -3,6 +3,7 @@ import 'dart:async';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
+import 'package:glass/glass.dart';
 import 'package:linkup/colors/colors.dart';
 import 'package:linkup/api/api_calls.dart';
 import 'package:linkup/elements/candidate_page_elements/elements.dart';
@@ -11,6 +12,8 @@ import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:linkup/ImageHashing/decode.dart';
+import 'package:octo_image/octo_image.dart';
 
 typedef SendMessageCallback = void Function(Map<String, dynamic> message);
 
@@ -216,7 +219,7 @@ class _MatchedUserWidgetState extends State<MatchedUserWidget> {
       if (localMatchUserData[event.snapshot.key.toString()] == null){ // If matchUser is new then create new map and start
         localMatchUserData[event.snapshot.key.toString()] = {};
       }
-
+      print(data);
       localMatchUserData[event.snapshot.key.toString()]["uniquePath"] = data["uniquePath"]; 
       localMatchUserData[event.snapshot.key.toString()]["userName"] = data["matchName"];  
       localMatchUserData[event.snapshot.key.toString()]["userImage1"] = "https://firebasestorage.googleapis.com/v0/b/mujdating.appspot.com/o/UserImages%2F${event.snapshot.key.toString()}%2F${data["imageName"]}?alt=media&token" ; 
@@ -509,85 +512,108 @@ Future popupMatchDetails(BuildContext context, Map value, String key, Map<String
               child: CircularProgressIndicator(),
             );
           } else {
-            List matchUserImages = snapshot.data["ImageDetails"];
-            matchUserImages = matchUserImages.where((image) => image != null).toList();
+            List matchUserImages = [];
+            List matchUserImageHash = [];
+            
+            for (var imageData in snapshot.data["ImageDetails"]){
+              String imageHash = imageData["imageHash"];
+              String imageName = imageData["imageName"];
 
+              matchUserImageHash.add(imageHash);
+              matchUserImages.add(imageName);
+            }
             Map matchUserData = snapshot.data["UserDetails"];
             return Padding(
               padding: EdgeInsets.all(8.0),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
-                  CupertinoPopupSurface(
-                    child: IntrinsicHeight(
-                      child: SizedBox(
-                        height: popupHeight, 
-                        child: SingleChildScrollView(
-                          // Wrap the content in a SingleChildScrollView
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.stretch,
-                            children: [
-                              // Match user userImage1
-                              Container(
-                                decoration: BoxDecoration(
-                                  color: Color(0xFFD9D9D9),
-                                ),
-                                child: Stack(
-                                  children: [
-                                    CachedNetworkImage(
-                                      imageUrl: "https://firebasestorage.googleapis.com/v0/b/mujdating.appspot.com/o/UserImages%2F${matchUserData["uid"]}%2F${matchUserImages[0]}?alt=media&token",
-                                      fit: BoxFit.cover,
-                                      height: popupHeight,
-                                      placeholder: (context, url) =>
-                                          Center(child: CircularProgressIndicator()),
-                                      errorWidget: (context, url, error) => Icon(Icons.error),
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(20),
+                    child: Container(
+                      height: popupHeight, 
+                      color: Colors.transparent,
+                      child: SingleChildScrollView(
+                        // Wrap the content in a SingleChildScrollView
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            // Match user userImage1
+                            Stack(
+                              children: [
+                                ClipRRect(
+                                  borderRadius: BorderRadius.circular(20),
+                                  child: OctoImage(
+                                    image: CachedNetworkImageProvider(
+                                      "https://firebasestorage.googleapis.com/v0/b/mujdating.appspot.com/o/UserImages%2F${matchUserData["uid"]}%2F${matchUserImages[0]}?alt=media&token"
                                     ),
-                                    Positioned(
-                                      bottom: 10,
-                                      left: 15,
-                                      child: Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        children: [
-                                          Text(
-                                            '${matchUserData["name"]}, ${matchUserData["age"]}',
-                                            style: GoogleFonts.poppins(
-                                              color: Colors.white,
-                                              fontSize: 26,
-                                              decoration: TextDecoration.none,
-                                              fontWeight: FontWeight.bold,
-                                            ),
-                                          ),
-                                          Row(
-                                            children: [
-                                              Icon(Icons.school_outlined, color: Colors.white),
-                                              SizedBox(width: 5),
-                                              Text(
-                                                'Doing ${matchUserData["stream"]}',
-                                                style: GoogleFonts.poppins(
-                                                  color: Colors.white,
-                                                  fontSize: 16,
-                                                  decoration: TextDecoration.none,
-                                                ),
+                                    placeholderBuilder: OctoBlurHashFix.placeHolder(matchUserImageHash[0]),
+                                    fit: BoxFit.cover,
+                                  )
+                                ),
+                                Positioned(
+                                bottom: 0,
+                                child: Padding(
+                                  padding: const EdgeInsets.symmetric(vertical: 15.0, horizontal: 10),
+                                  child: ClipRRect(
+                                    borderRadius: BorderRadius.circular(10),
+                                    child: Material(
+                                      child: Container(
+                                        width: MediaQuery.of(context).size.width - 35,
+                                        color: Theme.of(context).colorScheme.surface.withOpacity(0.8), // Adding some transparency
+                                        padding: const EdgeInsets.all(10.0), // Adding some padding
+                                        child: Column(
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              '${matchUserData["name"]}, ${matchUserData["age"]}',
+                                              style: GoogleFonts.poppins(
+                                                fontSize: 26,
+                                                fontWeight: FontWeight.bold,
                                               ),
-                                            ],
-                                          ),
-                                        ],
-                                      ),
+                                            ),
+                                            const SizedBox(height: 5),
+                                            Row(
+                                              children: [
+                                                Icon(Icons.school_outlined, color: Theme.of(context).shadowColor,),
+                                                const SizedBox(width: 5),
+                                                Text(
+                                                  'Doing ${matchUserData["stream"]}',
+                                                  style: GoogleFonts.poppins(
+                                                    fontSize: 18,
+                                                    color: Theme.of(context).shadowColor,
+                                                    fontWeight: FontWeight.w500
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ],
+                                        ),
+                                      ).asGlass(),
                                     ),
-                                  ],
+                                  ),
                                 ),
                               ),
-                              // Match user tags
-                              IntrinsicHeight(
-                                child: Material(
-                                  child: aboutMeAndTags(data: matchUserData),
-                                  color: ReuseableColors.primaryColor,
-                                ),
+                              ],
+                            ),
+                            
+                            SizedBox(height: 5,),
+                    
+                            // Match user tags
+                            ClipRRect(
+                              borderRadius: BorderRadius.circular(20),
+                              child: Material(
+                                child: aboutMeAndTags(data: matchUserData, context),
                               ),
-                              // Match user userImage2
-                              Container(
+                            ),
+                            // Match user userImage2
+                            
+                            SizedBox(height: 5,),
+                    
+                            ClipRRect(
+                              borderRadius: BorderRadius.circular(20),
+                              child: SizedBox(
                                 height: 700,
-                                color: Color(0xFFD9D9D9),
                                 child: CachedNetworkImage(
                                   imageUrl: "https://firebasestorage.googleapis.com/v0/b/mujdating.appspot.com/o/UserImages%2F${matchUserData["uid"]}%2F${matchUserImages[1]}?alt=media&token",
                                   height: popupHeight,
@@ -597,15 +623,19 @@ Future popupMatchDetails(BuildContext context, Map value, String key, Map<String
                                   errorWidget: (context, url, error) => Icon(Icons.error),
                                 ),
                               ),
-                              //Match user location or stream details
-                              IntrinsicHeight(
-                                child: Material(
-                                  child: fromOrStreamDetails(buttonsNeeded: false, candidateDetails: matchUserData),
-                                  color: ReuseableColors.primaryColor,
-                                ),
+                            ),
+                            
+                            SizedBox(height: 5,),
+                            
+                            //Match user location or stream details
+                            ClipRRect(
+                              borderRadius: BorderRadius.circular(20),
+                              child: Material(
+                                child: fromOrStreamDetails(buttonsNeeded: false, candidateDetails: matchUserData),
+                                color: Theme.of(context).cardColor,
                               ),
-                            ],
-                          ),
+                            ),
+                          ],
                         ),
                       ),
                     ),
@@ -656,7 +686,7 @@ Future<Map> fetchData(String key) async {
 
 // This is where the matchUsers pfp is worked also active listener for new data
 
-Widget messageContent(messages, ScrollController scrollController){
+Widget messageContent(BuildContext context, messages, ScrollController scrollController){
   return Positioned.fill (
     child: SingleChildScrollView(
       controller: scrollController,
@@ -681,14 +711,14 @@ Widget messageContent(messages, ScrollController scrollController){
                         // Padding for message content in the box
                         padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 10),
                         decoration: BoxDecoration(
-                          color: const Color.fromARGB(255, 226, 226, 226),
+                          color: Theme.of(context).primaryColor,
                           borderRadius: BorderRadius.circular(20.0),
                         ),
                         child: ConstrainedBox(
                           constraints: BoxConstraints(maxWidth: 300, minWidth: 20), // Maximum, miniumum width 
                           child: Text(
                             message["text"],
-                            style: GoogleFonts.poppins(fontSize: 16, fontWeight: FontWeight.w400, color: Colors.black),
+                            style: GoogleFonts.poppins(fontSize: 16, fontWeight: FontWeight.w500),
                             textAlign: message["text"].length >= 10 ? TextAlign.left : TextAlign.center,
                           ),
                         ),
@@ -711,7 +741,7 @@ Widget messageContent(messages, ScrollController scrollController){
                           constraints: BoxConstraints(maxWidth: 300, minWidth: 20), // Maximum, miniumum width 
                           child: Text(
                             message["text"],
-                            style: GoogleFonts.poppins(fontSize: 16, fontWeight: FontWeight.w300),
+                            style: GoogleFonts.poppins(fontSize: 16, fontWeight: FontWeight.w500, color: Colors.white),
                             textAlign: message["text"].length >= 10 ? TextAlign.left : TextAlign.center,
                           ),
                         ),

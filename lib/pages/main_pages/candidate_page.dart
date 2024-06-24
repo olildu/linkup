@@ -1,5 +1,4 @@
 import 'dart:convert';
-
 import 'package:linkup/colors/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_card_swiper/flutter_card_swiper.dart';
@@ -88,15 +87,22 @@ class _CandidatePageState extends State<CandidatePage> {
   // This function will get all the users from UserValues.matchUserDetails images and store it in the UserValues.userImageURLs
   Future<void> getUserImages() async {
     for (int c = 0; c < UserValues.matchUserDetails.length; c++ ){
-      List<dynamic> dataList = UserValues.matchUserDetails[c]["ImageDetails"];
+      var dataList = UserValues.matchUserDetails[c]["ImageDetails"];
       List filteredList = dataList.where((element) => element != null).toList();
       List counterUserImages = [];
+      List counterUserImageHash = [];
 
-      for (var imageString in filteredList) {
-        var imageUrl = await FirebaseCalls.getCandidateImages(UserValues.matchUserDetails[c]["UserDetails"]["uid"], imageString);
+      for (var imageData in dataList) {
+        String imageName = imageData["imageName"];
+        String imageHash = imageData["imageHash"];
+
+        var imageUrl = await FirebaseCalls.getCandidateImages(UserValues.matchUserDetails[c]["UserDetails"]["uid"], imageName);
+
         counterUserImages.add(imageUrl);
+        counterUserImageHash.add(imageHash);
       }
-      UserValues.userImageURLs.add(counterUserImages);
+      UserValues.candidateImageURLs.add(counterUserImages);
+      UserValues.candidateImageHashs.add(counterUserImageHash);
     }
   }
 
@@ -267,7 +273,7 @@ class _CandidatePageState extends State<CandidatePage> {
                     return true;
                   },
                   cardBuilder: (context, index, x, y) {
-                      return CandidateDetailsContainer(scrollController: _scrollController, candidateDetails: UserValues.matchUserDetails[index], userImageList: UserValues.userImageURLs[index]);
+                      return CandidateDetailsContainer(scrollController: _scrollController, candidateDetails: UserValues.matchUserDetails[index], userImageList: UserValues.candidateImageURLs[index], userImageHash: UserValues.candidateImageHashs[index]);
                   },
                 ),
               ),

@@ -51,7 +51,11 @@ dependencies:
   firebase_app_check: ^0.3.0+1
   dotted_border: ^2.1.0
   path_provider: ^2.1.2
+  glass: ^2.0.0+1
   confetti: ^0.7.0
+  octo_image: ^2.0.0
+  flutter_blurhash: ^0.8.2
+  blurhash_dart: ^1.2.1
   audioplayers: ^6.0.0
   internet_connection_checker: ^1.0.0+1
   get: ^4.6.6
@@ -67,6 +71,7 @@ dependencies:
   liquid_pull_to_refresh: ^3.0.1
   internet_connection_checker_plus: ^2.4.2
   crypto: ^3.0.3
+  shake_flutter: ^17.0.0
   
 dev_dependencies:
   flutter_test:

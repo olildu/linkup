@@ -1,5 +1,3 @@
-// ignore_for_file: prefer_const_constructors
-
 import 'package:linkup/api/api_calls.dart';
 import 'package:linkup/elements/profile_elements/elements.dart';
 import 'package:flutter/material.dart';
@@ -40,7 +38,7 @@ class GenderBuilder extends StatelessWidget {
     return GestureDetector(
       onTap: () => onTap(index),
       child: Container(
-        padding: EdgeInsets.all(20),
+        padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
           border: Border.all(color: isSelected ? Colors.blue : Colors.grey),
           borderRadius: BorderRadius.circular(10),
@@ -56,10 +54,10 @@ class GenderBuilder extends StatelessWidget {
             ),
             const Spacer(),
             isSelected
-                ? Icon(
+                ? const Icon(
                     Icons.radio_button_checked,
                   )
-                : Icon(
+                : const Icon(
                     Icons.radio_button_unchecked_rounded,
                   ),
           ],
@@ -71,6 +69,7 @@ class GenderBuilder extends StatelessWidget {
 
 class EditGenderState extends State<EditGender> {
   List<bool> isSelected = [false, false, false];
+  List<String> genderList = ["Female", "Male", "Others"];
 
   @override
   void initState() {
@@ -98,7 +97,16 @@ class EditGenderState extends State<EditGender> {
         isSelected[i] = i == index;
       }
     });
-    
+
+    Map userDataTags = {
+      "uid": UserValues.uid,
+      'type': 'uploadTagData',
+      'key': UserValues.cookieValue,
+      'keyToUpdate': "gender",
+      'value': genderList[index]
+    };
+
+    ApiCalls.uploadUserTagData(userDataTags);
   }
 
   @override
@@ -132,14 +140,14 @@ class EditGenderState extends State<EditGender> {
                     isSelected: isSelected[0],
                     onTap: tapThen,
                   ),
-                  SizedBox(height: 20),
+                  const SizedBox(height: 20),
                   GenderBuilder(
                     gender: "Male",
                     index: 1,
                     isSelected: isSelected[1],
                     onTap: tapThen,
                   ),
-                  SizedBox(height: 20),
+                  const SizedBox(height: 20),
                   GenderBuilder(
                     gender: "Others",
                     index: 2,
@@ -155,69 +163,3 @@ class EditGenderState extends State<EditGender> {
     );
   }
 }
-
-
-// class EditGender extends StatefulWidget {
-//   const EditGender({super.key});
-
-//   @override
-//   State<EditGender> createState() => _EditGenderState();
-// }
-
-// class _EditGenderState extends State<EditGender> {
-//   List <bool> _selections = List.generate(3, (_) => false);
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return AnnotatedRegion<SystemUiOverlayStyle>(
-//       value: SystemUiOverlayStyle(
-//         statusBarColor: Theme.of(context).colorScheme.surface,
-//         statusBarIconBrightness: UserValues.darkTheme ? Brightness.light : Brightness.dark,
-//         systemNavigationBarColor: Theme.of(context).colorScheme.surface,
-//       ),
-//       child: Scaffold(
-//         backgroundColor: Theme.of(context).colorScheme.surface,
-//         appBar: AppBar(
-//           title: Text("Edit Gender"),
-//           // title: Text(widget.title),
-//           centerTitle: true,
-//           leading: GestureDetector(
-//             onTap: () {
-//               Navigator.of(context).pop();
-//             },
-//             child: const Icon(Icons.arrow_back_ios_new_rounded),
-//           ),
-//           actions: <Widget>[
-//             IconButton(
-//               icon: const Icon(Icons.search),
-//               onPressed: () {
-//                 // showSearch(context: context, delegate: CustomSearchDelegate());
-//               },
-//             ),
-//           ],
-//         ),
-//         body: Center(
-//           child: ToggleButtons(
-//             direction: Axis.vertical,
-//             isSelected: _selections,
-//             onPressed: (int index){
-//               setState(() {
-//                 for (int i = 0; i < _selections.length; i++) {
-//                   _selections[i] = i == index;
-//                 }
-//               });
-//             },
-//             children:  [
-//               Container(
-//                 padding: EdgeInsets.all(8),
-//                 child: Text("Women", style: GoogleFonts.poppins(fontSize: 20),)
-//               ),
-//               Text("Men"),
-//               Text("Others"),
-//             ],
-//           ),
-//         ),
-//       ),
-//     );
-//   }
-// }

@@ -110,12 +110,11 @@ class ApiCalls {
       return response.body;
   }
 
-  static uploadUserData(data) async {
+  static Future<String> uploadUserData(data) async {
       String jsonData = jsonEncode(data);
       var headers = {
         'Content-Type': 'application/json',
       };
-
 
       var response = await http.post(
         Uri.parse('https://65b14d8f6e5d33340fe7.appwrite.global/'),
@@ -277,6 +276,22 @@ class ApiCalls {
     return response.body;
   }
 
+  static unmatchUser(data) async{
+    String jsonData = jsonEncode(data);
+
+    var headers = {
+      'Content-Type': 'application/json',
+    };
+
+    var response = await http.post(
+      Uri.parse('https://65d257a08d0655ad974f.appwrite.global/'),
+      headers: headers,
+      body: jsonData,
+    );
+    
+    return response.body;
+  }
+  
   static enableSnoozeMode() async{
     Map<String, dynamic> data = {
       "uid": UserValues.uid,
@@ -321,6 +336,22 @@ class ApiCalls {
     );
 
     UserValues.snoozeEnabled = false;
+
+    return response.body;
+  }
+
+  static mapValuesHashDatabase(data) async{
+    String jsonData = jsonEncode(data);
+
+    var headers = {
+      'Content-Type': 'application/json',
+    };
+
+    var response = await http.post(
+      Uri.parse('https://667736cc35253c253c07.appwrite.global/'),
+      headers: headers,
+      body: jsonData,
+    );
 
     return response.body;
   }

@@ -1,9 +1,4 @@
-
-// ignore_for_file: non_constant_identifier_names, prefer_const_constructors
-
 import 'dart:io';
-import 'dart:isolate';
-import 'package:linkup/ImageHashing/encode.dart';
 import 'package:linkup/api/api_calls.dart';
 import 'package:linkup/api/common_functions.dart';
 import 'package:linkup/elements/profile_elements/elements.dart';
@@ -503,9 +498,8 @@ class _YearStreamContainerNewState extends State<YearStreamContainerNew> {
                       );
                     }).toList(),
                     onSelectedItemChanged: (value) {
-      
                       _streamSelected = true;
-      
+                         
                       if (_yearSelected) {
                         widget.moveAction();
                       }
@@ -665,6 +659,11 @@ class _DateContainerNewState extends State<DateContainerNew> {
                       setState(() {
                         widget.moveAction();
                         dateTime = value;
+
+                        dateDay = value.day.toString();
+                        dateMonth = value.month.toString();
+                        dateYear = value.year.toString();
+                        
                         if (dateTime != null) {
                           DateTime currentDate = DateTime.now();
                           int age = currentDate.year - dateTime!.year;
@@ -676,10 +675,6 @@ class _DateContainerNewState extends State<DateContainerNew> {
                           userDataTags["age"] = age;
                           userDataTags["dob"] = "$dateDay-$dateMonth-$dateYear";
                         }
-
-                        dateDay = value.day.toString();
-                        dateMonth = value.month.toString();
-                        dateYear = value.year.toString();
                       });
                     },
                   ),
@@ -767,7 +762,8 @@ Widget NameContainer(bool isContainerEnabled, TextEditingController nameControll
   );
 }
 
-Widget NextButton(bool isContainerEnabled, TextEditingController nameController, int counter, VoidCallback startAnimation, {bool? uploadImageBool, VoidCallback? onCompletion}) {
+Widget NextButton(bool isContainerEnabled, TextEditingController nameController, int counter, VoidCallback moveCounter, {bool? uploadImageBool, VoidCallback? onCompletion}) {
+  print(userDataTags);
   return Align(
     alignment: Alignment.bottomRight,
     child: FloatingActionButton(
@@ -775,32 +771,30 @@ Widget NextButton(bool isContainerEnabled, TextEditingController nameController,
       onPressed: isContainerEnabled
           ? () async {
               userDataTags["name"] = nameController.text.trim();
-              startAnimation();
+              moveCounter(); // Call moveCounter function to go to the next counter by calling counter++;
               if (uploadImageBool != null && uploadImageBool) {
                 userDataTags["key"] = UserValues.cookieValue;
-                Map imageNames = {};
+
+                Map imageNames = {}; // {File : image+md5hash.jpg}
                 
                 // Naming images "image+md5hash.jpg"
                 await Future.wait(images.values.whereType<File>().map((value) async {
                   imageNames[value] = [await CommonFunction().returnmd5Hash(value)];
                 }));
 
-                // Running image upload and encoding concurrently
-                var results = await Future.wait([
-                  imageUploadHandler(imageNames),
-                  imageEncoderHandler(imageNames),
-                ]);
+                /* imageUploadHandler will handle image uploads by taking imageNames map which has value as File and keys as 
+                the image name which is image+md5hash.jpg and then parallelly run uploads of file for example if two images 
+                are picked then image1 and image2 will be both uploaded parallely to the server along with their blurHashing
+                */
+
+                imageUploadHandler(imageNames); 
+
+                // Upload userTag and Basic Data to the server using API call
+                ApiCalls.uploadUserData(userDataTags);
                 
-                // Extract the returned data from imageEncoderHandler
-                print(results);
-
-                // Make hashmapping in database for the images
-                await FirebaseCalls.updateImageValuesinDatabase(results[1] as Map);
-                await ApiCalls.uploadUserData(userDataTags);
-
-                print("Done uploading");
+                // Once upload is complete remove the animation and then proceed to the MainPage() 
+                onCompletion!();
               }
-              onCompletion!();
             }
           : null,
       shape: const CircleBorder(),
@@ -809,49 +803,31 @@ Widget NextButton(bool isContainerEnabled, TextEditingController nameController,
   );
 }
 
-Future<String> imageUploadHandler(Map imageNames) async {
+Future<void> imageUploadHandler(Map imageNames) async {
   List<Future<void>> uploadTasks = [];
   List imageNamesList = imageNames.values.toList();
   List fileNamesList = imageNames.keys.toList();
   
   for (int x = 0; x < imageNamesList.length; x++) {
-    uploadTasks.add(FirebaseCalls.uploadImage(fileNamesList[x], imageNamesList[x][0]));
+    uploadTasks.add(ImageUpload(x, imageNamesList[x], fileNamesList[x])); // Add tasks to the list to run these in parallel
   }
 
   await Future.wait(uploadTasks);
-  return "Image Uploaded";
 }
 
-Future<Map> imageEncoderHandler(Map imageNames) async {
-  ReceivePort receivePort = ReceivePort();
+Future<void> ImageUpload(int orderNumber, String imageName, filePath) async {
+  await FirebaseCalls.uploadImage(filePath, imageName); // First uploadImage
 
-  // Spawn the isolate and pass the SendPort to communicate back
-  await Isolate.spawn(imageProcessingFunction, [receivePort.sendPort, imageNames]);
+  Map data = {
+    "key": UserValues.cookieValue,
+    "uid": UserValues.uid,
+    "orderNumber": orderNumber,
+    "imageName": imageName,
+    "url": "https://firebasestorage.googleapis.com/v0/b/mujdating.appspot.com/o/UserImages%2F${UserValues.uid}%2F$imageName?alt=media&token"
+  };
 
-  // Wait for the processed data
-  var processedData = await receivePort.first as Map;
-
-  receivePort.close();
-
-  return processedData;
-}
-
-void imageProcessingFunction(List<dynamic> message) async {
-  SendPort sendPort = message[0];
-  Map imageNames = message[1];
-
-  // Simulate image processing with a dummy return value
-  
-  final Map processedData = await hasher().encode(imageNames);
-  
-  // Send the processed data back to the main isolate
-  sendPort.send(processedData);
-}
-
-Future <String> uploadUserData() async {
-  await ApiCalls.uploadUserData(userDataTags);
-  return "UserData Uploaded";
-}
+  await ApiCalls.mapValuesHashDatabase(data); // Then hash the blurHash and save to the database with hashMappings
+} 
 
 Map userDataTags = {
   "uid": FirebaseAuth.instance.currentUser?.uid,

@@ -159,7 +159,6 @@ class PhotosWidgetState extends State<PhotosWidget> {
     int counter = 0;
 
     for (dynamic imagePath in userImages) {
-      if (imagePath == null) continue;
       // Download URL time saved here by not needing to retrieve it everyTime
       String downloadURL = "https://firebasestorage.googleapis.com/v0/b/mujdating.appspot.com/o/UserImages%2F${UserValues.uid}%2F$imagePath?alt=media&token";
       setState(() {
@@ -514,10 +513,10 @@ Widget _buildListItem(BuildContext context, IconData icon, String label, String 
         );
       }
       if (title == "Gender") {
+        print(data);
         Navigator.push(
           context,
           MaterialPageRoute(builder: (context) => EditGender(title: title, type: type, data: data)),
-          // MaterialPageRoute(builder: (context) => EditGender()),
         );
       }
     },

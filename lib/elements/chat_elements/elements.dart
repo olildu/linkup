@@ -116,6 +116,7 @@ class _ChatDetailsState extends State<ChatDetails> {
   @override
   Widget build(BuildContext context) {
     // Call function to fetch chat user image
+    print(UserValues.chatUsers[widget.matchUID]);
     return GestureDetector(
       onTap: () {
         Navigator.push(
@@ -262,8 +263,8 @@ class _MatchedUserWidgetState extends State<MatchedUserWidget> {
             ),
             SizedBox(width: 10),
             Text(
-              // "Your matches will appear here",
-              "For now",
+              "Your matches will appear here",
+              // "For now",
               style: GoogleFonts.poppins(),
             ),
           ],
@@ -494,6 +495,7 @@ class _ChatDetailsChatPageState extends State<ChatDetailsChatPage> {
 Widget matchedUsers() {
   return Padding(
     padding: const EdgeInsets.only(left: 8.0, top: 10),
+    // child: MatchedUserWidget()
     child: MatchedUserWidget()
   );
 }
@@ -501,7 +503,7 @@ Widget matchedUsers() {
 Future popupMatchDetails(BuildContext context, Map value, String key, Map<String, dynamic> matchedUsersNew) {
   return showCupertinoModalPopup(
     context: context,
-    builder: (BuildContext context, ) {
+    builder: (BuildContext context) {
       // Calculate the height of the popup surface
       double popupHeight = MediaQuery.of(context).size.height * 0.8;
       return FutureBuilder(
@@ -515,10 +517,10 @@ Future popupMatchDetails(BuildContext context, Map value, String key, Map<String
             List matchUserImages = [];
             List matchUserImageHash = [];
             
-            for (var imageData in snapshot.data["ImageDetails"]){
+            for (var imageData in snapshot.data["ImageDetails"]) {
               String imageHash = imageData["imageHash"];
               String imageName = imageData["imageName"];
-
+      
               matchUserImageHash.add(imageHash);
               matchUserImages.add(imageName);
             }
@@ -549,51 +551,52 @@ Future popupMatchDetails(BuildContext context, Map value, String key, Map<String
                                     ),
                                     placeholderBuilder: OctoBlurHashFix.placeHolder(matchUserImageHash[0]),
                                     fit: BoxFit.cover,
+                                    height: popupHeight,
                                   )
                                 ),
                                 Positioned(
-                                bottom: 0,
-                                child: Padding(
-                                  padding: const EdgeInsets.symmetric(vertical: 15.0, horizontal: 10),
-                                  child: ClipRRect(
-                                    borderRadius: BorderRadius.circular(10),
-                                    child: Material(
-                                      child: Container(
-                                        width: MediaQuery.of(context).size.width - 35,
-                                        color: Theme.of(context).colorScheme.surface.withOpacity(0.8), // Adding some transparency
-                                        padding: const EdgeInsets.all(10.0), // Adding some padding
-                                        child: Column(
-                                          crossAxisAlignment: CrossAxisAlignment.start,
-                                          children: [
-                                            Text(
-                                              '${matchUserData["name"]}, ${matchUserData["age"]}',
-                                              style: GoogleFonts.poppins(
-                                                fontSize: 26,
-                                                fontWeight: FontWeight.bold,
-                                              ),
-                                            ),
-                                            const SizedBox(height: 5),
-                                            Row(
-                                              children: [
-                                                Icon(Icons.school_outlined, color: Theme.of(context).shadowColor,),
-                                                const SizedBox(width: 5),
-                                                Text(
-                                                  'Doing ${matchUserData["stream"]}',
-                                                  style: GoogleFonts.poppins(
-                                                    fontSize: 18,
-                                                    color: Theme.of(context).shadowColor,
-                                                    fontWeight: FontWeight.w500
-                                                  ),
+                                  bottom: 0,
+                                  child: Padding(
+                                    padding: const EdgeInsets.symmetric(vertical: 15.0, horizontal: 10),
+                                    child: ClipRRect(
+                                      borderRadius: BorderRadius.circular(10),
+                                      child: Material(
+                                        child: Container(
+                                          width: MediaQuery.of(context).size.width - 35,
+                                          color: Theme.of(context).colorScheme.surface.withOpacity(0.8), // Adding some transparency
+                                          padding: const EdgeInsets.all(10.0), // Adding some padding
+                                          child: Column(
+                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                            children: [
+                                              Text(
+                                                '${matchUserData["name"]}, ${matchUserData["age"]}',
+                                                style: GoogleFonts.poppins(
+                                                  fontSize: 26,
+                                                  fontWeight: FontWeight.bold,
                                                 ),
-                                              ],
-                                            ),
-                                          ],
-                                        ),
-                                      ).asGlass(),
+                                              ),
+                                              const SizedBox(height: 5),
+                                              Row(
+                                                children: [
+                                                  Icon(Icons.school_outlined, color: Theme.of(context).shadowColor,),
+                                                  const SizedBox(width: 5),
+                                                  Text(
+                                                    'Doing ${matchUserData["stream"]}',
+                                                    style: GoogleFonts.poppins(
+                                                      fontSize: 18,
+                                                      color: Theme.of(context).shadowColor,
+                                                      fontWeight: FontWeight.w500
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            ],
+                                          ),
+                                        ).asGlass(),
+                                      ),
                                     ),
                                   ),
                                 ),
-                              ),
                               ],
                             ),
                             
@@ -612,16 +615,13 @@ Future popupMatchDetails(BuildContext context, Map value, String key, Map<String
                     
                             ClipRRect(
                               borderRadius: BorderRadius.circular(20),
-                              child: SizedBox(
-                                height: 700,
-                                child: CachedNetworkImage(
-                                  imageUrl: "https://firebasestorage.googleapis.com/v0/b/mujdating.appspot.com/o/UserImages%2F${matchUserData["uid"]}%2F${matchUserImages[1]}?alt=media&token",
-                                  height: popupHeight,
-                                  fit: BoxFit.cover,
-                                  placeholder: (context, url) =>
-                                      Center(child: CircularProgressIndicator()),
-                                  errorWidget: (context, url, error) => Icon(Icons.error),
-                                ),
+                              child: CachedNetworkImage(
+                                imageUrl: "https://firebasestorage.googleapis.com/v0/b/mujdating.appspot.com/o/UserImages%2F${matchUserData["uid"]}%2F${matchUserImages[1]}?alt=media&token",
+                                height: popupHeight,
+                                fit: BoxFit.cover,
+                                placeholder: (context, url) =>
+                                    Center(child: CircularProgressIndicator()),
+                                errorWidget: (context, url, error) => Icon(Icons.error),
                               ),
                             ),
                             
@@ -668,7 +668,6 @@ Future popupMatchDetails(BuildContext context, Map value, String key, Map<String
       );
     },
   );
-
 }
 
 // Function to fetch data for popUp Banner
@@ -764,21 +763,23 @@ Widget actionWidget(String matchUID){
       itemBuilder: (_) => <PopupMenuEntry>[
         PopupMenuItem(
           value: 'option1',
-          child: Text('Unmatch'),
+          child: Text('Unmatch', style: GoogleFonts.poppins()),
         ),
         PopupMenuItem(
           value: 'option2',
-          child: Text('Block and report'),
+          child: Text('Block and report', style: GoogleFonts.poppins()),
         ),
       ],
       onSelected: (value) {
         switch (value) {
           case 'option1':
             Map unMatchUser = {
+              "uid" : UserValues.uid,
               "type": "UnmatchUser",
               "key" : UserValues.cookieValue,
               "matchUserID": matchUID
             };
+            ApiCalls.unmatchUser(unMatchUser);
             break;
           case 'option2':
             break;

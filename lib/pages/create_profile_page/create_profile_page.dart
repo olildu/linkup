@@ -1,4 +1,3 @@
-// ignore_for_file: camel_case_types, library_private_types_in_public_api, use_super_parameters
 import 'package:flutter/services.dart';
 import 'package:linkup/api/api_calls.dart';
 import 'package:linkup/elements/create_profile_elements/elements.dart';
@@ -8,14 +7,14 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:shake_flutter/shake_flutter.dart';
 
-class createUserProfile extends StatefulWidget {
-  const createUserProfile({Key? key}) : super(key: key);
+class CreateUserProfile extends StatefulWidget {
+  const CreateUserProfile({Key? key}) : super(key: key);
 
   @override
-  _createUserProfileState createState() => _createUserProfileState();
+  _CreateUserProfileState createState() => _CreateUserProfileState();
 }
 
-class _createUserProfileState extends State<createUserProfile> with SingleTickerProviderStateMixin {
+class _CreateUserProfileState extends State<CreateUserProfile> with SingleTickerProviderStateMixin {
   final TextEditingController _nameController = TextEditingController();
   late AnimationController _controller;
   bool _isContainerEnabled = false;
@@ -24,7 +23,7 @@ class _createUserProfileState extends State<createUserProfile> with SingleTicker
   @override
   void initState() {
     super.initState();
-    ApiCalls.fetchCookieDoggie(true);
+    ApiCalls.fetchCookieDoggie(true); 
     _controller = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 100),
@@ -39,7 +38,7 @@ class _createUserProfileState extends State<createUserProfile> with SingleTicker
     super.dispose();
   }
 
-  void startAnimation() {
+  void moveCounter() {
     setState(() {
       _isContainerEnabled = false;
       counter++;
@@ -114,7 +113,7 @@ class _createUserProfileState extends State<createUserProfile> with SingleTicker
                           child: NameContainer(_isContainerEnabled, _nameController),
                         ).slideX(end: -0.2,).fadeOut(duration: const Duration(milliseconds: 200)),
                         const Spacer(),
-                        NextButton(_isContainerEnabled, _nameController, counter, startAnimation),
+                        NextButton(_isContainerEnabled, _nameController, counter, moveCounter),
                       ],
                     ),
                   ),
@@ -127,7 +126,7 @@ class _createUserProfileState extends State<createUserProfile> with SingleTicker
                           child: DateContainerNew(moveAction: valueCheck),
                         ).fadeIn(duration: const Duration(milliseconds: 200)).slideX(begin: 0.2, end: 0.0, duration: const Duration(milliseconds: 200), curve: Curves.easeIn),
                         const Spacer(),
-                        NextButton(_isContainerEnabled, _nameController, counter, startAnimation)
+                        NextButton(_isContainerEnabled, _nameController, counter, moveCounter)
                       ],
                     ),
                   ),
@@ -150,7 +149,7 @@ class _createUserProfileState extends State<createUserProfile> with SingleTicker
                           child: YearStreamContainerNew(moveAction: valueCheck),
                         ).fadeIn(duration: const Duration(milliseconds: 100)).slideX(begin: 0.2, end: 0.0, duration: const Duration(milliseconds: 100), curve: Curves.easeIn),
                         const Spacer(),
-                        NextButton(_isContainerEnabled, _nameController, counter, startAnimation)
+                        NextButton(_isContainerEnabled, _nameController, counter, moveCounter)
                       ],
                     ),
                   ),
@@ -172,7 +171,7 @@ class _createUserProfileState extends State<createUserProfile> with SingleTicker
                     child: HeightContainer(moveAction: valueCheck,),
                         ).fadeIn(duration: const Duration(milliseconds: 100)).slideX(begin: 0.2, end: 0.0, duration: const Duration(milliseconds: 100), curve: Curves.easeIn),
                           const Spacer(),
-                          NextButton(_isContainerEnabled, _nameController, counter, startAnimation)
+                          NextButton(_isContainerEnabled, _nameController, counter, moveCounter)
                       ],
                     ),
                   ),
@@ -187,7 +186,7 @@ class _createUserProfileState extends State<createUserProfile> with SingleTicker
                   ).slideX(end: -0.2).fadeOut(duration: const Duration(milliseconds: 100)),
                 if (counter == 8)
                   Animate(
-                    child: GenderContainer(onOptionSelected: startAnimation),
+                    child: GenderContainer(onOptionSelected: moveCounter),
                   ).fadeIn(duration: const Duration(milliseconds: 100)).slideX(begin: 0.2, end: 0.0, duration: const Duration(milliseconds: 100), curve: Curves.easeIn),
                 if (counter == 9)
                   Animate(
@@ -196,13 +195,13 @@ class _createUserProfileState extends State<createUserProfile> with SingleTicker
                         counter = 10; 
                       });
                     },
-                    child: GenderContainer(onOptionSelected: startAnimation),
+                    child: GenderContainer(onOptionSelected: moveCounter),
                   ).slideX(end: -0.2).fadeOut(duration: const Duration(milliseconds: 100)),
       
       
                 if (counter == 10)
                   Animate(
-                    child: DrinkingContainer(onOptionSelected: startAnimation),
+                    child: DrinkingContainer(onOptionSelected: moveCounter),
                   ).fadeIn(duration: const Duration(milliseconds: 100)).slideX(begin: 0.2, end: 0.0, duration: const Duration(milliseconds: 100), curve: Curves.easeIn),
                 if (counter == 11)
                   Animate(
@@ -211,13 +210,13 @@ class _createUserProfileState extends State<createUserProfile> with SingleTicker
                         counter = 12; 
                       });
                     },
-                    child: DrinkingContainer(onOptionSelected: startAnimation),
+                    child: DrinkingContainer(onOptionSelected: moveCounter),
                   ).slideX(end: -0.2).fadeOut(duration: const Duration(milliseconds: 100)),
       
                 
                 if (counter == 12)
                   Animate(
-                    child: SmokingContainer(onOptionSelected: startAnimation),
+                    child: SmokingContainer(onOptionSelected: moveCounter),
                   ).fadeIn(duration: const Duration(milliseconds: 100)).slideX(begin: 0.2, end: 0.0, duration: const Duration(milliseconds: 100), curve: Curves.easeIn),
                 if (counter == 13)
                   Animate(
@@ -226,12 +225,12 @@ class _createUserProfileState extends State<createUserProfile> with SingleTicker
                         counter = 14; 
                       });
                     },
-                    child: SmokingContainer(onOptionSelected: startAnimation),
+                    child: SmokingContainer(onOptionSelected: moveCounter),
                   ).slideX(end: -0.2).fadeOut(duration: const Duration(milliseconds: 100)),
       
                 if (counter == 14)
                   Animate(
-                    child: LookingForContainer(onOptionSelected: startAnimation),
+                    child: LookingForContainer(onOptionSelected: moveCounter),
                   ).fadeIn(duration: const Duration(milliseconds: 100)).slideX(begin: 0.2, end: 0.0, duration: const Duration(milliseconds: 100), curve: Curves.easeIn),
                 if (counter == 15)
                   Animate(
@@ -240,11 +239,11 @@ class _createUserProfileState extends State<createUserProfile> with SingleTicker
                         counter = 16; 
                       });
                     },
-                    child: LookingForContainer(onOptionSelected: startAnimation),
+                    child: LookingForContainer(onOptionSelected: moveCounter),
                   ).slideX(end: -0.2).fadeOut(duration: const Duration(milliseconds: 100)),
                 if (counter == 16)
                   Animate(
-                    child: ReligionContainer(onOptionSelected: startAnimation),
+                    child: ReligionContainer(onOptionSelected: moveCounter),
                   ).fadeIn(duration: const Duration(milliseconds: 100)).slideX(begin: 0.2, end: 0.0, duration: const Duration(milliseconds: 100), curve: Curves.easeIn),
                 if (counter == 17)
                   Animate(
@@ -253,7 +252,7 @@ class _createUserProfileState extends State<createUserProfile> with SingleTicker
                         counter = 18; 
                       });
                     },
-                    child: ReligionContainer(onOptionSelected: startAnimation),
+                    child: ReligionContainer(onOptionSelected: moveCounter),
                   ).slideX(end: -0.2).fadeOut(duration: const Duration(milliseconds: 100)),
                 if (counter == 18)
                   Animate(
@@ -262,7 +261,7 @@ class _createUserProfileState extends State<createUserProfile> with SingleTicker
                       children: [
                         PhotoContainer(moveAction: valueCheck, valueReject: valueReject),
                         const Spacer(),
-                        NextButton(_isContainerEnabled, _nameController, counter, startAnimation, uploadImageBool: true, onCompletion: _onCompletion),
+                        NextButton(_isContainerEnabled, _nameController, counter, moveCounter, uploadImageBool: true, onCompletion: _onCompletion),
                       ],
                     ),
                   ),
@@ -308,17 +307,13 @@ class _ProgressBarsState extends State<ProgressBars> {
     // Calculate width of each container dynamically
     double containerWidth = MediaQuery.of(context).size.width / 7;
     
-    if (prevCounter == widget.progressCount){
-      print("Prev Shit");
-    }
-    else{
-      prevCounter = widget.progressCount;
+  if (prevCounter != widget.progressCount) {
+    prevCounter = widget.progressCount;
 
-      int indexToAdd = indexTracker.length * 2;
-      indexTracker.add(indexToAdd);
-      print(indexTracker);
-    }
-    
+    int indexToAdd = indexTracker.length * 2;
+    indexTracker.add(indexToAdd);
+  }
+      
 
     return ClipRRect(
       borderRadius: BorderRadius.circular(20),

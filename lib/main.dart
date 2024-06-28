@@ -20,7 +20,7 @@ void main() async{
   WidgetsFlutterBinding.ensureInitialized();
 
   // Initialize shakeToReport
-  Shake.start('dotenv.env["SHAKE_API_KEY"]'); // API key loaded from here
+  Shake.start(dotenv.env["SHAKE_API_KEY"]!); // API key loaded from here
   Shake.setShakingThreshold(200);
 
   // Initialize firebase options

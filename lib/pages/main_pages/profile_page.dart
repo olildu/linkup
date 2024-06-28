@@ -1,5 +1,3 @@
-// ignore_for_file: use_super_parameters, prefer_const_constructors, prefer_const_literals_to_create_immutables
-
 import 'package:firebase_database/firebase_database.dart';
 import 'package:linkup/colors/colors.dart';
 import 'package:linkup/api/api_calls.dart';
@@ -8,7 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:liquid_pull_to_refresh/liquid_pull_to_refresh.dart';
 
 class ProfilePage extends StatefulWidget {
-  const ProfilePage({Key? key}) : super(key: key);
+  const ProfilePage({super.key});
   @override
   State<ProfilePage> createState() => _ProfilePageState();
 
@@ -34,25 +32,14 @@ class _ProfilePageState extends State<ProfilePage> {
     final userDetailsref = FirebaseDatabase.instance.ref().child("/UsersMetaData/${UserValues.uid}/UserDetails");
 
     userDetailsref.onValue.listen((event) {
-      userData = event.snapshot.value;
-      UserValues.userData = userData;
-
       setState(() {
-        isDataLoaded = true;
+        UserValues.userData = event.snapshot.value as Map<dynamic, dynamic>;
       });
-    },);
+    });
   }
   
   @override
   Widget build(BuildContext context) {
-    if (!isDataLoaded) {
-      return Scaffold(
-        backgroundColor: Theme.of(context).colorScheme.surface,
-        body: Center(
-          child: CircularProgressIndicator(),
-        ),
-      );
-    }
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surface,
       body: 
@@ -62,7 +49,7 @@ class _ProfilePageState extends State<ProfilePage> {
         showChildOpacityTransition: false,
         child: SingleChildScrollView(
           child: Container(
-            padding: EdgeInsets.symmetric(horizontal: 20, vertical: 40),
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 40),
             child: Align(
               alignment: Alignment.topLeft,
               child: Column(
@@ -71,20 +58,16 @@ class _ProfilePageState extends State<ProfilePage> {
                   // Photos Title
                   titleAndSubtitle("Your Photos", "Add photos that show your true self", subTitleColor: Theme.of(context).colorScheme.secondaryContainer),
                   
-                  SizedBox(height: 30), 
-        
+                  const SizedBox(height: 30), 
                   // Photos
-                  PhotosWidget(),
+                  const PhotosWidget(),
         
-                  SizedBox(height: 40), 
-        
+                  const SizedBox(height: 40), 
                   // About Me Title
                   titleAndSubtitle("About Me", "Write something that catches the eye", subTitleColor: Theme.of(context).colorScheme.secondaryContainer),
         
-                  SizedBox(height: 30), 
-        
+                  const SizedBox(height: 30), 
                   // About Me Container
-        
                   aboutMeContainer(
                     initialValue: UserValues.userData["aboutMe"] ?? "",
                     onPressed: () {
@@ -102,7 +85,7 @@ class _ProfilePageState extends State<ProfilePage> {
                   if (aboutMeClicked)
                   Column(
                     children: [
-                      SizedBox(height: 20,),
+                      const SizedBox(height: 20,),
                       Align(
                       alignment: Alignment.centerRight,
                       child: FloatingActionButton(onPressed: (){
@@ -116,30 +99,30 @@ class _ProfilePageState extends State<ProfilePage> {
                           'keyToUpdate': "aboutMe",
                           'value': controller.text
                         };
-                        ApiCalls.uploadUserTagData(userDataTags);
+                        ApiCalls.storeUserMetaData(userDataTags);
                       },
                       backgroundColor: ReuseableColors.accentColor,
                       shape: const CircleBorder(),
-                      child: ClipOval(child: Icon(Icons.done_rounded, color: Colors.white,)),),),
+                      child: const ClipOval(child: Icon(Icons.done_rounded, color: Colors.white,)),),),
                     ],
                   ),
         
-                  SizedBox(height: 20), 
+                  const SizedBox(height: 20), 
         
                   // More About Me Title
                   titleAndSubtitle("More about me", "Things most people are curious about", subTitleColor: Theme.of(context).colorScheme.secondaryContainer),
         
-                  SizedBox(height: 30), 
+                  const SizedBox(height: 30), 
         
                   // More About Me Children
                   moreAboutMeChildren(context, UserValues.userData),
         
-                  SizedBox(height: 40), 
+                  const SizedBox(height: 40), 
         
                   // My Basics Title
                   titleAndSubtitle("My basics", "Get your basics right", subTitleColor: Theme.of(context).colorScheme.secondaryContainer),
         
-                  SizedBox(height: 30), 
+                  const SizedBox(height: 30), 
         
                   //My Basics Chilren
         
@@ -151,8 +134,6 @@ class _ProfilePageState extends State<ProfilePage> {
           ),
         ),
       ),
-
-
     );
   }
 }

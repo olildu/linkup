@@ -26,7 +26,7 @@ Widget buildProfileImage(BuildContext context, Map candidateDetails, String imag
               width: double.infinity,
               child: OctoImage(
                 image: CachedNetworkImageProvider(imageUrl),
-                placeholderBuilder: OctoBlurHashFix.placeHolder(imageHash),
+                placeholderBuilder: OctoBlurHashFix.placeHolder(imageHash, 100),
                 fit: BoxFit.cover,
               )
             ),
@@ -120,7 +120,7 @@ Widget nextImages(BuildContext context, Map candidateDetails, double imageHeight
             width: double.infinity,
             child: OctoImage(
                 image: CachedNetworkImageProvider(imageName),
-                placeholderBuilder: OctoBlurHashFix.placeHolder(imageHash),
+                placeholderBuilder: OctoBlurHashFix.placeHolder(imageHash, 100),
                 fit: BoxFit.cover,
               )
           ),

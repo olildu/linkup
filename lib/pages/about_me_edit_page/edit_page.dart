@@ -138,7 +138,7 @@ class EditAboutMeState extends State<EditAboutMe> with SingleTickerProviderState
         ? FloatingActionButton(
             onPressed: () {
               _startAnimation();
-              ApiCalls.uploadUserTagData(userDataTags);
+              ApiCalls.storeUserMetaData(userDataTags);
               // Call your second function here
               // Example: secondFunction();
             },

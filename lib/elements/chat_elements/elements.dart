@@ -116,14 +116,13 @@ class _ChatDetailsState extends State<ChatDetails> {
   @override
   Widget build(BuildContext context) {
     // Call function to fetch chat user image
-    print(UserValues.chatUsers[widget.matchUID]);
     return GestureDetector(
       onTap: () {
         Navigator.push(
           context,
           MaterialPageRoute(
             builder: (context) => ChatDetailsPage(
-              appBarTitle: widget.name,
+              matchName: widget.name,
               imageUrl: "https://firebasestorage.googleapis.com/v0/b/mujdating.appspot.com/o/UserImages%2F${widget.matchUID}%2F${UserValues.chatUsers[widget.matchUID]["imageLink"]}?alt=media&token",
               path: widget.path,
               matchUID: widget.matchUID,
@@ -220,9 +219,9 @@ class _MatchedUserWidgetState extends State<MatchedUserWidget> {
       if (localMatchUserData[event.snapshot.key.toString()] == null){ // If matchUser is new then create new map and start
         localMatchUserData[event.snapshot.key.toString()] = {};
       }
-      print(data);
       localMatchUserData[event.snapshot.key.toString()]["uniquePath"] = data["uniquePath"]; 
       localMatchUserData[event.snapshot.key.toString()]["userName"] = data["matchName"];  
+      localMatchUserData[event.snapshot.key.toString()]["imageHash"] = data["imageHash"];  
       localMatchUserData[event.snapshot.key.toString()]["userImage1"] = "https://firebasestorage.googleapis.com/v0/b/mujdating.appspot.com/o/UserImages%2F${event.snapshot.key.toString()}%2F${data["imageName"]}?alt=media&token" ; 
 
       // UserValues.chatUserImages[event.snapshot.key.toString()] = localMatchUserData[event.snapshot.key.toString()]["imageLink"];
@@ -274,6 +273,7 @@ class _MatchedUserWidgetState extends State<MatchedUserWidget> {
 
     localMatchUserData.forEach((key, value) {
       String userImage = value["userImage1"]; // UserImages
+      String imageHash = value["imageHash"];
       userImages.add(
         GestureDetector(
           onTap: () {
@@ -281,25 +281,26 @@ class _MatchedUserWidgetState extends State<MatchedUserWidget> {
           },
           child: Padding(
             padding: EdgeInsets.symmetric(horizontal: 5),
-            child: Container(
-              width: 80,
-              height: 80,
-              decoration: BoxDecoration(
-                border: Border.all(
-                  color: Theme.of(context).colorScheme.primary,
-                  width: 4,
-                ),
-                shape: BoxShape.circle,
-              ),
-              child: ClipOval(
-                child: CachedNetworkImage(
-                  imageUrl: userImage,
+            child: Column(
+              children: [
+                Container(
                   width: 90,
-                  height: 90,
-                  fit: BoxFit.cover,
-                  placeholder: (context, url) => CircularProgressIndicator(),
+                  height: 130,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.rectangle,
+                  ),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(5),
+                    child: OctoImage(
+                      image: CachedNetworkImageProvider(userImage),
+                      placeholderBuilder: OctoBlurHashFix.placeHolder(imageHash, 80),
+                      fit: BoxFit.cover,
+                    )
+                  ),
                 ),
-              ),
+                SizedBox(height: 10,),
+                Text(value["userName"], style: GoogleFonts.poppins(fontWeight: FontWeight.w500),)
+              ],
             ),
           ),
         ),
@@ -307,7 +308,7 @@ class _MatchedUserWidgetState extends State<MatchedUserWidget> {
     });
 
     return SizedBox(
-      height: 90,
+      height: 160,
       child: SingleChildScrollView(
         scrollDirection: Axis.horizontal,
         child: Row(
@@ -549,7 +550,7 @@ Future popupMatchDetails(BuildContext context, Map value, String key, Map<String
                                     image: CachedNetworkImageProvider(
                                       "https://firebasestorage.googleapis.com/v0/b/mujdating.appspot.com/o/UserImages%2F${matchUserData["uid"]}%2F${matchUserImages[0]}?alt=media&token"
                                     ),
-                                    placeholderBuilder: OctoBlurHashFix.placeHolder(matchUserImageHash[0]),
+                                    placeholderBuilder: OctoBlurHashFix.placeHolder(matchUserImageHash[0], 80),
                                     fit: BoxFit.cover,
                                     height: popupHeight,
                                   )
@@ -647,7 +648,7 @@ Future popupMatchDetails(BuildContext context, Map value, String key, Map<String
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => ChatDetailsPage(appBarTitle: matchUserData["name"], imageUrl: value["userImage1"], path: matchedUsersNew[key]["uniquePath"], matchUID: matchUserData["uid"], notChatPage: false,),
+                          builder: (context) => ChatDetailsPage(matchName: matchUserData["name"], imageUrl: value["userImage1"], path: matchedUsersNew[key]["uniquePath"], matchUID: matchUserData["uid"], notChatPage: false,),
                         ),
                       );
                     },
@@ -756,7 +757,7 @@ Widget messageContent(BuildContext context, messages, ScrollController scrollCon
   );
 }
 
-Widget actionWidget(String matchUID){
+Widget actionWidget(String matchUID, BuildContext context, String matchName){
   return ClipRRect(
     borderRadius: BorderRadius.circular(20), // Adjust the border radius as needed
     child: PopupMenuButton(
@@ -773,18 +774,127 @@ Widget actionWidget(String matchUID){
       onSelected: (value) {
         switch (value) {
           case 'option1':
-            Map unMatchUser = {
-              "uid" : UserValues.uid,
-              "type": "UnmatchUser",
-              "key" : UserValues.cookieValue,
-              "matchUserID": matchUID
-            };
-            ApiCalls.unmatchUser(unMatchUser);
+            unMatchConfirmationPopUp(context, matchName, matchUID);
             break;
           case 'option2':
             break;
         }
       },
+    ),
+  );
+}
+
+Future<void> unMatchConfirmationPopUp(BuildContext context, String matchName, String matchUID) {
+  adaptiveFunction(int choice) {
+    switch (choice){
+      case 0:
+        Map unMatchUser = {
+          "uid" : UserValues.uid,
+          "type": "UnmatchUser",
+          "key" : UserValues.cookieValue,
+          "matchUserID": matchUID
+        };
+
+        ApiCalls.matchMakingAlgorithm(unMatchUser);
+
+        Navigator.pop(context);
+        Navigator.pop(context);
+        break;
+      case 1:
+        Navigator.pop(context);
+        break;
+    }
+  }
+  return showCupertinoModalPopup(
+    context: context,
+    builder: (BuildContext context) => Material(
+      child: SizedBox(
+        height: 180,
+        child: Padding(
+          padding: EdgeInsets.all(10),
+          child: Container(
+            width: MediaQuery.of(context).size.width,
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.primary,
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(14.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Text(
+                    "Do you want to unmatch with $matchName",
+                    style: GoogleFonts.poppins(
+                      fontSize: 20,
+                      fontWeight: FontWeight.normal,
+                      decoration: TextDecoration.none,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                  SizedBox(height: 20),
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      // Yes container, when clicked enables snooze mode depending on whether snooze is on or off
+                      GestureDetector(
+                        onTap: () {
+                          if (UserValues.snoozeEnabled) {
+                            ApiCalls.enableSnoozeMode();
+                          } else {
+                            ApiCalls.disableSnoozeMode();
+                          }
+                          Navigator.pop(context);
+                        },
+                        child: GestureDetector(
+                          onTap: () {
+                            adaptiveFunction(0);
+                          },
+                          child: Container(
+                            width: 100,
+                            padding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+                            decoration: BoxDecoration(
+                              color: Colors.grey,
+                              borderRadius: BorderRadius.circular(30),
+                            ),
+                            child: Center(
+                              child: Text("Yes", style: GoogleFonts.poppins(fontSize: 20),),
+                            ),
+                          ),
+                        ),
+                      ),
+                      SizedBox(width: 20),
+                      // No container, when clicked just closes the popup
+                      GestureDetector(
+                        onTap: () {
+                          Navigator.pop(context);
+                        },
+                        child: GestureDetector(
+                          onTap: () {
+                            adaptiveFunction(1);
+                          },
+                          child: Container(
+                            width: 100,
+                            padding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+                            decoration: BoxDecoration(
+                              color: ReuseableColors.accentColor,
+                              borderRadius: BorderRadius.circular(30),
+                            ),
+                            child: Center(
+                              child: Text("No", style: GoogleFonts.poppins(fontSize: 20),),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
     ),
   );
 }

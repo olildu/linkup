@@ -76,7 +76,6 @@ class _CreateUserProfileState extends State<CreateUserProfile> with SingleTicker
     );  
   }
 
-
   @override
   Widget build(BuildContext context) {
     return AnnotatedRegion<SystemUiOverlayStyle>(
@@ -100,7 +99,6 @@ class _CreateUserProfileState extends State<CreateUserProfile> with SingleTicker
                   ]
                   else...[
                     ProgressBars(progressCount: counter-1,),
-
                   ],
 
                 const SizedBox(height: 40,),

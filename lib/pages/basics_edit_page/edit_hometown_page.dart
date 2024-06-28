@@ -1,3 +1,4 @@
+import 'package:flutter/services.dart';
 import 'package:linkup/api/api_calls.dart';
 import 'package:linkup/elements/profile_elements/elements.dart';
 import 'package:flutter/material.dart';
@@ -23,42 +24,47 @@ class EditHometownState extends State<EditHometown> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.title),
-        centerTitle: true,
-        leading: GestureDetector(
-          onTap: () {
-            Navigator.of(context).pop();
-          },
-          child: const Icon(Icons.arrow_back_ios_new_rounded),
-        ),
-        actions: <Widget>[
-          IconButton(
-            icon: const Icon(Icons.search),
-            onPressed: () {
-              showSearch(context: context, delegate: CustomSearchDelegate());
-            },
-          ),
-        ],
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      value: SystemUiOverlayStyle(
+        systemNavigationBarColor: Theme.of(context).colorScheme.surface
       ),
-      backgroundColor: Theme.of(context).colorScheme.surface,
-      body: Container(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            titleAndSubtitle("Choose your ${widget.title.toLowerCase()}", "Select your ${widget.title.toLowerCase()}"),
-            const SizedBox(height: 30,),
-            GestureDetector(
-              onTap: () {
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text(widget.title),
+          centerTitle: true,
+          leading: GestureDetector(
+            onTap: () {
+              Navigator.of(context).pop();
+            },
+            child: const Icon(Icons.arrow_back_ios_new_rounded),
+          ),
+          actions: <Widget>[
+            IconButton(
+              icon: const Icon(Icons.search),
+              onPressed: () {
                 showSearch(context: context, delegate: CustomSearchDelegate());
               },
-              child: childrenBuilder1(widget.type, widget.title, widget.data)
             ),
-            const SizedBox(height: 30,),
-
           ],
+        ),
+        backgroundColor: Theme.of(context).colorScheme.surface,
+        body: Container(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              titleAndSubtitle("Choose your ${widget.title.toLowerCase()}", "Select your ${widget.title.toLowerCase()}"),
+              const SizedBox(height: 30,),
+              GestureDetector(
+                onTap: () {
+                  showSearch(context: context, delegate: CustomSearchDelegate());
+                },
+                child: childrenBuilder1(widget.type, widget.title, widget.data)
+              ),
+              const SizedBox(height: 30,),
+      
+            ],
+          ),
         ),
       ),
     );
@@ -1356,7 +1362,7 @@ class CustomSearchDelegate extends SearchDelegate<String> {
                 'value': suggestion
               };
       
-              ApiCalls.uploadUserTagData(userDataTags);
+              ApiCalls.storeUserMetaData(userDataTags);
       
               Navigator.pop(context);
             },

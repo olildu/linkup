@@ -51,77 +51,79 @@ class SettingsState extends State<Settings> {
               GestureDetector(
                 onTap: () {
                   showCupertinoModalPopup(context: context, builder: (BuildContext context) => 
-                    SizedBox(
-                      height: 200,
-                      child: Padding(
-                        padding: EdgeInsets.all(10),
-                        child: Container(
-                          width: MediaQuery.of(context).size.width,
-                          decoration: BoxDecoration(
-                            color: Theme.of(context).colorScheme.primary,
-                            borderRadius: BorderRadius.circular(20)
-                          ),
-                          child: Padding(
-                            padding: const EdgeInsets.all(14.0),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                Text(
-                                  UserValues.snoozeEnabled ? "Turn off snooze mode and let your profile be seen?" : "Do you want to turn on snooze and become ghost?" ,
-                                  style: GoogleFonts.poppins(
-                                    fontSize: 20,
-                                    fontWeight: FontWeight.normal,
-                                    decoration: TextDecoration.none,
+                    Material(
+                      child: SizedBox(
+                        height: 200,
+                        child: Padding(
+                          padding: EdgeInsets.all(10),
+                          child: Container(
+                            width: MediaQuery.of(context).size.width,
+                            decoration: BoxDecoration(
+                              color: Theme.of(context).colorScheme.primary,
+                              borderRadius: BorderRadius.circular(20)
+                            ),
+                            child: Padding(
+                              padding: const EdgeInsets.all(14.0),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  Text(
+                                    UserValues.snoozeEnabled ? "Turn off snooze mode and let your profile be seen?" : "Do you want to turn on snooze? Doing this will hide your profile" ,
+                                    style: GoogleFonts.poppins(
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.normal,
+                                      decoration: TextDecoration.none,
+                                    ),
+                                    textAlign: TextAlign.center,
                                   ),
-                                  textAlign: TextAlign.center,
-                                ),
-                                SizedBox(height: 20,),
-                                Row(
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    // Yes container, when clicked enables snooze mode depending on wheter snooze is on or off
-                                    GestureDetector(
-                                      onTap: ()  {
-                                        setState(() {
-                                          UserValues.snoozeEnabled = !UserValues.snoozeEnabled; // Toggle the snoozeMode
-                                        });
-                                        if (UserValues.snoozeEnabled) {
-                                          ApiCalls.enableSnoozeMode();
-                                        } else {
-                                          ApiCalls.disableSnoozeMode();
-                                        }
-                                        Navigator.pop(context);
-                                      },
-                                      child: Container(
-                                        width: 100,
-                                        padding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
-                                        decoration: BoxDecoration(
-                                          color: Colors.grey,
-                                          borderRadius: BorderRadius.circular(30)
+                                  SizedBox(height: 20,),
+                                  Row(
+                                    crossAxisAlignment: CrossAxisAlignment.center,
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      // Yes container, when clicked enables snooze mode depending on wheter snooze is on or off
+                                      GestureDetector(
+                                        onTap: ()  {
+                                          setState(() {
+                                            UserValues.snoozeEnabled = !UserValues.snoozeEnabled; // Toggle the snoozeMode
+                                          });
+                                          if (UserValues.snoozeEnabled) {
+                                            ApiCalls.enableSnoozeMode();
+                                          } else {
+                                            ApiCalls.disableSnoozeMode();
+                                          }
+                                          Navigator.pop(context);
+                                        },
+                                        child: Container(
+                                          width: 100,
+                                          padding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+                                          decoration: BoxDecoration(
+                                            color: Colors.grey,
+                                            borderRadius: BorderRadius.circular(30)
+                                          ),
+                                          child: Center(child: Text("Yes", style: avoidMaterial,),),
                                         ),
-                                        child: Center(child: Text("Yes", style: avoidMaterial,),),
                                       ),
-                                    ),
-                                    SizedBox(width: 20,),
-                                    // No container, when clicked just closes the popup
-                                    GestureDetector(
-                                      onTap: () {
-                                        Navigator.pop(context);
-                                      },
-                                      child: Container(
-                                        width: 100,
-                                        padding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
-                                        decoration: BoxDecoration(
-                                          color: ReuseableColors.accentColor,
-                                          borderRadius: BorderRadius.circular(30)
+                                      SizedBox(width: 20,),
+                                      // No container, when clicked just closes the popup
+                                      GestureDetector(
+                                        onTap: () {
+                                          Navigator.pop(context);
+                                        },
+                                        child: Container(
+                                          width: 100,
+                                          padding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+                                          decoration: BoxDecoration(
+                                            color: ReuseableColors.accentColor,
+                                            borderRadius: BorderRadius.circular(30)
+                                          ),
+                                          child: Center(child: Text("No", style: avoidMaterial),),
                                         ),
-                                        child: Center(child: Text("No", style: avoidMaterial),),
                                       ),
-                                    ),
-                                  ],
-                                )
-                              ],
+                                    ],
+                                  )
+                                ],
+                              ),
                             ),
                           ),
                         ),

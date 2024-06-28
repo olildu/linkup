@@ -253,7 +253,7 @@ class _CandidatePageState extends State<CandidatePage> {
                         "matchName": UserValues.matchUserDetails[previousIndex]["UserDetails"]["name"],
                         "userName": UserValues.userData["name"]
                       };
-                      ApiCalls.swipeActionsMatch(data).then((response) {
+                      ApiCalls.matchMakingAlgorithm(data).then((response) {
                         dynamic decodedResponse = jsonDecode(response);
                         if (decodedResponse["identifier"] == 1){ // Identifier 1 means match found
                           Navigator.push(context, MaterialPageRoute(builder: (context) => MatchedBannerPage(matchUID: decodedResponse["uid"], imageName: decodedResponse["imageName"],)),);
@@ -268,7 +268,7 @@ class _CandidatePageState extends State<CandidatePage> {
                         "key": UserValues.cookieValue,
                         "matchUID": UserValues.matchUserDetails[previousIndex]["UserDetails"]["uid"]
                       };
-                      ApiCalls.swipeActionsMatch(data);
+                      ApiCalls.matchMakingAlgorithm(data);
                     }
                     return true;
                   },

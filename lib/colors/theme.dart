@@ -32,6 +32,7 @@ ThemeData darkMode = ThemeData(
   splashColor: Colors.white,
   highlightColor: Colors.grey.shade800,
   shadowColor: const Color.fromARGB(255, 167, 167, 167),
+  hintColor: Colors.white,
   cardColor: Colors.black,
   focusColor: Color.fromARGB(255, 45, 45, 45),
   primaryColor: Color(0xFF343434),
@@ -46,7 +47,7 @@ ThemeData darkMode = ThemeData(
   cardColor: For the aboutMe and Tags in candidatePage
   primaryColor: For chat bubble in chatDetailsPage
   secondaryHeaderColor: For scaffoldColor chatDetailsPage
-
+  hintColor: Opposite color with respect to the theme (Currently in use in spashScreen)
 
 
 

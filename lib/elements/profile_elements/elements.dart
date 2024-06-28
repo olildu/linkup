@@ -50,15 +50,22 @@ Widget titleAndSubtitle(String title, String subTitle, {Color? titleColor, Color
 }
 
 Widget _loadImage(dynamic imagePath, int index) {
-  // Load Image Using OctoImage and Use blurhash to transistion
-  return OctoImage(
-    image: CachedNetworkImageProvider(imagePath),
-    placeholderBuilder: OctoBlurHashFix.placeHolder(userImagesHash[index]),
-    fit: BoxFit.cover,
-  );
+  if (imagePath.runtimeType == String){
+    return OctoImage( // Load Image Using OctoImage and Use blurhash to transistion
+      image: CachedNetworkImageProvider(imagePath),
+      placeholderBuilder: OctoBlurHashFix.placeHolder(userImagesHash[index], 60),
+      fit: BoxFit.cover,
+    );
+  }
+  else{
+    return Image.file(
+      imagePath,
+      fit: BoxFit.cover,
+    );
+  }
 }
 
-Map<String, dynamic> images = {
+Map<dynamic, dynamic> images = {
   "image0": null,
   "image1": null,
   "image2": null,
@@ -77,7 +84,7 @@ class PhotosWidgetState extends State<PhotosWidget> {
   @override
   void initState() {
     super.initState();
-    fetchUserData();
+    fetchUserImage();
   }
 
   void deleteImagefromStorage(String filePath) async{
@@ -85,13 +92,16 @@ class PhotosWidgetState extends State<PhotosWidget> {
     storageReference.delete();
   }
 
-  void remapValuesDB() async{
+  void remapValuesDBAfterDeletion() async{
     var storageReference = FirebaseDatabase.instance.ref().child("/UsersMetaData/${UserValues.uid}/ImageDetails");
 
-    Map<String, String> dataToUpdate = {};
+    Map<String, dynamic> dataToUpdate = {};
 
     for(int x = 0; x < userImages.length; x++){
-      dataToUpdate[x.toString()] = userImages[x];
+      dataToUpdate[x.toString()] = {
+        "imageName" : userImages[x],
+        "imageHash" : userImagesHash[x]
+      };
     }
 
     storageReference.set(dataToUpdate.cast<String, Object?>());
@@ -119,10 +129,16 @@ class PhotosWidgetState extends State<PhotosWidget> {
                       }
                       // Set the last image slot to null
                       images["image3"] = null;
+                      
+                      // Delete from storage
                       deleteImagefromStorage(userImages[index]);
 
+                      // Remove at indexes 
                       userImages.removeAt(index);
-                      remapValuesDB();
+                      userImagesHash.removeAt(index);
+
+                      // Remap values in DataBase
+                      remapValuesDBAfterDeletion();
 
                       Navigator.of(context).pop();
                     });
@@ -138,33 +154,29 @@ class PhotosWidgetState extends State<PhotosWidget> {
     );
   }
 
-  Future<void> fetchUserData() async{
-
+  Future<void> fetchUserImage() async{
     final imageDetailsref = FirebaseDatabase.instance.ref().child("/UsersMetaData/${UserValues.uid}/ImageDetails");
 
     imageDetailsref.onChildAdded.listen((event) { // Listen for child elements added also this will load every time profile page is visited
       dynamic imageData = event.snapshot.value; // Ready the data for seperating as imageName and imageHash
 
-      if (!userImages.contains(imageData["imageName"])) {
-        setState(() async{
+      if (!userImages.contains(imageData["imageName"])) { // Checking if already that image is loaded to prevent same image from loading again
           userImages.add(imageData["imageName"]); // Add names to list so that getImagesFromStorage() can loop through this and get downloadURL
           userImagesHash.add(imageData["imageHash"]); // Add imageHashes so that the blurHash can work on images
-          await getImagesFromStorage(); // Get downloadURLs by looping userImages
-        });
+          getImagesFromStorage(); // Get downloadURLs by looping userImages
       }
     });
   }
 
   Future<void> getImagesFromStorage() async {
     int counter = 0;
-
     for (dynamic imagePath in userImages) {
-      // Download URL time saved here by not needing to retrieve it everyTime
+      // Download URL time saved here by not needing to retrieve it everytime 
       String downloadURL = "https://firebasestorage.googleapis.com/v0/b/mujdating.appspot.com/o/UserImages%2F${UserValues.uid}%2F$imagePath?alt=media&token";
       setState(() {
-        images["image$counter"] = downloadURL;
+        images["image$counter"] = downloadURL; // Add to the map
       });
-      counter++;
+      counter++; 
     }
   }
 
@@ -183,12 +195,58 @@ class PhotosWidgetState extends State<PhotosWidget> {
         }
       });
 
-      Map<String, String> data = {};
       String md5Hash = await CommonFunction().returnmd5Hash(File(pickedImage.path));
-      data[pickedImage.path] = md5Hash;
+      File file = File(pickedImage.path); 
+      String imageName = md5Hash;
+      int orderNumber = userImages.length;
 
-      await FirebaseCalls.updateImageValuesinDatabase(data);
+      await FirebaseCalls.uploadImage(file, imageName); // First uploadImage
+
+      Map dataToUpload = { // Data to pass to the server
+        "key": UserValues.cookieValue,
+        "uid": UserValues.uid,
+        "orderNumber": orderNumber,
+        "imageName": imageName,
+        "url": "https://firebasestorage.googleapis.com/v0/b/mujdating.appspot.com/o/UserImages%2F${UserValues.uid}%2F$imageName?alt=media&token"
+      };
+
+      await ApiCalls.mapValuesHashDatabase(dataToUpload); // Then hash the blurHash and save to the database with hashMappings
     }
+  }
+
+  Widget buildImageContainer(BuildContext context, int imageIndex, int flex) {
+    return Expanded(
+      flex: flex,
+      child: GestureDetector(
+        onTap: () async {
+          if (images["image$imageIndex"] != null) {
+            confirmationPopup(context, imageIndex);
+          } else {
+            await _pickImage(ImageSource.gallery, imageIndex);
+          }
+        },
+        child: DottedBorder(
+          borderType: BorderType.RRect,
+          color: const Color.fromARGB(255, 175, 175, 175),
+          radius: const Radius.circular(12),
+          padding: const EdgeInsets.all(4),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(10),
+            child: Container(
+              width: double.infinity,
+              height: double.infinity,
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.primaryContainer,
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: images["image$imageIndex"] != null
+                  ? _loadImage(images["image$imageIndex"]!, imageIndex)
+                  : const Icon(Icons.add_rounded, size: 50, color: Colors.white),
+            ),
+          ),
+        ),
+      ),
+    );
   }
 
   @override
@@ -202,73 +260,9 @@ class PhotosWidgetState extends State<PhotosWidget> {
             Expanded(
               child: Row(
                 children: [
-                  Expanded(
-                    flex: 16,
-                    child: GestureDetector(
-                      onTap: () async {
-                        if (images["image0"] != null) {
-                          confirmationPopup(context, 0);
-                        }
-                        else{
-                          await _pickImage(ImageSource.gallery, 0);
-                        }
-                      },
-                      child: DottedBorder(
-                        borderType: BorderType.RRect,
-                        color: const Color.fromARGB(255, 175, 175, 175),
-                        radius: const Radius.circular(12),
-                        padding: const EdgeInsets.all(4),
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(10),
-                            child: Container(
-                              width: double.infinity,
-                              height: double.infinity,
-                              decoration: BoxDecoration(
-                                color: Theme.of(context).colorScheme.primaryContainer,
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                              child: images["image0"] != null
-                                ? _loadImage(images["image0"]!, 0)
-                                : const Icon(Icons.add_rounded, size: 50, color: Colors.white),
-                            ),
-                          ),
-                      )
-                      ),
-                  ),
+                  buildImageContainer(context, 0, 16),
                   const SizedBox(width: 10),
-                  Expanded(
-                    flex: 10,
-                    child: GestureDetector(
-                      onTap: () async {
-                        if (images["image1"] != null) {
-                          confirmationPopup(context, 1);
-                        }
-                        else{
-                          await _pickImage(ImageSource.gallery, 1);
-                        }
-                      },
-                      child: DottedBorder(
-                        borderType: BorderType.RRect,
-                        color: const Color.fromARGB(255, 175, 175, 175),
-                        radius: const Radius.circular(12),
-                        padding: const EdgeInsets.all(4),
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(10),
-                          child: Container(
-                            width: double.infinity,
-                            height: double.infinity,
-                            decoration: BoxDecoration(
-                              color: Theme.of(context).colorScheme.primaryContainer,
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                          child: images["image1"] != null
-                            ? _loadImage(images["image1"]!, 1)
-                            : const Icon(Icons.add_rounded, size: 50, color: Colors.white),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
+                  buildImageContainer(context, 1, 10),
                 ],
               ),
             ),
@@ -276,73 +270,9 @@ class PhotosWidgetState extends State<PhotosWidget> {
             Expanded(
               child: Row(
                 children: [
-                  Expanded(
-                    flex: 10,
-                    child: GestureDetector(
-                      onTap: () async {
-                        if (images["image2"] != null) {
-                          confirmationPopup(context, 2);
-                        }
-                        else{
-                          await _pickImage(ImageSource.gallery, 2);
-                        }
-                      },
-                      child: DottedBorder(
-                        borderType: BorderType.RRect,
-                        radius: const Radius.circular(12),
-                        color: const Color.fromARGB(255, 175, 175, 175),
-                        padding: const EdgeInsets.all(4),
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(10),
-                          child: Container(
-                            width: double.infinity,
-                            height: double.infinity,
-                            decoration: BoxDecoration(
-                              color: Theme.of(context).colorScheme.primaryContainer,
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                          child: images["image2"] != null
-                            ? _loadImage(images["image2"]!, 2)
-                            : const Icon(Icons.add_rounded, size: 50, color: Colors.white),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
+                  buildImageContainer(context, 2, 10),
                   const SizedBox(width: 10),
-                  Expanded(
-                    flex: 16,
-                    child: GestureDetector(
-                      onTap: () async {
-                        if (images["image3"] != null) {
-                          confirmationPopup(context, 3);
-                        }
-                        else{
-                          await _pickImage(ImageSource.gallery, 3);
-                        }
-                      },
-                      child: DottedBorder(
-                        borderType: BorderType.RRect,
-                        radius: const Radius.circular(12),
-                        padding: const EdgeInsets.all(4),
-                        color: const Color.fromARGB(255, 175, 175, 175),
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(10),
-                          child: Container(
-                            width: double.infinity,
-                            height: double.infinity,
-                            decoration: BoxDecoration(
-                              color: Theme.of(context).colorScheme.primaryContainer,
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                          child: images["image3"] != null
-                            ? _loadImage(images["image3"]!, 3)
-                            : const Icon(Icons.add_rounded, size: 50, color: Colors.white),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
+                  buildImageContainer(context, 3, 16),
                 ],
               ),
             ),
@@ -351,7 +281,6 @@ class PhotosWidgetState extends State<PhotosWidget> {
       ),
     );
   }
-
 }
 
 Widget aboutMeContainer({String initialValue = '', required VoidCallback onPressed, required VoidCallback onFocusLost}) {
@@ -414,13 +343,19 @@ Widget childrenBuilder1(IconData type, String childText, data) {
           ),
         ),
         const Spacer(),
-        Text(
-          data.toString(),
-          style: GoogleFonts.poppins(
-            fontSize: 16,
+        ConstrainedBox(
+          constraints: BoxConstraints(maxWidth: 150),
+          child: Align(
+            alignment: Alignment.centerRight,
+            child: Text(
+              data.toString(),
+              style: GoogleFonts.poppins(
+                fontSize: 16,
+              ),
+              overflow: TextOverflow.ellipsis,
+              maxLines: 1,
+            ),
           ),
-          overflow: TextOverflow.ellipsis,
-          maxLines: 1, // You can adjust this value to allow more lines if needed
         ),
         const Icon(
           Icons.chevron_right_rounded,

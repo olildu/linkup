@@ -1,7 +1,5 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:internet_connection_checker_plus/internet_connection_checker_plus.dart';
 import 'package:linkup/api/api_calls.dart';
 import 'package:linkup/main.dart';
@@ -37,7 +35,6 @@ class _SplashScreenNewState extends State<SplashScreenNew> with SingleTickerProv
       curve: Curves.easeIn,
     );
 
-
     moveNextPage(widget.createProfile);
   }
 
@@ -55,14 +52,15 @@ class _SplashScreenNewState extends State<SplashScreenNew> with SingleTickerProv
   }
 
   Future<void> moveNextPage(bool createProfile) async {
-    await _animationController.forward();
+    await _animationController.forward(); // Start fadeIn animation
+
     var status = await InternetConnection().internetStatus;
 
-    if (status == InternetStatus.disconnected){
+    if (status == InternetStatus.disconnected){ 
       setState(() {
-        internetStatus = false;
+        internetStatus = false; // Show the cloud disconnected icon
       });
-      listenTillBackOnline();
+      listenTillBackOnline(); // Listen for connection changes 
       return;
     }else{
       setState((){
@@ -70,19 +68,16 @@ class _SplashScreenNewState extends State<SplashScreenNew> with SingleTickerProv
       });
     }
 
-    await ApiCalls.fetchCookieDoggie(widget.createProfile); // If createProfile is true then that is passed else false
-
-    await Future.delayed(const Duration(seconds: 1));
-
-    setState(() {
-      stopAnimation = true;
-    });
+    Future.wait([
+      ApiCalls.fetchCookieDoggie(widget.createProfile),
+      Future.delayed(const Duration(seconds: 1))
+    ]);
 
     await _animationController.reverse(); // Fade out animation
 
     Navigator.pushReplacement(
       context,
-      MaterialPageRoute(builder: (context) => ResponsiveLayer(
+      MaterialPageRoute(builder: (context) =>  ResponsiveLayer(
       mobileScaffold: const MainPage(),
       desktopScaffold: const DesktopUI(),
       createProfilePage: const CreateUserProfile(),
@@ -113,7 +108,7 @@ class _SplashScreenNewState extends State<SplashScreenNew> with SingleTickerProv
               child: FadeTransition(
                 opacity: _animation,
                 child: Image.asset(
-                  'assets/logo/logo_transparent.png',
+                  UserValues.darkTheme ? 'assets/logo/logo_transparent.png' : 'assets/logo/logo_transparent_dark.png',
                   width: 200,
                 ),
               ),
@@ -127,14 +122,19 @@ class _SplashScreenNewState extends State<SplashScreenNew> with SingleTickerProv
               )
             ]
             else...[
-              const SizedBox(height: 20,),
-              if(!stopAnimation)...[
-                const Center(
-                  child: CircularProgressIndicator(),
-                )
-              ]
+              const SizedBox(height: 30,),
+              FadeTransition(
+                opacity: _animation,
+                child: SizedBox(
+                  child:
+                    Center(
+                      child: CircularProgressIndicator(
+                        color: Theme.of(context).hintColor,
+                      ),
+                    )
+                ),
+              )
             ]
-
           ],
         ),
       ),

@@ -13,7 +13,6 @@ import 'package:flutter/services.dart';
 import 'dart:async';
 import 'package:linkup/pages/notification_page/notification.dart';
 
-
 class MainPage extends StatefulWidget {
   const MainPage({super.key});
 
@@ -22,7 +21,7 @@ class MainPage extends StatefulWidget {
 }
 
 class MainPageState extends State<MainPage> {
-  late int bottomBarIndex = 1;
+  late int bottomBarIndex = 0;
   String appBarTitle = "linkup";
   IconData? type = Icons.tune_rounded;
   
@@ -38,6 +37,7 @@ class MainPageState extends State<MainPage> {
 
   final List<Widget> _pages = [
     const ProfilePage(),
+    // const StaggeredDotsWave(size: 100, color: Colors.white),
     const CandidatePage(),
     const ChatPage(),
   ];
@@ -68,7 +68,7 @@ class MainPageState extends State<MainPage> {
   }
 
   void navigateBottomBar(int index) {
-    HapticFeedback.vibrate(); 
+    // HapticFeedback.vibrate(); 
     setState(() {
       bottomBarIndex = index;
 
@@ -179,33 +179,31 @@ class MainPageState extends State<MainPage> {
           ],
         ),
       
-        bottomNavigationBar: SizedBox(
-          child: Container(
-            decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.surface,
-            ),
-            child: Transform.translate(
-              offset: const Offset(0,10),
-              child: GNav(
-                onTabChange: (value) async {
-                  navigateBottomBar(value);
-                  
-                  // Testing analytics here
-                  await analytics.logEvent(
-                    name: "pages_tracked",
-                    parameters: {
-                      "page_name": appBarTitle,
-                      "page_index": value
-                    }
-                  );
-                },
-                selectedIndex: 1,
-                tabs: [
-                  GButton(icon: profileIcon),
-                  GButton(icon: candidateIcon),
-                  GButton(icon: chatIcon),
-                ],
-              ),
+        bottomNavigationBar: Container(
+          decoration: BoxDecoration(
+            color: Theme.of(context).colorScheme.surface,
+          ),
+          child: Transform.translate(
+            offset: const Offset(0,10),
+            child: GNav(
+              onTabChange: (value) async {
+                navigateBottomBar(value);
+                
+                // Testing analytics here
+                await analytics.logEvent(
+                  name: "pages_tracked",
+                  parameters: {
+                    "page_name": appBarTitle,
+                    "page_index": value
+                  }
+                );
+              },
+              selectedIndex: 1,
+              tabs: [
+                GButton(icon: profileIcon),
+                GButton(icon: candidateIcon),
+                GButton(icon: chatIcon),
+              ],
             ),
           ),
         ),

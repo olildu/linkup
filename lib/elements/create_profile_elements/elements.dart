@@ -35,7 +35,7 @@ class LookingForContainer extends StatelessWidget {
               // titleAndSubtitle("What do you want from dates?", "Let's get to know you better", titleColor: Colors.white, subTitleColor: const Color(0xFFC0C0C0)),
           
               Title("What do you want from dates?"),
-              SizedBox(height: 10,),
+              const SizedBox(height: 10,),
               Subtitle("Let's get to know you better"),
 
               const SizedBox(height: 40,),
@@ -89,7 +89,7 @@ class ReligionContainer extends StatelessWidget {
               // titleAndSubtitle("Do you identify with a religion?", "Let's get to know you better", titleColor: Colors.white, subTitleColor: const Color(0xFFC0C0C0)),
             
               Title("Do you identify with a religion?"),
-              SizedBox(height: 10,),
+              const SizedBox(height: 10,),
               Subtitle("Let's get to know you better"),
 
               const SizedBox(height: 50,),
@@ -154,7 +154,7 @@ class SmokingContainer extends StatelessWidget {
               // titleAndSubtitle("Do you smoke?", "Let's get to know you better", titleColor: Colors.white, subTitleColor: const Color(0xFFC0C0C0)),
 
               Title("Do you smoke?"),
-              SizedBox(height: 10,),
+              const SizedBox(height: 10,),
               Subtitle("Let's get to know you better"),
 
               const SizedBox(height: 40,),
@@ -205,7 +205,7 @@ class GenderContainer extends StatelessWidget {
               // titleAndSubtitle("What do you identify as?", "This will help you with better matches", titleColor: Colors.white, subTitleColor: const Color(0xFFC0C0C0)),
 
               Title('What do you identify as?'),
-              SizedBox(height: 10,),
+              const SizedBox(height: 10,),
               Subtitle("This will help you with better matches"),
               
               const SizedBox(height: 40,),
@@ -296,7 +296,7 @@ class _HeightContainerState extends State<HeightContainer> {
                   // titleAndSubtitle("What is your height?", "Let's get to know you better", titleColor: Colors.white, subTitleColor: const Color(0xFFC0C0C0)),
 
                   Title("What is your height?"),
-                  SizedBox(height: 10,),
+                  const SizedBox(height: 10,),
                   Subtitle("Let's get to know you better"),
 
                   const SizedBox(height: 40,),
@@ -376,7 +376,7 @@ class DrinkingContainer extends StatelessWidget {
               // titleAndSubtitle("Do you drink?", "Let's get to know you better", titleColor: Colors.white, subTitleColor: const Color(0xFFC0C0C0)),
 
               Title("Do you drink?"),
-              SizedBox(height: 10,),
+              const SizedBox(height: 10,),
               Subtitle("Let's get to know you better"),
           
               const SizedBox(height: 40,),
@@ -471,7 +471,7 @@ class _YearStreamContainerNewState extends State<YearStreamContainerNew> {
       // titleAndSubtitle("Select your stream and year", "This can you help you with better matchmaking", titleColor: Colors.white, subTitleColor: const Color(0xFFC0C0C0)),
       
       Title("Select your stream and year"),
-      SizedBox(height: 10,),
+      const SizedBox(height: 10,),
       Subtitle("This can you help you with better matchmaking"),
       
       const SizedBox(height: 30,),
@@ -779,7 +779,7 @@ Widget NextButton(bool isContainerEnabled, TextEditingController nameController,
                 
                 // Naming images "image+md5hash.jpg"
                 await Future.wait(images.values.whereType<File>().map((value) async {
-                  imageNames[value] = [await CommonFunction().returnmd5Hash(value)];
+                  imageNames[value] = await CommonFunction().returnmd5Hash(value);
                 }));
 
                 /* imageUploadHandler will handle image uploads by taking imageNames map which has value as File and keys as 
@@ -787,10 +787,10 @@ Widget NextButton(bool isContainerEnabled, TextEditingController nameController,
                 are picked then image1 and image2 will be both uploaded parallely to the server along with their blurHashing
                 */
 
-                imageUploadHandler(imageNames); 
+                await imageUploadHandler(imageNames); 
 
                 // Upload userTag and Basic Data to the server using API call
-                ApiCalls.uploadUserData(userDataTags);
+                ApiCalls.storeUserMetaData(userDataTags);
                 
                 // Once upload is complete remove the animation and then proceed to the MainPage() 
                 onCompletion!();
@@ -804,6 +804,7 @@ Widget NextButton(bool isContainerEnabled, TextEditingController nameController,
 }
 
 Future<void> imageUploadHandler(Map imageNames) async {
+  print(imageNames);
   List<Future<void>> uploadTasks = [];
   List imageNamesList = imageNames.values.toList();
   List fileNamesList = imageNames.keys.toList();
@@ -815,8 +816,8 @@ Future<void> imageUploadHandler(Map imageNames) async {
   await Future.wait(uploadTasks);
 }
 
-Future<void> ImageUpload(int orderNumber, String imageName, filePath) async {
-  await FirebaseCalls.uploadImage(filePath, imageName); // First uploadImage
+Future<void> ImageUpload(int orderNumber, String imageName, file) async {
+  await FirebaseCalls.uploadImage(file, imageName); // First uploadImage
 
   Map data = {
     "key": UserValues.cookieValue,
@@ -904,10 +905,10 @@ class _PhotoContainerState extends State<PhotoContainer> {
                   // titleAndSubtitle("Add your Photos", "Add photos that show your true self", titleColor: Colors.white, subTitleColor: const Color(0xFFC0C0C0)),
 
                   Title("Add your Photos"),
-                  SizedBox(height: 10,),
+                  const SizedBox(height: 10,),
                   Subtitle("Add photos that show your true self"),
               
-                  SizedBox(height: 40,),
+                  const SizedBox(height: 40,),
               
                   PhotosWidget(moveAction: widget.moveAction, valueReject: widget.valueReject)
               
@@ -946,7 +947,7 @@ class PhotosWidgetState extends State<PhotosWidget> {
               ),
               child: Column(
                 children: [
-                  CupertinoButton(child: Text("Delete Photo", style: GoogleFonts.poppins(color: Color.fromARGB(255, 218, 37, 24), fontSize: 20),), onPressed: (){
+                  CupertinoButton(child: Text("Delete Photo", style: GoogleFonts.poppins(color: const Color.fromARGB(255, 218, 37, 24), fontSize: 20),), onPressed: (){
                     setState(() {
                       counter--;
                       if (counter > 0){
@@ -1067,16 +1068,16 @@ class PhotosWidgetState extends State<PhotosWidget> {
                       },
                       child: DottedBorder(
                         borderType: BorderType.RRect,
-                        color: Color.fromARGB(255, 175, 175, 175),
-                        radius: Radius.circular(12),
-                        padding: EdgeInsets.all(4),
+                        color: const Color.fromARGB(255, 175, 175, 175),
+                        radius: const Radius.circular(12),
+                        padding: const EdgeInsets.all(4),
                         child: ClipRRect(
                           borderRadius: BorderRadius.circular(10),
                             child: Container(
                               width: double.infinity,
                               height: double.infinity,
                               decoration: BoxDecoration(
-                                color: Color(0xFFD9D9D9),
+                                color: const Color(0xFFD9D9D9),
                                 borderRadius: BorderRadius.circular(10),
                               ),
                               child: images["image0"] != null
@@ -1084,13 +1085,13 @@ class PhotosWidgetState extends State<PhotosWidget> {
                                     images["image0"]!,
                                     fit: BoxFit.cover,
                                   )
-                                : Icon(Icons.add_rounded, size: 50, color: Colors.white,),
+                                : const Icon(Icons.add_rounded, size: 50, color: Colors.white,),
                             ),
                           ),
                       )
                       ),
                   ),
-                  SizedBox(width: 10),
+                  const SizedBox(width: 10),
                   Expanded(
                     flex: 10,
                     child: GestureDetector(
@@ -1105,16 +1106,16 @@ class PhotosWidgetState extends State<PhotosWidget> {
                       },
                       child: DottedBorder(
                         borderType: BorderType.RRect,
-                        color: Color.fromARGB(255, 175, 175, 175),
-                        radius: Radius.circular(12),
-                        padding: EdgeInsets.all(4),
+                        color: const Color.fromARGB(255, 175, 175, 175),
+                        radius: const Radius.circular(12),
+                        padding: const EdgeInsets.all(4),
                         child: ClipRRect(
                           borderRadius: BorderRadius.circular(10),
                           child: Container(
                             width: double.infinity,
                             height: double.infinity,
                             decoration: BoxDecoration(
-                              color: Color(0xFFD9D9D9),
+                              color: const Color(0xFFD9D9D9),
                               borderRadius: BorderRadius.circular(10),
                             ),
                           child: images["image1"] != null
@@ -1122,7 +1123,7 @@ class PhotosWidgetState extends State<PhotosWidget> {
                                 images["image1"]!,
                                 fit: BoxFit.cover,
                               )
-                            : Icon(Icons.add_rounded, size: 50, color: Colors.white,),
+                            : const Icon(Icons.add_rounded, size: 50, color: Colors.white,),
                           ),
                         ),
                       ),
@@ -1131,7 +1132,7 @@ class PhotosWidgetState extends State<PhotosWidget> {
                 ],
               ),
             ),
-            SizedBox(height: 10),
+            const SizedBox(height: 10),
             Expanded(
               child: Row(
                 children: [
@@ -1149,16 +1150,16 @@ class PhotosWidgetState extends State<PhotosWidget> {
                       },
                       child: DottedBorder(
                         borderType: BorderType.RRect,
-                        radius: Radius.circular(12),
-                        color: Color.fromARGB(255, 175, 175, 175),
-                        padding: EdgeInsets.all(4),
+                        radius: const Radius.circular(12),
+                        color: const Color.fromARGB(255, 175, 175, 175),
+                        padding: const EdgeInsets.all(4),
                         child: ClipRRect(
                           borderRadius: BorderRadius.circular(10),
                           child: Container(
                             width: double.infinity,
                             height: double.infinity,
                             decoration: BoxDecoration(
-                              color: Color(0xFFD9D9D9),
+                              color: const Color(0xFFD9D9D9),
                               borderRadius: BorderRadius.circular(10),
                             ),
                           child: images["image2"] != null
@@ -1166,13 +1167,13 @@ class PhotosWidgetState extends State<PhotosWidget> {
                                 images["image2"]!,
                                 fit: BoxFit.cover,
                               )
-                            : Icon(Icons.add_rounded, size: 50, color: Colors.white,),
+                            : const Icon(Icons.add_rounded, size: 50, color: Colors.white,),
                           ),
                         ),
                       ),
                     ),
                   ),
-                  SizedBox(width: 10),
+                  const SizedBox(width: 10),
                   Expanded(
                     flex: 16,
                     child: GestureDetector(
@@ -1187,16 +1188,16 @@ class PhotosWidgetState extends State<PhotosWidget> {
                       },
                       child: DottedBorder(
                         borderType: BorderType.RRect,
-                        radius: Radius.circular(12),
-                        padding: EdgeInsets.all(4),
-                        color: Color.fromARGB(255, 175, 175, 175),
+                        radius: const Radius.circular(12),
+                        padding: const EdgeInsets.all(4),
+                        color: const Color.fromARGB(255, 175, 175, 175),
                         child: ClipRRect(
                           borderRadius: BorderRadius.circular(10),
                           child: Container(
                             width: double.infinity,
                             height: double.infinity,
                             decoration: BoxDecoration(
-                              color: Color(0xFFD9D9D9),
+                              color: const Color(0xFFD9D9D9),
                               borderRadius: BorderRadius.circular(10),
                             ),
                           child: images["image3"] != null
@@ -1204,7 +1205,7 @@ class PhotosWidgetState extends State<PhotosWidget> {
                                 images["image3"]!,
                                 fit: BoxFit.cover,
                               )
-                            : Icon(Icons.add_rounded, size: 50, color: Colors.white,),
+                            : const Icon(Icons.add_rounded, size: 50, color: Colors.white,),
                           ),
                         ),
                       ),

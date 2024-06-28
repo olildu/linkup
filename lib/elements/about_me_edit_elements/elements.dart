@@ -367,46 +367,36 @@ class ReligionContainer extends StatelessWidget {
   }
 }
 
+void _updateUserData(String Type, String optionText) async {
+  userDataTags["keyToUpdate"] = Type;
+  userDataTags["value"] = optionText;
+  
+  await ApiCalls.storeUserMetaData(userDataTags);
+}
+
 Widget OptionChildrenBuilder(String optionText, String Type, BuildContext context, [Function()? onOptionSelected]) {
   return GestureDetector(
     onTap: () async {
       print(Type);
-
-      switch(Type) {
-        case "drinkingStatus":
-          userDataTags["keyToUpdate"] = "drinkingStatus";
-          userDataTags["value"] = optionText;
-          ApiCalls.uploadUserTagData(userDataTags);
-          break;
-        case "religionStatus":
-          userDataTags["keyToUpdate"] = "religionStatus";
-          userDataTags["value"] = optionText;
-          await ApiCalls.uploadUserTagData(userDataTags);
-          break;
-        case "lookingFor":
-          userDataTags["keyToUpdate"] = "lookingFor";
-          userDataTags["value"] = optionText;
-          ApiCalls.uploadUserTagData(userDataTags);
-          break;
-        case "smokingStatus":
-          userDataTags["keyToUpdate"] = "smokingStatus";
-          userDataTags["value"] = optionText;
-          ApiCalls.uploadUserTagData(userDataTags);
-          break;
+      _updateUserData(Type, optionText);
+      if (onOptionSelected != null) {
+        onOptionSelected();
       }
-      onOptionSelected!(); 
     },
     child: Container(
       padding: const EdgeInsets.symmetric(vertical: 15),
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.primary,
-        border: Border.all(color: Theme.of(context).colorScheme.secondary,),
+        border: Border.all(color: Theme.of(context).colorScheme.secondary),
         borderRadius: BorderRadius.circular(40),
       ),
       child: Center(
         child: Text(
           optionText,
-          style: GoogleFonts.poppins(fontSize: 18, fontWeight: FontWeight.w400,),
+          style: GoogleFonts.poppins(
+            fontSize: 18,
+            fontWeight: FontWeight.w400,
+          ),
         ),
       ),
     ),

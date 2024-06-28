@@ -1,3 +1,4 @@
+import 'package:flutter/services.dart';
 import 'package:linkup/api/api_calls.dart';
 import 'package:linkup/elements/profile_elements/elements.dart';
 import 'package:flutter/material.dart';
@@ -106,58 +107,63 @@ class EditGenderState extends State<EditGender> {
       'value': genderList[index]
     };
 
-    ApiCalls.uploadUserTagData(userDataTags);
+    ApiCalls.storeUserMetaData(userDataTags);
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.title),
-        centerTitle: true,
-        leading: GestureDetector(
-          onTap: () {
-            Navigator.of(context).pop();
-          },
-          child: const Icon(Icons.arrow_back_ios_new_rounded),
-        ),
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      value: SystemUiOverlayStyle(
+        systemNavigationBarColor: Theme.of(context).colorScheme.surface
       ),
-      backgroundColor: Theme.of(context).colorScheme.surface,
-      body: Container(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            titleAndSubtitle("Choose your ${widget.title.toLowerCase()}", "Select your ${widget.title.toLowerCase()}"),
-            const SizedBox(height: 30),
-            SizedBox(
-              height: 400,
-              child: Column(
-                children: [
-                  GenderBuilder(
-                    gender: "Female",
-                    index: 0,
-                    isSelected: isSelected[0],
-                    onTap: tapThen,
-                  ),
-                  const SizedBox(height: 20),
-                  GenderBuilder(
-                    gender: "Male",
-                    index: 1,
-                    isSelected: isSelected[1],
-                    onTap: tapThen,
-                  ),
-                  const SizedBox(height: 20),
-                  GenderBuilder(
-                    gender: "Others",
-                    index: 2,
-                    isSelected: isSelected[2],
-                    onTap: tapThen,
-                  ),
-                ],
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text(widget.title),
+          centerTitle: true,
+          leading: GestureDetector(
+            onTap: () {
+              Navigator.of(context).pop();
+            },
+            child: const Icon(Icons.arrow_back_ios_new_rounded),
+          ),
+        ),
+        backgroundColor: Theme.of(context).colorScheme.surface,
+        body: Container(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              titleAndSubtitle("Choose your ${widget.title.toLowerCase()}", "Select your ${widget.title.toLowerCase()}"),
+              const SizedBox(height: 30),
+              SizedBox(
+                height: 400,
+                child: Column(
+                  children: [
+                    GenderBuilder(
+                      gender: "Female",
+                      index: 0,
+                      isSelected: isSelected[0],
+                      onTap: tapThen,
+                    ),
+                    const SizedBox(height: 20),
+                    GenderBuilder(
+                      gender: "Male",
+                      index: 1,
+                      isSelected: isSelected[1],
+                      onTap: tapThen,
+                    ),
+                    const SizedBox(height: 20),
+                    GenderBuilder(
+                      gender: "Others",
+                      index: 2,
+                      isSelected: isSelected[2],
+                      onTap: tapThen,
+                    ),
+                  ],
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

@@ -13,16 +13,18 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class UserValues extends ChangeNotifier{
   // Essential tokens for current user
-  static String uid = FirebaseAuth.instance.currentUser!.uid;
-  static String ?cookieValue;
+  static String uid = FirebaseAuth.instance.currentUser!.uid; // Stores uid
+  static String ?cookieValue; // Stores cookieValue
   static late String ?fCMToken; // We store fCMToken here so that we can call after getting key
   static bool darkTheme = true; // This bool is gonna keep the track of the theme
   static bool snoozeEnabled = false; // This bool will track if snoozeMode is on or off
   static bool limitReached = false; // This bool will keep track if the user has finished his like quota
-  static bool didFunctionRun = false;
+  static bool didFunctionRun = false; // This bool keeps the function from infinetly loading in commonFunction in theme collection
   
-  // Values for userProfilePage imageUpload
-  static Map userFilePathandNameHash = {};
+  static Map<String, bool> loadMap = {
+    "profilePageUserDetails" : false,
+    "profileImages" : false ,
+  };
 
   // Values for candidatePage
   static int userVisited = 0;
@@ -49,14 +51,11 @@ class UserValues extends ChangeNotifier{
     "allowNotification" : true, // Initially set to true as it loads to candidate page on start
     "currentMatchUID" : null
   };
-  static int notificationCount = 0;
 
-  static List<String> usersNotificationCounter = [];
+  static int notificationCount = 0; // Count notifications
+  static List<String> usersNotificationCounter = []; // Too see if uid is in this list if not then is added to notificationCount++, makes sure is unique
 
-
-  static bool goToMainPage = false;
   static List<dynamic> userMatchCandidates = []; 
-
   static List<Map<String, dynamic>> matchUserDetails = [];
 }
 
@@ -64,7 +63,7 @@ class ApiCalls {
   static Future<String> fetchCookieDoggie(bool newUser) async {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       if (newUser == false){
-        FirebaseCalls().fetchUserData();
+        // FirebaseCalls().fetchUserData();
       }
       else{
         await prefs.remove('cookieValue');
@@ -72,12 +71,22 @@ class ApiCalls {
 
       String? localCookieValue = prefs.getString('cookieValue');
 
-      // If already cookie is there in localStorage just return that
+      Map storeTokenData = { // Map containting all values to upload to the server
+        "key" : UserValues.cookieValue,
+        "uid" : UserValues.uid,
+        "token" : UserValues.fCMToken,
+        "type" : "storefCMToken"
+      };
+
+      // If cookie already is there in localStorage just return that
       if (localCookieValue != null){
         UserValues.cookieValue = localCookieValue;
-        
-        // Upload to server 
-        ApiCalls.uploadfCMToken(UserValues.fCMToken);
+
+        storeTokenData["key"] = UserValues.cookieValue;
+
+        // Upload to server fCMToken of device
+        ApiCalls.storeUserMetaData(storeTokenData);
+
         return localCookieValue;
       }
 
@@ -85,7 +94,6 @@ class ApiCalls {
         'uid': UserValues.uid,
         'type': 'CookieCreation',
       };
-
 
       String jsonData = jsonEncode(data);
 
@@ -105,12 +113,19 @@ class ApiCalls {
       await prefs.setString('cookieValue', response.body);
       
       // Upload to server 
-      ApiCalls.uploadfCMToken(UserValues.fCMToken);
+      storeTokenData["key"] = UserValues.cookieValue;
+      ApiCalls.storeUserMetaData(storeTokenData);
       
       return response.body;
   }
-
-  static Future<String> uploadUserData(data) async {
+  /*
+    Function of storeUserMetaData {
+      fetchCookie type['storefCMToken'] : Function to upload fCMToken to the server just gives the token and key and is stored in /fCMTokens/,
+      profileTime type["CreateUserMetaDetails"] : Function to upload userMetaData from the createUserProfile,
+      uploadUserTag["uploadTagData"] : Function to update tag data from profile page,
+    } 
+  */
+  static Future<String> storeUserMetaData(data) async { // , 
       String jsonData = jsonEncode(data);
       var headers = {
         'Content-Type': 'application/json',
@@ -121,64 +136,9 @@ class ApiCalls {
         headers: headers,
         body: jsonData,
       );
+      
       return response.body;
   }
-
-  // Function to upload fCMToken to the server just gives the token and key and is stored in /fCMTokens/
-  static uploadfCMToken(String ?token) async {
-    Map storeTokenData = {
-      "key" : UserValues.cookieValue,
-      "uid" : UserValues.uid,
-      "token" : token,
-      "type" : "storefCMToken"
-    };
-
-    String jsonData = jsonEncode(storeTokenData);
-    var headers = {
-      'Content-Type': 'application/json',
-    };
-
-    var response = await http.post(
-      Uri.parse('https://65b14d8f6e5d33340fe7.appwrite.global/'),
-      headers: headers,
-      body: jsonData,
-    );
-    
-    return response.body;
-  }
-
-  static uploadUserTagData(data) async {
-      String jsonData = jsonEncode(data);
-      var headers = {
-        'Content-Type': 'application/json',
-      };
-
-      var response = await http.post(
-        Uri.parse('https://65b14d8f6e5d33340fe7.appwrite.global/'),
-        headers: headers,
-        body: jsonData,
-      );
-      print(response.body);
-      return response.body;
-  }
-
-  static getChatUserData(data) async {
-
-    String jsonData = jsonEncode(data);
-
-    var headers = {
-      'Content-Type': 'application/json',
-    };
-
-    var response = await http.post(
-      Uri.parse('https://65ca1944cb067d7512f6.appwrite.global/'),
-      headers: headers,
-      body: jsonData,
-    );
-
-    UserValues.matchUserData[data["chatUID"]] = await jsonDecode(jsonDecode(response.body));
-    return UserValues.matchUserData[data["chatUID"]];
-}
 
   static writeChatContent(data) async {
       String jsonData = jsonEncode(data);
@@ -193,6 +153,23 @@ class ApiCalls {
         body: jsonData,
       );
       return response.body;
+  }
+
+  static getChatUserData(data) async {
+    String jsonData = jsonEncode(data);
+
+    var headers = {
+      'Content-Type': 'application/json',
+    };
+
+    var response = await http.post(
+      Uri.parse('https://65ca1944cb067d7512f6.appwrite.global/'),
+      headers: headers,
+      body: jsonData,
+    );
+
+    UserValues.matchUserData[data["chatUID"]] = await jsonDecode(jsonDecode(response.body));
+    return UserValues.matchUserData[data["chatUID"]];
   }
 
   static Future<List<Map<String, dynamic>>> getMatchCandidates() async {
@@ -240,27 +217,15 @@ class ApiCalls {
 
     return matchCandidates;
   }
-
-  static dislikeMatch(data) async{
-    String jsonData = jsonEncode(data);
-
-    var headers = {
-      'Content-Type': 'application/json',
-    };
-
-    var response = await http.post(
-      Uri.parse('https://65d257a08d0655ad974f.appwrite.global/'),
-      headers: headers,
-      body: jsonData,
-    );
-    
-    return response.body;
-  }
   
-    /*When getUIDs run also check for future match possibility when swiped right, bring to device check if swipe right is done then show 
-  match banner */
+  /*
+    matchMakingAlgorithm Functions = {
+      swipeActions : Based on swipe direction update like and dislike (When getUIDs run also check for future match possibility when swiped right, bring to device check if swipe right is done then show match banner)
+      unMatchUser : Function to unmatch user in chatDetails page 
+    }
 
-  static swipeActionsMatch(data) async{
+  */
+  static matchMakingAlgorithm(data) async{
     String jsonData = jsonEncode(data);
 
     var headers = {
@@ -276,22 +241,6 @@ class ApiCalls {
     return response.body;
   }
 
-  static unmatchUser(data) async{
-    String jsonData = jsonEncode(data);
-
-    var headers = {
-      'Content-Type': 'application/json',
-    };
-
-    var response = await http.post(
-      Uri.parse('https://65d257a08d0655ad974f.appwrite.global/'),
-      headers: headers,
-      body: jsonData,
-    );
-    
-    return response.body;
-  }
-  
   static enableSnoozeMode() async{
     Map<String, dynamic> data = {
       "uid": UserValues.uid,
@@ -340,7 +289,7 @@ class ApiCalls {
     return response.body;
   }
 
-  static mapValuesHashDatabase(data) async{
+  static mapValuesHashDatabase(data) async{ // Called after uploading image to Storage in PhotosWidget
     String jsonData = jsonEncode(data);
 
     var headers = {
@@ -355,10 +304,10 @@ class ApiCalls {
 
     return response.body;
   }
+
 }
 
 class FirebaseCalls with ChangeNotifier {
-  
   static Future<void> getImagesFromStorage(key, Map<String, dynamic> matchUserData) async {
     final storageRef = FirebaseStorage.instance.ref().child("/UserImages/$key/");
     final result = await storageRef.listAll();
@@ -390,7 +339,7 @@ class FirebaseCalls with ChangeNotifier {
   }
 
   // Function for getting all the matched users and then appending them to the map UserValues.matchUserData 
-  static getMatchedUsers() async {
+  Future<Map<String, dynamic>> getMatchedUsers() async {
     DatabaseReference userMatchRef = FirebaseDatabase.instance.ref('/UserMatchingDetails/${UserValues.uid}/MatchUID/');
 
     var event = await userMatchRef.once();
@@ -412,7 +361,7 @@ class FirebaseCalls with ChangeNotifier {
     return localMatchUserData;
   }
 
-  static getChatUsers() async {
+  Future <Map<String,dynamic>> getChatUsers() async {
     final chatUserRef = FirebaseDatabase.instance.ref('/UserMatchingDetails/${UserValues.uid}/ChatUID/');
 
     var event = await chatUserRef.once();
@@ -436,28 +385,6 @@ class FirebaseCalls with ChangeNotifier {
     return localMatchUserData;
   }
 
-  static updateImageValuesinDatabase(Map data) async { // Change or add name to database when imageUploaded for hashing
-    final ref = FirebaseDatabase.instance.ref();
-    final snapshot = await ref.child('/UsersMetaData/${UserValues.uid}/ImageDetails').get();
-
-    List imageNamesList = data.values.toList();
-    List fileNamesList = data.keys.toList();
-
-    if (snapshot.exists) {
-      List imageNames = snapshot.value as List;
-      await uploadImage(File(fileNamesList[0]), imageNamesList[0]);
-      await ref.child('/UsersMetaData/${UserValues.uid}/ImageDetails').update({imageNames.length.toString() : imageNamesList[0]});
-    }
-    else{
-      for (int x = 0; x < imageNamesList.length; x++){
-        ref.child('/UsersMetaData/${UserValues.uid}/ImageDetails/${x.toString()}').update({
-          "imageName" : imageNamesList[x][0],
-          "imageHash" : imageNamesList[x][1],
-        });
-      }
-    }
-  }
-
   static uploadImage(File imageFile, String imageName) async {
     final storageRef = FirebaseStorage.instance.ref();
     final imageRef = storageRef.child("/UserImages/${UserValues.uid}/$imageName");
@@ -473,16 +400,22 @@ class FirebaseCalls with ChangeNotifier {
     }
   }
 
-  Future<void> fetchUserData() async{
+  Future<void> fetchUserData() async {
     final ref = FirebaseDatabase.instance.ref().child("/UsersMetaData/${UserValues.uid}/");
-    
-    final snapshot = await ref.once();
-    final data = snapshot.snapshot.value as Map<dynamic, dynamic>?;
 
-    UserValues.userData = data?["UserDetails"];
+    // Run userData retrievial in parallel
+    var results = await Future.wait([
+      FirebaseCalls().getMatchedUsers(),
+      FirebaseCalls().getChatUsers(),
+      ref.once(),
+    ]);
 
-    UserValues.matchedUsers = await FirebaseCalls.getMatchedUsers();
-    UserValues.chatUsers = await FirebaseCalls.getChatUsers();
+    // Get results from result var 
+    UserValues.matchedUsers = results[0] as Map<String, dynamic>;
+    UserValues.chatUsers = results[1] as Map<String, dynamic>;
+    // userData is messed up but works
+    print((results[2] as DatabaseEvent).snapshot.value);
+    UserValues.userData = (((results[2] as DatabaseEvent).snapshot.value as Map<dynamic, dynamic>)["UserDetails"] as Map<dynamic, dynamic>).cast<String, dynamic>();
   }
 
   // Intialization of notifications

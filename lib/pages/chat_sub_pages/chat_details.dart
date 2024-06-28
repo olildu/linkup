@@ -14,13 +14,13 @@ import 'package:flutter/cupertino.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class ChatDetailsPage extends StatefulWidget {
-  final String appBarTitle;
+  final String matchName;
   final String imageUrl;
   final String path;
   final String matchUID;
   final bool notChatPage;
 
-  const ChatDetailsPage({super.key, required this.appBarTitle, required this.imageUrl, required this.path, required this.matchUID, this.notChatPage = true});
+  const ChatDetailsPage({super.key, required this.matchName, required this.imageUrl, required this.path, required this.matchUID, this.notChatPage = true});
 
   @override
   ChatDetailsPageState createState() => ChatDetailsPageState();
@@ -158,13 +158,13 @@ class ChatDetailsPageState extends State<ChatDetailsPage> {
                   ),
                 ),
                 SizedBox(width: 10),
-                Text(widget.appBarTitle, style: GoogleFonts.poppins(),),
+                Text(widget.matchName, style: GoogleFonts.poppins(),),
               ],
             ),
           ),
         ),
         actions: [
-          actionWidget(widget.matchUID)
+          actionWidget(widget.matchUID, context, widget.matchName)
         ],
       
       ),

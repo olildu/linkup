@@ -59,6 +59,7 @@ dependencies:
   internet_connection_checker: ^1.0.0+1
   get: ^4.6.6
   shared_preferences: ^2.2.3
+  flutter_dotenv: ^5.1.0 # For hiding API Keys and access to env variables
   video_player: ^2.8.6
   firebase_messaging: ^15.0.1
   firebase_in_app_messaging: ^0.8.0+1
@@ -111,6 +112,7 @@ flutter:
     - assets/audio/
     - assets/logo/
     - assets/video/
+    - .env
     
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware

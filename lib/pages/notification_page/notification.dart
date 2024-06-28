@@ -50,7 +50,7 @@ class NotificationHandlers {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => ChatDetailsPage(path: path, appBarTitle: name, imageUrl: downloadURL, matchUID: notificationUID),
+                  builder: (context) => ChatDetailsPage(path: path, matchName: name, imageUrl: downloadURL, matchUID: notificationUID),
                 ),
               );
             }
@@ -72,7 +72,7 @@ class NotificationHandlers {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => ChatDetailsPage(path: path, appBarTitle: name, imageUrl: downloadURL, matchUID: notificationUID),
+            builder: (context) => ChatDetailsPage(path: path, matchName: name, imageUrl: downloadURL, matchUID: notificationUID),
           ),
         );
       }

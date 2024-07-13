@@ -2,16 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:internet_connection_checker_plus/internet_connection_checker_plus.dart';
 import 'package:linkup/api/api_calls.dart';
-import 'package:linkup/pages/main_pages/candidate_page.dart';
-import 'package:linkup/pages/main_pages/chat_page.dart';
-import 'package:linkup/pages/main_pages/profile_page.dart';
+import 'package:linkup/UI/pages/main_pages/candidate_page.dart';
+import 'package:linkup/UI/pages/main_pages/chat_page.dart';
+import 'package:linkup/UI/pages/main_pages/profile_page.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:google_nav_bar/google_nav_bar.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:linkup/api/common_functions.dart';
 import 'package:flutter/services.dart';
 import 'dart:async';
-import 'package:linkup/pages/notification_page/notification.dart';
+import 'package:linkup/UI/pages/notification_page/notification.dart';
 
 class MainPage extends StatefulWidget {
   const MainPage({super.key});
@@ -21,7 +21,7 @@ class MainPage extends StatefulWidget {
 }
 
 class MainPageState extends State<MainPage> {
-  late int bottomBarIndex = 0;
+  late int bottomBarIndex = 1;
   String appBarTitle = "linkup";
   IconData? type = Icons.tune_rounded;
   
@@ -37,7 +37,6 @@ class MainPageState extends State<MainPage> {
 
   final List<Widget> _pages = [
     const ProfilePage(),
-    // const StaggeredDotsWave(size: 100, color: Colors.white),
     const CandidatePage(),
     const ChatPage(),
   ];

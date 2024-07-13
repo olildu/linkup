@@ -42,7 +42,7 @@ app.*.map.json
 /android/app/profile
 /android/app/release
 
-# My Edits
+# My 
 *.env
 *.metadata
 firebase.json

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_blurhash/flutter_blurhash.dart';
-import 'package:linkup/pages/test/test.dart';
+import 'package:linkup/UI/pages/loadingAnimation/loadingAnimation.dart';
 import 'package:octo_image/octo_image.dart';
 
 class OctoBlurHashFix {

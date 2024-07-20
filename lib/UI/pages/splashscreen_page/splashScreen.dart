@@ -86,11 +86,11 @@ class _SplashScreenNewState extends State<SplashScreenNew>
       // ignore: prefer_const_constructors
       MaterialPageRoute(
           builder: (context) => ResponsiveLayer(
-                mobileScaffold: const MainPage(),
-                desktopScaffold: const DesktopUI(),
-                createProfilePage: const CreateUserProfile(),
-                createProfile: widget.createProfile,
-              )),
+            mobileScaffold: const MainPage(),
+            desktopScaffold: const DesktopUI(),
+            createProfilePage: const CreateUserProfile(),
+            createProfile: widget.createProfile,
+          )),
     );
   }
 

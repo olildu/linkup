@@ -26,29 +26,25 @@ class _ChatPageState extends State<ChatPage> {
       backgroundColor: Theme.of(context).colorScheme.surface,
       body: Padding(
         padding: EdgeInsets.only(top: 20),
-        child: LiquidPullToRefresh(
-          onRefresh: FirebaseCalls().fetchUserData, // When refresh is hit reload the 
-          showChildOpacityTransition: false,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Match Que Title
-              matchQueTitle(),
-              
-              // Matches Que
-              matchedUsers(),
-              
-              SizedBox(height: 10),
-          
-              // Chats Title (The smaller version)
-              chatTitle(),
-              
-              // Chat Widgets
-              SizedBox(height: 5),
-              
-              ChatDetailsChatPage(),
-            ],
-          ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Match Que Title
+            matchQueTitle(),
+            
+            // Matches Que
+            matchedUsers(),
+            
+            SizedBox(height: 10),
+        
+            // Chats Title (The smaller version)
+            chatTitle(),
+            
+            // Chat Widgets
+            SizedBox(height: 5),
+            
+            ChatDetailsChatPage(),
+          ],
         ),
       ),
     );

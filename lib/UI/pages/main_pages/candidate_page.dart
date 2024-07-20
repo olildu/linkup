@@ -6,7 +6,7 @@ import 'package:linkup/UI/elements/candidate_details_elements/elements.dart';
 import 'package:linkup/UI/pages/match_banner_page/matchedBanner.dart';
 import 'package:linkup/api/api_calls.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:linkup/errorReporting/errorReporting.dart';
+import 'package:linkup/errorReporting/error_reporting.dart';
 
 class CandidatePage extends StatefulWidget {
   const CandidatePage({super.key});

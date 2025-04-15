@@ -44,8 +44,6 @@ Handles:
 - Matchmaking logic  
 - Chat APIs
 
-🔗 Backend source: *(Add backend repo or folder link here)*
-
 ## 📷 Screenshots  
 
 ![Initial Page](https://github.com/user-attachments/assets/906bc9db-c2e1-4a0c-a644-6293814627e4)

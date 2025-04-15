@@ -1,6 +1,5 @@
 # Linkup  
 A college dating app built with Flutter and powered by Firebase and FastAPI.  
-Android only. 🔗📱❤️
 
 ## 🔍 Overview  
 **Linkup** is designed to connect college students in a fun and secure way.  
@@ -25,8 +24,7 @@ It features real-time chat, push notifications, profile uploads, and a clean use
 - ⚡ Smooth Android experience
 
 ## 📱 Platform  
-- ✅ Android only  
-- ❌ iOS not supported (yet)
+- ✅ Android 
 
 ## 🛠 Installation  
 Clone the repository and run the app:

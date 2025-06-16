@@ -53,7 +53,7 @@ Handles:
 
 ## 🧑‍💻 Developer  
 **Ebin Santhosh**  
-Second-year CS student · Flutter + FastAPI Developer  
+Third-year CS student · Flutter + FastAPI Developer  
 [GitHub](https://github.com/olildu) • [LinkedIn](https://linkedin.com/in/ebinsanthosh)
 
 ---

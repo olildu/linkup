@@ -122,7 +122,7 @@ def send_otp_email(to_email: str, otp: str):
         raise HTTPException(status_code=500, detail=f"Email send failed: {e.body}")
     
 def generate_otp():
-    return str(random.randint(100000, 999999))
+    # return str(random.randint(100000, 999999))
     return 123456
 
 def retrieve_otp_email(data : EmailOTPData):

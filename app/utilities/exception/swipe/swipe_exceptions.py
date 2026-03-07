@@ -1,40 +1,41 @@
-import functools
-from fastapi import HTTPException, status
+from fastapi import HTTPException
 import psycopg2
+from functools import wraps
 
 from app.controllers.logger_controller import logger_controller
-from app.controllers.db_controller import conn
-from app.utilities.swipe.swipe_utilities import exists_in_queue
 
 def handle_db_errors(func):
-    @functools.wraps(func)
+    @wraps(func)
     async def wrapper(*args, **kwargs):
         try:
-            return await func(*args, **kwargs) 
+            return await func(*args, **kwargs)
         except psycopg2.Error as e:
-            conn.rollback()
-            logger_controller.error(f"Database error: {e}")
-
-            if e.pgcode == 'P0001':
-                raise HTTPException(
-                    status_code=status.HTTP_400_BAD_REQUEST,
-                    detail=str(e).split('\n')[0]
-                )
-            elif e.pgcode == '23514':
-                raise HTTPException(
-                    status_code=status.HTTP_400_BAD_REQUEST,
-                    detail="You cannot like/dislike yourself"
-                )
-            else:
-                raise HTTPException(
-                    status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                    detail="Internal server error"
-                )
+            logger_controller.error(f"Database error in {func.__name__}: {e}")
+            raise HTTPException(status_code=500, detail="A database error occurred")
+        except HTTPException:
+            # We want to re-raise existing HTTP exceptions so we don't accidentally swallow a 400 or 401 
+            # and turn it into a 500 error
+            raise
+        except Exception as e:
+            logger_controller.error(f"Unexpected error in {func.__name__}: {e}")
+            raise HTTPException(status_code=500, detail=str(e))
     return wrapper
 
-def assert_in_match_queue(liker_id, liked_id, cursor):
-    if not exists_in_queue(liker_id, liked_id, cursor):
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="You cannot like/dislike without liked_id in the match queue"
-        )
+def assert_in_match_queue(liker_id: int, liked_id: int, cursor):
+    """
+    Check if user `liked_id` is in the `match_queue` array of `liker_id`.
+    Raises an HTTP 400 if not found.
+    """
+    cursor.execute("""
+        SELECT EXISTS (
+            SELECT 1
+            FROM user_discovery_pool
+            WHERE user_id = %s
+            AND %s = ANY(match_queue)
+        );
+    """, (liker_id, liked_id))
+    
+    result = cursor.fetchone()
+    
+    if not result or not result[0]:
+        raise HTTPException(status_code=400, detail="User not in match queue")

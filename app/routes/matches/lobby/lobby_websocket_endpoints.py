@@ -7,7 +7,7 @@ from fastapi import APIRouter, WebSocket, WebSocketDisconnect, status
 from typing import Dict, List, Tuple
 
 # Internal module imports
-from app.controllers.db_controller import conn
+from app.controllers.db_controller import db_pool
 from app.models.connection_user_model import ConnectionMatchModel
 from app.utilities.token.token_utilities import decode_token
 from app.controllers.logger_controller import logger_controller 
@@ -22,89 +22,99 @@ active_connections: Dict[int, WebSocket] = {}
 
 # Retrieves users currently in the lobby and attempts matchmaking
 async def get_lobby_users() -> Dict:
-    cursor = conn.cursor()
+    conn = db_pool.getconn()
+    try:
+        cursor = conn.cursor()
 
-    # List of user IDs currently connected
-    lobby_users: List[int] = list(active_connections.keys())
-    if not lobby_users:
-        logger_controller.info("No users connected to lobby websocket.")
-        return {}
+        # List of user IDs currently connected
+        lobby_users: List[int] = list(active_connections.keys())
+        if not lobby_users:
+            logger_controller.info("No users connected to lobby websocket.")
+            return {}
 
-    # Query to get gender and interested_gender of lobby users
-    query: str = '''
-        SELECT u.id, u.gender, up.key, up.value
-        FROM user_preferences up
-        JOIN users u on up.user_id = u.id
-        WHERE key = 'interested_gender' 
-        AND user_id = ANY(%s)
-    '''
-    cursor.execute(query, (lobby_users,))
-    rows: List[Tuple[int, str, str, str]] = cursor.fetchall()
+        # Query to get gender and interested_gender of lobby users
+        query: str = '''
+            SELECT u.id, u.gender, up.key, up.value
+            FROM user_preferences up
+            JOIN users u on up.user_id = u.id
+            WHERE key = 'interested_gender' 
+            AND user_id = ANY(%s)
+        '''
+        cursor.execute(query, (lobby_users,))
+        rows: List[Tuple[int, str, str, str]] = cursor.fetchall()
 
-    # Build dictionary of user preferences
-    users: Dict[int, Dict[str, str]] = {}
-    for user in rows:
-        user_id, gender, key, interested_gender = user
-        if key == 'interested_gender':
-            users[user_id] = {
-                'id': user_id,
-                'gender': gender,
-                'interested_gender': interested_gender
-            }
+        # Build dictionary of user preferences
+        users: Dict[int, Dict[str, str]] = {}
+        for user in rows:
+            user_id, gender, key, interested_gender = user
+            if key == 'interested_gender':
+                users[user_id] = {
+                    'id': user_id,
+                    'gender': gender,
+                    'interested_gender': interested_gender
+                }
 
-    # Shuffle user list for randomized matching
-    user_ids: List[int] = list(users.keys())
-    random.shuffle(user_ids)
+        # Shuffle user list for randomized matching
+        user_ids: List[int] = list(users.keys())
+        random.shuffle(user_ids)
 
-    matched: set[int] = set()
-    matches: List[Tuple[int, int]] = []
+        matched: set[int] = set()
+        matches: List[Tuple[int, int]] = []
 
-    # Perform mutual gender preference match and ensure no previous chat/match
-    for uid_1 in user_ids:
-        if uid_1 in matched:
-            continue
-        user_1 = users[uid_1]
-        for uid_2 in user_ids:
-            if uid_1 == uid_2 or uid_2 in matched:
+        # Perform mutual gender preference match and ensure no previous chat/match
+        for uid_1 in user_ids:
+            if uid_1 in matched:
                 continue
-            user_2 = users[uid_2]
+            user_1 = users[uid_1]
+            for uid_2 in user_ids:
+                if uid_1 == uid_2 or uid_2 in matched:
+                    continue
+                user_2 = users[uid_2]
 
-            # Check for existing chat or match history
-            cursor.execute('''
-                SELECT EXISTS (
-                    SELECT chat_id FROM chat_participants WHERE user_id = %s
-                    INTERSECT
-                    SELECT chat_id FROM chat_participants WHERE user_id = %s
-                )
-                OR EXISTS (
-                    SELECT 1 FROM matches WHERE (user1_id = %s AND user2_id = %s) OR (user1_id = %s AND user2_id = %s)
-                ) AS already_connected;
-            ''', (uid_1, uid_2, uid_1, uid_2, uid_2, uid_1))
-            prev_connection: bool = cursor.fetchone()[0]
+                # Check for existing chat or match history
+                cursor.execute('''
+                    SELECT EXISTS (
+                        SELECT chat_id FROM chat_participants WHERE user_id = %s
+                        INTERSECT
+                        SELECT chat_id FROM chat_participants WHERE user_id = %s
+                    )
+                    OR EXISTS (
+                        SELECT 1 FROM matches WHERE (user1_id = %s AND user2_id = %s) OR (user1_id = %s AND user2_id = %s)
+                    ) AS already_connected;
+                ''', (uid_1, uid_2, uid_1, uid_2, uid_2, uid_1))
+                prev_connection: bool = cursor.fetchone()[0]
 
-            # Check mutual interest and no previous connection
-            if (user_1['gender'] == user_2['interested_gender'] and
-                user_2['gender'] == user_1['interested_gender'] and
-                not prev_connection):
+                # Check mutual interest and no previous connection
+                if (user_1['gender'] == user_2['interested_gender'] and
+                    user_2['gender'] == user_1['interested_gender'] and
+                    not prev_connection):
 
-                matches.append((uid_1, uid_2))
-                matched.update([uid_1, uid_2])
-                logger_controller.info(f"Matched users: {uid_1} and {uid_2}")
-                break
+                    matches.append((uid_1, uid_2))
+                    matched.update([uid_1, uid_2])
+                    logger_controller.info(f"Matched users: {uid_1} and {uid_2}")
+                    break
 
-    # Identify users who were not matched
-    not_matched: set[int] = set(users.keys()) - matched
+        # Identify users who were not matched
+        not_matched: set[int] = set(users.keys()) - matched
 
-    # Send appropriate responses to users
-    await send_event_to_user(
-        cursor=cursor,
-        matched=matched,
-        matches=matches,
-        not_matched=not_matched,
-    )
+        # Send appropriate responses to users
+        await send_event_to_user(
+            conn=conn,
+            cursor=cursor,
+            matched=matched,
+            matches=matches,
+            not_matched=not_matched,
+        )
+        return {}
+        
+    finally:
+        if 'cursor' in locals():
+            cursor.close()
+        db_pool.putconn(conn)
 
 # Send event messages (matched/not-matched) to relevant WebSocket connections
 async def send_event_to_user(
+    conn,
     cursor,
     matched: set[int],
     matches: List[Tuple[int, int]],

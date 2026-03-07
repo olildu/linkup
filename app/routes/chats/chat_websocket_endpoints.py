@@ -1,4 +1,3 @@
-
 import json
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect, status
 from typing import Dict, Union
@@ -9,7 +8,6 @@ from app.models.messages.message_model import ChatMessage
 from app.utilities.chat.chat_utilities import add_to_unseen_and_last_message, insert_message_to_db
 from app.utilities.token.token_utilities import decode_token
 
-from app.controllers.db_controller import conn
 
 chatsocket_router = APIRouter(prefix="/ws")
 active_connections_chats: Dict[int, WebSocket] = {}

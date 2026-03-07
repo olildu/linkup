@@ -1,6 +1,5 @@
 from datetime import timedelta
 from enum import Enum
-from http import client
 import random
 
 import brevo_python
@@ -10,7 +9,7 @@ from fastapi import HTTPException
 from pydantic import BaseModel, EmailStr
 from app.constants.global_constants import ACCESS_TOKEN_EXPIRE_MINUTES
 from app.controllers.brevo_controller import FROM_EMAIL, client
-from app.controllers.db_controller import conn
+from app.controllers.db_controller import db_pool
 from app.controllers.redis_controller import redis_client
 
 from app.models.signup_request_model import SignUpRequest
@@ -27,8 +26,9 @@ class EmailOTPData(BaseModel):
     subject: EmailOTPSubject
 
 def add_partial_user_to_db(data: SignUpRequest):
-    cursor = conn.cursor()
+    conn = db_pool.getconn()
     try:
+        cursor = conn.cursor()
         hashed_pw = hash_password(data.password)
         email = verify_email_token(data.email_hash)
 
@@ -57,11 +57,14 @@ def add_partial_user_to_db(data: SignUpRequest):
         conn.rollback()
         raise HTTPException(status_code=500, detail=f"Database error: {str(e)}")
     finally:
-        cursor.close()
+        if 'cursor' in locals():
+            cursor.close()
+        db_pool.putconn(conn)
 
 def reset_user_password(data: SignUpRequest):
-    cursor = conn.cursor()
+    conn = db_pool.getconn()
     try:
+        cursor = conn.cursor()
         # Verify the token specifically for forgot_password
         email = verify_email_token(data.email_hash, expected_subject="forgot_password")
         hashed_pw = hash_password(data.password)
@@ -88,7 +91,9 @@ def reset_user_password(data: SignUpRequest):
         conn.rollback()
         raise HTTPException(status_code=500, detail=f"Database error: {str(e)}")
     finally:
-        cursor.close()
+        if 'cursor' in locals():
+            cursor.close()
+        db_pool.putconn(conn)
 
 def send_otp_email(to_email: str, otp: str):
     html = f"""

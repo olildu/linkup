@@ -2,10 +2,12 @@ from typing import Optional
 from fastapi import HTTPException
 import psycopg2
 from app.models.user_model import UserModel
-from app.controllers.db_controller import conn
+from app.controllers.db_controller import db_pool
 from psycopg2.extras import Json
 
 def add_user_to_db(user: UserModel):
+    # Fetch a connection from the pool
+    conn = db_pool.getconn()
     cursor = None
     user_id = user.id
     print(user_id)
@@ -72,11 +74,15 @@ def add_user_to_db(user: UserModel):
     finally:
         if cursor:
             cursor.close()
+        # Always return the connection to the pool
+        db_pool.putconn(conn)
 
 def get_user_from_db(email: Optional[str] = None, id: Optional[int] = None):
     if not email and not id:
         raise HTTPException(status_code=400, detail="Either 'email' or 'id' must be provided.")
 
+    # Fetch a connection from the pool
+    conn = db_pool.getconn()
     cursor = None
     try:
         cursor = conn.cursor()
@@ -117,3 +123,5 @@ def get_user_from_db(email: Optional[str] = None, id: Optional[int] = None):
     finally:
         if cursor:
             cursor.close()
+        # Always return the connection to the pool
+        db_pool.putconn(conn)

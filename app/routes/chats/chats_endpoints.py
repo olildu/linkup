@@ -14,7 +14,7 @@ from app.routes.matches.connections_websocket_endpoints import DataModel, send_e
 from app.utilities.chat.chat_utilities import process_msg
 from app.utilities.exception.swipe.swipe_exceptions import handle_db_errors
 from app.utilities.token.token_utilities import decode_token
-from app.controllers.db_controller import conn
+from app.controllers.db_controller import db_pool
 from app.controllers.logger_controller import logger_controller
 
 
@@ -22,77 +22,83 @@ chats_router = APIRouter(prefix="/chats")
 
 class ChatRequest(BaseModel):
     id: int
-1
+
 @chats_router.post("/start-chat")
 @handle_db_errors
 async def start_chat(body: ChatRequest, token: str = Depends(oauth2_scheme)):
     id = decode_token(token)
-    cursor = conn.cursor()
+    conn = db_pool.getconn()
+    try:
+        cursor = conn.cursor()
 
-    query = """
-        SELECT EXISTS (
-            SELECT 1
-            FROM matches
-            WHERE (user1_id = %s AND user2_id = %s)
-            OR (user1_id = %s AND user2_id = %s)
-        );
-    """
-    cursor.execute(query, (id, body.id, body.id, id))
-    match_exists = cursor.fetchone()[0] 
-
-    if match_exists:
-        cursor.execute('''
-            INSERT INTO chats 
-            DEFAULT VALUES 
-            returning id;
-        ''')
-        chat_id : int = cursor.fetchone()[0]
-
-        cursor.execute('''
-            INSERT INTO chat_participants (chat_id, user_id)
-            VALUES(%s, %s) 
-        ''', (chat_id, id))
-
-        cursor.execute(''' 
-            INSERT INTO chat_participants (chat_id, user_id)
-            VALUES(%s, %s) 
-        ''', (chat_id, body.id))
-
-        cursor.execute('''
-            DELETE FROM matches
-            WHERE (user1_id = %s AND user2_id = %s)
+        query = """
+            SELECT EXISTS (
+                SELECT 1
+                FROM matches
+                WHERE (user1_id = %s AND user2_id = %s)
                 OR (user1_id = %s AND user2_id = %s)
-        ''', (id, body.id, body.id, id))
- 
-        conn.commit()
+            );
+        """
+        cursor.execute(query, (id, body.id, body.id, id))
+        match_exists = cursor.fetchone()[0] 
 
-        pairs = [
-            (id, body.id),
-            (body.id, id)
-        ]
+        if match_exists:
+            cursor.execute('''
+                INSERT INTO chats 
+                DEFAULT VALUES 
+                returning id;
+            ''')
+            chat_id : int = cursor.fetchone()[0]
 
-        await asyncio.gather(*[
-            send_event_to_user_connection(
-                DataModel(
-                    from_=from_,
-                    to=to,
-                    type="connections-reload",
-                    sub_type="chat",
+            cursor.execute('''
+                INSERT INTO chat_participants (chat_id, user_id)
+                VALUES(%s, %s) 
+            ''', (chat_id, id))
+
+            cursor.execute(''' 
+                INSERT INTO chat_participants (chat_id, user_id)
+                VALUES(%s, %s) 
+            ''', (chat_id, body.id))
+
+            cursor.execute('''
+                DELETE FROM matches
+                WHERE (user1_id = %s AND user2_id = %s)
+                    OR (user1_id = %s AND user2_id = %s)
+            ''', (id, body.id, body.id, id))
+    
+            conn.commit()
+
+            pairs = [
+                (id, body.id),
+                (body.id, id)
+            ]
+
+            await asyncio.gather(*[
+                send_event_to_user_connection(
+                    DataModel(
+                        from_=from_,
+                        to=to,
+                        type="connections-reload",
+                        sub_type="chat",
+                    )
                 )
-            )
-            for from_, to in pairs
-        ])
+                for from_, to in pairs
+            ])
 
-        return {
-            "success" : True,
-            "message": "Chat started successfully",
-            "chat_room_id" : chat_id,
-            "user1_id": id, 
-            "user2_id": body.id
-        }
+            return {
+                "success" : True,
+                "message": "Chat started successfully",
+                "chat_room_id" : chat_id,
+                "user1_id": id, 
+                "user2_id": body.id
+            }
 
-    else:
-        raise HTTPException(status_code=400, detail="Match does not exist, cannot start chat")
+        else:
+            raise HTTPException(status_code=400, detail="Match does not exist, cannot start chat")
+    finally:
+        if 'cursor' in locals():
+            cursor.close()
+        db_pool.putconn(conn)
 
 class ChatRoomRequest(BaseModel):
     chat_room_id: int 
@@ -104,9 +110,9 @@ class ChatRoomRequest(BaseModel):
 async def fetch_chats(request: Request, body: ChatRoomRequest, token: str = Depends(oauth2_scheme)):
     requesting_user_id = decode_token(token)
     # try:
-    async with request.app.state.db_pool.acquire() as conn:
+    async with request.app.state.db_pool.acquire() as async_conn:
         # Validate participation
-        is_participant = await conn.fetchval("""
+        is_participant = await async_conn.fetchval("""
             SELECT 1 FROM chat_participants
             WHERE user_id = $1 AND chat_id = $2
             LIMIT 1;
@@ -119,7 +125,7 @@ async def fetch_chats(request: Request, body: ChatRoomRequest, token: str = Depe
             raise HTTPException(status_code=403, detail="User is not a participant of this chat")
 
         # Last message lookup
-        row = await conn.fetchrow("""
+        row = await async_conn.fetchrow("""
             SELECT id, sender_id FROM messages
             WHERE chat_id = $1
             ORDER BY timestamp DESC
@@ -130,7 +136,7 @@ async def fetch_chats(request: Request, body: ChatRoomRequest, token: str = Depe
         last_message_sender = row['sender_id'] if row else None
 
         if last_message_id and last_message_sender != requesting_user_id:
-            await conn.execute("""
+            await async_conn.execute("""
                 UPDATE chat_participants
                 SET last_seen_message_id = $1, unseen_count = 0, last_seen_at = NOW()
                 WHERE user_id = $2 AND chat_id = $3;
@@ -147,7 +153,7 @@ async def fetch_chats(request: Request, body: ChatRoomRequest, token: str = Depe
             )
 
         # Fetch messages with media
-        messages_rows = await conn.fetch("""
+        messages_rows = await async_conn.fetch("""
             SELECT
                 m.id,
                 m.chat_id,
@@ -178,18 +184,15 @@ async def fetch_chats(request: Request, body: ChatRoomRequest, token: str = Depe
         "messages": messages
     }
 
-    # except Exception as e:
-    #     logger_controller.error(f"Error fetching chats: {e}")
-    #     raise HTTPException(status_code=500, detail="Failed to fetch chat messages")
 
 @chats_router.post("/get/chat-paginated")
 @handle_db_errors
 async def fetch_paginated_chats(request: Request, body: ChatRoomRequest, token: str = Depends(oauth2_scheme)):
     requesting_user_id = decode_token(token)
     try:
-        async with request.app.state.db_pool.acquire() as conn:
+        async with request.app.state.db_pool.acquire() as async_conn:
             # Validate participation
-            is_participant = await conn.fetchval("""
+            is_participant = await async_conn.fetchval("""
                 SELECT 1 FROM chat_participants
                 WHERE user_id = $1 AND chat_id = $2
                 LIMIT 1;
@@ -205,7 +208,7 @@ async def fetch_paginated_chats(request: Request, body: ChatRoomRequest, token: 
             logger_controller.info(f"Pagination message ID received: {pagination_message_id}")
 
             # Fetch messages older than pagination_message_id (strictly less)
-            messages_rows = await conn.fetch("""
+            messages_rows = await async_conn.fetch("""
                 SELECT
                     m.id,
                     m.chat_id,
@@ -238,7 +241,7 @@ async def fetch_paginated_chats(request: Request, body: ChatRoomRequest, token: 
             next_page_cursor = None
             if messages_rows:
                 oldest_id = messages_rows[0]['id']
-                has_more = await conn.fetchval("""
+                has_more = await async_conn.fetchval("""
                     SELECT EXISTS (
                         SELECT 1 FROM messages
                         WHERE chat_id = $1 AND id < $2
@@ -256,4 +259,3 @@ async def fetch_paginated_chats(request: Request, body: ChatRoomRequest, token: 
     except Exception as e:
         logger_controller.error(f"Error fetching chats: {e}")
         raise HTTPException(status_code=500, detail="Failed to fetch chat messages")
-

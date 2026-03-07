@@ -7,7 +7,7 @@ from jwt import PyJWTError
 from datetime import datetime
 from fastapi import APIRouter, Body, Depends, HTTPException, status
 
-from app.controllers.db_controller import conn
+from app.controllers.db_controller import db_pool
 from app.models.block_user_request import BlockUserRequest
 from app.models.preference_model import PreferenceModel
 from app.models.report_user_request import ReportUserRequest
@@ -22,9 +22,9 @@ user_router = APIRouter(prefix="/user")
 @user_router.post("/report")
 async def report_user(body: ReportUserRequest, token: str = Depends(oauth2_scheme)):
     reporter_id = decode_token(token)
-    cursor = conn.cursor()
-
+    conn = db_pool.getconn()
     try:
+        cursor = conn.cursor()
         cursor.execute("""
             INSERT INTO reported_users (reporter_id, reported_id, reason)
             VALUES (%s, %s, %s)
@@ -38,14 +38,16 @@ async def report_user(body: ReportUserRequest, token: str = Depends(oauth2_schem
         print(f"Error reporting user: {e}")
         raise HTTPException(status_code=500, detail="Failed to report user")
     finally:
-        cursor.close()
+        if 'cursor' in locals():
+            cursor.close()
+        db_pool.putconn(conn)
 
 @user_router.delete("/delete")
 async def delete_account(token: str = Depends(oauth2_scheme)):
     user_id = decode_token(token)
-    cursor = conn.cursor()
-
+    conn = db_pool.getconn()
     try:
+        cursor = conn.cursor()
         # 1. Anonymize user data
         # We append timestamp + uuid to email to keep it unique but anonymous
         anonymized_email = f"deleted_{int(datetime.now().timestamp())}_{uuid.uuid4()}@linkup.com"
@@ -76,15 +78,17 @@ async def delete_account(token: str = Depends(oauth2_scheme)):
         print(f"Error deleting account: {e}")
         raise HTTPException(status_code=500, detail="Failed to delete account")
     finally:
-        cursor.close()
+        if 'cursor' in locals():
+            cursor.close()
+        db_pool.putconn(conn)
 
 @user_router.post("/block")
 async def block_user(body: BlockUserRequest, token: str = Depends(oauth2_scheme)):
     blocker_id = decode_token(token)
     blocked_id = body.blocked_user_id
-    cursor = conn.cursor()
-
+    conn = db_pool.getconn()
     try:
+        cursor = conn.cursor()
         # 1. Insert into blocked_users
         cursor.execute("""
             INSERT INTO blocked_users (blocker_id, blocked_id)
@@ -132,7 +136,9 @@ async def block_user(body: BlockUserRequest, token: str = Depends(oauth2_scheme)
         print(f"Error blocking user: {e}")
         raise HTTPException(status_code=500, detail="Failed to block user")
     finally:
-        cursor.close()
+        if 'cursor' in locals():
+            cursor.close()
+        db_pool.putconn(conn)
 
 @user_router.get("/get/detail/{user_id}")
 async def get_user_data(user_id: int, token: str = Depends(oauth2_scheme)):
@@ -145,28 +151,21 @@ async def get_user_data(user_id: int, token: str = Depends(oauth2_scheme)):
             headers={"WWW-Authenticate": "Bearer"} 
         )
 
-    cursor = None
-
     try:
        return get_user_details(user_id)
     except psycopg2.Error as e:
         print(f"Database error during user retrieval: {e}")
-        if conn:
-            conn.rollback()
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Internal server error while retrieving user data"
         )
-    finally:
-        if cursor:
-            cursor.close()
 
 @user_router.get("/get/preferences")
 async def get_user_preferences(token: str = Depends(oauth2_scheme)):
     user_id = decode_token(token)
-    cursor = conn.cursor()
-
+    conn = db_pool.getconn()
     try:
+        cursor = conn.cursor()
         cursor.execute("SELECT key, value FROM user_preferences WHERE user_id = %s", (user_id,))
         preferences = cursor.fetchall()
 
@@ -180,14 +179,15 @@ async def get_user_preferences(token: str = Depends(oauth2_scheme)):
 
     except psycopg2.Error as e:
         print(f"Database error during preference retrieval: {e}")
-        if conn:
-            conn.rollback()
+        conn.rollback()
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Internal server error while retrieving user preferences"
         )
     finally:
-        cursor.close()
+        if 'cursor' in locals():
+            cursor.close()
+        db_pool.putconn(conn)
 
 @user_router.post("/update/metadata")
 async def update_user_metadata(
@@ -208,11 +208,10 @@ async def update_user_metadata(
         )
 
     update_data = body.model_dump(exclude_none=True)
-    cursor = None
-
     if not update_data:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="No fields to update")
 
+    conn = db_pool.getconn()
     try:
         cursor = conn.cursor()
 
@@ -248,12 +247,12 @@ async def update_user_metadata(
 
     except psycopg2.Error as e:
         print(f"Database error: {e}")
-        if conn:
-            conn.rollback()
+        conn.rollback()
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Database update failed")
     finally:
-        if cursor:
+        if 'cursor' in locals():
             cursor.close()
+        db_pool.putconn(conn)
 
     return {"message": "User metadata updated successfully"}
 
@@ -261,9 +260,9 @@ async def update_user_metadata(
 async def update_user_preferences(body: PreferenceModel, token: str = Depends(oauth2_scheme)):
 
     id = decode_token(token)
-    cursor = conn.cursor()
-
+    conn = db_pool.getconn()
     try:
+        cursor = conn.cursor()
         for key, value in body.model_dump().items():
             # Delete if value is None (null)
             if value is None or value == "Don't mind":
@@ -286,3 +285,7 @@ async def update_user_preferences(body: PreferenceModel, token: str = Depends(oa
     except Exception as e:
         conn.rollback()
         raise HTTPException(status_code=500, detail=str(e))
+    finally:
+        if 'cursor' in locals():
+            cursor.close()
+        db_pool.putconn(conn)

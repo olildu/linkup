@@ -4,7 +4,7 @@ import json
 import traceback
 from fastapi import APIRouter, Depends, HTTPException
 
-from app.controllers.db_controller import conn
+from app.controllers.db_controller import db_pool
 from app.controllers.logger_controller import logger_controller
 from app.constants.global_constants import oauth2_scheme
 
@@ -38,8 +38,9 @@ async def return_connections(token: str = Depends(oauth2_scheme)):
     including last message media type info.
     """
     user_id = decode_token(token)
-    cursor = conn.cursor()
+    conn = db_pool.getconn()
     try:
+        cursor = conn.cursor()
         # Fetch matches (all users matched with current user)
         cursor.execute("""
             SELECT user1_id, user2_id
@@ -172,4 +173,6 @@ async def return_connections(token: str = Depends(oauth2_scheme)):
         raise HTTPException(status_code=500, detail=str(e))
 
     finally:
-        cursor.close()
+        if 'cursor' in locals():
+            cursor.close()
+        db_pool.putconn(conn)

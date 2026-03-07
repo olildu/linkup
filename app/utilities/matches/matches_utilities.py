@@ -5,7 +5,7 @@ from fastapi import HTTPException
 from pydantic import BaseModel
 from psycopg2.extensions import cursor as Psycopg2Cursor
 
-from app.controllers.db_controller import conn
+from app.controllers.db_controller import db_pool
 from app.models.connection_user_model import ConnectionChatModel
 from app.models.match_canidate_model import build_candidate_model
 
@@ -28,9 +28,9 @@ def get_last_message_timestamp(chat : ConnectionChatModel, chat_last_message : d
 
 
 def get_matches(user_id: int) -> MatchUserModel:
-    cursor = conn.cursor()
-
+    conn = db_pool.getconn()
     try:
+        cursor = conn.cursor()
         # Query 1: user info 
         cursor.execute("SELECT id, username, university_id FROM users WHERE id = %s", (user_id,))
         user_row = cursor.fetchone()
@@ -73,7 +73,9 @@ def get_matches(user_id: int) -> MatchUserModel:
             "preferences_set": True if len(user.preferences.keys()) > 1 else False,
         }
     finally:
-        cursor.close()
+        if 'cursor' in locals():
+            cursor.close()
+        db_pool.putconn(conn)
 
 def get_matches_by_preference(user: MatchUserModel, limit: int = 10, cursor: Psycopg2Cursor = None):
     university_id = user.university_id
@@ -178,7 +180,7 @@ def get_matches_by_preference(user: MatchUserModel, limit: int = 10, cursor: Psy
         """
         cursor.execute(upsert_query, (user_id, merged_queue))
 
-    conn.commit()
+    cursor.connection.commit()
     random.shuffle(results)
     
-    return results 
+    return results

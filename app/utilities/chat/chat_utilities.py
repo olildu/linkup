@@ -1,7 +1,7 @@
 import asyncio
 import json
 from app.models.messages.message_model import ChatMessage, MediaMessageData
-from app.controllers.db_controller import conn
+from app.controllers.db_controller import db_pool
 from psycopg2.extras import Json
 
 from app.utilities.media.media_utilities import generate_signed_url
@@ -24,6 +24,7 @@ def add_to_unseen_and_last_message(
 
     media_type = None
 
+    conn = db_pool.getconn()
     try:
         with conn.cursor() as cursor:
             cursor.execute(cp_query, (
@@ -54,39 +55,45 @@ def add_to_unseen_and_last_message(
     except Exception as e:
         print(f"Failed to update unseen count or last message media info: {e}")
         conn.rollback()
+    finally:
+        db_pool.putconn(conn)
 
 def insert_message_to_db(message: ChatMessage):
-    with conn.cursor() as cur:
-        # Insert the message first
-        cur.execute(
-            """
-            INSERT INTO messages (id, chat_id, sender_id, message, reply_id, timestamp)
-            VALUES (%s, %s, %s, %s, %s, NOW())
-            RETURNING id
-            """,
-            (message.message_id, message.chat_room_id, message.from_, message.message, message.reply_id)
-        )
-        inserted_id = cur.fetchone()[0]
-
-        # If media exists, insert it too
-        if message.media:
+    conn = db_pool.getconn()
+    try:
+        with conn.cursor() as cur:
+            # Insert the message first
             cur.execute(
                 """
-                INSERT INTO media_files (message_id, file_key, media_type, size_bytes, metadata, uploaded_at, user_id)
-                VALUES (%s, %s, %s, %s, %s, NOW(), %s)
+                INSERT INTO messages (id, chat_id, sender_id, message, reply_id, timestamp)
+                VALUES (%s, %s, %s, %s, %s, NOW())
+                RETURNING id
                 """,
-                (
-                    inserted_id,
-                    message.media.file_key,
-                    message.media.mediaType.value if hasattr(message.media.mediaType, 'value') else message.media.mediaType,
-                    message.media.metadata.get("size_bytes"),
-                    Json(message.media.metadata),
-                    message.from_
-                )
+                (message.message_id, message.chat_room_id, message.from_, message.message, message.reply_id)
             )
+            inserted_id = cur.fetchone()[0]
 
-        conn.commit()
-        return inserted_id
+            # If media exists, insert it too
+            if message.media:
+                cur.execute(
+                    """
+                    INSERT INTO media_files (message_id, file_key, media_type, size_bytes, metadata, uploaded_at, user_id)
+                    VALUES (%s, %s, %s, %s, %s, NOW(), %s)
+                    """,
+                    (
+                        inserted_id,
+                        message.media.file_key,
+                        message.media.mediaType.value if hasattr(message.media.mediaType, 'value') else message.media.mediaType,
+                        message.media.metadata.get("size_bytes"),
+                        Json(message.media.metadata),
+                        message.from_
+                    )
+                )
+
+            conn.commit()
+            return inserted_id
+    finally:
+        db_pool.putconn(conn)
 
 async def generate_signed_url_async(file_key: str) -> str:
     loop = asyncio.get_running_loop()
@@ -117,4 +124,3 @@ async def process_msg(msg):
         is_seen=msg['is_seen'],
         media=media_data,
     )
- 

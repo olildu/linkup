@@ -65,10 +65,7 @@ class _MatchMakingPageState extends State<MatchMakingPage> with SingleTickerProv
                             },
                           ),
 
-                          IconButton(
-                            icon: Icon(Icons.flash_on_rounded, size: 28.sp),
-                            onPressed: () {},
-                          ),
+                          SizedBox(width: 48.w, height: 48.w),
                         ],
                       ),
 

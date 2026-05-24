@@ -24,39 +24,44 @@ class _LandingPageState extends State<LandingPage> {
       isScrollControlled: true,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20.r))),
       builder: (context) {
-        return StatefulBuilder(
-          builder: (context, setModalState) {
-            return ClipRRect(
-              borderRadius: BorderRadius.vertical(top: Radius.circular(20.r)),
-              child: AnimatedContainer(
-                duration: const Duration(milliseconds: 100),
-                height: (MediaQuery.of(context).size.height * modalHeight) + MediaQuery.of(context).viewInsets.bottom,
-                child: LoginSignupPage(
-                  onTabChange: (int tabIndex) {
-                    double newHeight;
+        return Theme(
+          data: ThemeData.light().copyWith(
+            colorScheme: const ColorScheme.light(primary: AppColors.primary, surface: Colors.white, onSurface: Colors.black),
+          ),
+          child: StatefulBuilder(
+            builder: (context, setModalState) {
+              return ClipRRect(
+                borderRadius: BorderRadius.vertical(top: Radius.circular(20.r)),
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 100),
+                  height: (MediaQuery.of(context).size.height * modalHeight) + MediaQuery.of(context).viewInsets.bottom,
+                  child: LoginSignupPage(
+                    onTabChange: (int tabIndex) {
+                      double newHeight;
 
-                    switch (tabIndex) {
-                      case 0:
-                        newHeight = 0.55;
-                        break;
-                      case 1:
-                        newHeight = 0.37;
-                        break;
-                      case 2:
-                        newHeight = 0.65;
-                        break;
-                      default:
-                        newHeight = 0.5;
-                    }
+                      switch (tabIndex) {
+                        case 0:
+                          newHeight = 0.55;
+                          break;
+                        case 1:
+                          newHeight = 0.37;
+                          break;
+                        case 2:
+                          newHeight = 0.65;
+                          break;
+                        default:
+                          newHeight = 0.5;
+                      }
 
-                    setModalState(() {
-                      modalHeight = newHeight;
-                    });
-                  },
+                      setModalState(() {
+                        modalHeight = newHeight;
+                      });
+                    },
+                  ),
                 ),
-              ),
-            );
-          },
+              );
+            },
+          ),
         );
       },
     ).then((value) async {

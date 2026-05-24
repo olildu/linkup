@@ -29,22 +29,21 @@ void showBottomSheetUserProfile({required BuildContext context, required int use
           child: BlocBuilder<OtherProfileBloc, OtherProfileState>(
             builder: (context, state) {
               if (state is OtherProfileLoading) {
-                return const SizedBox(height: double.infinity, child: Center(child: CircularProgressIndicator()));
+                return const SizedBox(
+                  height: double.infinity,
+                  child: Center(child: CircularProgressIndicator()),
+                );
               } else if (state is OtherProfileLoaded) {
                 return OtherProfileLoadedView(candidate: state.user, showChatButton: showChatButton, parentContext: parentContext);
               } else if (state is OtherProfileError) {
                 return SizedBox(
                   height: double.infinity,
-                  child: Center(
-                    child: Text("Error loading profile", style: Theme.of(context).textTheme.bodyLarge),
-                  ),
+                  child: Center(child: Text("Error loading profile", style: Theme.of(context).textTheme.bodyLarge)),
                 );
               } else {
                 return SizedBox(
                   height: double.infinity,
-                  child: Center(
-                    child: Text("No data available", style: Theme.of(context).textTheme.bodyLarge),
-                  ),
+                  child: Center(child: Text("No data available", style: Theme.of(context).textTheme.bodyLarge)),
                 );
               }
             },
@@ -65,20 +64,27 @@ class OtherProfileLoadedView extends StatelessWidget {
   Widget build(BuildContext context) {
     final height = MediaQuery.of(context).size.height * 0.8;
 
-    final backgroundColor = Theme.of(context).brightness == Brightness.light ? const Color(0xFFF5F5F5) : const Color(0xFF1C1C1C);
+    final backgroundColor = Theme.of(context).brightness == Brightness.light ? const Color(0xFFF5F5F5) : const Color.fromARGB(255, 0, 0, 0);
 
     final availableHeight = showChatButton ? height - 60.h - 30.h : height - 25.h;
 
     return Container(
       height: height,
-      decoration: BoxDecoration(color: backgroundColor, borderRadius: BorderRadius.vertical(top: Radius.circular(20.r))),
+      decoration: BoxDecoration(
+        color: backgroundColor,
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20.r)),
+      ),
       padding: EdgeInsets.symmetric(vertical: 10.h, horizontal: 10.w),
       child: ClipRRect(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20.r)),
 
         child: Column(
           children: [
-            Expanded(child: SingleChildScrollView(child: CandidateDetailBuilder(availableHeight: availableHeight, candidate: candidate))),
+            Expanded(
+              child: SingleChildScrollView(
+                child: CandidateDetailBuilder(availableHeight: availableHeight, candidate: candidate),
+              ),
+            ),
             if (showChatButton) ...{
               Gap(5.h),
               ButtonBuilder(
@@ -94,23 +100,17 @@ class OtherProfileLoadedView extends StatelessWidget {
 
                     navigator.push(
                       CupertinoPageRoute(
-                        builder:
-                            (ctx) => BlocProvider(
-                              create:
-                                  (ctx) => ChatsBloc(
-                                    currentChatUserId: candidate.id,
-                                    currentUserId: currentUserId,
-                                    chatRoomId: response["chat_room_id"],
-                                    isar: GetIt.instance<Isar>(),
-                                  )..add(StartChatsEvent()),
-                              child: ChatPage(
-                                currentChatUserId: candidate.id,
-                                currentUserId: currentUserId,
-                                userName: candidate.username,
-                                userImageMetaData: candidate.profilePictureMetaData,
-                                chatRoomId: response["chat_room_id"],
-                              ),
-                            ),
+                        builder: (ctx) => BlocProvider(
+                          create: (ctx) =>
+                              ChatsBloc(currentChatUserId: candidate.id, currentUserId: currentUserId, chatRoomId: response["chat_room_id"], isar: GetIt.instance<Isar>())..add(StartChatsEvent()),
+                          child: ChatPage(
+                            currentChatUserId: candidate.id,
+                            currentUserId: currentUserId,
+                            userName: candidate.username,
+                            userImageMetaData: candidate.profilePictureMetaData,
+                            chatRoomId: response["chat_room_id"],
+                          ),
+                        ),
                       ),
                     );
                   }

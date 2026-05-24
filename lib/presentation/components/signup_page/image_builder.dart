@@ -19,31 +19,23 @@ class ImageBuilder extends StatelessWidget {
 
     Widget imageWidget = GestureDetector(
       onTap: onTap,
-
       child: ClipRRect(
         borderRadius: BorderRadius.circular(20.0.r),
-        child:
-            isNetwork
-                ? OctoImage(
-                  image: CachedNetworkImageProvider(imageMetaData['url']),
-                  placeholderBuilder: blurHash(imageMetaData['blurhash']).placeholderBuilder,
-                  fit: BoxFit.cover,
-                  width: width ?? double.infinity,
-                  height: height ?? double.infinity,
-                  errorBuilder: (context, error, stackTrace) => const Icon(Icons.error),
-                )
-                : Image.asset(imageMetaData, height: height ?? double.infinity, fit: BoxFit.cover, width: width ?? double.infinity),
+        child: isNetwork
+            ? OctoImage(
+                image: CachedNetworkImageProvider(imageMetaData['url']),
+                placeholderBuilder: blurHash(imageMetaData['blurhash']).placeholderBuilder,
+                fit: BoxFit.cover,
+                width: width ?? double.infinity,
+                height: height ?? double.infinity,
+                errorBuilder: (context, error, stackTrace) => const Icon(Icons.error),
+              )
+            : Image.asset(imageMetaData, height: height ?? double.infinity, fit: BoxFit.contain, width: width ?? double.infinity),
       ),
     );
 
     if (darkMode == true) {
-      return ColorFiltered(
-        colorFilter: const ColorFilter.matrix(<double>[-1, 0, 0, 0, 255, 0, -1, 0, 0, 255, 0, 0, -1, 0, 255, 0, 0, 0, 1, 0]),
-        child: Container(
-          decoration: BoxDecoration(color: Theme.of(context).colorScheme.surface.withValues(alpha: 0.5), borderRadius: BorderRadius.circular(20.0.r)),
-          child: imageWidget,
-        ),
-      );
+      return ColorFiltered(colorFilter: const ColorFilter.matrix(<double>[-1, 0, 0, 0, 255, 0, -1, 0, 0, 255, 0, 0, -1, 0, 255, 0, 0, 0, 1, 0]), child: imageWidget);
     }
 
     return imageWidget;

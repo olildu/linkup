@@ -79,7 +79,7 @@ class _MatchedPageState extends State<MatchedPage> {
             ),
 
       body: Padding(
-        padding: EdgeInsets.only(left: 20.w, right: 20.w, top: widget.meet8State ? 40.h : 110.h, bottom: 70.h),
+        padding: EdgeInsets.only(left: 20.w, right: 20.w, top: widget.meet8State ? 40.h : 60.h, bottom: 70.h),
         child: Stack(
           alignment: Alignment.center,
           children: [

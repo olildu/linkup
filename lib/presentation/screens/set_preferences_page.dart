@@ -70,7 +70,7 @@ class _SetPreferencesPageState extends State<SetPreferencesPage> {
               scrolledUnderElevation: 0,
               title: Text(
                 'Set Your Preferences',
-                style: TextStyle(fontSize: 20.sp, fontWeight: FontWeight.w600, color: Theme.of(context).colorScheme.onSurface),
+                style: Theme.of(context).textTheme.titleLarge?.copyWith(fontSize: 20.sp, fontWeight: FontWeight.w600, color: Theme.of(context).colorScheme.onSurface),
               ),
               centerTitle: true,
               backgroundColor: Colors.transparent,
@@ -213,7 +213,7 @@ class _SetPreferencesPageState extends State<SetPreferencesPage> {
           return Center(
             child: Text(
               'Error loading preferences. Please try again later.',
-              style: TextStyle(fontSize: 16.sp, color: Theme.of(context).colorScheme.error),
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(fontSize: 16.sp, color: Theme.of(context).colorScheme.error),
             ),
           );
         }

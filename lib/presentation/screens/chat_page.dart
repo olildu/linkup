@@ -279,19 +279,19 @@ class _ChatPageState extends State<ChatPage> {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text("Block User?"),
-        content: Text("Are you sure you want to block ${widget.userName}? This conversation will be deleted and they won't be able to contact you."),
+        title: Text("Block User?", style: Theme.of(ctx).textTheme.titleLarge),
+        content: Text("Are you sure you want to block ${widget.userName}? This conversation will be deleted and they won't be able to contact you.", style: Theme.of(ctx).textTheme.bodyMedium),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: Text("Cancel", style: TextStyle(color: Theme.of(context).colorScheme.onSurface)),
+            child: Text("Cancel", style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Theme.of(context).colorScheme.onSurface)),
           ),
           TextButton(
             onPressed: () {
               Navigator.pop(ctx); // Close dialog
               _onBlockConfirmed();
             },
-            child: const Text("Block", style: TextStyle(color: Colors.red)),
+            child: Text("Block", style: AppTextStyles.destructive(context)),
           ),
         ],
       ),
@@ -308,7 +308,7 @@ class _ChatPageState extends State<ChatPage> {
 
     // 3. Show feedback
     // (Assuming you have a scaffold messenger wrapper or similar)
-    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("User blocked successfully")));
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("User blocked successfully", style: Theme.of(context).textTheme.bodyMedium)));
   }
 
   void _showReportDialog() {
@@ -316,7 +316,7 @@ class _ChatPageState extends State<ChatPage> {
       context: context,
       builder: (ctx) {
         return AlertDialog(
-          title: const Text("Report User"),
+          title: Text("Report User", style: Theme.of(ctx).textTheme.titleLarge),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -330,7 +330,7 @@ class _ChatPageState extends State<ChatPage> {
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(ctx),
-              child: Text("Cancel", style: TextStyle(color: Theme.of(context).colorScheme.onSurface)),
+              child: Text("Cancel", style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Theme.of(context).colorScheme.onSurface)),
             ),
           ],
         );
@@ -341,7 +341,7 @@ class _ChatPageState extends State<ChatPage> {
   // 2. Helper widget for report options
   Widget _buildReportOption(BuildContext ctx, String reason) {
     return ListTile(
-      title: Text(reason),
+      title: Text(reason, style: Theme.of(ctx).textTheme.bodyLarge),
       onTap: () {
         Navigator.pop(ctx); // Close dialog
         _onReportConfirmed(reason);
@@ -353,7 +353,7 @@ class _ChatPageState extends State<ChatPage> {
   void _onReportConfirmed(String reason) {
     context.read<ConnectionsBloc>().add(ReportUserEvent(userIdToReport: widget.currentChatUserId, reason: reason));
 
-    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("User reported. Thank you for making Linkup safer.")));
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("User reported. Thank you for making Linkup safer.", style: Theme.of(context).textTheme.bodyMedium)));
   }
 
   @override
@@ -385,7 +385,7 @@ class _ChatPageState extends State<ChatPage> {
               Gap(10.w),
               Text(
                 widget.userName,
-                style: TextStyle(fontSize: 18.sp, fontWeight: FontWeight.w500, color: Theme.of(context).colorScheme.onSurface),
+                style: Theme.of(context).textTheme.bodyLarge?.copyWith(fontSize: 18.sp, fontWeight: FontWeight.w500, color: Theme.of(context).colorScheme.onSurface),
               ),
             ],
           ),
@@ -417,7 +417,7 @@ class _ChatPageState extends State<ChatPage> {
                       Gap(10.w),
                       Text(
                         'Report User',
-                        style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.w500),
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(fontSize: 14.sp, fontWeight: FontWeight.w500),
                       ),
                     ],
                   ),
@@ -426,12 +426,9 @@ class _ChatPageState extends State<ChatPage> {
                   value: 'block',
                   child: Row(
                     children: [
-                      Icon(Icons.block, color: Colors.red, size: 20.sp),
+                      Icon(Icons.block, color: Theme.of(context).colorScheme.error, size: 20.sp),
                       Gap(10.w),
-                      Text(
-                        'Block User',
-                        style: TextStyle(color: Colors.red, fontSize: 14.sp, fontWeight: FontWeight.w500),
-                      ),
+                      Text('Block User', style: AppTextStyles.destructive(context)?.copyWith(fontSize: 14.sp)),
                     ],
                   ),
                 ),
@@ -460,7 +457,7 @@ class _ChatPageState extends State<ChatPage> {
             return Center(
               child: Text(
                 'Error loading messages',
-                style: TextStyle(color: Theme.of(context).colorScheme.error, fontSize: 16.sp),
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Theme.of(context).colorScheme.error, fontSize: 16.sp),
               ),
             );
           } else if (state is ChatsLoaded) {
@@ -560,7 +557,7 @@ class _ChatPageState extends State<ChatPage> {
             return Center(
               child: Text(
                 'No messages yet',
-                style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6), fontSize: 16.sp),
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6), fontSize: 16.sp),
               ),
             );
           }

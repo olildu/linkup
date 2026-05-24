@@ -97,7 +97,7 @@ class _ForgotPasswordModalPageState extends State<ForgotPasswordModalPage> with 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey[50],
+      backgroundColor: AppColors.authScaffoldBackground,
       body: SafeArea(
         child: Padding(
           padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 16.h),
@@ -112,13 +112,17 @@ class _ForgotPasswordModalPageState extends State<ForgotPasswordModalPage> with 
                     borderRadius: BorderRadius.circular(24.r),
                     child: Padding(
                       padding: EdgeInsets.all(8.r),
-                      child: Icon(Icons.arrow_back_ios_new_rounded, size: 20.sp, color: AppColors.lightText),
+                      child: Icon(Icons.arrow_back_ios_new_rounded, size: 20.sp, color: Theme.of(context).colorScheme.onSurface),
                     ),
                   ),
                   Gap(10.w),
                   Text(
                     "Forgot Password?",
-                    style: TextStyle(fontSize: 20.sp, fontWeight: FontWeight.w400, color: AppColors.lightText),
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                          fontSize: 20.sp,
+                          fontWeight: FontWeight.w400,
+                          color: Theme.of(context).colorScheme.onSurface,
+                        ),
                   ),
                 ],
               ),
@@ -307,10 +311,19 @@ class _ForgotPasswordModalPageState extends State<ForgotPasswordModalPage> with 
       padding: EdgeInsets.symmetric(vertical: 2.h),
       child: Row(
         children: [
-          Icon(isMet ? Icons.check_circle : Icons.circle_outlined, color: isMet ? Colors.green : Colors.grey, size: 16.sp),
+          Icon(
+            isMet ? Icons.check_circle : Icons.circle_outlined,
+            color: isMet ? AppColors.success : AppColors.notSelected,
+            size: 16.sp,
+          ),
           Gap(8.w),
           Expanded(
-            child: CustomTextWidget(text, fontSize: 13, color: isMet ? Colors.green : Colors.grey[600], overflow: TextOverflow.visible),
+            child: CustomTextWidget(
+              text,
+              fontSize: 13,
+              color: isMet ? AppColors.success : AppColors.notSelected,
+              overflow: TextOverflow.visible,
+            ),
           ),
         ],
       ),

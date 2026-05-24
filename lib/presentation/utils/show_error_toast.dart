@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
-
 /// Call this to show the toast
 void showToast({
   required BuildContext context,
   required String message,
   IconData? icon,
-  Color backgroundColor = Colors.redAccent,
-  Color textColor = Colors.white,
+  Color? backgroundColor,
+  Color? textColor,
   Duration duration = const Duration(seconds: 3),
 }) {
+  final colorScheme = Theme.of(context).colorScheme;
   final overlay = Overlay.of(context);
   late final OverlayEntry overlayEntry;
 
@@ -17,8 +17,8 @@ void showToast({
         (context) => ToastWidget(
           message: message,
           icon: icon,
-          backgroundColor: backgroundColor,
-          textColor: textColor,
+          backgroundColor: backgroundColor ?? colorScheme.error,
+          textColor: textColor ?? colorScheme.onError,
           duration: duration,
           onDismissed: () => overlayEntry.remove(),
         ),
@@ -100,7 +100,13 @@ class _ToastWidgetState extends State<ToastWidget> with SingleTickerProviderStat
                   children: [
                     if (widget.icon != null)
                       Padding(padding: const EdgeInsets.only(right: 8), child: Icon(widget.icon, color: widget.textColor, size: 18)),
-                    Flexible(child: Text(widget.message, style: TextStyle(color: widget.textColor, fontSize: 14), textAlign: TextAlign.center)),
+                    Flexible(
+                      child: Text(
+                        widget.message,
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: widget.textColor, fontSize: 14),
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
                   ],
                 ),
               ),

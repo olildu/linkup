@@ -82,7 +82,7 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
         scrolledUnderElevation: 0,
         title: Text(
           'Profile Settings',
-          style: TextStyle(fontSize: 20.sp, fontWeight: FontWeight.w600, color: Theme.of(context).colorScheme.onSurface),
+          style: Theme.of(context).textTheme.titleLarge?.copyWith(fontSize: 20.sp, fontWeight: FontWeight.w600, color: Theme.of(context).colorScheme.onSurface),
         ),
         centerTitle: true,
         backgroundColor: Colors.transparent,
@@ -114,7 +114,7 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
                   return Center(
                     child: Text(
                       'Error loading profile settings',
-                      style: TextStyle(fontSize: 16.sp, color: Theme.of(context).colorScheme.error),
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(fontSize: 16.sp, color: Theme.of(context).colorScheme.error),
                     ),
                   );
                 } else if (state is ProfileLoaded) {
@@ -210,16 +210,19 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
                             Expanded(
                               child: // Inside _buildStrongOption for "Delete Account"
                               _buildStrongOption(
-                                textColor: Colors.red,
+                                textColor: Theme.of(context).colorScheme.error,
                                 title: "Delete Account",
                                 onTap: () {
                                   showDialog(
                                     context: context,
                                     builder: (context) => AlertDialog(
-                                      title: const Text("Delete Account?"),
-                                      content: const Text("This action cannot be undone. You will lose all your matches and chats."),
+                                      title: Text("Delete Account?", style: Theme.of(context).textTheme.titleLarge),
+                                      content: Text("This action cannot be undone. You will lose all your matches and chats.", style: Theme.of(context).textTheme.bodyMedium),
                                       actions: [
-                                        TextButton(onPressed: () => Navigator.pop(context), child: const Text("Cancel")),
+                                        TextButton(
+                                          onPressed: () => Navigator.pop(context),
+                                          child: Text("Cancel", style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Theme.of(context).colorScheme.onSurface)),
+                                        ),
                                         TextButton(
                                           onPressed: () async {
                                             Navigator.pop(context); // Close dialog
@@ -233,7 +236,7 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
                                               showToast(context: context, message: "Failed to delete account");
                                             }
                                           },
-                                          child: const Text("Delete", style: TextStyle(color: Colors.red)),
+                                          child: Text("Delete", style: AppTextStyles.destructive(context)),
                                         ),
                                       ],
                                     ),
@@ -279,13 +282,10 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
             Gap(10.w),
             Text(
               title,
-              style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w600, color: Theme.of(context).colorScheme.onSurface),
+              style: Theme.of(context).textTheme.bodyLarge?.copyWith(fontSize: 16.sp, fontWeight: FontWeight.w600, color: Theme.of(context).colorScheme.onSurface),
             ),
             const Spacer(),
-            Text(
-              data ?? "None",
-              style: TextStyle(fontSize: 14.sp, color: Theme.of(context).brightness == Brightness.dark ? AppColors.notSelected : Colors.black),
-            ),
+            Text(data ?? "None", style: AppTextStyles.subtitle(context)?.copyWith(fontSize: 14.sp)),
 
             Gap(10.w),
 

@@ -9,13 +9,7 @@ void main() {
       String? changedValue;
       const initialValue = 'Initial text';
 
-      await tester.pumpWidget(buildTestWidget(
-        TextFieldBuilder(
-          hintText: 'Enter text',
-          initialValue: initialValue,
-          onChanged: (val) => changedValue = val,
-        ),
-      ));
+      await tester.pumpWidget(buildTestWidget(TextFieldBuilder(hintText: 'Enter text', initialValue: initialValue, onChanged: (val) => changedValue = val)));
       await tester.pumpAndSettle();
 
       // Check initial value
@@ -28,12 +22,7 @@ void main() {
     });
 
     testWidgets('respects maxLines property', (tester) async {
-      await tester.pumpWidget(buildTestWidget(
-        const TextFieldBuilder(
-          hintText: 'Multiline',
-          maxLines: 7,
-        ),
-      ));
+      await tester.pumpWidget(buildTestWidget(TextFieldBuilder(hintText: 'Multiline', maxLines: 7)));
 
       final textField = tester.widget<TextField>(find.byType(TextField));
       expect(textField.maxLines, 7);

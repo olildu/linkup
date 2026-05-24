@@ -34,110 +34,99 @@ class _MatchMakingPageState extends State<MatchMakingPage> with SingleTickerProv
       },
       child: Scaffold(
         body: SafeArea(
-          child: Container(
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                colors: [
-                  if (Theme.of(context).brightness == Brightness.light) ...[Colors.white, Color.fromARGB(255, 215, 215, 215)] else ...[Colors.black, Color.fromARGB(255, 31, 29, 29)],
-                ],
-              ),
-            ),
-            child: Padding(
-              padding: EdgeInsets.only(left: 10.w, right: 10.w, top: 30.h, bottom: 10.h),
+          child: Padding(
+            padding: EdgeInsets.only(left: 10.w, right: 10.w, top: 30.h, bottom: 10.h),
 
-              child: Column(
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Row(
-                        children: [
-                          IconButton(
-                            icon: Icon(Icons.tune_rounded, size: 28.sp),
-                            onPressed: () {
-                              Navigator.of(context).push(
-                                CupertinoPageRoute(
-                                  builder: (context) => BlocProvider(create: (context) => PreferencesBloc(), child: SetPreferencesPage()),
-                                ),
-                              );
-                            },
-                          ),
-
-                          SizedBox(width: 48.w, height: 48.w),
-                        ],
-                      ),
-
-                      Text(
-                        'linkup',
-                        style: TextStyle(fontSize: 30.sp, fontWeight: FontWeight.w600, color: Theme.of(context).colorScheme.onSurface),
-                      ),
-
-                      Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          IconButton(
-                            icon: Icon(Icons.favorite_rounded, color: AppColors.primary, size: 28.sp),
-                            onPressed: () {
-                              Navigator.of(context).push(CupertinoPageRoute(builder: (context) => const ConnectionsPage()));
-                            },
-                          ),
-
-                          IconButton(
-                            icon: Icon(Icons.person_rounded, size: 28.sp),
-                            onPressed: () {
-                              Navigator.of(context).push(CupertinoPageRoute(builder: (context) => ProfileSettingsPage()));
-                            },
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-
-                  Expanded(
-                    child: DefaultTabController(
-                      length: 2,
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          SizedBox(
-                            height: 40.h,
-                            width: MediaQuery.of(context).size.width - 160.w,
-                            child: TabBar(
-                              dividerColor: Colors.transparent,
-                              labelColor: Theme.of(context).colorScheme.onSurface,
-                              unselectedLabelColor: Theme.of(context).colorScheme.onSurface,
-                              overlayColor: WidgetStateProperty.all(Colors.transparent),
-                              indicator: UnderlineTabIndicator(
-                                borderSide: BorderSide(width: 3.0.w, color: Theme.of(context).colorScheme.onSurface),
-                                insets: EdgeInsets.symmetric(horizontal: 30.0.w),
+            child: Column(
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Row(
+                      children: [
+                        IconButton(
+                          icon: Icon(Icons.tune_rounded, size: 28.sp),
+                          onPressed: () {
+                            Navigator.of(context).push(
+                              CupertinoPageRoute(
+                                builder: (context) => BlocProvider(create: (context) => PreferencesBloc(), child: SetPreferencesPage()),
                               ),
-                              physics: const NeverScrollableScrollPhysics(),
-                              tabs: const [
-                                Tab(text: 'Around You'),
-                                Tab(text: 'meet@8'),
-                              ],
+                            );
+                          },
+                        ),
+
+                        SizedBox(width: 48.w, height: 48.w),
+                      ],
+                    ),
+
+                    Text(
+                      'linkup',
+                      style: Theme.of(context).textTheme.displayLarge?.copyWith(fontSize: 30.sp, color: Theme.of(context).colorScheme.onSurface),
+                    ),
+
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        IconButton(
+                          icon: Icon(Icons.favorite_rounded, color: AppColors.primary, size: 28.sp),
+                          onPressed: () {
+                            Navigator.of(context).push(CupertinoPageRoute(builder: (context) => const ConnectionsPage()));
+                          },
+                        ),
+
+                        IconButton(
+                          icon: Icon(Icons.person_rounded, size: 28.sp),
+                          onPressed: () {
+                            Navigator.of(context).push(CupertinoPageRoute(builder: (context) => ProfileSettingsPage()));
+                          },
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+
+                Expanded(
+                  child: DefaultTabController(
+                    length: 2,
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        SizedBox(
+                          height: 40.h,
+                          width: MediaQuery.of(context).size.width - 160.w,
+                          child: TabBar(
+                            dividerColor: Colors.transparent,
+                            labelColor: Theme.of(context).colorScheme.onSurface,
+                            unselectedLabelColor: Theme.of(context).colorScheme.onSurface,
+                            overlayColor: WidgetStateProperty.all(Colors.transparent),
+                            indicator: UnderlineTabIndicator(
+                              borderSide: BorderSide(width: 3.0.w, color: Theme.of(context).colorScheme.onSurface),
+                              insets: EdgeInsets.symmetric(horizontal: 30.0.w),
                             ),
+                            physics: const NeverScrollableScrollPhysics(),
+                            tabs: const [
+                              Tab(text: 'Around You'),
+                              Tab(text: 'meet@8'),
+                            ],
                           ),
-                          Gap(20.h),
-                          Expanded(
-                            child: TabBarView(
-                              physics: NeverScrollableScrollPhysics(),
-                              children: [
-                                Center(child: AroundYouPage()),
-                                Center(
-                                  child: BlocProvider(create: (context) => LobbyBloc(), child: MeetAt8Page()),
-                                ),
-                              ],
-                            ),
+                        ),
+                        Gap(20.h),
+                        Expanded(
+                          child: TabBarView(
+                            physics: NeverScrollableScrollPhysics(),
+                            children: [
+                              Center(child: AroundYouPage()),
+                              Center(
+                                child: BlocProvider(create: (context) => LobbyBloc(), child: MeetAt8Page()),
+                              ),
+                            ],
                           ),
-                        ],
-                      ),
+                        ),
+                      ],
                     ),
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
         ),

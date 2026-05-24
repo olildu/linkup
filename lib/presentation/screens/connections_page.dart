@@ -40,7 +40,7 @@ class _YourPeoplePageState extends State<ConnectionsPage> {
         scrolledUnderElevation: 0,
         title: Text(
           'Connections',
-          style: TextStyle(fontSize: 20.sp, fontWeight: FontWeight.w600, color: Theme.of(context).colorScheme.onSurface),
+          style: Theme.of(context).textTheme.titleLarge?.copyWith(fontSize: 20.sp, fontWeight: FontWeight.w600, color: Theme.of(context).colorScheme.onSurface),
         ),
         centerTitle: true,
         backgroundColor: Colors.transparent,
@@ -104,7 +104,7 @@ class _YourPeoplePageState extends State<ConnectionsPage> {
                       return Center(
                         child: Text(
                           'No chats available',
-                          style: TextStyle(fontSize: 16.sp, color: Theme.of(context).colorScheme.onSurface),
+                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(fontSize: 16.sp, color: Theme.of(context).colorScheme.onSurface),
                         ),
                       );
                     }
@@ -178,7 +178,7 @@ class _YourPeoplePageState extends State<ConnectionsPage> {
 
         title: Text(
           candidate.username,
-          style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.w600, color: Theme.of(context).colorScheme.onSurface),
+          style: Theme.of(context).textTheme.bodyLarge?.copyWith(fontSize: 14.sp, fontWeight: FontWeight.w600, color: Theme.of(context).colorScheme.onSurface),
         ),
         subtitle: _buildMessageSubtitle(candidate),
         trailing: candidate.unseenCounter > 0
@@ -187,7 +187,7 @@ class _YourPeoplePageState extends State<ConnectionsPage> {
                 decoration: BoxDecoration(color: AppColors.primary, shape: BoxShape.circle),
                 child: Text(
                   candidate.unseenCounter > 9 ? '9+' : candidate.unseenCounter.toString(),
-                  style: TextStyle(fontSize: 12.sp, color: Colors.white, fontWeight: FontWeight.bold),
+                  style: Theme.of(context).textTheme.labelSmall?.copyWith(fontSize: 12.sp, color: Theme.of(context).colorScheme.onPrimary, fontWeight: FontWeight.bold),
                 ),
               )
             : null,
@@ -203,7 +203,7 @@ class _YourPeoplePageState extends State<ConnectionsPage> {
           SizedBox(width: 6.w),
           Text(
             'Image',
-            style: TextStyle(fontSize: 12.sp, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7)),
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(fontSize: 12.sp, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7)),
           ),
         ],
       );
@@ -213,12 +213,12 @@ class _YourPeoplePageState extends State<ConnectionsPage> {
           candidate.message!,
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
-          style: TextStyle(fontSize: 12.sp, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7)),
+          style: Theme.of(context).textTheme.bodySmall?.copyWith(fontSize: 12.sp, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7)),
         );
       } else {
         return Text(
           'No messages yet',
-          style: TextStyle(fontSize: 12.sp, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5), fontStyle: FontStyle.italic),
+          style: Theme.of(context).textTheme.bodySmall?.copyWith(fontSize: 12.sp, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5), fontStyle: FontStyle.italic),
         );
       }
     }
@@ -230,15 +230,12 @@ class _YourPeoplePageState extends State<ConnectionsPage> {
       children: [
         Text(
           title,
-          style: TextStyle(fontSize: 18.sp, fontWeight: FontWeight.w600, color: Theme.of(context).colorScheme.onSurface),
+          style: Theme.of(context).textTheme.titleLarge?.copyWith(fontSize: 18.sp, fontWeight: FontWeight.w600, color: Theme.of(context).colorScheme.onSurface),
         ),
 
         Gap(10.h),
 
-        Text(
-          subtitle,
-          style: TextStyle(fontSize: 14.sp, color: Theme.of(context).brightness == Brightness.dark ? Colors.grey : Colors.grey.shade600),
-        ),
+        Text(subtitle, style: AppTextStyles.subtitle(context)?.copyWith(fontSize: 14.sp)),
       ],
     );
   }

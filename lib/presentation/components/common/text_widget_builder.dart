@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class CustomTextWidget extends StatelessWidget {
@@ -8,7 +7,7 @@ class CustomTextWidget extends StatelessWidget {
   final FontWeight? fontWeight;
   final Color? color;
   final TextAlign? textAlign;
-  final int? maxLines; // Change: Keep this nullable
+  final int? maxLines;
   final TextOverflow? overflow;
 
   const CustomTextWidget(
@@ -16,20 +15,25 @@ class CustomTextWidget extends StatelessWidget {
     super.key,
     this.fontSize = 14,
     this.fontWeight = FontWeight.w400,
-    this.color = Colors.black,
+    this.color,
     this.textAlign = TextAlign.left,
     this.maxLines,
-    this.overflow, // Fix: Remove default ellipsis here
+    this.overflow,
   });
 
   @override
   Widget build(BuildContext context) {
+    final base = Theme.of(context).textTheme.bodyMedium;
     return Text(
       text,
-      style: GoogleFonts.poppins(fontSize: (fontSize ?? 14).sp, fontWeight: fontWeight, color: color),
+      style: base?.copyWith(
+        fontSize: (fontSize ?? 14).sp,
+        fontWeight: fontWeight,
+        color: color ?? Theme.of(context).colorScheme.onSurface,
+      ),
       textAlign: textAlign,
-      maxLines: maxLines, // If null, it will wrap infinitely
-      overflow: overflow, // If null, it defaults to clip/wrap
+      maxLines: maxLines,
+      overflow: overflow,
     );
   }
 }

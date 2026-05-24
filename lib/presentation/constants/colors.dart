@@ -2,6 +2,9 @@
 
 import 'package:flutter/material.dart';
 
+// Backwards-compat export: some test files import this file and expect `AppTheme`.
+export 'package:linkup/presentation/theme/app_theme.dart';
+
 class AppColors {
   static const Color lightBackground = Colors.white;
   static const Color lightText = Colors.black;
@@ -13,52 +16,36 @@ class AppColors {
   static const Color whiteTextColor = Colors.white;
   static const Color primary = Color(0xFF00B3B3);
 
+  static const Color error = Color(0xFFF41505);
+  static const Color success = Color(0xFF2E7D32);
+  static const Color hint = Color(0xFFBFBFBF);
+  static const Color subtitleLight = Color(0xFF8D8D8D);
+  static const Color link = primary;
+
+  static const Color authScaffoldBackground = Color(0xFFFAFAFA);
+  static const Color tabBarTrack = Color(0xFFE0E0E0);
 }
 
-class AppTheme {
-  static ThemeData lightTheme = ThemeData(
-    brightness: Brightness.light,
+/// Semantic text-style helpers built from [ThemeData].
+class AppTextStyles {
+  AppTextStyles._();
 
-    colorScheme: ColorScheme.light(
-      background: AppColors.lightBackground,
-      onPrimary: AppColors.whiteTextColor,
-      onSecondary: AppColors.whiteTextColor,
-      surface: AppColors.lightBackground,
-      onSurface: AppColors.lightText,
-      outline: Color.fromARGB(255, 230, 230, 230)
-    ),
-    scaffoldBackgroundColor: AppColors.lightBackground,
-    textTheme: ThemeData.light().textTheme.apply(
-          fontFamily: 'Poppins',
-        ),
+  static TextStyle? body(BuildContext context) => Theme.of(context).textTheme.bodyMedium;
 
-    cardColor: AppColors.lightBackground,
+  static TextStyle? title(BuildContext context) => Theme.of(context).textTheme.titleLarge;
 
-    appBarTheme: AppBarTheme(
-      foregroundColor: AppColors.whiteTextColor,
-    ),
-  );
+  static TextStyle? subtitle(BuildContext context) =>
+      Theme.of(context).textTheme.bodySmall?.copyWith(color: Theme.of(context).brightness == Brightness.dark ? AppColors.notSelected : AppColors.subtitleLight);
 
-  static ThemeData darkTheme = ThemeData(
-    brightness: Brightness.dark,
+  static TextStyle? label(BuildContext context) => Theme.of(context).textTheme.labelLarge?.copyWith(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.w500);
 
-    colorScheme: ColorScheme.dark(
-      background: AppColors.darkBackground,
-      onPrimary: AppColors.whiteTextColor,
-      onSecondary: AppColors.whiteTextColor,
-      surface: AppColors.darkBackground,
-      onSurface: AppColors.darkText,
-      outline: Color.fromARGB(255, 23, 23, 23),
-    ),
+  static TextStyle? hint(BuildContext context) => Theme.of(context).textTheme.bodyMedium?.copyWith(color: AppColors.hint);
 
-    cardColor: AppColors.darkBackground,
+  static TextStyle? error(BuildContext context) => Theme.of(context).textTheme.bodyMedium?.copyWith(color: Theme.of(context).colorScheme.error);
 
-    scaffoldBackgroundColor: AppColors.darkBackground,
-    textTheme: ThemeData.dark().textTheme.apply(
-      fontFamily: 'Poppins',
-    ),
-    appBarTheme: AppBarTheme(
-      foregroundColor: AppColors.darkText,
-    ),
-  );
+  static TextStyle? link(BuildContext context) => Theme.of(context).textTheme.bodyMedium?.copyWith(color: Theme.of(context).colorScheme.primary, fontWeight: FontWeight.w500);
+
+  static TextStyle? destructive(BuildContext context) => Theme.of(context).textTheme.bodyMedium?.copyWith(color: Theme.of(context).colorScheme.error, fontWeight: FontWeight.w500);
+
+  static TextStyle? onPrimary(BuildContext context) => Theme.of(context).textTheme.bodyMedium?.copyWith(color: Theme.of(context).colorScheme.onPrimary);
 }

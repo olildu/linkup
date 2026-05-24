@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
+import 'package:linkup/presentation/constants/colors.dart';
 
 class TextInputField extends StatefulWidget {
   final String label;
@@ -17,31 +18,30 @@ class TextInputField extends StatefulWidget {
 }
 
 class _TextInputFieldState extends State<TextInputField> {
-  late Color borderColor = widget.hasError ? const Color.fromARGB(255, 244, 21, 5) : Colors.grey[300]!;
-
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final borderColor = widget.hasError ? colorScheme.error : colorScheme.outline;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           widget.label,
-          // Changed color to Colors.black for a darker label
-          style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w500, color: Colors.black),
+          style: AppTextStyles.label(context)?.copyWith(fontSize: 16.sp),
         ),
         Gap(8.h),
         TextField(
           controller: widget.controller,
           obscureText: widget.obscureText,
-          // Added style to TextField to make the input text darker
-          style: TextStyle(
-            color: Colors.black, // Darker color for the input text
-          ),
+          style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                color: colorScheme.onSurface,
+              ),
           decoration: InputDecoration(
             hintText: widget.hintText,
-            hintStyle: TextStyle(color: const Color.fromARGB(255, 191, 191, 191)),
+            hintStyle: AppTextStyles.hint(context),
             filled: true,
-            fillColor: Colors.white,
+            fillColor: colorScheme.surface,
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12.r),
               borderSide: BorderSide(color: borderColor),
@@ -52,12 +52,15 @@ class _TextInputFieldState extends State<TextInputField> {
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12.r),
-              borderSide: BorderSide(color: widget.hasError ? Colors.red : Colors.blue),
+              borderSide: BorderSide(color: widget.hasError ? colorScheme.error : colorScheme.primary),
             ),
             contentPadding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.h),
             suffixIcon: widget.toggleObscure != null
                 ? IconButton(
-                    icon: Icon(widget.obscureText ? Icons.visibility_off : Icons.visibility, color: Colors.grey[600]),
+                    icon: Icon(
+                      widget.obscureText ? Icons.visibility_off : Icons.visibility,
+                      color: AppColors.notSelected,
+                    ),
                     onPressed: widget.toggleObscure,
                   )
                 : null,

@@ -7,6 +7,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
 import 'package:linkup/logic/bloc/camera/camera_bloc.dart';
+import 'package:linkup/presentation/constants/colors.dart';
 import 'package:linkup/presentation/utils/blurhash_util.dart';
 import 'package:octo_image/octo_image.dart';
 
@@ -60,7 +61,7 @@ class MediaPickerPage extends StatelessWidget {
                                       return SizedBox.shrink();
                                     } else if (state is CameraError) {
                                       return Center(
-                                        child: Text(state.message, style: const TextStyle(color: Colors.red)),
+                                        child: Text(state.message, style: AppTextStyles.error(context)),
                                       );
                                     } else if (state is MediaCaptureSuccess) {
                                       return Stack(
@@ -163,7 +164,10 @@ class MediaPickerPage extends StatelessWidget {
 
                                     Text(
                                       "Send",
-                                      style: TextStyle(fontWeight: FontWeight.w500, color: Colors.black),
+                                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                            fontWeight: FontWeight.w500,
+                                            color: Theme.of(context).colorScheme.onSurface,
+                                          ),
                                     ),
                                   ],
                                 ),

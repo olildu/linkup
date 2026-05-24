@@ -22,7 +22,7 @@ class ButtonBuilder extends StatelessWidget {
     this.width = double.infinity,
     this.height = 56,
     this.backgroundColor = AppColors.primary,
-    this.textColor = Colors.white,
+    this.textColor = AppColors.whiteTextColor,
     this.borderRadius = 12.0,
     this.isFullWidth = true,
     this.padding = const EdgeInsets.symmetric(horizontal: 16.0),
@@ -37,46 +37,33 @@ class ButtonBuilder extends StatelessWidget {
       height: height,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 300),
-        decoration: BoxDecoration(
-          color: isEnabled ? backgroundColor : AppColors.notSelected,
-          borderRadius: BorderRadius.circular(borderRadius),
-        ),
+        decoration: BoxDecoration(color: isEnabled ? backgroundColor : AppColors.notSelected, borderRadius: BorderRadius.circular(borderRadius)),
         child: isLoading
-          ? Center(
-              child: Transform.scale(
-                scale: 0.7,
-                child: CircularProgressIndicator(
-                  valueColor: AlwaysStoppedAnimation<Color>(textColor),
-                ),
-              ),
-            )
-          : Material(
-            color: Colors.transparent,
-            child: InkWell(
-              borderRadius: BorderRadius.circular(borderRadius),
-              onTap: () {
-                if (isEnabled) {
-                  onPressed();
-                } else {
-                  return;
-                }
-              },
-              child: Padding(
-                padding: padding,
-                child: Center(
-                  child: Text(
-                    text,
-                    style: TextStyle(
-                      color: textColor,
-                      fontSize: 16.sp,
-                      fontWeight: FontWeight.w500,
+            ? Center(
+                child: Transform.scale(scale: 0.7, child: CircularProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(textColor))),
+              )
+            : Material(
+                color: Colors.transparent,
+                child: InkWell(
+                  borderRadius: BorderRadius.circular(borderRadius),
+                  onTap: () {
+                    if (isEnabled) {
+                      onPressed();
+                    } else {
+                      return;
+                    }
+                  },
+                  child: Padding(
+                    padding: padding,
+                    child: Center(
+                      child: Text(
+                        text,
+                        style: Theme.of(context).textTheme.labelLarge?.copyWith(color: textColor, fontSize: 16.sp),
+                      ),
                     ),
                   ),
                 ),
               ),
-            ),
-          ),
-      
       ),
     );
   }

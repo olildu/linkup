@@ -5,6 +5,7 @@ import 'package:gap/gap.dart';
 import 'package:linkup/logic/bloc/auth/auth_bloc.dart';
 import 'package:linkup/logic/bloc/otp/otp_bloc.dart';
 import 'package:linkup/presentation/screens/login_page.dart';
+import 'package:linkup/presentation/constants/colors.dart';
 import 'package:linkup/presentation/screens/signup_page.dart';
 
 class LoginSignupPage extends StatefulWidget {
@@ -37,8 +38,10 @@ class _LoginSignupPageState extends State<LoginSignupPage> with SingleTickerProv
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Scaffold(
-      backgroundColor: Colors.grey[50],
+      backgroundColor: AppColors.authScaffoldBackground,
       body: SafeArea(
         child: Padding(
           padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 16.h),
@@ -48,21 +51,21 @@ class _LoginSignupPageState extends State<LoginSignupPage> with SingleTickerProv
                 padding: EdgeInsets.symmetric(horizontal: 10.w),
                 child: Container(
                   height: 50.h,
-                  decoration: BoxDecoration(color: Colors.grey[200], borderRadius: BorderRadius.circular(12.r)),
+                  decoration: BoxDecoration(color: AppColors.tabBarTrack, borderRadius: BorderRadius.circular(12.r)),
                   child: TabBar(
                     controller: _tabController,
                     indicatorSize: TabBarIndicatorSize.tab,
                     padding: EdgeInsets.all(3.sp),
                     dividerColor: Colors.transparent,
                     indicator: BoxDecoration(
-                      color: Colors.white,
+                      color: colorScheme.surface,
                       borderRadius: BorderRadius.circular(10.r),
-                      boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.1), blurRadius: 4, offset: const Offset(0, 2))],
+                      boxShadow: [BoxShadow(color: colorScheme.onSurface.withValues(alpha: 0.1), blurRadius: 4, offset: const Offset(0, 2))],
                     ),
-                    labelColor: Colors.black,
-                    unselectedLabelColor: Colors.grey[600],
-                    labelStyle: TextStyle(fontWeight: FontWeight.w600, fontSize: 16.sp),
-                    unselectedLabelStyle: TextStyle(fontWeight: FontWeight.w500, fontSize: 16.sp),
+                    labelColor: colorScheme.onSurface,
+                    unselectedLabelColor: AppColors.notSelected,
+                    labelStyle: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600, fontSize: 16.sp),
+                    unselectedLabelStyle: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w500, fontSize: 16.sp),
                     tabs: const [
                       Tab(text: 'Log In'),
                       Tab(text: 'Sign Up'),

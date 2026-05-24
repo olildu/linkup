@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 class BulletPointBuilder extends StatelessWidget {
   final List<String> items;
@@ -21,18 +20,16 @@ class BulletPointBuilder extends StatelessWidget {
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Icon(Icons.arrow_right_rounded, size: 24.sp),
-
+              Icon(Icons.arrow_right_rounded, size: 24.sp, color: Theme.of(context).colorScheme.onSurface),
               Gap(8.w),
-
               Expanded(
                 child: Text(
                   items[index],
-                  style: GoogleFonts.poppins(
-                    fontSize: 12.sp,
-                    fontWeight: FontWeight.w400,
-                    color: Theme.of(context).colorScheme.onSurface,
-                  ),
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        fontSize: 12.sp,
+                        fontWeight: FontWeight.w400,
+                        color: Theme.of(context).colorScheme.onSurface,
+                      ),
                 ),
               ),
             ],

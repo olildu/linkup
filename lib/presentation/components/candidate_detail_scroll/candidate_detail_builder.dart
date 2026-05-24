@@ -64,7 +64,7 @@ class CandidateDetailBuilder extends StatelessWidget {
                     children: [
                       Text(
                         '${localCandidate.username}, ${calculateAge(localCandidate.dob)}',
-                        style: TextStyle(fontSize: 24.sp, fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onSurface),
+                        style: Theme.of(context).textTheme.titleLarge?.copyWith(fontSize: 24.sp, fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onSurface),
                         overflow: TextOverflow.ellipsis,
                         maxLines: 1,
                       ),
@@ -80,7 +80,7 @@ class CandidateDetailBuilder extends StatelessWidget {
                           Expanded(
                             child: Text(
                               '${localCandidate.universityMajor} Student',
-                              style: TextStyle(fontSize: 16.sp, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7)),
+                              style: Theme.of(context).textTheme.bodyMedium?.copyWith(fontSize: 16.sp, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7)),
                               overflow: TextOverflow.ellipsis,
                               maxLines: 1,
                             ),
@@ -96,7 +96,7 @@ class CandidateDetailBuilder extends StatelessWidget {
 
                           Text(
                             '${getOrdinalSuffix(localCandidate.universityYear)} Year',
-                            style: TextStyle(fontSize: 16.sp, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7)),
+                            style: Theme.of(context).textTheme.bodyMedium?.copyWith(fontSize: 16.sp, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7)),
                           ),
                         ],
                       ),
@@ -114,33 +114,35 @@ class CandidateDetailBuilder extends StatelessWidget {
         Container(
           width: MediaQuery.sizeOf(context).width,
           decoration: BoxDecoration(color: Theme.of(context).cardColor, borderRadius: BorderRadius.circular(20.r)),
-          padding: EdgeInsets.symmetric(horizontal: 16.0.w, vertical: 16.0.h),
+          padding: EdgeInsets.symmetric(vertical: 16.0.h),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text('About', style: TextStyle(fontSize: 20.sp, fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onSurface)),
+              Text(
+                'About',
+                style: Theme.of(context).textTheme.titleLarge?.copyWith(fontSize: 20.sp, fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onSurface),
+              ),
               Gap(12.h),
               Text(
                 localCandidate.about,
-                style: TextStyle(fontSize: 14.sp, height: 1.5, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.8)),
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(fontSize: 14.sp, height: 1.5, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.8)),
               ),
               Gap(20.h),
               Text(
                 "${localCandidate.username}'s Info",
-                style: TextStyle(fontSize: 18.sp, fontWeight: FontWeight.w600, color: Theme.of(context).colorScheme.onSurface),
+                style: Theme.of(context).textTheme.titleLarge?.copyWith(fontSize: 18.sp, fontWeight: FontWeight.w600, color: Theme.of(context).colorScheme.onSurface),
               ),
               Gap(12.h),
 
               Wrap(
                 spacing: 8.0.w,
                 runSpacing: 8.0.h,
-                children:
-                    candidateInformation.asIconMap(showLocationInfo: false).entries.where((entry) => entry.value['value'] != null).map((entry) {
-                      final icon = entry.value['icon'] as IconData;
-                      final text = entry.value['value'] as String;
-                      return InfoBuilder(text: text, icon: icon);
-                    }).toList(),
+                children: candidateInformation.asIconMap(showLocationInfo: false).entries.where((entry) => entry.value['value'] != null).map((entry) {
+                  final icon = entry.value['icon'] as IconData;
+                  final text = entry.value['value'] as String;
+                  return InfoBuilder(text: text, icon: icon);
+                }).toList(),
               ),
             ],
           ),
@@ -156,11 +158,7 @@ class CandidateDetailBuilder extends StatelessWidget {
             itemBuilder: (context, index) {
               return Column(
                 children: [
-                  ImageBuilder(
-                    imageMetaData: imageRest[index],
-                    height: availableHeight * 0.8,
-                    onTap: () => showFullScreenImage(imageRest[index]['url']),
-                  ),
+                  ImageBuilder(imageMetaData: imageRest[index], height: availableHeight * 0.8, onTap: () => showFullScreenImage(imageRest[index]['url'])),
                   Gap(5.h),
                 ],
               );
@@ -174,19 +172,19 @@ class CandidateDetailBuilder extends StatelessWidget {
         Container(
           width: MediaQuery.sizeOf(context).width,
           decoration: BoxDecoration(color: Theme.of(context).cardColor, borderRadius: BorderRadius.circular(16.0.r)),
-          padding: EdgeInsets.symmetric(horizontal: 16.0.w, vertical: 16.0.h),
+          padding: EdgeInsets.symmetric(vertical: 16.0.h),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
             children: [
               Text(
                 '${localCandidate.username} lives in',
-                style: TextStyle(fontSize: 14.sp, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7)),
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(fontSize: 14.sp, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7)),
               ),
               Gap(4.h),
               Text(
                 localCandidate.currentlyStaying,
-                style: TextStyle(fontSize: 20.sp, fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onSurface),
+                style: Theme.of(context).textTheme.titleLarge?.copyWith(fontSize: 20.sp, fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onSurface),
               ),
               Gap(12.h),
               InfoBuilder(text: localCandidate.hometown, icon: Icons.location_on),

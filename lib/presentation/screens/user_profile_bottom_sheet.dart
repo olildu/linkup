@@ -33,9 +33,19 @@ void showBottomSheetUserProfile({required BuildContext context, required int use
               } else if (state is OtherProfileLoaded) {
                 return OtherProfileLoadedView(candidate: state.user, showChatButton: showChatButton, parentContext: parentContext);
               } else if (state is OtherProfileError) {
-                return const SizedBox(height: double.infinity, child: Center(child: Text("Error loading profile")));
+                return SizedBox(
+                  height: double.infinity,
+                  child: Center(
+                    child: Text("Error loading profile", style: Theme.of(context).textTheme.bodyLarge),
+                  ),
+                );
               } else {
-                return const SizedBox(height: double.infinity, child: Center(child: Text("No data available")));
+                return SizedBox(
+                  height: double.infinity,
+                  child: Center(
+                    child: Text("No data available", style: Theme.of(context).textTheme.bodyLarge),
+                  ),
+                );
               }
             },
           ),

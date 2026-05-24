@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:linkup/logic/bloc/lobby/lobby_bloc.dart';
 import 'package:linkup/presentation/components/meet_at_8/background_animation.dart';
 import 'package:linkup/presentation/constants/colors.dart';
@@ -84,14 +83,14 @@ class _MeetAt8PageState extends State<MeetAt8Page> with SingleTickerProviderStat
                           mainAxisAlignment: MainAxisAlignment.center,
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text("A little early, aren't you?", style: GoogleFonts.poppins(fontSize: 26.sp, color: AppColors.whiteTextColor)),
+                            Text("A little early, aren't you?", style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontSize: 26.sp, color: AppColors.whiteTextColor)),
                             Gap(10.h),
                             Text(
                               'Come back at 8 PM',
-                              style: GoogleFonts.poppins(fontSize: 26.sp, fontWeight: FontWeight.bold, color: AppColors.whiteTextColor),
+                              style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontSize: 26.sp, fontWeight: FontWeight.bold, color: AppColors.whiteTextColor),
                             ),
                             Gap(10.h),
-                            Text("That's when everything starts.", style: GoogleFonts.poppins(fontSize: 26.sp, color: AppColors.whiteTextColor)),
+                            Text("That's when everything starts.", style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontSize: 26.sp, color: AppColors.whiteTextColor)),
                           ],
                         ),
                       ),
@@ -122,17 +121,17 @@ class _MeetAt8PageState extends State<MeetAt8Page> with SingleTickerProviderStat
 
                                     Text(
                                       "You've made it to the lobby.",
-                                      style: GoogleFonts.poppins(fontSize: 22.sp, color: AppColors.whiteTextColor),
+                                      style: Theme.of(context).textTheme.titleLarge?.copyWith(fontSize: 22.sp, color: AppColors.whiteTextColor),
                                     ),
                                     Gap(10.h),
                                     Text(
                                       'Matching begins at 8:05 PM',
-                                      style: GoogleFonts.poppins(fontSize: 22.sp, fontWeight: FontWeight.bold, color: AppColors.whiteTextColor),
+                                      style: Theme.of(context).textTheme.titleLarge?.copyWith(fontSize: 22.sp, fontWeight: FontWeight.bold, color: AppColors.whiteTextColor),
                                     ),
                                     Gap(10.h),
                                     Text(
                                       "Hang tight while everyone gets here.",
-                                      style: GoogleFonts.poppins(fontSize: 22.sp, color: AppColors.whiteTextColor),
+                                      style: Theme.of(context).textTheme.titleLarge?.copyWith(fontSize: 22.sp, color: AppColors.whiteTextColor),
                                     ),
                                   ],
                                 ),
@@ -166,16 +165,16 @@ class _MeetAt8PageState extends State<MeetAt8Page> with SingleTickerProviderStat
                                   children: [
                                     Center(child: Lottie.asset('assets/animations/no-match-animation.json', width: double.infinity, height: 200.h)),
                                     Gap(60.h),
-                                    Text("No match this time.", style: GoogleFonts.poppins(fontSize: 22.sp, color: AppColors.whiteTextColor)),
+                                    Text("No match this time.", style: Theme.of(context).textTheme.titleLarge?.copyWith(fontSize: 22.sp, color: AppColors.whiteTextColor)),
                                     Gap(10.h),
                                     Text(
                                       "But hey, tomorrow’s another chance!",
-                                      style: GoogleFonts.poppins(fontSize: 22.sp, fontWeight: FontWeight.bold, color: AppColors.whiteTextColor),
+                                      style: Theme.of(context).textTheme.titleLarge?.copyWith(fontSize: 22.sp, fontWeight: FontWeight.bold, color: AppColors.whiteTextColor),
                                     ),
                                     Gap(10.h),
                                     Text(
                                       "Come back at 8 PM sharp. You never know who’s waiting.",
-                                      style: GoogleFonts.poppins(fontSize: 22.sp, color: AppColors.whiteTextColor),
+                                      style: Theme.of(context).textTheme.titleLarge?.copyWith(fontSize: 22.sp, color: AppColors.whiteTextColor),
                                     ),
                                   ],
                                 ),
@@ -213,13 +212,13 @@ class _MeetAt8PageState extends State<MeetAt8Page> with SingleTickerProviderStat
                         children: [
                           Text(
                             "Something went wrong...",
-                            style: GoogleFonts.poppins(fontSize: 24.sp, fontWeight: FontWeight.bold, color: AppColors.whiteTextColor),
+                            style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontSize: 24.sp, fontWeight: FontWeight.bold, color: AppColors.whiteTextColor),
                           ),
                           Gap(8.h),
                           Text(
                             "We're having trouble finding your match.\nPlease try again in a moment.",
                             textAlign: TextAlign.left,
-                            style: GoogleFonts.poppins(fontSize: 18.sp, color: AppColors.whiteTextColor),
+                            style: Theme.of(context).textTheme.titleMedium?.copyWith(fontSize: 18.sp, color: AppColors.whiteTextColor),
                           ),
                         ],
                       ),

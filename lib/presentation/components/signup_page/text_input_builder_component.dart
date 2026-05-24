@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:gap/gap.dart';
+import 'package:linkup/presentation/constants/colors.dart';
 
 class TextInput extends StatefulWidget {
   final String label;
@@ -35,23 +35,29 @@ class _TextInputState extends State<TextInput> {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(widget.label, style: GoogleFonts.poppins(fontSize: 18.sp, color: Colors.grey)),
-
+        Text(
+          widget.label,
+          style: AppTextStyles.subtitle(context)?.copyWith(fontSize: 18.sp),
+        ),
         Gap(10.h),
-
         TextField(
           controller: _internalController,
-          style: GoogleFonts.poppins(fontSize: 26.sp, fontWeight: FontWeight.w600, color: Theme.of(context).colorScheme.onSurface),
+          style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                fontWeight: FontWeight.w600,
+                color: colorScheme.onSurface,
+              ),
           decoration: InputDecoration(
             hintText: widget.placeHolder,
-            hintStyle: GoogleFonts.poppins(fontSize: 20.sp, color: Colors.grey),
+            hintStyle: AppTextStyles.hint(context)?.copyWith(fontSize: 20.sp),
             isDense: true,
             contentPadding: EdgeInsets.only(bottom: 4.h),
-            enabledBorder: const UnderlineInputBorder(borderSide: BorderSide(color: Colors.grey)),
-            focusedBorder: const UnderlineInputBorder(borderSide: BorderSide(color: Colors.grey)),
+            enabledBorder: UnderlineInputBorder(borderSide: BorderSide(color: AppColors.notSelected)),
+            focusedBorder: UnderlineInputBorder(borderSide: BorderSide(color: colorScheme.primary)),
             border: const UnderlineInputBorder(),
           ),
           onChanged: widget.onChanged,

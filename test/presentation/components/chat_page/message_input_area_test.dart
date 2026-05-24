@@ -7,20 +7,15 @@ import '../../../test_helper.dart';
 void main() {
   group('MessageInputArea', () {
     late TextEditingController controller;
-    
+
     setUp(() => controller = TextEditingController());
 
     testWidgets('shows camera icon when not typing', (tester) async {
-      await tester.pumpWidget(buildTestWidget(
-        MessageInputArea(
-          messageController: controller,
-          isTyping: false,
-          replyPayload: null,
-          sendMessage: () {},
-          handleMedia: (_) {},
-          removeReplyPayload: () {},
+      await tester.pumpWidget(
+        buildTestWidget(
+          MessageInputArea(messageController: controller, isTyping: false, replyPayload: null, sendMessage: () {}, handleMedia: (_) {}, removeReplyPayload: () {}, userImageMetaData: {}),
         ),
-      ));
+      );
       await tester.pumpAndSettle();
 
       // Not typing -> should show camera/media icon set
@@ -29,16 +24,9 @@ void main() {
     });
 
     testWidgets('shows send button when typing', (tester) async {
-      await tester.pumpWidget(buildTestWidget(
-        MessageInputArea(
-          messageController: controller,
-          isTyping: true,
-          replyPayload: null,
-          sendMessage: () {},
-          handleMedia: (_) {},
-          removeReplyPayload: () {},
-        ),
-      ));
+      await tester.pumpWidget(
+        buildTestWidget(MessageInputArea(messageController: controller, isTyping: true, replyPayload: null, sendMessage: () {}, handleMedia: (_) {}, removeReplyPayload: () {}, userImageMetaData: {})),
+      );
       await tester.pumpAndSettle();
 
       // Is typing -> should show send button
@@ -50,21 +38,24 @@ void main() {
       bool removed = false;
       final replyPayload = ReplyModel(messageID: '1', message: 'Original msg', userName: 'UserX');
 
-      await tester.pumpWidget(buildTestWidget(
-        MessageInputArea(
-          messageController: controller,
-          isTyping: false,
-          replyPayload: replyPayload,
-          sendMessage: () {},
-          handleMedia: (_) {},
-          removeReplyPayload: () => removed = true,
+      await tester.pumpWidget(
+        buildTestWidget(
+          MessageInputArea(
+            messageController: controller,
+            isTyping: false,
+            replyPayload: replyPayload,
+            sendMessage: () {},
+            handleMedia: (_) {},
+            removeReplyPayload: () => removed = true,
+            userImageMetaData: {},
+          ),
         ),
-      ));
+      );
       await tester.pumpAndSettle();
 
       // Check reply text visibility
       expect(find.textContaining('Replying to UserX'), findsOneWidget);
-      
+
       // Check the close/remove button
       final closeButton = find.byIcon(Icons.close);
       expect(closeButton, findsOneWidget);
@@ -72,7 +63,7 @@ void main() {
       // Tap the remove button
       await tester.tap(closeButton);
       await tester.pump();
-      
+
       expect(removed, isTrue);
     });
   });

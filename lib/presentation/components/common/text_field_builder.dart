@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:google_fonts/google_fonts.dart';
+import 'package:linkup/presentation/constants/colors.dart';
 
 class TextFieldBuilder extends StatefulWidget {
   final String hintText;
@@ -9,14 +9,18 @@ class TextFieldBuilder extends StatefulWidget {
   final String initialValue;
   final Function(String)? onChanged;
 
-  const TextFieldBuilder({
+  TextFieldBuilder({
     super.key,
     required this.hintText,
     this.maxLines = 5,
-    this.border = const OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(10)), borderSide: BorderSide(color: Colors.grey)),
+    InputBorder? border,
     this.initialValue = '',
     this.onChanged,
-  });
+  }) : border = border ??
+            OutlineInputBorder(
+              borderRadius: const BorderRadius.all(Radius.circular(10)),
+              borderSide: BorderSide(color: AppColors.notSelected),
+            );
 
   @override
   State<TextFieldBuilder> createState() => _TextFieldBuilderState();
@@ -43,10 +47,13 @@ class _TextFieldBuilderState extends State<TextFieldBuilder> {
       controller: _controller,
       maxLines: widget.maxLines,
       onChanged: widget.onChanged,
-      style: GoogleFonts.poppins(fontWeight: FontWeight.w600, color: Theme.of(context).colorScheme.onSurface),
+      style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+            fontWeight: FontWeight.w600,
+            color: Theme.of(context).colorScheme.onSurface,
+          ),
       decoration: InputDecoration(
         hintText: widget.hintText,
-        hintStyle: TextStyle(fontSize: 14.sp, color: Colors.grey),
+        hintStyle: AppTextStyles.hint(context)?.copyWith(fontSize: 14.sp),
         border: widget.border,
         focusedBorder: widget.border,
         enabledBorder: widget.border,

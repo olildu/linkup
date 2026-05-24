@@ -19,41 +19,25 @@ class MessageRenderer extends StatelessWidget {
   final Color color;
   final bool isOnlyEmoji;
 
-  const MessageRenderer({
-    super.key,
-    required this.message,
-    required this.messages,
-    required this.isSentByMe,
-    required this.messageBorderRadius,
-    required this.color,
-    required this.isOnlyEmoji,
-  });
+  const MessageRenderer({super.key, required this.message, required this.messages, required this.isSentByMe, required this.messageBorderRadius, required this.color, required this.isOnlyEmoji});
 
   @override
   Widget build(BuildContext context) {
     final bool replyIdExists = message.replyID != null;
-    final replyMessage =
-        replyIdExists
-            ? messages.firstWhere(
-              (m) => m.id == message.replyID,
-              orElse: () => Message(id: '', message: '[Original message not found]', to: 0, from_: 0, timestamp: DateTime.now(), chatRoomId: 0),
-            )
-            : null;
+    final replyMessage = replyIdExists
+        ? messages.firstWhere(
+            (m) => m.id == message.replyID,
+            orElse: () => Message(id: '', message: '[Original message not found]', to: 0, from_: 0, timestamp: DateTime.now(), chatRoomId: 0),
+          )
+        : null;
 
-    final replyColor =
-        isOnlyEmoji
-            ? Colors.transparent
-            : replyMessage?.from_ == GetIt.instance<int>(instanceName: 'user_id')
-            ? AppColors.primary
-            : Color.fromARGB(255, 33, 37, 42);
+    final replyColor = isOnlyEmoji
+        ? Colors.transparent
+        : replyMessage?.from_ == GetIt.instance<int>(instanceName: 'user_id')
+        ? AppColors.primary
+        : Color.fromARGB(255, 33, 37, 42);
 
-    Widget messageContentRenderer({
-      required Message message,
-      required BorderRadius messageBorderRadius,
-      required Color color,
-      required bool isOnlyEmoji,
-      bool isReply = false,
-    }) {
+    Widget messageContentRenderer({required Message message, required BorderRadius messageBorderRadius, required Color color, required bool isOnlyEmoji, bool isReply = false}) {
       final media = message.media;
       final textColor = isSentByMe ? Theme.of(context).colorScheme.onPrimaryContainer : Theme.of(context).colorScheme.onSecondaryContainer;
 
@@ -90,7 +74,7 @@ class MessageRenderer extends StatelessWidget {
             message.message,
             maxLines: isReply ? 2 : null,
             overflow: isReply ? TextOverflow.ellipsis : null,
-            style: TextStyle(fontSize: isOnlyEmoji ? 35.sp : 14.sp, color: isOnlyEmoji ? null : textColor, fontWeight: FontWeight.w400),
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(fontSize: isOnlyEmoji ? 35.sp : 14.sp, color: isOnlyEmoji ? null : textColor, fontWeight: FontWeight.w400),
           ),
         );
       }
@@ -103,13 +87,7 @@ class MessageRenderer extends StatelessWidget {
           ReplyRenderer(
             isSentByMe: isSentByMe,
             isReversed: !isSentByMe,
-            replyMessageContent: messageContentRenderer(
-              message: replyMessage!,
-              isReply: true,
-              messageBorderRadius: BorderRadius.circular(20.r),
-              color: replyColor,
-              isOnlyEmoji: isOnlyEmoji,
-            ),
+            replyMessageContent: messageContentRenderer(message: replyMessage!, isReply: true, messageBorderRadius: BorderRadius.circular(20.r), color: replyColor, isOnlyEmoji: isOnlyEmoji),
             barColor: Theme.of(context).colorScheme.onPrimary,
           ),
 

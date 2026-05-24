@@ -1,24 +1,23 @@
-      
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-
 void showScaffoldMessage({
   required BuildContext context,
   required String message,
-  Color backgroundColor = Colors.red,
-  Color textColor = Colors.white,
+  Color? backgroundColor,
+  Color? textColor,
   double fontSize = 16,
 }) {
+  final colorScheme = Theme.of(context).colorScheme;
   ScaffoldMessenger.of(context).showSnackBar(
     SnackBar(
       content: Text(
         message,
-        style: TextStyle(
-          color: textColor,
-          fontSize: (fontSize).sp,
-        ),
+        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+              color: textColor ?? colorScheme.onError,
+              fontSize: fontSize.sp,
+            ),
       ),
-      backgroundColor: backgroundColor,
+      backgroundColor: backgroundColor ?? colorScheme.error,
     ),
   );
 }

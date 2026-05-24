@@ -1,7 +1,6 @@
-
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:linkup/presentation/constants/colors.dart'; 
+import 'package:linkup/presentation/constants/colors.dart';
 
 void main() {
   group('AppTheme Coverage', () {
@@ -19,9 +18,11 @@ void main() {
       expect(theme, isA<ThemeData>());
       expect(theme.brightness, expectedBrightness);
       expect(theme.scaffoldBackgroundColor, expectedBackground);
-      expect(theme.appBarTheme.foregroundColor, AppColors.whiteTextColor); // Check AppBarTheme coverage
+      expect(theme.appBarTheme.foregroundColor, AppColors.lightText);
       expect(theme.colorScheme.background, expectedBackground); // Check ColorScheme coverage
       expect(theme.colorScheme.onPrimary, AppColors.whiteTextColor);
+      expect(theme.colorScheme.error, AppColors.error);
+      expect(theme.colorScheme.primary, AppColors.primary);
     });
 
     // Test Case 2: Ensures AppTheme.darkTheme is correctly initialized
@@ -39,7 +40,7 @@ void main() {
       expect(theme.scaffoldBackgroundColor, expectedBackground);
       expect(theme.appBarTheme.foregroundColor, AppColors.darkText); // Check AppBarTheme coverage
       expect(theme.colorScheme.background, expectedBackground); // Check ColorScheme coverage
-      expect(theme.textTheme.bodyLarge!.fontFamily, 'Poppins'); // Check TextTheme coverage
+      expect(theme.colorScheme.error, AppColors.error);
     });
   });
 }

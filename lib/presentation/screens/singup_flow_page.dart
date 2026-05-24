@@ -69,7 +69,7 @@ class _SingupFlowPageState extends State<SingupFlowPage> {
   void _manageFlow(SignupState state) {
     if (state is SingupPhotoUploading) {
       // During uploading of image show UploadingOverlay for UI/UX
-      navigateWithFade(context, const CustomOverlay(text: "Uploading", backgroundColor: AppColors.primary, textColor: Colors.white), allowBack: true);
+      navigateWithFade(context, const CustomOverlay(text: "Uploading", backgroundColor: AppColors.primary, textColor: AppColors.whiteTextColor), allowBack: true);
     } else if (state is SingupPhotoUploaded) {
       // Pop Overlay when upload complete
       Navigator.of(context).pop();
@@ -158,7 +158,7 @@ class _SingupFlowPageState extends State<SingupFlowPage> {
                         }
                       },
                       backgroundColor: _isNextButtonEnabled ? AppColors.primary : AppColors.notSelected,
-                      textColor: Colors.white,
+                      textColor: AppColors.whiteTextColor,
                       isFullWidth: true,
                       height: 65.h,
                       borderRadius: 15.r,

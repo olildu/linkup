@@ -33,7 +33,14 @@ class ReplyRenderer extends StatelessWidget {
 
     final informationText = Column(
       crossAxisAlignment: isReversed ? CrossAxisAlignment.start : CrossAxisAlignment.end,
-      children: [Text(isSentByMe ? "You replied" : "Replied to you")],
+      children: [
+        Text(
+          isSentByMe ? "You replied" : "Replied to you",
+          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
+              ),
+        ),
+      ],
     );
 
     return IntrinsicHeight(

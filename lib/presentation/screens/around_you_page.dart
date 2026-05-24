@@ -27,17 +27,23 @@ class _AroundYouPageState extends State<AroundYouPage> {
         builder: (context, state) {
           if (state is MatchesLoaded) {
             List<MatchCandidateModel> candidates = state.matches;
+            // If there are no candidates, show the empty message instead of
+            // building the CardSwiper (the CardSwiper asserts when cardsCount
+            // is 0 or when numberOfCardsDisplayed > cardsCount).
+            if (candidates.isEmpty) {
+              return _buildMessage(icon: Icons.tune_rounded, title: "You’ve seen all nearby profiles", subtitle: "Come back later or adjust your search preferences.");
+            }
+
+            final displayCount = candidates.length < 3 ? candidates.length : 3;
 
             return CardSwiper(
               padding: EdgeInsets.zero,
-              numberOfCardsDisplayed: 3,
+              numberOfCardsDisplayed: displayCount,
               cardsCount: candidates.length,
               isLoop: false,
               allowedSwipeDirection: AllowedSwipeDirection.symmetric(vertical: false, horizontal: true),
               onSwipe: (previousIndex, currentIndex, direction) {
-                context.read<MatchesBloc>().add(
-                  SwipeProfileEvent(likedId: candidates[previousIndex].id, direction: direction, previousIndex: previousIndex),
-                );
+                context.read<MatchesBloc>().add(SwipeProfileEvent(likedId: candidates[previousIndex].id, direction: direction, previousIndex: previousIndex));
 
                 scrollController.jumpTo(0);
                 return true;
@@ -57,7 +63,7 @@ class _AroundYouPageState extends State<AroundYouPage> {
                               const Color.fromARGB(255, 215, 215, 215),
                             ] else ...[
                               Colors.black,
-                              const Color.fromARGB(255, 31, 29, 29),
+                              const Color.fromARGB(255, 0, 0, 0),
                             ],
                           ],
                         ),
@@ -65,11 +71,7 @@ class _AroundYouPageState extends State<AroundYouPage> {
                       ),
                       child: SingleChildScrollView(
                         controller: scrollController,
-                        child: CandidateDetailBuilder(
-                          key: PageStorageKey('candidate_${candidates[index].id}'),
-                          availableHeight: availableHeight,
-                          candidate: candidates[index],
-                        ),
+                        child: CandidateDetailBuilder(key: PageStorageKey('candidate_${candidates[index].id}'), availableHeight: availableHeight, candidate: candidates[index]),
                       ),
                     );
                   },
@@ -77,17 +79,9 @@ class _AroundYouPageState extends State<AroundYouPage> {
               },
             );
           } else if (state is MatchesError) {
-            return _buildMessage(
-              icon: Icons.search_off_rounded,
-              title: "There’s been a glitch in the matrix",
-              subtitle: "Things should be up and running soon. Please try restarting the app.",
-            );
+            return _buildMessage(icon: Icons.search_off_rounded, title: "There’s been a glitch in the matrix", subtitle: "Things should be up and running soon. Please try restarting the app.");
           } else if (state is MatchesEmpty) {
-            return _buildMessage(
-              icon: Icons.tune_rounded,
-              title: "You’ve seen all nearby profiles",
-              subtitle: "Come back later or adjust your search preferences.",
-            );
+            return _buildMessage(icon: Icons.tune_rounded, title: "You’ve seen all nearby profiles", subtitle: "Come back later or adjust your search preferences.");
           } else {
             return const Center(child: CircularProgressIndicator());
           }
@@ -106,9 +100,17 @@ class _AroundYouPageState extends State<AroundYouPage> {
         children: [
           Icon(icon, size: 100.sp, color: AppColors.whiteTextColor),
           Gap(30.h),
-          Text(title, textAlign: TextAlign.center, style: TextStyle(fontSize: 30.sp, color: AppColors.whiteTextColor)),
+          Text(
+            title,
+            textAlign: TextAlign.center,
+            style: Theme.of(context).textTheme.headlineLarge?.copyWith(fontSize: 30.sp, color: AppColors.whiteTextColor),
+          ),
           Gap(30.h),
-          Text(subtitle, textAlign: TextAlign.center, style: TextStyle(fontSize: 14.sp, color: AppColors.whiteTextColor.withValues(alpha: 0.9))),
+          Text(
+            subtitle,
+            textAlign: TextAlign.center,
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(fontSize: 14.sp, color: AppColors.whiteTextColor.withValues(alpha: 0.9)),
+          ),
           Gap(100.h),
         ],
       ),

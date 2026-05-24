@@ -60,7 +60,7 @@ class _CustomOverlayState extends State<CustomOverlay> with SingleTickerProvider
 
                   Text(
                     widget.text,
-                    style: TextStyle(fontSize: 20.sp, color: txtColor, fontWeight: FontWeight.w600, letterSpacing: 1.2.w),
+                    style: Theme.of(context).textTheme.titleLarge?.copyWith(fontSize: 20.sp, color: txtColor, fontWeight: FontWeight.w600, letterSpacing: 1.2.w),
                     textAlign: TextAlign.center,
                   ),
                 ],

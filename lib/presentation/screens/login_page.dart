@@ -7,6 +7,7 @@ import 'package:gap/gap.dart';
 import 'package:linkup/data/common_services/validation_utils.dart';
 import 'package:linkup/logic/bloc/auth/auth_bloc.dart';
 import 'package:linkup/logic/bloc/otp/otp_bloc.dart';
+import 'package:linkup/presentation/constants/colors.dart';
 import 'package:linkup/presentation/components/login/text_input_field.dart';
 import 'package:linkup/presentation/components/signup_page/button_builder.dart';
 import 'package:linkup/presentation/screens/forgot_password_modal_page.dart';
@@ -148,7 +149,7 @@ class _LoginPageState extends State<LoginPage> {
                                 onPressed: _showForgotPopup,
                                 child: Text(
                                   'Forgot Password ?',
-                                  style: TextStyle(fontSize: 14.sp, color: Colors.blue, fontWeight: FontWeight.w500),
+                                  style: AppTextStyles.link(context)?.copyWith(fontSize: 14.sp),
                                 ),
                               ),
                             ],

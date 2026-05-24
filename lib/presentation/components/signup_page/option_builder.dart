@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:linkup/presentation/constants/colors.dart';
 
 class OptionBuilder extends StatefulWidget {
@@ -56,7 +55,13 @@ class _OptionBuilderState extends State<OptionBuilder> {
                   color: _currentIndex == index ? AppColors.primary : AppColors.notSelected,
                   borderRadius: BorderRadius.circular(50),
                 ),
-                child: Text(widget.options[index], style: GoogleFonts.poppins(fontSize: widget.textSize, color: AppColors.whiteTextColor)),
+                child: Text(
+                  widget.options[index],
+                  style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                        fontSize: widget.textSize,
+                        color: AppColors.whiteTextColor,
+                      ),
+                ),
               ),
             );
           }),

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
+import 'package:linkup/presentation/constants/colors.dart';
 
 class OtpInputField extends StatelessWidget {
   final String label;
@@ -13,12 +14,13 @@ class OtpInputField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Color borderColor = hasError ? const Color.fromARGB(255, 244, 21, 5) : Colors.grey[300]!;
+    final colorScheme = Theme.of(context).colorScheme;
+    final borderColor = hasError ? colorScheme.error : colorScheme.outline;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label, style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.w500, color: Colors.black)),
+        Text(label, style: AppTextStyles.label(context)?.copyWith(fontSize: 14.sp)),
         Gap(6.h),
         TextField(
           obscureText: true,
@@ -27,19 +29,23 @@ class OtpInputField extends StatelessWidget {
           maxLength: 6,
           inputFormatters: [FilteringTextInputFormatter.digitsOnly],
           textAlign: TextAlign.center,
-          style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w500, color: Colors.black, letterSpacing: 4.w),
+          style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                fontWeight: FontWeight.w500,
+                color: colorScheme.onSurface,
+                letterSpacing: 4.w,
+              ),
           decoration: InputDecoration(
             counterText: '',
             hintText: hintText,
-            hintStyle: TextStyle(color: Colors.grey[500], fontSize: 14.sp),
+            hintStyle: AppTextStyles.hint(context)?.copyWith(fontSize: 14.sp),
             filled: true,
-            fillColor: Colors.white,
+            fillColor: colorScheme.surface,
             contentPadding: EdgeInsets.symmetric(vertical: 12.h, horizontal: 14.w),
             border: OutlineInputBorder(borderRadius: BorderRadius.circular(10.r), borderSide: BorderSide(color: borderColor)),
             enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(10.r), borderSide: BorderSide(color: borderColor)),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(10.r),
-              borderSide: BorderSide(color: hasError ? Colors.red : Colors.blue),
+              borderSide: BorderSide(color: hasError ? colorScheme.error : colorScheme.primary),
             ),
           ),
         ),

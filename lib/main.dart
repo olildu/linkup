@@ -21,7 +21,7 @@ import 'package:linkup/logic/bloc/web_socket/connection_sockets/connections_sock
 import 'package:linkup/logic/bloc/web_socket/web_socket_bloc.dart';
 import 'package:linkup/logic/cubit/connectivity_cubit/cubit/connectivity_cubit_cubit.dart';
 import 'package:linkup/logic/cubit/theme/theme_cubit.dart';
-import 'package:linkup/presentation/constants/colors.dart';
+import 'package:linkup/presentation/theme/app_theme.dart';
 import 'package:linkup/presentation/screens/loading_screen_post_login_page.dart';
 import 'package:linkup/logic/provider/data_validator_provider.dart';
 import 'package:path_provider/path_provider.dart';

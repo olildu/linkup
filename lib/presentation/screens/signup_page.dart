@@ -7,6 +7,7 @@ import 'package:linkup/data/common_services/validation_utils.dart';
 import 'package:linkup/data/enums/otp_subject_enum.dart';
 import 'package:linkup/logic/bloc/auth/auth_bloc.dart';
 import 'package:linkup/logic/bloc/otp/otp_bloc.dart';
+import 'package:linkup/presentation/constants/colors.dart';
 import 'package:linkup/presentation/components/common/text_widget_builder.dart';
 import 'package:linkup/presentation/components/login/otp_input_field.dart';
 import 'package:linkup/presentation/components/login/text_input_field.dart';
@@ -176,7 +177,7 @@ class _SignUpPageState extends State<SignUpPage> {
                           padding: EdgeInsets.symmetric(vertical: 8.0.h, horizontal: 5.w),
                           child: Text(
                             (otpState).message,
-                            style: TextStyle(color: Colors.red, fontSize: 14.sp),
+                            style: AppTextStyles.error(context)?.copyWith(fontSize: 14.sp),
                           ),
                         ),
                     ],
@@ -226,7 +227,7 @@ class _SignUpPageState extends State<SignUpPage> {
                           padding: EdgeInsets.symmetric(vertical: 8.0.h, horizontal: 0.w),
                           child: Text(
                             (otpState).message,
-                            style: TextStyle(color: Colors.red, fontSize: 14.sp),
+                            style: AppTextStyles.error(context)?.copyWith(fontSize: 14.sp),
                           ),
                         ),
                     ],
@@ -330,10 +331,19 @@ class _SignUpPageState extends State<SignUpPage> {
       padding: EdgeInsets.symmetric(vertical: 2.h),
       child: Row(
         children: [
-          Icon(isMet ? Icons.check_circle : Icons.circle_outlined, color: isMet ? Colors.green : Colors.grey, size: 16.sp),
+          Icon(
+            isMet ? Icons.check_circle : Icons.circle_outlined,
+            color: isMet ? AppColors.success : AppColors.notSelected,
+            size: 16.sp,
+          ),
           Gap(8.w),
           Expanded(
-            child: CustomTextWidget(text, fontSize: 13, color: isMet ? Colors.green : Colors.grey[600], overflow: TextOverflow.visible),
+            child: CustomTextWidget(
+              text,
+              fontSize: 13,
+              color: isMet ? AppColors.success : AppColors.notSelected,
+              overflow: TextOverflow.visible,
+            ),
           ),
         ],
       ),

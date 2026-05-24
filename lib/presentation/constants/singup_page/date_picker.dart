@@ -2,7 +2,6 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:linkup/logic/utils/calculate_age.dart';
 import 'package:linkup/presentation/components/signup_page/divider_builder_component.dart';
 import 'package:linkup/presentation/components/signup_page/picker_builder_component.dart';
@@ -257,12 +256,20 @@ class DatePickerState extends State<DatePicker> {
                 children: [
                   Text(
                     'Age $exactAge',
-                    style: GoogleFonts.poppins(fontSize: 26.sp, fontWeight: FontWeight.w600, color: Theme.of(context).colorScheme.onSurface),
+                    style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                          fontSize: 26.sp,
+                          fontWeight: FontWeight.w600,
+                          color: Theme.of(context).colorScheme.onSurface,
+                        ),
                   ),
                   Gap(10.h),
                   Text(
                     "This cannot be changed",
-                    style: GoogleFonts.poppins(fontSize: 14.sp, fontWeight: FontWeight.w400, color: AppColors.notSelected),
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          fontSize: 14.sp,
+                          fontWeight: FontWeight.w400,
+                          color: AppColors.notSelected,
+                        ),
                   ),
                 ],
               ),

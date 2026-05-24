@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
+import 'package:linkup/presentation/constants/colors.dart';
 import 'package:linkup/presentation/components/signup_page/button_builder.dart';
 import 'package:linkup/presentation/components/signup_page/page_title_builder_component.dart';
 import 'package:linkup/presentation/screens/loading_screen_post_login_page.dart';
@@ -81,20 +82,13 @@ class _LandingPageState extends State<LandingPage> {
               crossAxisAlignment: CrossAxisAlignment.start,
 
               children: [
-                Text(
-                  'linkup',
-                  style: TextStyle(fontSize: 40.sp, fontWeight: FontWeight.bold, color: Colors.white),
-                ),
-
-                Gap(5.h),
-
-                PageTitle(inputText: "More than just classmates", highlightWord: "classmates", fontSize: 23, textColor: Colors.white),
+                PageTitle(inputText: "More than just classmates", highlightWord: "classmates", fontSize: 23, textColor: AppColors.whiteTextColor),
 
                 Spacer(),
 
                 Text(
                   'linkup with your crowd',
-                  style: TextStyle(fontSize: 20.sp, fontWeight: FontWeight.w500, color: Colors.white),
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(fontSize: 20.sp, fontWeight: FontWeight.w500, color: AppColors.whiteTextColor),
                 ),
 
                 Gap(20.h),
@@ -112,7 +106,7 @@ class _LandingPageState extends State<LandingPage> {
                 Center(
                   child: Text(
                     'By continuing, you agree to our Terms of Service and Privacy Policy.',
-                    style: TextStyle(fontSize: 9.sp, fontWeight: FontWeight.w400, color: Colors.white.withValues(alpha: 0.7)),
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(fontSize: 9.sp, fontWeight: FontWeight.w400, color: AppColors.whiteTextColor.withValues(alpha: 0.7)),
                   ),
                 ),
               ],

@@ -89,8 +89,6 @@ class _YourPeoplePageState extends State<ConnectionsPage> {
 
               _buildTitleSubtitle('Your Chats', 'See your chats and connect with them'),
 
-              Gap(20.h),
-
               Expanded(
                 child: BlocBuilder<ConnectionsBloc, ConnectionsState>(
                   builder: (context, state) {
@@ -142,7 +140,7 @@ class _YourPeoplePageState extends State<ConnectionsPage> {
 
   Widget _buildChatTile({required ChatsConnectionModel candidate}) {
     return Padding(
-      padding: EdgeInsets.only(bottom: 20.h),
+      padding: EdgeInsets.only(bottom: 5.h),
       child: ListTile(
         onTap: () {
           log('Tapped on chat with ${candidate.username}');

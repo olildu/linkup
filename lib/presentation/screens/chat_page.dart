@@ -358,9 +358,14 @@ class _ChatPageState extends State<ChatPage> {
 
   @override
   Widget build(BuildContext context) {
+    final pageBackgroundColor = Theme.of(context).scaffoldBackgroundColor;
+
     return Scaffold(
+      backgroundColor: pageBackgroundColor,
       appBar: AppBar(
         scrolledUnderElevation: 0,
+        surfaceTintColor: Colors.transparent,
+        shadowColor: Colors.transparent,
         title: GestureDetector(
           behavior: HitTestBehavior.opaque,
           onTap: () {
@@ -385,8 +390,8 @@ class _ChatPageState extends State<ChatPage> {
             ],
           ),
         ),
-        backgroundColor: Theme.of(context).colorScheme.surface.withValues(alpha: 0.95),
-        elevation: 0.5,
+        backgroundColor: pageBackgroundColor,
+        elevation: 0,
         leading: IconButton(
           icon: Icon(Icons.arrow_back_ios_new_rounded, color: Theme.of(context).colorScheme.onSurface, size: 20.sp),
           onPressed: () => Navigator.pop(context),

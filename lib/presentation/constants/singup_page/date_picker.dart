@@ -268,7 +268,7 @@ class DatePickerState extends State<DatePicker> {
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
                           fontSize: 14.sp,
                           fontWeight: FontWeight.w400,
-                          color: AppColors.notSelected,
+                          color: AppColors.whiteGreyTextColor,
                         ),
                   ),
                 ],

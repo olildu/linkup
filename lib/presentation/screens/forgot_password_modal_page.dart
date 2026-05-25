@@ -313,7 +313,7 @@ class _ForgotPasswordModalPageState extends State<ForgotPasswordModalPage> with 
         children: [
           Icon(
             isMet ? Icons.check_circle : Icons.circle_outlined,
-            color: isMet ? AppColors.success : AppColors.notSelected,
+            color: isMet ? AppColors.success : AppColors.whiteGreyTextColor,
             size: 16.sp,
           ),
           Gap(8.w),
@@ -321,7 +321,7 @@ class _ForgotPasswordModalPageState extends State<ForgotPasswordModalPage> with 
             child: CustomTextWidget(
               text,
               fontSize: 13,
-              color: isMet ? AppColors.success : AppColors.notSelected,
+              color: isMet ? AppColors.success : AppColors.whiteGreyTextColor,
               overflow: TextOverflow.visible,
             ),
           ),

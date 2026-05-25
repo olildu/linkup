@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
+import 'package:get_it/get_it.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:linkup/data/enums/message_type_enum.dart';
 import 'package:linkup/data/http_services/common_http_services/common_http_services.dart';
@@ -21,6 +22,7 @@ import 'package:linkup/presentation/components/signup_page/button_builder.dart';
 import 'package:linkup/presentation/constants/colors.dart';
 import 'package:linkup/presentation/screens/loading_screen_post_login_page.dart';
 import 'package:linkup/presentation/screens/singup_flow_page.dart';
+import 'package:linkup/presentation/screens/user_profile_bottom_sheet.dart';
 import 'package:linkup/presentation/utils/show_error_toast.dart';
 
 class ProfileSettingsPage extends StatefulWidget {
@@ -49,7 +51,10 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
 
     for (var item in selectedImages) {
       if (item is XFile) {
-        final uploaded = await CommonHttpServices().uploadMediaUser(file: File(item.path), mediaType: MessageType.image);
+        final uploaded = await CommonHttpServices().uploadMediaUser(
+          file: File(item.path),
+          mediaType: MessageType.image,
+        );
         finalImages.add(uploaded['metadata']);
       } else {
         finalImages.add(item);
@@ -60,19 +65,109 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
     if (changePfp) {
       final firstImage = finalImages.isNotEmpty ? finalImages.first : null;
       if (firstImage != null && firstImage['url'] != null) {
-        pfpMetadata = await CommonHttpServices().uploadProfilePictureFromUrl(imageUrl: firstImage['url']);
+        pfpMetadata = await CommonHttpServices().uploadProfilePictureFromUrl(
+          imageUrl: firstImage['url'],
+        );
       }
     }
 
     context.read<ProfileBloc>().add(
       ProfileUpdateEvent(
-        userUpdatedModel: UpdateMetadataModel(photos: finalImages, profilePicture: pfpMetadata?['profile_metadata']),
+        userUpdatedModel: UpdateMetadataModel(
+          photos: finalImages,
+          profilePicture: pfpMetadata?['profile_metadata'],
+        ),
       ),
     );
 
     setState(() {
       _updating = false;
     });
+  }
+
+  void _openProfilePreview(UserModel user) {
+    final int currentUserId = GetIt.I<int>(instanceName: 'user_id');
+    showBottomSheetUserProfile(context: context, userId: currentUserId, showChatButton: false);
+  }
+
+  void _openEditFlow(int index, dynamic optionsData) {
+    Navigator.push(
+      context,
+      CupertinoPageRoute(
+        builder: (context) => BlocProvider(
+          create: (context) => SignupBloc(isSigningUp: false),
+          child: SingupFlowPage(initialIndex: index, initialData: optionsData.toJson()),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildOptions({
+    required IconData icon,
+    required String title,
+    String? data,
+    required VoidCallback onTap,
+    bool showBorder = false,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: showBorder
+            ? EdgeInsets.symmetric(vertical: 7.h, horizontal: 10.w)
+            : EdgeInsets.zero,
+
+        decoration: showBorder
+            ? BoxDecoration(
+                border: Border.all(color: AppColors.notSelected),
+                borderRadius: BorderRadius.circular(20.r),
+              )
+            : null,
+
+        margin: EdgeInsets.only(bottom: 30.h),
+
+        child: Row(
+          children: [
+            Icon(icon, size: 20.sp, color: Theme.of(context).colorScheme.onSurface),
+
+            Gap(10.w),
+
+            Text(
+              title,
+              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                fontSize: 16.sp,
+                fontWeight: FontWeight.w600,
+                color: Theme.of(context).colorScheme.onSurface,
+              ),
+            ),
+
+            const Spacer(),
+
+            if (data != null)
+              Text(data, style: AppTextStyles.subtitle(context)?.copyWith(fontSize: 14.sp)),
+
+            Gap(10.w),
+
+            Icon(Icons.arrow_forward_ios_rounded, size: 20.sp, color: AppColors.notSelected),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildStrongOption({required String title, required Color textColor, Function? onTap}) {
+    return ButtonBuilder(
+      text: title,
+      onPressed: () {
+        if (onTap != null) {
+          onTap();
+        }
+      },
+      backgroundColor: const Color.fromARGB(255, 35, 35, 35),
+      textColor: textColor,
+      isFullWidth: true,
+      borderRadius: 50.r,
+      height: 40.h,
+    );
   }
 
   @override
@@ -82,12 +177,20 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
         scrolledUnderElevation: 0,
         title: Text(
           'Profile Settings',
-          style: Theme.of(context).textTheme.titleLarge?.copyWith(fontSize: 20.sp, fontWeight: FontWeight.w600, color: Theme.of(context).colorScheme.onSurface),
+          style: Theme.of(context).textTheme.titleLarge?.copyWith(
+            fontSize: 20.sp,
+            fontWeight: FontWeight.w600,
+            color: Theme.of(context).colorScheme.onSurface,
+          ),
         ),
         centerTitle: true,
         backgroundColor: Colors.transparent,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back_ios_new_rounded, color: Theme.of(context).colorScheme.onSurface, size: 20.sp),
+          icon: Icon(
+            Icons.arrow_back_ios_new_rounded,
+            color: Theme.of(context).colorScheme.onSurface,
+            size: 20.sp,
+          ),
           onPressed: () {
             if (_updating) {
               showToast(context: context, message: "Please wait until the upload is complete.");
@@ -114,7 +217,10 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
                   return Center(
                     child: Text(
                       'Error loading profile settings',
-                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(fontSize: 16.sp, color: Theme.of(context).colorScheme.error),
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        fontSize: 16.sp,
+                        color: Theme.of(context).colorScheme.error,
+                      ),
                     ),
                   );
                 } else if (state is ProfileLoaded) {
@@ -126,11 +232,26 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        BuildTitleSubtitle(title: 'Profile Picture', subtitle: 'Choose a profile picture'),
+                        BuildTitleSubtitle(
+                          title: 'Profile Picture',
+                          subtitle: 'Choose a profile picture',
+                        ),
                         Gap(20.h),
-                        ImagePickerBuilder(maxImages: 6, onImagesChanged: _handleImageChange, onSignUp: false, initialImages: user.photos!),
+                        ImagePickerBuilder(
+                          maxImages: 6,
+                          onImagesChanged: _handleImageChange,
+                          onSignUp: false,
+                          initialImages: user.photos!,
+                        ),
 
                         Gap(20.h),
+                        _buildOptions(
+                          icon: Icons.remove_red_eye_sharp,
+                          title: "Preview Profile",
+                          onTap: () => _openProfilePreview(user),
+                          showBorder: true,
+                        ),
+
                         BuildTitleSubtitle(title: 'About Me', subtitle: 'Tell us about yourself'),
                         Gap(20.h),
                         StatefulBuilder(
@@ -148,7 +269,7 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
                                   ),
                                   onChanged: (value) {
                                     internalSetState(() {
-                                      aboutMeChanged = value.trim().isNotEmpty;
+                                      aboutMeChanged = value.trim() != user.about?.trim();
                                       aboutMeContent = value;
                                     });
                                   },
@@ -166,7 +287,13 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
                                     height: 50.h,
                                     onPressed: () {
                                       FocusScope.of(context).unfocus();
-                                      context.read<ProfileBloc>().add(ProfileUpdateEvent(userUpdatedModel: UpdateMetadataModel(about: aboutMeContent)));
+                                      context.read<ProfileBloc>().add(
+                                        ProfileUpdateEvent(
+                                          userUpdatedModel: UpdateMetadataModel(
+                                            about: aboutMeContent,
+                                          ),
+                                        ),
+                                      );
                                       setState(() {
                                         aboutMeChanged = false;
                                       });
@@ -179,16 +306,26 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
                         ),
                         Gap(20.h),
 
-                        BuildTitleSubtitle(title: 'Your Information', subtitle: 'Select or update your information'),
+                        BuildTitleSubtitle(
+                          title: 'Your Information',
+                          subtitle: 'Select or update your information',
+                        ),
                         Gap(20.h),
                         Column(
-                          children: candidateInformation.asIconMap(showGender: false).entries.map((entry) {
+                          children: candidateInformation.asIconMap(showGender: false).entries.map((
+                            entry,
+                          ) {
                             final icon = entry.value['icon'] as IconData;
                             final value = entry.value['value'];
                             final title = entry.value['title'] as String;
                             final index = entry.value['index'] as int;
 
-                            return _buildOptions(icon, title, value, index, candidateInformation);
+                            return _buildOptions(
+                              icon: icon,
+                              title: title,
+                              data: value,
+                              onTap: () => _openEditFlow(index, candidateInformation),
+                            );
                           }).toList(),
                         ),
 
@@ -202,7 +339,12 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
                                 title: "Logout",
                                 onTap: () async {
                                   await TokenServices().clearTokens();
-                                  Navigator.of(context).pushAndRemoveUntil(CupertinoPageRoute(builder: (context) => const LoadingScreenPostLogin()), (Route<dynamic> route) => false);
+                                  Navigator.of(context).pushAndRemoveUntil(
+                                    CupertinoPageRoute(
+                                      builder: (context) => const LoadingScreenPostLogin(),
+                                    ),
+                                    (Route<dynamic> route) => false,
+                                  );
                                 },
                               ),
                             ),
@@ -216,12 +358,23 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
                                   showDialog(
                                     context: context,
                                     builder: (context) => AlertDialog(
-                                      title: Text("Delete Account?", style: Theme.of(context).textTheme.titleLarge),
-                                      content: Text("This action cannot be undone. You will lose all your matches and chats.", style: Theme.of(context).textTheme.bodyMedium),
+                                      title: Text(
+                                        "Delete Account?",
+                                        style: Theme.of(context).textTheme.titleLarge,
+                                      ),
+                                      content: Text(
+                                        "This action cannot be undone. You will lose all your matches and chats.",
+                                        style: Theme.of(context).textTheme.bodyMedium,
+                                      ),
                                       actions: [
                                         TextButton(
                                           onPressed: () => Navigator.pop(context),
-                                          child: Text("Cancel", style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Theme.of(context).colorScheme.onSurface)),
+                                          child: Text(
+                                            "Cancel",
+                                            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                              color: Theme.of(context).colorScheme.onSurface,
+                                            ),
+                                          ),
                                         ),
                                         TextButton(
                                           onPressed: () async {
@@ -230,13 +383,25 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
                                               await UserHttpServices().deleteAccount();
                                               await TokenServices().clearTokens();
                                               if (context.mounted) {
-                                                Navigator.of(context).pushAndRemoveUntil(CupertinoPageRoute(builder: (context) => const LoadingScreenPostLogin()), (Route<dynamic> route) => false);
+                                                Navigator.of(context).pushAndRemoveUntil(
+                                                  CupertinoPageRoute(
+                                                    builder: (context) =>
+                                                        const LoadingScreenPostLogin(),
+                                                  ),
+                                                  (Route<dynamic> route) => false,
+                                                );
                                               }
                                             } catch (e) {
-                                              showToast(context: context, message: "Failed to delete account");
+                                              showToast(
+                                                context: context,
+                                                message: "Failed to delete account",
+                                              );
                                             }
                                           },
-                                          child: Text("Delete", style: AppTextStyles.destructive(context)),
+                                          child: Text(
+                                            "Delete",
+                                            style: AppTextStyles.destructive(context),
+                                          ),
                                         ),
                                       ],
                                     ),
@@ -251,64 +416,15 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
                     ),
                   );
                 } else {
-                  return Center(child: CircularProgressIndicator(color: Theme.of(context).colorScheme.primary));
+                  return Center(
+                    child: CircularProgressIndicator(color: Theme.of(context).colorScheme.primary),
+                  );
                 }
               },
             ),
           ),
         ),
       ),
-    );
-  }
-
-  Widget _buildOptions(IconData icon, String title, String? data, int index, dynamic optionsData) {
-    return GestureDetector(
-      onTap: () {
-        Navigator.push(
-          context,
-          CupertinoPageRoute(
-            builder: (context) => BlocProvider(
-              create: (context) => SignupBloc(isSigningUp: false),
-              child: SingupFlowPage(initialIndex: index, initialData: optionsData.toJson()),
-            ),
-          ),
-        );
-      },
-      child: Container(
-        margin: EdgeInsets.only(bottom: 30.h),
-        child: Row(
-          children: [
-            Icon(icon, size: 20.sp, color: Theme.of(context).colorScheme.onSurface),
-            Gap(10.w),
-            Text(
-              title,
-              style: Theme.of(context).textTheme.bodyLarge?.copyWith(fontSize: 16.sp, fontWeight: FontWeight.w600, color: Theme.of(context).colorScheme.onSurface),
-            ),
-            const Spacer(),
-            Text(data ?? "None", style: AppTextStyles.subtitle(context)?.copyWith(fontSize: 14.sp)),
-
-            Gap(10.w),
-
-            Icon(Icons.arrow_forward_ios_rounded, size: 20.sp, color: AppColors.notSelected),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildStrongOption({required String title, required Color textColor, Function? onTap}) {
-    return ButtonBuilder(
-      text: title,
-      onPressed: () {
-        if (onTap != null) {
-          onTap();
-        }
-      },
-      backgroundColor: const Color.fromARGB(255, 35, 35, 35),
-      textColor: textColor,
-      isFullWidth: true,
-      borderRadius: 50.r,
-      height: 40.h,
     );
   }
 }

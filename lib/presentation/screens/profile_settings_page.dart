@@ -18,6 +18,7 @@ import 'package:linkup/logic/bloc/signup/signup_bloc.dart';
 import 'package:linkup/presentation/components/common/image_picker_builder.dart';
 import 'package:linkup/presentation/components/common/text_field_builder.dart';
 import 'package:linkup/presentation/components/common/title_sub_builder.dart';
+import 'package:linkup/presentation/components/common/upload_progress_overlay_builder.dart';
 import 'package:linkup/presentation/components/signup_page/button_builder.dart';
 import 'package:linkup/presentation/constants/colors.dart';
 import 'package:linkup/presentation/screens/loading_screen_post_login_page.dart';
@@ -35,54 +36,11 @@ class ProfileSettingsPage extends StatefulWidget {
 class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
   bool aboutMeChanged = false;
   late String aboutMeContent;
-  bool _updating = false;
+  UserModel? cachedUser;
 
   @override
   void initState() {
     super.initState();
-  }
-
-  Future<void> _handleImageChange(List<dynamic> selectedImages, bool changePfp) async {
-    setState(() {
-      _updating = true;
-    });
-
-    List<Map> finalImages = [];
-
-    for (var item in selectedImages) {
-      if (item is XFile) {
-        final uploaded = await CommonHttpServices().uploadMediaUser(
-          file: File(item.path),
-          mediaType: MessageType.image,
-        );
-        finalImages.add(uploaded['metadata']);
-      } else {
-        finalImages.add(item);
-      }
-    }
-
-    Map? pfpMetadata;
-    if (changePfp) {
-      final firstImage = finalImages.isNotEmpty ? finalImages.first : null;
-      if (firstImage != null && firstImage['url'] != null) {
-        pfpMetadata = await CommonHttpServices().uploadProfilePictureFromUrl(
-          imageUrl: firstImage['url'],
-        );
-      }
-    }
-
-    context.read<ProfileBloc>().add(
-      ProfileUpdateEvent(
-        userUpdatedModel: UpdateMetadataModel(
-          photos: finalImages,
-          profilePicture: pfpMetadata?['profile_metadata'],
-        ),
-      ),
-    );
-
-    setState(() {
-      _updating = false;
-    });
   }
 
   void _openProfilePreview(UserModel user) {
@@ -172,6 +130,7 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
 
   @override
   Widget build(BuildContext context) {
+    final state = context.watch<ProfileBloc>().state;
     return Scaffold(
       appBar: AppBar(
         scrolledUnderElevation: 0,
@@ -192,7 +151,7 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
             size: 20.sp,
           ),
           onPressed: () {
-            if (_updating) {
+            if (state is ProfileUpdating) {
               showToast(context: context, message: "Please wait until the upload is complete.");
               return;
             }
@@ -202,17 +161,17 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
       ),
 
       body: PopScope(
-        canPop: !_updating,
+        canPop: state is! ProfileUpdating,
         onPopInvokedWithResult: (bool didPop, _) {
-          if (!didPop && _updating) {
+          if (!didPop && state is ProfileUpdating) {
             showToast(context: context, message: "Please wait until the upload is complete.");
           }
         },
         child: SafeArea(
           child: Padding(
             padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 20.h),
-            child: BlocBuilder<ProfileBloc, ProfileState>(
-              builder: (context, state) {
+            child: Builder(
+              builder: (context) {
                 if (state is ProfileError) {
                   return Center(
                     child: Text(
@@ -223,8 +182,11 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
                       ),
                     ),
                   );
-                } else if (state is ProfileLoaded) {
-                  final UserModel user = state.user;
+                } else if (state is ProfileLoaded || state is ProfileUpdating) {
+                  if (state is ProfileLoaded) {
+                    cachedUser = state.user;
+                  }
+                  final UserModel user = cachedUser!;
                   final candidateInformation = CandidateInfoModel.fromUserModel(user);
                   aboutMeContent = user.about!;
 
@@ -237,11 +199,47 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
                           subtitle: 'Choose a profile picture',
                         ),
                         Gap(20.h),
-                        ImagePickerBuilder(
-                          maxImages: 6,
-                          onImagesChanged: _handleImageChange,
-                          onSignUp: false,
-                          initialImages: user.photos!,
+                        Stack(
+                          alignment: Alignment.center,
+                          children: [
+                            IgnorePointer(
+                              ignoring: state is ProfileUpdating,
+                              child: Opacity(
+                                opacity: state is ProfileUpdating ? 0.4 : 1,
+                                child: ImagePickerBuilder(
+                                  maxImages: 6,
+                                  onImagesChanged: (selectedImages, changePfp) {
+                                    context.read<ProfileBloc>().add(
+                                      ProfileImagesUpdatedEvent(
+                                        selectedImages: selectedImages,
+                                        changePfp: changePfp,
+                                      ),
+                                    );
+                                  },
+                                  onSignUp: false,
+                                  initialImages: user.photos!,
+                                ),
+                              ),
+                            ),
+
+                            if (state is ProfileUpdating)
+                              Builder(
+                                builder: (_) {
+                                  final uploadingState = state as ProfileUpdating;
+
+                                  return Positioned(
+                                    child: Padding(
+                                      padding: EdgeInsets.symmetric(horizontal: 20.w),
+                                      child: UploadProgressOverlayBuilder(
+                                        current: uploadingState.current,
+                                        total: uploadingState.total,
+                                        message: uploadingState.message,
+                                      ),
+                                    ),
+                                  );
+                                },
+                              ),
+                          ],
                         ),
 
                         Gap(20.h),

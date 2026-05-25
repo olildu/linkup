@@ -13,3 +13,13 @@ final class ProfileUpdateEvent extends ProfileEvent {
 
   ProfileUpdateEvent({required this.userUpdatedModel});
 }
+
+final class ProfileImagesUpdatedEvent extends ProfileEvent {
+  final List<dynamic> selectedImages;
+  final bool changePfp;
+
+  ProfileImagesUpdatedEvent({
+    required this.selectedImages,
+    required this.changePfp,
+  });
+}

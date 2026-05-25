@@ -101,6 +101,7 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
             photos: finalImages,
             profilePicture: pfpMetadata?['profile_metadata'],
           ),
+          updatePfp: event.changePfp,
         );
 
         add(ProfileLoadEvent(showLoading: false));

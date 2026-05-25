@@ -22,7 +22,7 @@ class UploadProgressOverlayBuilder extends StatelessWidget {
       padding: EdgeInsets.symmetric(horizontal: 18.w, vertical: 16.h),
 
       decoration: BoxDecoration(
-        color: const Color(0xFF111111),
+        color: const Color.fromARGB(255, 0, 0, 0),
         borderRadius: BorderRadius.circular(24.r),
         border: Border.all(color: Colors.white.withOpacity(0.15)),
       ),

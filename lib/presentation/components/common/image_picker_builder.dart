@@ -37,14 +37,28 @@ class _ImagePickerBuilderState extends State<ImagePickerBuilder> {
   @override
   void initState() {
     super.initState();
-    int initialImagesToAdd = widget.initialImages.length > widget.maxImages ? widget.maxImages : widget.initialImages.length;
-    if (initialImagesToAdd > 0) {
-      _displayedItems.addAll(widget.initialImages.sublist(0, initialImagesToAdd));
+    _syncDisplayedItems(widget.initialImages);
+  }
+
+  @override
+  void didUpdateWidget(covariant ImagePickerBuilder oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    if (oldWidget.initialImages != widget.initialImages) {
+      _syncDisplayedItems(widget.initialImages);
     }
   }
 
+  void _syncDisplayedItems(List<Map> initialImages) {
+    _displayedItems
+      ..clear()
+      ..addAll(
+        initialImages.length > widget.maxImages ? initialImages.sublist(0, widget.maxImages) : initialImages,
+      );
+  }
+
   Future<void> _pickImages() async {
-    if (_displayedItems.length >= widget.maxImages) return;
+    if (_displayedItems.where((item) => item != null).length >= widget.maxImages) return;
 
     try {
       final List<XFile> pickedImages =
@@ -54,7 +68,9 @@ class _ImagePickerBuilderState extends State<ImagePickerBuilder> {
 
       if (pickedImages.isNotEmpty) {
         setState(() {
-          int remainingSlots = widget.maxImages - _displayedItems.length;
+          final int occupiedSlots = _displayedItems.where((item) => item != null).length;
+          final int remainingSlots = widget.maxImages - occupiedSlots;
+
           if (remainingSlots > 0) {
             final newImagesToAdd =
                 pickedImages.where((newlyPickedFile) {
@@ -63,8 +79,21 @@ class _ImagePickerBuilderState extends State<ImagePickerBuilder> {
 
             int imagesToAddCount = newImagesToAdd.length > remainingSlots ? remainingSlots : newImagesToAdd.length;
             if (imagesToAddCount > 0) {
-              _displayedItems.addAll(newImagesToAdd.sublist(0, imagesToAddCount));
-              widget.onImagesChanged(_displayedItems, false);
+              final newImages = newImagesToAdd.sublist(0, imagesToAddCount);
+              final emptySlotIndices = _displayedItems.asMap().entries.where((entry) => entry.value == null).map((entry) => entry.key).toList();
+              bool shouldChangePfp = false;
+
+              for (final image in newImages) {
+                if (emptySlotIndices.isNotEmpty) {
+                  final targetIndex = emptySlotIndices.removeAt(0);
+                  _displayedItems[targetIndex] = image;
+                  shouldChangePfp = shouldChangePfp || targetIndex == 0;
+                } else {
+                  _displayedItems.add(image);
+                }
+              }
+
+              widget.onImagesChanged(_displayedItems.where((item) => item != null).toList(), shouldChangePfp);
             }
           }
         });
@@ -81,15 +110,16 @@ class _ImagePickerBuilderState extends State<ImagePickerBuilder> {
   void _removeImage(int index) {
     setState(() {
       if (index < _displayedItems.length) {
-        _displayedItems.removeAt(index);
-        widget.onImagesChanged(_displayedItems, index == 0);
+        _displayedItems[index] = null;
+        widget.onImagesChanged(_displayedItems.where((item) => item != null).toList(), false);
       }
     });
   }
 
   Widget _buildImageContainer(double contentSize, int index) {
-    bool hasImage = index < _displayedItems.length;
-    bool isAddButton = !hasImage && _displayedItems.length < widget.maxImages;
+    final bool hasImage = index < _displayedItems.length && _displayedItems[index] != null;
+    final bool canAddMore = _displayedItems.where((item) => item != null).length < widget.maxImages;
+    final bool isAddButton = !hasImage && canAddMore;
     Widget imageDisplayWidget;
     if (hasImage) {
       final item = _displayedItems[index];

@@ -73,10 +73,13 @@ class UserHttpServices {
     }
   }
 
-  Future<void> updateUserProfile({required UpdateMetadataModel userUpdatedModel}) async {
+  Future<void> updateUserProfile({required UpdateMetadataModel userUpdatedModel, bool updatePfp = false}) async {
     var body = userUpdatedModel.toJson();
 
-    final response = await _client.post(Uri.parse("$BASE_URL/user/update/metadata"), body: json.encode(body));
+    final response = await _client.post(
+      Uri.parse("$BASE_URL/user/update/metadata?update_pfp=$updatePfp"),
+      body: json.encode(body),
+    );
 
     if (response.statusCode == 200) {
       final Map<String, dynamic> jsonData = json.decode(response.body);

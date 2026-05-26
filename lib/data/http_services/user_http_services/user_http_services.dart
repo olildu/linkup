@@ -30,7 +30,9 @@ class UserHttpServices {
       return UserModel.fromJson(jsonData);
     } else {
       print('Error: ${response.statusCode}');
-      throw Exception('Failed to fetch. Status: ${response.statusCode} Server-Response: ${response.body}');
+      throw Exception(
+        'Failed to fetch. Status: ${response.statusCode} Server-Response: ${response.body}',
+      );
     }
   }
 
@@ -43,7 +45,9 @@ class UserHttpServices {
       return MatchCandidateModel.fromJson(jsonData);
     } else {
       print('Error: ${response.statusCode}');
-      throw Exception('Failed to fetch. Status: ${response.statusCode} Server-Response: ${response.body}');
+      throw Exception(
+        'Failed to fetch. Status: ${response.statusCode} Server-Response: ${response.body}',
+      );
     }
   }
 
@@ -55,25 +59,35 @@ class UserHttpServices {
       return UserPreferenceModel.fromJson(jsonData);
     } else {
       print('Error: ${response.statusCode}');
-      throw Exception('Failed to fetch. Status: ${response.statusCode} Server-Response: ${response.body}');
+      throw Exception(
+        'Failed to fetch. Status: ${response.statusCode} Server-Response: ${response.body}',
+      );
     }
   }
 
   Future<void> updateUserPreference({required UserPreferenceModel userPreference}) async {
     var body = userPreference.toJson();
 
-    final response = await _client.post(Uri.parse("$BASE_URL/user/update/preferences"), body: json.encode(body));
+    final response = await _client.post(
+      Uri.parse("$BASE_URL/user/update/preferences"),
+      body: json.encode(body),
+    );
 
     if (response.statusCode == 200) {
       final Map<String, dynamic> jsonData = json.decode(response.body);
       log('User preferences updated successfully: $jsonData');
     } else {
       print('Error: ${response.statusCode}');
-      throw Exception('Failed to fetch. Status: ${response.statusCode} Server-Response: ${response.body}');
+      throw Exception(
+        'Failed to fetch. Status: ${response.statusCode} Server-Response: ${response.body}',
+      );
     }
   }
 
-  Future<void> updateUserProfile({required UpdateMetadataModel userUpdatedModel, bool updatePfp = false}) async {
+  Future<void> updateUserProfile({
+    required UpdateMetadataModel userUpdatedModel,
+    bool updatePfp = false,
+  }) async {
     var body = userUpdatedModel.toJson();
 
     final response = await _client.post(
@@ -86,12 +100,17 @@ class UserHttpServices {
       log('User preferences updated successfully: $jsonData');
     } else {
       log('Error: ${response.statusCode}');
-      throw Exception('Failed to fetch. Status: ${response.statusCode} Server-Response: ${response.body}');
+      throw Exception(
+        'Failed to fetch. Status: ${response.statusCode} Server-Response: ${response.body}',
+      );
     }
   }
 
   Future<void> blockUser({required int userId}) async {
-    final response = await _client.post(Uri.parse("$BASE_URL/user/block"), body: json.encode({"blocked_user_id": userId}));
+    final response = await _client.post(
+      Uri.parse("$BASE_URL/user/block"),
+      body: json.encode({"blocked_user_id": userId}),
+    );
 
     if (response.statusCode == 200) {
       log('User $userId blocked successfully');
@@ -102,7 +121,10 @@ class UserHttpServices {
   }
 
   Future<void> reportUser({required int userId, required String reason}) async {
-    final response = await _client.post(Uri.parse("$BASE_URL/user/report"), body: json.encode({"reported_user_id": userId, "reason": reason}));
+    final response = await _client.post(
+      Uri.parse("$BASE_URL/user/report"),
+      body: json.encode({"reported_user_id": userId, "reason": reason}),
+    );
 
     if (response.statusCode == 200) {
       log('User $userId reported successfully');

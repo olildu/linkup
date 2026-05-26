@@ -53,7 +53,9 @@ class _ImagePickerBuilderState extends State<ImagePickerBuilder> {
     _displayedItems
       ..clear()
       ..addAll(
-        initialImages.length > widget.maxImages ? initialImages.sublist(0, widget.maxImages) : initialImages,
+        initialImages.length > widget.maxImages
+            ? initialImages.sublist(0, widget.maxImages)
+            : initialImages,
       );
   }
 
@@ -61,10 +63,9 @@ class _ImagePickerBuilderState extends State<ImagePickerBuilder> {
     if (_displayedItems.where((item) => item != null).length >= widget.maxImages) return;
 
     try {
-      final List<XFile> pickedImages =
-          widget.allowMultipleSelection
-              ? await _picker.pickMultiImage()
-              : [(await _picker.pickImage(source: ImageSource.gallery))].whereType<XFile>().toList();
+      final List<XFile> pickedImages = widget.allowMultipleSelection
+          ? await _picker.pickMultiImage()
+          : [(await _picker.pickImage(source: ImageSource.gallery))].whereType<XFile>().toList();
 
       if (pickedImages.isNotEmpty) {
         setState(() {
@@ -72,15 +73,23 @@ class _ImagePickerBuilderState extends State<ImagePickerBuilder> {
           final int remainingSlots = widget.maxImages - occupiedSlots;
 
           if (remainingSlots > 0) {
-            final newImagesToAdd =
-                pickedImages.where((newlyPickedFile) {
-                  return !_displayedItems.whereType<XFile>().any((existingXFile) => existingXFile.path == newlyPickedFile.path);
-                }).toList();
+            final newImagesToAdd = pickedImages.where((newlyPickedFile) {
+              return !_displayedItems.whereType<XFile>().any(
+                (existingXFile) => existingXFile.path == newlyPickedFile.path,
+              );
+            }).toList();
 
-            int imagesToAddCount = newImagesToAdd.length > remainingSlots ? remainingSlots : newImagesToAdd.length;
+            int imagesToAddCount = newImagesToAdd.length > remainingSlots
+                ? remainingSlots
+                : newImagesToAdd.length;
             if (imagesToAddCount > 0) {
               final newImages = newImagesToAdd.sublist(0, imagesToAddCount);
-              final emptySlotIndices = _displayedItems.asMap().entries.where((entry) => entry.value == null).map((entry) => entry.key).toList();
+              final emptySlotIndices = _displayedItems
+                  .asMap()
+                  .entries
+                  .where((entry) => entry.value == null)
+                  .map((entry) => entry.key)
+                  .toList();
               bool shouldChangePfp = false;
 
               for (final image in newImages) {
@@ -93,7 +102,10 @@ class _ImagePickerBuilderState extends State<ImagePickerBuilder> {
                 }
               }
 
-              widget.onImagesChanged(_displayedItems.where((item) => item != null).toList(), shouldChangePfp);
+              widget.onImagesChanged(
+                _displayedItems.where((item) => item != null).toList(),
+                shouldChangePfp,
+              );
             }
           }
         });
@@ -153,39 +165,45 @@ class _ImagePickerBuilderState extends State<ImagePickerBuilder> {
         borderType: BorderType.RRect,
         radius: Radius.circular(15.r),
         padding: EdgeInsets.all(1.sp),
-        color: Theme.of(context).brightness == Brightness.dark ? Colors.grey.shade700 : Colors.grey.shade400,
+        color: Theme.of(context).brightness == Brightness.dark
+            ? Colors.grey.shade700
+            : Colors.grey.shade400,
         strokeWidth: 1.5,
         dashPattern: const [6, 4],
         child: Container(
           width: contentSize,
           height: contentSize,
           decoration: BoxDecoration(
-            color: hasImage ? Colors.transparent : Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
+            color: hasImage
+                ? Colors.transparent
+                : Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
             borderRadius: BorderRadius.circular(15.r),
           ),
-          child:
-              hasImage
-                  ? Stack(
-                    fit: StackFit.expand,
-                    children: [
-                      ClipRRect(borderRadius: BorderRadius.circular(15.r), child: imageDisplayWidget),
+          child: hasImage
+              ? Stack(
+                  fit: StackFit.expand,
+                  children: [
+                    ClipRRect(borderRadius: BorderRadius.circular(15.r), child: imageDisplayWidget),
 
-                      if (_displayedItems.length > 2 || widget.onSignUp)
-                        Positioned(
-                          top: 5.r,
-                          right: 5.r,
-                          child: GestureDetector(
-                            onTap: () => _removeImage(index),
-                            child: Container(
-                              padding: EdgeInsets.all(4.sp),
-                              decoration: const BoxDecoration(color: Colors.black54, shape: BoxShape.circle),
-                              child: Icon(Icons.close, color: Colors.white, size: 14.sp),
+                    if (_displayedItems.length > 2 || widget.onSignUp)
+                      Positioned(
+                        top: 5.r,
+                        right: 5.r,
+                        child: GestureDetector(
+                          onTap: () => _removeImage(index),
+                          child: Container(
+                            padding: EdgeInsets.all(4.sp),
+                            decoration: const BoxDecoration(
+                              color: Colors.black54,
+                              shape: BoxShape.circle,
                             ),
+                            child: Icon(Icons.close, color: Colors.white, size: 14.sp),
                           ),
                         ),
-                    ],
-                  )
-                  : imageDisplayWidget,
+                      ),
+                  ],
+                )
+              : imageDisplayWidget,
         ),
       ),
     );
@@ -200,10 +218,12 @@ class _ImagePickerBuilderState extends State<ImagePickerBuilder> {
     return LayoutBuilder(
       builder: (context, constraints) {
         double availableWidth = constraints.maxWidth;
-        double shellWidthPerItem = (2 * dottedBorderInternalPaddingPerSide) + dottedBorderStrokeWidth;
+        double shellWidthPerItem =
+            (2 * dottedBorderInternalPaddingPerSide) + dottedBorderStrokeWidth;
         double totalShellWidthForAllItemsInRow = 3 * shellWidthPerItem;
         double totalGapSpaceInRow = 2 * itemGap;
-        double effectiveContentWidthForRow = availableWidth - totalShellWidthForAllItemsInRow - totalGapSpaceInRow;
+        double effectiveContentWidthForRow =
+            availableWidth - totalShellWidthForAllItemsInRow - totalGapSpaceInRow;
         if (effectiveContentWidthForRow < 0) effectiveContentWidthForRow = 0;
 
         double smallItemContentWidth = (effectiveContentWidthForRow / 3);
@@ -221,7 +241,11 @@ class _ImagePickerBuilderState extends State<ImagePickerBuilder> {
                   Gap(itemGap),
                   Column(
                     mainAxisSize: MainAxisSize.min,
-                    children: [_buildImageContainer(smallItemContentWidth, 1), Gap(itemGap), _buildImageContainer(smallItemContentWidth, 2)],
+                    children: [
+                      _buildImageContainer(smallItemContentWidth, 1),
+                      Gap(itemGap),
+                      _buildImageContainer(smallItemContentWidth, 2),
+                    ],
                   ),
                 ],
               ),
@@ -231,7 +255,10 @@ class _ImagePickerBuilderState extends State<ImagePickerBuilder> {
                   _buildImageContainer(smallItemContentWidth, 3),
                   Gap(itemGap),
                   _buildImageContainer(smallItemContentWidth, 4),
-                  if (widget.maxImages > 5) ...[Gap(itemGap), _buildImageContainer(smallItemContentWidth, 5)],
+                  if (widget.maxImages > 5) ...[
+                    Gap(itemGap),
+                    _buildImageContainer(smallItemContentWidth, 5),
+                  ],
                 ],
               ),
             ],

@@ -16,6 +16,7 @@ import 'package:linkup/data/models/reply_model.dart';
 import 'package:linkup/logic/bloc/chats/chats_bloc.dart';
 import 'package:linkup/logic/bloc/connections/connections_bloc.dart';
 import 'package:linkup/presentation/components/chat_page/calculate_border_shape.dart';
+import 'package:linkup/presentation/components/common/confirmation_dialog_builder.dart';
 import 'package:linkup/presentation/components/chat_page/message_input_area.dart';
 import 'package:linkup/presentation/components/chat_page/minor_event_widgets.dart';
 import 'package:linkup/presentation/components/chat_page/message_renderer.dart';
@@ -24,6 +25,7 @@ import 'package:linkup/presentation/components/chat_page/swipe_wrapper.dart';
 import 'package:linkup/presentation/constants/colors.dart';
 import 'package:linkup/presentation/screens/user_profile_bottom_sheet.dart';
 import 'package:linkup/presentation/utils/blurhash_util.dart';
+import 'package:linkup/presentation/utils/scaffold_message_display.dart';
 import 'package:octo_image/octo_image.dart';
 import 'package:uuid/v4.dart';
 import 'package:visibility_detector/visibility_detector.dart';
@@ -35,7 +37,14 @@ class ChatPage extends StatefulWidget {
   final Map userImageMetaData;
   final int chatRoomId;
 
-  const ChatPage({super.key, required this.currentChatUserId, required this.currentUserId, required this.userName, required this.userImageMetaData, required this.chatRoomId});
+  const ChatPage({
+    super.key,
+    required this.currentChatUserId,
+    required this.currentUserId,
+    required this.userName,
+    required this.userImageMetaData,
+    required this.chatRoomId,
+  });
 
   @override
   State<ChatPage> createState() => _ChatPageState();
@@ -84,7 +93,13 @@ class _ChatPageState extends State<ChatPage> {
         final DateTime lastMessageTimeStamp = _currentMessages.first.timestamp;
 
         log('Paginating with lastMessageID: $lastMessageID');
-        context.read<ChatsBloc>().add(PaginateAddMessagesEvent(chatRoomId: widget.chatRoomId, lastMessageID: lastMessageID, lastMessageTimeStamp: lastMessageTimeStamp));
+        context.read<ChatsBloc>().add(
+          PaginateAddMessagesEvent(
+            chatRoomId: widget.chatRoomId,
+            lastMessageID: lastMessageID,
+            lastMessageTimeStamp: lastMessageTimeStamp,
+          ),
+        );
       }
     }
   }
@@ -120,7 +135,11 @@ class _ChatPageState extends State<ChatPage> {
 
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (_scrollController.hasClients) {
-          _scrollController.animateTo(_scrollController.position.minScrollExtent, duration: const Duration(milliseconds: 300), curve: Curves.easeOut);
+          _scrollController.animateTo(
+            _scrollController.position.minScrollExtent,
+            duration: const Duration(milliseconds: 300),
+            curve: Curves.easeOut,
+          );
         }
       });
 
@@ -138,13 +157,18 @@ class _ChatPageState extends State<ChatPage> {
     }
   }
 
-  MessageGroupModel _calculateMessageGroupInfo({required int messageIndex, required List<Message> messages}) {
+  MessageGroupModel _calculateMessageGroupInfo({
+    required int messageIndex,
+    required List<Message> messages,
+  }) {
     final message = messages[messageIndex];
 
     int groupStart = messageIndex;
     while (groupStart > 0) {
       final prevMessage = messages[groupStart - 1];
-      if (prevMessage.from_ != message.from_ || message.timestamp.difference(prevMessage.timestamp).inMinutes >= _messageGroupTimeThresholdMinutes) {
+      if (prevMessage.from_ != message.from_ ||
+          message.timestamp.difference(prevMessage.timestamp).inMinutes >=
+              _messageGroupTimeThresholdMinutes) {
         break;
       }
       groupStart--;
@@ -153,7 +177,9 @@ class _ChatPageState extends State<ChatPage> {
     int groupEnd = messageIndex;
     while (groupEnd < messages.length - 1) {
       final nextMessage = messages[groupEnd + 1];
-      if (nextMessage.from_ != message.from_ || nextMessage.timestamp.difference(message.timestamp).inMinutes >= _messageGroupTimeThresholdMinutes) {
+      if (nextMessage.from_ != message.from_ ||
+          nextMessage.timestamp.difference(message.timestamp).inMinutes >=
+              _messageGroupTimeThresholdMinutes) {
         break;
       }
       groupEnd++;
@@ -165,9 +191,13 @@ class _ChatPageState extends State<ChatPage> {
     final isLastInGroup = messageIndex == groupEnd;
     final isOnlyMessageInGroup = groupSize == 1;
 
-    final prevMessageEmoji = messageIndex > 0 ? containsOnlyEmojis(messages[messageIndex - 1].message) : false;
+    final prevMessageEmoji = messageIndex > 0
+        ? containsOnlyEmojis(messages[messageIndex - 1].message)
+        : false;
 
-    final nextMessageEmoji = messageIndex < messages.length - 1 ? containsOnlyEmojis(messages[messageIndex + 1].message) : false;
+    final nextMessageEmoji = messageIndex < messages.length - 1
+        ? containsOnlyEmojis(messages[messageIndex + 1].message)
+        : false;
 
     return MessageGroupModel(
       isFirstInGroup: isFirstInGroup,
@@ -180,11 +210,19 @@ class _ChatPageState extends State<ChatPage> {
     );
   }
 
-  Widget _buildMessageItem({required Message message, required BuildContext context, required int messageIndex, required List<Message> messages}) {
+  Widget _buildMessageItem({
+    required Message message,
+    required BuildContext context,
+    required int messageIndex,
+    required List<Message> messages,
+  }) {
     final bool isSentByMe = message.from_ == widget.currentUserId;
     final isOnlyEmoji = containsOnlyEmojis(message.message);
 
-    final MessageGroupModel groupInfo = _calculateMessageGroupInfo(messageIndex: messageIndex, messages: messages);
+    final MessageGroupModel groupInfo = _calculateMessageGroupInfo(
+      messageIndex: messageIndex,
+      messages: messages,
+    );
 
     final alignment = isSentByMe ? CrossAxisAlignment.end : CrossAxisAlignment.start;
     final containsReply = message.replyID != null ? true : false;
@@ -195,7 +233,12 @@ class _ChatPageState extends State<ChatPage> {
         ? AppColors.primary
         : Color.fromARGB(255, 33, 37, 42);
 
-    BorderRadius messageBorderRadius = getBorderRadius(groupInfo: groupInfo, isSentByMe: isSentByMe, isOnlyEmoji: isOnlyEmoji, containsReply: containsReply);
+    BorderRadius messageBorderRadius = getBorderRadius(
+      groupInfo: groupInfo,
+      isSentByMe: isSentByMe,
+      isOnlyEmoji: isOnlyEmoji,
+      containsReply: containsReply,
+    );
 
     return Container(
       margin: EdgeInsets.only(top: groupInfo.isFirstInGroup ? 8.h : 2.h, bottom: 1.5.h),
@@ -212,7 +255,9 @@ class _ChatPageState extends State<ChatPage> {
                   child: ClipOval(
                     child: OctoImage(
                       image: CachedNetworkImageProvider(widget.userImageMetaData["url"]),
-                      placeholderBuilder: blurHash(widget.userImageMetaData["blurhash"]).placeholderBuilder,
+                      placeholderBuilder: blurHash(
+                        widget.userImageMetaData["blurhash"],
+                      ).placeholderBuilder,
                       errorBuilder: OctoError.icon(color: Colors.red),
                       fit: BoxFit.cover,
                       width: 30.r,
@@ -237,7 +282,12 @@ class _ChatPageState extends State<ChatPage> {
                     context.read<ChatsBloc>().add(MarkMessageAsSeenEvent(messageId: message.id));
 
                     if (_initalSeenMarked) {
-                      context.read<ConnectionsBloc>().add(MarkMessagesSeenEvent(chatRoomId: widget.chatRoomId, decrementCounterTo: seenDiff));
+                      context.read<ConnectionsBloc>().add(
+                        MarkMessagesSeenEvent(
+                          chatRoomId: widget.chatRoomId,
+                          decrementCounterTo: seenDiff,
+                        ),
+                      );
                     }
                   }
                 },
@@ -247,12 +297,21 @@ class _ChatPageState extends State<ChatPage> {
                     ReplyModel(
                       messageID: message.id,
                       message: message.message,
-                      userName: message.from_ == GetIt.instance<int>(instanceName: 'user_id') ? "yourself" : widget.userName,
+                      userName: message.from_ == GetIt.instance<int>(instanceName: 'user_id')
+                          ? "yourself"
+                          : widget.userName,
                     ),
                   ),
                   child: Builder(
                     builder: (context) {
-                      return MessageRenderer(message: message, messages: messages, isSentByMe: isSentByMe, messageBorderRadius: messageBorderRadius, color: color, isOnlyEmoji: isOnlyEmoji);
+                      return MessageRenderer(
+                        message: message,
+                        messages: messages,
+                        isSentByMe: isSentByMe,
+                        messageBorderRadius: messageBorderRadius,
+                        color: color,
+                        isOnlyEmoji: isOnlyEmoji,
+                      );
                     },
                   ),
                 ),
@@ -266,7 +325,9 @@ class _ChatPageState extends State<ChatPage> {
   }
 
   void _handleMedia(File imageFile) {
-    context.read<ChatsBloc>().add(uploadMediaChatEvent(mediaType: MessageType.image, file: imageFile));
+    context.read<ChatsBloc>().add(
+      uploadMediaChatEvent(mediaType: MessageType.image, file: imageFile),
+    );
   }
 
   void _replyPayloadSetter(ReplyModel? payload) {
@@ -276,24 +337,24 @@ class _ChatPageState extends State<ChatPage> {
   }
 
   void _showBlockConfirmation() {
-    showDialog(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: Text("Block User?", style: Theme.of(ctx).textTheme.titleLarge),
-        content: Text("Are you sure you want to block ${widget.userName}? This conversation will be deleted and they won't be able to contact you.", style: Theme.of(ctx).textTheme.bodyMedium),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: Text("Cancel", style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Theme.of(context).colorScheme.onSurface)),
-          ),
-          TextButton(
-            onPressed: () {
-              Navigator.pop(ctx); // Close dialog
-              _onBlockConfirmed();
-            },
-            child: Text("Block", style: AppTextStyles.destructive(context)),
-          ),
-        ],
+    ConfirmationDialogBuilder.show<void>(
+      context,
+      blurSigma: 20.0,
+      ConfirmationDialogBuilder(
+        icon: Icons.block_rounded,
+        title: 'Block User?',
+        message:
+            'Are you sure you want to block ${widget.userName}?\n\nThis conversation will be deleted and they will no longer be able to contact you.',
+        confirmText: 'Block',
+        cancelText: 'Cancel',
+        onConfirm: _onBlockConfirmed,
+        iconColor: Theme.of(context).colorScheme.error,
+        iconBackgroundColor: Theme.of(context).colorScheme.error.withValues(alpha: 0.12),
+        confirmBackgroundColor: Colors.white,
+        confirmTextColor: Colors.black,
+        cancelTextColor: Theme.of(context).colorScheme.onSurface,
+        verticalButtons: true,
+        primaryOnTop: true,
       ),
     );
   }
@@ -301,59 +362,101 @@ class _ChatPageState extends State<ChatPage> {
   // ADD THIS FUNCTION
   void _onBlockConfirmed() {
     // 1. Trigger the Bloc Event
-    context.read<ConnectionsBloc>().add(BlockUserEvent(userIdToBlock: widget.currentChatUserId, chatRoomId: widget.chatRoomId));
+    context.read<ConnectionsBloc>().add(
+      BlockUserEvent(userIdToBlock: widget.currentChatUserId, chatRoomId: widget.chatRoomId),
+    );
 
     // 2. Navigate back to connections page immediately
     Navigator.pop(context);
 
     // 3. Show feedback
-    // (Assuming you have a scaffold messenger wrapper or similar)
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("User blocked successfully", style: Theme.of(context).textTheme.bodyMedium)));
+    showScaffoldMessage(context: context, message: "User blocked successfully");
   }
 
   void _showReportDialog() {
-    showDialog(
-      context: context,
-      builder: (ctx) {
-        return AlertDialog(
-          title: Text("Report User", style: Theme.of(ctx).textTheme.titleLarge),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              _buildReportOption(ctx, "Inappropriate messages"),
-              _buildReportOption(ctx, "Inappropriate photos"),
-              _buildReportOption(ctx, "Spam or Scam"),
-              _buildReportOption(ctx, "Harassment"),
-              _buildReportOption(ctx, "Other"),
-            ],
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(ctx),
-              child: Text("Cancel", style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Theme.of(context).colorScheme.onSurface)),
+    ConfirmationDialogBuilder.show<void>(
+      context,
+      blurSigma: 20.0,
+      ConfirmationDialogBuilder(
+        icon: Icons.flag_outlined,
+        title: 'Report User',
+        message: null,
+        cancelText: 'Cancel',
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text(
+              'Cancel',
+              style: Theme.of(
+                context,
+              ).textTheme.bodyMedium?.copyWith(color: Theme.of(context).colorScheme.onSurface),
             ),
+          ),
+        ],
+        iconColor: Theme.of(context).colorScheme.error,
+        iconBackgroundColor: Theme.of(context).colorScheme.error.withValues(alpha: 0.12),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            _buildReportOption(context, 'Inappropriate messages'),
+            _buildReportOption(context, 'Inappropriate photos'),
+            _buildReportOption(context, 'Spam or Scam'),
+            _buildReportOption(context, 'Harassment'),
+            _buildReportOption(context, 'Other'),
           ],
-        );
-      },
+        ),
+      ),
     );
   }
 
   // 2. Helper widget for report options
   Widget _buildReportOption(BuildContext ctx, String reason) {
-    return ListTile(
-      title: Text(reason, style: Theme.of(ctx).textTheme.bodyLarge),
-      onTap: () {
-        Navigator.pop(ctx); // Close dialog
-        _onReportConfirmed(reason);
-      },
+    return Padding(
+      padding: EdgeInsets.only(bottom: 10.h),
+      child: Material(
+        color: Theme.of(ctx).colorScheme.surfaceContainerHighest.withValues(alpha: 0.45),
+        borderRadius: BorderRadius.circular(14.r),
+        child: InkWell(
+          borderRadius: BorderRadius.circular(14.r),
+          onTap: () {
+            Navigator.pop(ctx); // Close dialog
+            _onReportConfirmed(reason);
+          },
+          child: Padding(
+            padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 14.h),
+            child: Row(
+              children: [
+                Icon(Icons.flag_outlined, size: 18.sp, color: Theme.of(ctx).colorScheme.error),
+                Gap(12.w),
+                Expanded(
+                  child: Text(
+                    reason,
+                    style: Theme.of(ctx).textTheme.bodyLarge?.copyWith(fontSize: 14.sp),
+                  ),
+                ),
+                Icon(
+                  Icons.chevron_right_rounded,
+                  size: 18.sp,
+                  color: Theme.of(ctx).colorScheme.onSurface.withValues(alpha: 0.45),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
     );
   }
 
   // 3. Logic to trigger the Bloc event
   void _onReportConfirmed(String reason) {
-    context.read<ConnectionsBloc>().add(ReportUserEvent(userIdToReport: widget.currentChatUserId, reason: reason));
+    context.read<ConnectionsBloc>().add(
+      ReportUserEvent(userIdToReport: widget.currentChatUserId, reason: reason),
+    );
 
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("User reported. Thank you for making Linkup safer.", style: Theme.of(context).textTheme.bodyMedium)));
+    showScaffoldMessage(
+      context: context,
+      message: "User reported. Thank you for making linkup safer.",
+    );
   }
 
   @override
@@ -369,14 +472,20 @@ class _ChatPageState extends State<ChatPage> {
         title: GestureDetector(
           behavior: HitTestBehavior.opaque,
           onTap: () {
-            showBottomSheetUserProfile(context: context, userId: widget.currentChatUserId, showChatButton: false);
+            showBottomSheetUserProfile(
+              context: context,
+              userId: widget.currentChatUserId,
+              showChatButton: false,
+            );
           },
           child: Row(
             children: [
               ClipOval(
                 child: OctoImage(
                   image: CachedNetworkImageProvider(widget.userImageMetaData['url']),
-                  placeholderBuilder: blurHash(widget.userImageMetaData['blurhash']).placeholderBuilder,
+                  placeholderBuilder: blurHash(
+                    widget.userImageMetaData['blurhash'],
+                  ).placeholderBuilder,
                   fit: BoxFit.cover,
                   width: 30.r,
                   height: 30.r,
@@ -385,7 +494,11 @@ class _ChatPageState extends State<ChatPage> {
               Gap(10.w),
               Text(
                 widget.userName,
-                style: Theme.of(context).textTheme.bodyLarge?.copyWith(fontSize: 18.sp, fontWeight: FontWeight.w500, color: Theme.of(context).colorScheme.onSurface),
+                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                  fontSize: 18.sp,
+                  fontWeight: FontWeight.w500,
+                  color: Theme.of(context).colorScheme.onSurface,
+                ),
               ),
             ],
           ),
@@ -393,7 +506,11 @@ class _ChatPageState extends State<ChatPage> {
         backgroundColor: pageBackgroundColor,
         elevation: 0,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back_ios_new_rounded, color: Theme.of(context).colorScheme.onSurface, size: 20.sp),
+          icon: Icon(
+            Icons.arrow_back_ios_new_rounded,
+            color: Theme.of(context).colorScheme.onSurface,
+            size: 20.sp,
+          ),
           onPressed: () => Navigator.pop(context),
         ),
         // --- ADD THIS ACTIONS BLOCK ---
@@ -413,11 +530,18 @@ class _ChatPageState extends State<ChatPage> {
                   value: 'report',
                   child: Row(
                     children: [
-                      Icon(Icons.flag_outlined, color: Theme.of(context).colorScheme.onSurface, size: 20.sp),
+                      Icon(
+                        Icons.flag_outlined,
+                        color: Theme.of(context).colorScheme.onSurface,
+                        size: 20.sp,
+                      ),
                       Gap(10.w),
                       Text(
                         'Report User',
-                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(fontSize: 14.sp, fontWeight: FontWeight.w500),
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          fontSize: 14.sp,
+                          fontWeight: FontWeight.w500,
+                        ),
                       ),
                     ],
                   ),
@@ -428,7 +552,10 @@ class _ChatPageState extends State<ChatPage> {
                     children: [
                       Icon(Icons.block, color: Theme.of(context).colorScheme.error, size: 20.sp),
                       Gap(10.w),
-                      Text('Block User', style: AppTextStyles.destructive(context)?.copyWith(fontSize: 14.sp)),
+                      Text(
+                        'Block User',
+                        style: AppTextStyles.destructive(context)?.copyWith(fontSize: 14.sp),
+                      ),
                     ],
                   ),
                 ),
@@ -444,7 +571,10 @@ class _ChatPageState extends State<ChatPage> {
             if (state.messages.length > _currentMessages.length) {
               final int newItemsCount = state.messages.length - _currentMessages.length;
               for (int i = 0; i < newItemsCount; i++) {
-                _animatedListKey.currentState?.insertItem(0, duration: const Duration(milliseconds: 300));
+                _animatedListKey.currentState?.insertItem(
+                  0,
+                  duration: const Duration(milliseconds: 300),
+                );
               }
             }
             _currentMessages = List.from(state.messages);
@@ -452,12 +582,17 @@ class _ChatPageState extends State<ChatPage> {
         },
         builder: (context, state) {
           if (state is ChatsLoading) {
-            return Center(child: CircularProgressIndicator(color: Theme.of(context).colorScheme.primary));
+            return Center(
+              child: CircularProgressIndicator(color: Theme.of(context).colorScheme.primary),
+            );
           } else if (state is ChatsError) {
             return Center(
               child: Text(
                 'Error loading messages',
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Theme.of(context).colorScheme.error, fontSize: 16.sp),
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  color: Theme.of(context).colorScheme.error,
+                  fontSize: 16.sp,
+                ),
               ),
             );
           } else if (state is ChatsLoaded) {
@@ -465,7 +600,9 @@ class _ChatPageState extends State<ChatPage> {
               _currentMessages = List.from(state.messages);
             }
             if (!_initalSeenMarked) {
-              context.read<ConnectionsBloc>().add(MarkMessagesSeenEvent(chatRoomId: widget.chatRoomId, decrementCounterTo: 0));
+              context.read<ConnectionsBloc>().add(
+                MarkMessagesSeenEvent(chatRoomId: widget.chatRoomId, decrementCounterTo: 0),
+              );
               _initalSeenMarked = true;
             }
 
@@ -491,7 +628,11 @@ class _ChatPageState extends State<ChatPage> {
                           if (state.isTyping) {
                             return FadeTransition(
                               opacity: animation,
-                              child: buildTypingIndicator(context: context, imageMetaData: widget.userImageMetaData, userName: widget.userName),
+                              child: buildTypingIndicator(
+                                context: context,
+                                imageMetaData: widget.userImageMetaData,
+                                userName: widget.userName,
+                              ),
                             );
                           } else {
                             return const SizedBox.shrink();
@@ -500,7 +641,9 @@ class _ChatPageState extends State<ChatPage> {
 
                         // Index 1: Seen Indicator
                         if (index == 1) {
-                          if (state.messages.isNotEmpty && state.messages.last.from_ == widget.currentUserId && (state.otherUserSeenMsg || state.messages.last.isSeen)) {
+                          if (state.messages.isNotEmpty &&
+                              state.messages.last.from_ == widget.currentUserId &&
+                              (state.otherUserSeenMsg || state.messages.last.isSeen)) {
                             return FadeTransition(
                               opacity: animation,
                               child: Padding(
@@ -526,17 +669,27 @@ class _ChatPageState extends State<ChatPage> {
                         }
 
                         // --- CHAT MESSAGES ---
-                        final chronologicalIndex = _currentMessages.length - (index - (2 + topWidgetCount)) - 1;
+                        final chronologicalIndex =
+                            _currentMessages.length - (index - (2 + topWidgetCount)) - 1;
 
-                        if (chronologicalIndex < 0 || chronologicalIndex >= _currentMessages.length) {
+                        if (chronologicalIndex < 0 ||
+                            chronologicalIndex >= _currentMessages.length) {
                           return const SizedBox.shrink();
                         }
 
                         final message = _currentMessages[chronologicalIndex];
 
                         return SlideTransition(
-                          position: Tween<Offset>(begin: const Offset(0, 0.5), end: Offset.zero).animate(animation),
-                          child: _buildMessageItem(message: message, context: context, messageIndex: chronologicalIndex, messages: _currentMessages),
+                          position: Tween<Offset>(
+                            begin: const Offset(0, 0.5),
+                            end: Offset.zero,
+                          ).animate(animation),
+                          child: _buildMessageItem(
+                            message: message,
+                            context: context,
+                            messageIndex: chronologicalIndex,
+                            messages: _currentMessages,
+                          ),
                         );
                       },
                     ),
@@ -557,7 +710,10 @@ class _ChatPageState extends State<ChatPage> {
             return Center(
               child: Text(
                 'No messages yet',
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6), fontSize: 16.sp),
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
+                  fontSize: 16.sp,
+                ),
               ),
             );
           }

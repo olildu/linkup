@@ -6,6 +6,7 @@ import 'package:linkup/data/http_services/user_http_services/user_http_services.
 import 'package:linkup/data/token/token_services.dart';
 import 'package:linkup/presentation/components/common/menu_tile_builder.dart';
 import 'package:linkup/presentation/components/signup_page/button_builder.dart';
+import 'package:linkup/presentation/components/common/confirmation_dialog_builder.dart';
 import 'package:linkup/presentation/constants/colors.dart';
 import 'package:linkup/presentation/screens/loading_screen_post_login_page.dart';
 import 'package:linkup/presentation/utils/show_error_toast.dart';
@@ -49,50 +50,45 @@ class SettingsPage extends StatelessWidget {
   }
 
   Future<void> _deleteAccount(BuildContext context) async {
-    final bool? confirmed = await showDialog<bool>(
-      context: context,
-      builder: (dialogContext) => AlertDialog(
-        title: Text('Delete Account?', style: Theme.of(dialogContext).textTheme.titleLarge),
-        content: Text(
-          'This action cannot be undone. You will lose your matches, chats, and profile data.',
-          style: Theme.of(dialogContext).textTheme.bodyMedium,
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(dialogContext, false),
-            child: Text(
-              'Cancel',
-              style: Theme.of(dialogContext).textTheme.bodyMedium?.copyWith(
-                color: Theme.of(dialogContext).colorScheme.onSurface,
-              ),
-            ),
-          ),
-          TextButton(
-            onPressed: () => Navigator.pop(dialogContext, true),
-            child: Text('Delete', style: AppTextStyles.destructive(dialogContext)),
-          ),
-        ],
+    // Use the shared confirmation dialog; perform deletion in onConfirm.
+    // Show with a strong blur to emphasize the dialog
+    ConfirmationDialogBuilder.show<void>(
+      context,
+      ConfirmationDialogBuilder(
+        icon: Icons.delete_outline,
+        title: 'Delete Account?',
+        message:
+            'This action cannot be undone. You will lose your matches, chats, and profile data.',
+        confirmText: 'Delete',
+        cancelText: 'Cancel',
+        iconColor: Theme.of(context).colorScheme.error,
+        iconBackgroundColor: Theme.of(context).colorScheme.error.withOpacity(0.12),
+        confirmBackgroundColor: Theme.of(context).colorScheme.error,
+        confirmTextColor: Colors.white,
+        verticalButtons: true,
+        primaryOnTop: true,
+        onConfirm: () {
+          Future.microtask(() async {
+            try {
+              await UserHttpServices().deleteAccount();
+              await TokenServices().clearTokens();
+              if (context.mounted) {
+                Navigator.of(context).pushAndRemoveUntil(
+                  CupertinoPageRoute(builder: (context) => const LoadingScreenPostLogin()),
+                  (Route<dynamic> route) => false,
+                );
+              }
+            } catch (_) {
+              if (context.mounted) {
+                showToast(context: context, message: 'Failed to delete account');
+              }
+            }
+          });
+        },
+        onCancel: () {},
       ),
+      blurSigma: 20.0,
     );
-
-    if (confirmed != true) {
-      return;
-    }
-
-    try {
-      await UserHttpServices().deleteAccount();
-      await TokenServices().clearTokens();
-      if (context.mounted) {
-        Navigator.of(context).pushAndRemoveUntil(
-          CupertinoPageRoute(builder: (context) => const LoadingScreenPostLogin()),
-          (Route<dynamic> route) => false,
-        );
-      }
-    } catch (_) {
-      if (context.mounted) {
-        showToast(context: context, message: 'Failed to delete account');
-      }
-    }
   }
 
   Widget _sectionTitle(BuildContext context, String title, String subtitle) {

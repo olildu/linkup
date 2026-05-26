@@ -1,13 +1,9 @@
-import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
 import 'package:get_it/get_it.dart';
-import 'package:image_picker/image_picker.dart';
-import 'package:linkup/data/enums/message_type_enum.dart';
-import 'package:linkup/data/http_services/common_http_services/common_http_services.dart';
 import 'package:linkup/data/http_services/user_http_services/user_http_services.dart';
 import 'package:linkup/data/models/candidate_info_model.dart';
 import 'package:linkup/data/models/update_metadata_model.dart';
@@ -23,6 +19,7 @@ import 'package:linkup/presentation/components/signup_page/button_builder.dart';
 import 'package:linkup/presentation/constants/colors.dart';
 import 'package:linkup/presentation/screens/loading_screen_post_login_page.dart';
 import 'package:linkup/presentation/screens/singup_flow_page.dart';
+import 'package:linkup/presentation/screens/settings_page.dart';
 import 'package:linkup/presentation/screens/user_profile_bottom_sheet.dart';
 import 'package:linkup/presentation/utils/show_error_toast.dart';
 
@@ -158,6 +155,25 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
             Navigator.pop(context);
           },
         ),
+        actions: [
+          IconButton(
+            icon: Icon(
+              Icons.settings_rounded,
+              color: Theme.of(context).colorScheme.onSurface,
+              size: 22.sp,
+            ),
+            onPressed: () {
+              if (state is ProfileUpdating) {
+                showToast(context: context, message: "Please wait until the upload is complete.");
+                return;
+              }
+
+              Navigator.of(context).push(
+                CupertinoPageRoute(builder: (context) => const SettingsPage()),
+              );
+            },
+          ),
+        ],
       ),
 
       body: PopScope(
@@ -225,7 +241,7 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
                             if (state is ProfileUpdating)
                               Builder(
                                 builder: (_) {
-                                  final uploadingState = state as ProfileUpdating;
+                                  final uploadingState = state;
 
                                   return Positioned(
                                     child: Padding(

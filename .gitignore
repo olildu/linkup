@@ -32,3 +32,5 @@ doc/api/
 /coverage_html
 /coverage
 .DS_Store
+ios/Pods/
+ios/Podfile.lock

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 /// Call this to show the toast
 void showToast({
   required BuildContext context,
@@ -13,15 +14,14 @@ void showToast({
   late final OverlayEntry overlayEntry;
 
   overlayEntry = OverlayEntry(
-    builder:
-        (context) => ToastWidget(
-          message: message,
-          icon: icon,
-          backgroundColor: backgroundColor ?? colorScheme.error,
-          textColor: textColor ?? colorScheme.onError,
-          duration: duration,
-          onDismissed: () => overlayEntry.remove(),
-        ),
+    builder: (context) => ToastWidget(
+      message: message,
+      icon: icon,
+      backgroundColor: backgroundColor ?? colorScheme.error,
+      textColor: textColor ?? colorScheme.onError,
+      duration: duration,
+      onDismissed: () => overlayEntry.remove(),
+    ),
   );
 
   overlay.insert(overlayEntry);
@@ -78,7 +78,9 @@ class _ToastWidgetState extends State<ToastWidget> with SingleTickerProviderStat
   @override
   Widget build(BuildContext context) {
     return Positioned(
-      bottom: 100,
+      bottom: MediaQuery.of(context).viewInsets.bottom > 0
+          ? MediaQuery.of(context).viewInsets.bottom + 20
+          : 100,
       left: 0,
       right: 0,
       child: FadeTransition(
@@ -99,11 +101,16 @@ class _ToastWidgetState extends State<ToastWidget> with SingleTickerProviderStat
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     if (widget.icon != null)
-                      Padding(padding: const EdgeInsets.only(right: 8), child: Icon(widget.icon, color: widget.textColor, size: 18)),
+                      Padding(
+                        padding: const EdgeInsets.only(right: 8),
+                        child: Icon(widget.icon, color: widget.textColor, size: 18),
+                      ),
                     Flexible(
                       child: Text(
                         widget.message,
-                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: widget.textColor, fontSize: 14),
+                        style: Theme.of(
+                          context,
+                        ).textTheme.bodyMedium?.copyWith(color: widget.textColor, fontSize: 14),
                         textAlign: TextAlign.center,
                       ),
                     ),

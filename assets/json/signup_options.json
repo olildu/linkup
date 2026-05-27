@@ -1,11 +1,95 @@
 {
-  "version": 1,
+  "version": 2,
   "programs": [
-    { "id": "btech-computer-science", "label": "BTech Computer Science", "years": 4 },
-    { "id": "btech-information-technology", "label": "BTech Information Technology", "years": 4 },
-    { "id": "btech-mechanical-engineering", "label": "BTech Mechanical Engineering", "years": 4 },
-    { "id": "btech-civil-engineering", "label": "BTech Civil Engineering", "years": 4 },
-    { "id": "btech-electrical-engineering", "label": "BTech Electrical Engineering", "years": 4 },
-    { "id": "bsc-computer-science", "label": "BSc Computer Science", "years": 3 }
+    { "id": "btech-cs", "label": "BTech Computer Science", "years": 4 },
+    { "id": "btech-it", "label": "BTech Information Technology", "years": 4 },
+    { "id": "btech-cce", "label": "BTech Computer & Communication Engineering", "years": 4 },
+    { "id": "btech-ece", "label": "BTech Electronics & Communication Engineering", "years": 4 },
+    { "id": "btech-eee", "label": "BTech Electrical & Electronics Engineering", "years": 4 },
+    { "id": "btech-ee", "label": "BTech Electrical Engineering", "years": 4 },
+    { "id": "btech-mechanical", "label": "BTech Mechanical Engineering", "years": 4 },
+    { "id": "btech-civil", "label": "BTech Civil Engineering", "years": 4 },
+    { "id": "btech-chemical", "label": "BTech Chemical Engineering", "years": 4 },
+    { "id": "btech-biotech", "label": "BTech Biotechnology", "years": 4 },
+    { "id": "btech-aerospace", "label": "BTech Aerospace Engineering", "years": 4 },
+    { "id": "btech-automobile", "label": "BTech Automobile Engineering", "years": 4 },
+    { "id": "btech-robotics", "label": "BTech Robotics Engineering", "years": 4 },
+    { "id": "btech-mechatronics", "label": "BTech Mechatronics Engineering", "years": 4 },
+    { "id": "btech-fashion-tech", "label": "BTech Fashion Technology", "years": 4 },
+
+    { "id": "bsc-cs", "label": "BSc Computer Science", "years": 3 },
+    { "id": "bsc-it", "label": "BSc Information Technology", "years": 3 },
+    { "id": "bsc-physics", "label": "BSc Physics", "years": 3 },
+    { "id": "bsc-chemistry", "label": "BSc Chemistry", "years": 3 },
+    { "id": "bsc-mathematics", "label": "BSc Mathematics", "years": 3 },
+    { "id": "bsc-statistics", "label": "BSc Statistics", "years": 3 },
+    { "id": "bsc-biotech", "label": "BSc Biotechnology", "years": 3 },
+    { "id": "bsc-microbiology", "label": "BSc Microbiology", "years": 3 },
+    { "id": "bsc-psychology", "label": "BSc Psychology", "years": 4 },
+
+    { "id": "ba-english", "label": "BA English", "years": 4 },
+    { "id": "ba-economics", "label": "BA Economics", "years": 4 },
+    { "id": "ba-liberal-arts", "label": "BA Liberal Arts", "years": 4 },
+    { "id": "ba-psychology", "label": "BA Psychology", "years": 4 },
+    { "id": "ba-journalism", "label": "BA Journalism & Mass Communication", "years": 4 },
+
+    { "id": "bfa-applied-arts", "label": "Bachelor of Fine Arts", "years": 4 },
+
+    { "id": "bca", "label": "BCA", "years": 3 },
+
+    { "id": "bba", "label": "BBA", "years": 4 },
+    { "id": "bba-business-analytics", "label": "BBA Business Analytics", "years": 3 },
+    { "id": "integrated-mba", "label": "Integrated MBA", "years": 5 },
+
+    { "id": "bcom", "label": "BCom", "years": 4 },
+
+    { "id": "bhm", "label": "Bachelor of Hotel Management", "years": 4 },
+    { "id": "bba-hospitality-tourism", "label": "BBA Hospitality & Tourism Operations", "years": 3 },
+
+    { "id": "mbbs", "label": "MBBS", "years": 5 },
+    { "id": "bds", "label": "BDS", "years": 5 },
+    { "id": "bpharm", "label": "BPharm", "years": 4 },
+    { "id": "bsc-nursing", "label": "BSc Nursing", "years": 4 },
+    { "id": "bpt", "label": "Bachelor of Physiotherapy", "years": 4 },
+
+    { "id": "barch", "label": "BArch", "years": 5 },
+
+    { "id": "ba-llb", "label": "BA LLB", "years": 5 },
+    { "id": "bba-llb", "label": "BBA LLB", "years": 5 },
+    { "id": "llb", "label": "LLB", "years": 3 },
+
+    { "id": "ma-english", "label": "MA English", "years": 2 },
+    { "id": "ma-economics", "label": "MA Economics", "years": 2 },
+    { "id": "ma-international-relations", "label": "MA International Relations", "years": 2 },
+    { "id": "ma-journalism", "label": "MA Journalism & Mass Communication", "years": 2 },
+
+    { "id": "mba", "label": "MBA", "years": 2 },
+    { "id": "mba-business-analytics", "label": "MBA Business Analytics", "years": 2 },
+    { "id": "mba-real-estate", "label": "MBA Real Estate Management", "years": 2 },
+
+    { "id": "mcom", "label": "MCom", "years": 2 },
+
+    { "id": "mtech-cse", "label": "MTech Computer Science Engineering", "years": 2 },
+    { "id": "mtech-cyber-security", "label": "MTech Cyber Security", "years": 2 },
+    { "id": "mtech-data-science", "label": "MTech Data Science", "years": 2 },
+    { "id": "mtech-robotics", "label": "MTech Industrial Automation & Robotics", "years": 2 },
+    { "id": "mtech-structural", "label": "MTech Structural Engineering", "years": 2 },
+    { "id": "mtech-vlsi", "label": "MTech VLSI & Embedded System Design", "years": 2 },
+    { "id": "mtech-computational-biology", "label": "MTech Computational Biology", "years": 2 },
+
+    { "id": "march", "label": "MArch Landscape", "years": 2 },
+
+    { "id": "mca", "label": "MCA", "years": 2 },
+
+    { "id": "msc-cyber-security", "label": "MSc Cyber Security", "years": 2 },
+    { "id": "msc-biotechnology", "label": "MSc Biotechnology", "years": 2 },
+    { "id": "msc-chemistry", "label": "MSc Chemistry", "years": 2 },
+    { "id": "msc-physics", "label": "MSc Physics", "years": 2 },
+    { "id": "msc-mathematics", "label": "MSc Mathematics", "years": 2 },
+    { "id": "msc-food-science", "label": "MSc Food Science & Technology", "years": 2 },
+    { "id": "msc-mathematics-computing", "label": "MSc Mathematics & Computing", "years": 2 },
+    { "id": "msc-clinical-psychology", "label": "MSc Clinical Psychology", "years": 2 },
+
+    { "id": "llm", "label": "LLM", "years": 1 }
   ]
 }

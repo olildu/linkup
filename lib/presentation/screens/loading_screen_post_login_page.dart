@@ -122,7 +122,7 @@ class _LoadingScreenPostLoginState extends State<LoadingScreenPostLogin>
             create: (context) => AuthBloc(),
             child: BlocProvider(
               create: (context) => SignupBloc(),
-              child: const SingupFlowPage(initialIndex: -1),
+               child: const SingupFlowPage(),
             ),
           ),
           allowBack: false,

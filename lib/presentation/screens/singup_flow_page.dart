@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -7,6 +9,8 @@ import 'package:lottie/lottie.dart';
 import 'package:provider/provider.dart';
 import 'package:linkup/logic/bloc/auth/auth_bloc.dart';
 import 'package:linkup/data/data_parser/signup_page/data_parser.dart';
+import 'package:linkup/data/models/signup_options_model.dart';
+import 'package:linkup/data/services/signup_options_service.dart';
 import 'package:linkup/logic/bloc/signup/signup_bloc.dart';
 import 'package:linkup/logic/provider/data_validator_provider.dart';
 import 'package:linkup/presentation/components/signup_page/animation_handlers.dart';
@@ -25,31 +29,82 @@ class SingupFlowPage extends StatefulWidget {
   final int initialIndex;
   final dynamic initialData;
 
-  const SingupFlowPage({super.key, this.initialIndex = 0, this.initialData});
+  const SingupFlowPage({super.key, this.initialIndex = -1, this.initialData});
 
   @override
   State<SingupFlowPage> createState() => _SingupFlowPageState();
 }
 
 class _SingupFlowPageState extends State<SingupFlowPage> {
+  static const String _logTag = 'SingupFlowPage';
+
+  final SignupOptionsService _signupOptionsService = SignupOptionsService();
+
   late SignUpPageFlow _signUpPageFlow;
   late DataValidatorProvider _dataValidatorProvider;
   late SignupBloc _signupBloc;
   late bool _isNextButtonEnabled;
+  bool _isLoadingSignupOptions = true;
 
   @override
   void initState() {
     super.initState();
-    _signUpPageFlow = SignUpPageFlow(
-      context,
-      initialData: widget.initialData as Map<String, dynamic>?,
+    log(
+      'Signup flow initState started. initialIndex: ${widget.initialIndex}, hasInitialData: ${widget.initialData != null}',
+      name: _logTag,
     );
     _signupBloc = context.read<SignupBloc>();
-    _signupBloc.add(SignupInit(currentIndex: widget.initialIndex, signUpPageFlow: _signUpPageFlow));
-
     _dataValidatorProvider = Provider.of<DataValidatorProvider>(context, listen: false);
     _isNextButtonEnabled = _dataValidatorProvider.allowNext;
     _dataValidatorProvider.addListener(_dataValidatorListener);
+    _loadSignupFlow();
+  }
+
+  Future<void> _loadSignupFlow() async {
+    try {
+      log('Loading signup options before building flow UI.', name: _logTag);
+      final signupOptions = await _signupOptionsService.loadSignupOptions();
+
+      if (!mounted) {
+        return;
+      }
+
+      log(
+        'Signup options ready. version: ${signupOptions.version}, programs: ${signupOptions.programs.length}',
+        name: _logTag,
+      );
+
+      _signUpPageFlow = SignUpPageFlow(
+        context,
+        signupOptions: signupOptions,
+        initialData: widget.initialData as Map<String, dynamic>?,
+      );
+      _signupBloc.add(
+        SignupInit(currentIndex: widget.initialIndex, signUpPageFlow: _signUpPageFlow),
+      );
+
+      setState(() {
+        _isLoadingSignupOptions = false;
+      });
+    } catch (_) {
+      if (!mounted) {
+        return;
+      }
+
+      log('Unexpected error while loading signup options. Using fallback config.', name: _logTag);
+      _signUpPageFlow = SignUpPageFlow(
+        context,
+        signupOptions: SignupOptionsConfig.fallback(),
+        initialData: widget.initialData as Map<String, dynamic>?,
+      );
+      _signupBloc.add(
+        SignupInit(currentIndex: widget.initialIndex, signUpPageFlow: _signUpPageFlow),
+      );
+
+      setState(() {
+        _isLoadingSignupOptions = false;
+      });
+    }
   }
 
   @override
@@ -71,6 +126,10 @@ class _SingupFlowPageState extends State<SingupFlowPage> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _dataValidatorProvider.allowDisallow(step["showProgressBar"] != null);
     });
+  }
+
+  bool _isAutoAdvanceStep(int currentIndex) {
+    return _signUpPageFlow.flow[currentIndex]["showProgressBar"] == false;
   }
 
   Future<void> _logout() async {
@@ -162,6 +221,14 @@ class _SingupFlowPageState extends State<SingupFlowPage> {
 
   @override
   Widget build(BuildContext context) {
+    if (_isLoadingSignupOptions) {
+      return Scaffold(
+        body: SafeArea(
+          child: Center(child: CircularProgressIndicator(color: AppColors.primary)),
+        ),
+      );
+    }
+
     return Scaffold(
       body: SafeArea(
         child: Stack(
@@ -177,6 +244,8 @@ class _SingupFlowPageState extends State<SingupFlowPage> {
                   if (state is SignupInitial) {
                     final currentIndex = state.currentIndex;
                     final progressBarIndex = state.progessBarIndex;
+                    final bool isNextButtonEnabled =
+                        _isAutoAdvanceStep(currentIndex) || _isNextButtonEnabled;
 
                     return Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -204,7 +273,7 @@ class _SingupFlowPageState extends State<SingupFlowPage> {
                         ButtonBuilder(
                           text: state.buttonText,
                           onPressed: () {
-                            if (!_isNextButtonEnabled) return;
+                            if (!isNextButtonEnabled) return;
 
                             _signupBloc.add(SignupNext());
 
@@ -212,7 +281,7 @@ class _SingupFlowPageState extends State<SingupFlowPage> {
                               SignUpDataParser.updateData(context);
                             }
                           },
-                          backgroundColor: _isNextButtonEnabled
+                          backgroundColor: isNextButtonEnabled
                               ? AppColors.primary
                               : AppColors.notSelected,
                           textColor: AppColors.whiteTextColor,
@@ -269,7 +338,9 @@ class _SingupFlowPageState extends State<SingupFlowPage> {
             ),
             BlocBuilder<SignupBloc, SignupState>(
               builder: (context, state) {
-                if (state is! SignupInitial || state.currentIndex != 0 || widget.initialData != null) {
+                if (state is! SignupInitial ||
+                    state.currentIndex != 0 ||
+                    widget.initialData != null) {
                   return const SizedBox.shrink();
                 }
 
@@ -333,7 +404,7 @@ class _SingupFlowPageState extends State<SingupFlowPage> {
               ),
               child: KeyedSubtree(
                 key: ValueKey('action_$index'),
-                child: _signUpPageFlow.flow[index]["action"],
+                child: _signUpPageFlow.buildAction(index),
               ),
             ),
           ),

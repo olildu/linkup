@@ -1,23 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:gap/gap.dart';
-import 'package:linkup/data/http_services/city_lookup_http_services/city_lookup_http_services.dart';
-import 'package:linkup/presentation/components/signup_page/option_builder.dart';
-import 'package:linkup/presentation/components/signup_page/text_input_builder_component.dart';
-import 'package:linkup/presentation/utils/debouncer_class.dart';
+import 'package:linkup/presentation/components/signup_page/lookup_picker.dart';
 
-class CityLookup extends StatefulWidget {
+class CityLookup extends StatelessWidget {
   final Function(String) onChanged;
   const CityLookup({super.key, required this.onChanged});
-
-  @override
-  State<CityLookup> createState() => _CityLookupState();
-}
-
-class _CityLookupState extends State<CityLookup> {
-  final _debouncer = Debouncer(milliseconds: 400);
-  final TextEditingController _controller = TextEditingController();
-  List<String> _searchResults = _initialCities;
 
   static const List<String> _initialCities = [
     "Mumbai, Maharashtra",
@@ -43,55 +29,13 @@ class _CityLookupState extends State<CityLookup> {
     "Ahmedabad, Gujarat",
   ];
 
-  void _onSearchChanged(String val) {
-    if (val.trim().isEmpty) {
-      setState(() => _searchResults = _initialCities);
-    } else {
-      _debouncer.run(() async {
-        try {
-          final cities = await CityLookupHttpServices.searchCities(val);
-          if (mounted) setState(() => _searchResults = cities);
-        } catch (_) {
-          setState(() => _searchResults = []);
-        }
-      });
-    }
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
   @override
   Widget build(BuildContext context) {
-    // REFACTORED: Removed LayoutBuilder and manual math. 
-    // Using Expanded ensures it fills available space safely.
-    return Column(
-      children: [
-        TextInput(
-          label: "City", 
-          placeHolder: "Search your hometown", 
-          controller: _controller, 
-          onChanged: _onSearchChanged
-        ),
-        
-        Gap(30.h),
-        
-        Expanded(
-          child: SingleChildScrollView(
-            child: OptionBuilder(
-              options: _searchResults,
-              textSize: 13,
-              onChanged: (val) {
-                _controller.text = val;
-                widget.onChanged(val);
-              },
-            ),
-          ),
-        ),
-      ],
+    return LookupPicker(
+      items: _initialCities,
+      onChanged: onChanged,
+      label: 'City',
+      placeHolder: 'Search your hometown',
     );
   }
 }

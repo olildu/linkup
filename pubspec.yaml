@@ -103,4 +103,5 @@ flutter:
   assets:
     - assets/images/
     - assets/animations/
+    - assets/json/
     - assets/images/error_icons/

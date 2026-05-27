@@ -40,13 +40,21 @@ class _YourPeoplePageState extends State<ConnectionsPage> {
         scrolledUnderElevation: 0,
         title: Text(
           'Connections',
-          style: Theme.of(context).textTheme.titleLarge?.copyWith(fontSize: 20.sp, fontWeight: FontWeight.w600, color: Theme.of(context).colorScheme.onSurface),
+          style: Theme.of(context).textTheme.titleLarge?.copyWith(
+            fontSize: 20.sp,
+            fontWeight: FontWeight.w600,
+            color: Theme.of(context).colorScheme.onSurface,
+          ),
         ),
         centerTitle: true,
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back_ios_new_rounded, color: Theme.of(context).colorScheme.onSurface, size: 20.sp),
+          icon: Icon(
+            Icons.arrow_back_ios_new_rounded,
+            color: Theme.of(context).colorScheme.onSurface,
+            size: 20.sp,
+          ),
           onPressed: () => Navigator.pop(context),
         ),
       ),
@@ -58,32 +66,29 @@ class _YourPeoplePageState extends State<ConnectionsPage> {
             children: [
               BlocBuilder<ConnectionsBloc, ConnectionsState>(
                 builder: (context, state) {
-                  if (state is ConnectionsLoaded && state.matches.isNotEmpty) {
-                    return Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        _buildTitleSubtitle('Your Matches', 'See your matches and connect with them'),
-
-                        Gap(15.h),
-
-                        SizedBox(
-                          height: 80.h,
-                          child: ListView.builder(
-                            scrollDirection: Axis.horizontal,
-                            itemCount: state.matches.length,
-                            cacheExtent: 20,
-                            itemBuilder: (context, index) {
-                              return _buildAvatar(candidate: state.matches[index]);
-                            },
-                          ),
-                        ),
-
-                        Gap(15.h),
-                      ],
-                    );
-                  } else {
-                    return SizedBox.shrink();
+                  if (state is! ConnectionsLoaded || state.matches.isEmpty) {
+                    return const SizedBox.shrink();
                   }
+
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _buildTitleSubtitle('Your Matches', 'See your matches and connect with them'),
+                      Gap(15.h),
+                      SizedBox(
+                        height: 80.h,
+                        child: ListView.builder(
+                          scrollDirection: Axis.horizontal,
+                          itemCount: state.matches.length,
+                          cacheExtent: 20,
+                          itemBuilder: (context, index) {
+                            return _buildAvatar(candidate: state.matches[index]);
+                          },
+                        ),
+                      ),
+                      Gap(15.h),
+                    ],
+                  );
                 },
               ),
 
@@ -93,6 +98,16 @@ class _YourPeoplePageState extends State<ConnectionsPage> {
                 child: BlocBuilder<ConnectionsBloc, ConnectionsState>(
                   builder: (context, state) {
                     if (state is ConnectionsLoaded) {
+                      if (state.chats.isEmpty) {
+                        return _buildEmptyChatsState(
+                          context,
+                          title: state.matches.isEmpty ? 'No chats or matches yet' : 'No chats yet',
+                          subtitle: state.matches.isEmpty
+                              ? 'Start connecting with people and your chats will appear here.'
+                              : 'When you start chatting, your conversations will show up here.',
+                        );
+                      }
+
                       return ListView.builder(
                         itemCount: state.chats.length,
                         padding: EdgeInsets.symmetric(horizontal: 0.w, vertical: 10.h),
@@ -104,7 +119,10 @@ class _YourPeoplePageState extends State<ConnectionsPage> {
                       return Center(
                         child: Text(
                           'No chats available',
-                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(fontSize: 16.sp, color: Theme.of(context).colorScheme.onSurface),
+                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                            fontSize: 16.sp,
+                            color: Theme.of(context).colorScheme.onSurface,
+                          ),
                         ),
                       );
                     }
@@ -130,7 +148,9 @@ class _YourPeoplePageState extends State<ConnectionsPage> {
         child: ClipOval(
           child: OctoImage(
             image: CachedNetworkImageProvider(candidate.profilePictureMetaData['url']),
-            placeholderBuilder: blurHash(candidate.profilePictureMetaData['blurhash']).placeholderBuilder,
+            placeholderBuilder: blurHash(
+              candidate.profilePictureMetaData['blurhash'],
+            ).placeholderBuilder,
             fit: BoxFit.cover,
           ),
         ),
@@ -169,7 +189,9 @@ class _YourPeoplePageState extends State<ConnectionsPage> {
         leading: ClipOval(
           child: OctoImage(
             image: CachedNetworkImageProvider(candidate.profilePictureMetaData['url']),
-            placeholderBuilder: blurHash(candidate.profilePictureMetaData['blurhash']).placeholderBuilder,
+            placeholderBuilder: blurHash(
+              candidate.profilePictureMetaData['blurhash'],
+            ).placeholderBuilder,
             fit: BoxFit.cover,
             width: 50.r,
             height: 50.r,
@@ -178,7 +200,11 @@ class _YourPeoplePageState extends State<ConnectionsPage> {
 
         title: Text(
           candidate.username,
-          style: Theme.of(context).textTheme.bodyLarge?.copyWith(fontSize: 14.sp, fontWeight: FontWeight.w600, color: Theme.of(context).colorScheme.onSurface),
+          style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+            fontSize: 14.sp,
+            fontWeight: FontWeight.w600,
+            color: Theme.of(context).colorScheme.onSurface,
+          ),
         ),
         subtitle: _buildMessageSubtitle(candidate),
         trailing: candidate.unseenCounter > 0
@@ -187,7 +213,11 @@ class _YourPeoplePageState extends State<ConnectionsPage> {
                 decoration: BoxDecoration(color: AppColors.primary, shape: BoxShape.circle),
                 child: Text(
                   candidate.unseenCounter > 9 ? '9+' : candidate.unseenCounter.toString(),
-                  style: Theme.of(context).textTheme.labelSmall?.copyWith(fontSize: 12.sp, color: Theme.of(context).colorScheme.onPrimary, fontWeight: FontWeight.bold),
+                  style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                    fontSize: 12.sp,
+                    color: Theme.of(context).colorScheme.onPrimary,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               )
             : null,
@@ -199,11 +229,18 @@ class _YourPeoplePageState extends State<ConnectionsPage> {
     if (candidate.messageType == MessageType.image) {
       return Row(
         children: [
-          Icon(Icons.image, size: 16.sp, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6)),
+          Icon(
+            Icons.image,
+            size: 16.sp,
+            color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
+          ),
           SizedBox(width: 6.w),
           Text(
             'Image',
-            style: Theme.of(context).textTheme.bodySmall?.copyWith(fontSize: 12.sp, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7)),
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+              fontSize: 12.sp,
+              color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
+            ),
           ),
         ],
       );
@@ -213,12 +250,19 @@ class _YourPeoplePageState extends State<ConnectionsPage> {
           candidate.message!,
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
-          style: Theme.of(context).textTheme.bodySmall?.copyWith(fontSize: 12.sp, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7)),
+          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+            fontSize: 12.sp,
+            color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
+          ),
         );
       } else {
         return Text(
           'No messages yet',
-          style: Theme.of(context).textTheme.bodySmall?.copyWith(fontSize: 12.sp, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5), fontStyle: FontStyle.italic),
+          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+            fontSize: 12.sp,
+            color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5),
+            fontStyle: FontStyle.italic,
+          ),
         );
       }
     }
@@ -230,13 +274,54 @@ class _YourPeoplePageState extends State<ConnectionsPage> {
       children: [
         Text(
           title,
-          style: Theme.of(context).textTheme.titleLarge?.copyWith(fontSize: 18.sp, fontWeight: FontWeight.w600, color: Theme.of(context).colorScheme.onSurface),
+          style: Theme.of(context).textTheme.titleLarge?.copyWith(
+            fontSize: 18.sp,
+            fontWeight: FontWeight.w600,
+            color: Theme.of(context).colorScheme.onSurface,
+          ),
         ),
 
         Gap(10.h),
 
         Text(subtitle, style: AppTextStyles.subtitle(context)?.copyWith(fontSize: 14.sp)),
       ],
+    );
+  }
+
+  Widget _buildEmptyChatsState(
+    BuildContext context, {
+    required String title,
+    required String subtitle,
+  }) {
+    return Center(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Image.asset('assets/images/chat_empty.png', width: 180.w, fit: BoxFit.contain),
+          Gap(18.h),
+          Text(
+            title,
+            textAlign: TextAlign.center,
+            style: Theme.of(context).textTheme.titleMedium?.copyWith(
+              fontSize: 18.sp,
+              fontWeight: FontWeight.w600,
+              color: Theme.of(context).colorScheme.onSurface,
+            ),
+          ),
+          Gap(8.h),
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: 24.w),
+            child: Text(
+              subtitle,
+              textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                fontSize: 14.sp,
+                color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

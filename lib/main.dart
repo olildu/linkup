@@ -16,6 +16,7 @@ import 'package:linkup/logic/bloc/connections/connections_bloc.dart';
 import 'package:linkup/logic/bloc/matches/matches_bloc.dart';
 import 'package:linkup/logic/bloc/post_login/post_login_bloc.dart';
 import 'package:linkup/logic/bloc/profile/own/profile_bloc.dart';
+import 'package:linkup/logic/cubit/app_lock/app_lock_cubit.dart';
 import 'package:linkup/logic/bloc/web_socket/chat_sockets/chat_sockets_bloc.dart';
 import 'package:linkup/logic/bloc/web_socket/connection_sockets/connections_socket_bloc.dart';
 import 'package:linkup/logic/bloc/web_socket/web_socket_bloc.dart';
@@ -35,7 +36,11 @@ Future<void> main() async {
   final getIt = GetIt.instance;
 
   final dir = await getApplicationDocumentsDirectory();
-  final isar = await Isar.open([MessageTableSchema, ChatsTableSchema, UnsentMessagesTableSchema], directory: dir.path, inspector: kDebugMode ? true : false);
+  final isar = await Isar.open(
+    [MessageTableSchema, ChatsTableSchema, UnsentMessagesTableSchema],
+    directory: dir.path,
+    inspector: kDebugMode ? true : false,
+  );
 
   GetItRegisterer.registerValue<Isar>(value: isar);
   GetItRegisterer.registerValue<FlutterSecureStorage>(value: FlutterSecureStorage());
@@ -53,6 +58,7 @@ Future<void> main() async {
           BlocProvider(create: (_) => ChatSocketsBloc(isar: getIt<Isar>())),
           BlocProvider(create: (_) => ConnectionsSocketBloc()),
           BlocProvider(create: (_) => ThemeCubit()),
+          BlocProvider(create: (_) => AppLockCubit()),
           BlocProvider(create: (_) => ConnectivityCubit(Connectivity())),
 
           BlocProvider(
@@ -84,7 +90,7 @@ class MyApp extends StatelessWidget {
           return MaterialApp(
             title: 'linkup',
             debugShowCheckedModeBanner: false,
-            theme: AppTheme.lightTheme,
+            theme: AppTheme.darkTheme,
             darkTheme: AppTheme.darkTheme,
             themeMode: themeMode,
             home: BlocListener<ConnectivityCubit, ConnectivityCubitState>(

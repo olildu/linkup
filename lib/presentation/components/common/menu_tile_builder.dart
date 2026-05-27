@@ -9,6 +9,7 @@ class MenuTileBuilder extends StatelessWidget {
   final VoidCallback onTap;
   final String? subtitle;
   final String? trailingText;
+  final Widget? trailingWidget;
   final Color? titleColor;
   final Color? iconColor;
   final Color? trailingTextColor;
@@ -31,6 +32,7 @@ class MenuTileBuilder extends StatelessWidget {
     required this.onTap,
     this.subtitle,
     this.trailingText,
+    this.trailingWidget,
     this.titleColor,
     this.iconColor,
     this.trailingTextColor,
@@ -75,7 +77,42 @@ class MenuTileBuilder extends StatelessWidget {
               Icon(icon, color: effectiveIconColor, size: iconSize.sp),
               Gap(12.w),
               Expanded(
-                child: trailingText == null
+                child: trailingWidget != null
+                    ? Row(
+                        children: [
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text(
+                                  title,
+                                  style: theme.textTheme.bodyLarge?.copyWith(
+                                    fontSize: 15.sp,
+                                    fontWeight: FontWeight.w600,
+                                    color: effectiveTitleColor,
+                                  ),
+                                ),
+                                if (subtitle != null) ...[
+                                  Gap(4.h),
+                                  Text(
+                                    subtitle!,
+                                    style: theme.textTheme.bodyMedium?.copyWith(
+                                      fontSize: 13.sp,
+                                      color:
+                                          theme.textTheme.bodySmall?.color ??
+                                          theme.colorScheme.onSurface,
+                                    ),
+                                  ),
+                                ],
+                              ],
+                            ),
+                          ),
+                          Gap(10.w),
+                          trailingWidget!,
+                        ],
+                      )
+                    : trailingText == null
                     ? Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         mainAxisSize: MainAxisSize.min,

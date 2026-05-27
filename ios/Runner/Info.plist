@@ -7,7 +7,7 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>
-	<string>Linkup</string>
+	<string>linkup</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
@@ -28,6 +28,8 @@
 	<true/>
 	<key>NSCameraUsageDescription</key>
     <string>We need access to your camera to take photos for your profile and chats.</string>
+	<key>NSFaceIDUsageDescription</key>
+	<string>We use Face ID to unlock the app securely.</string>
     <key>NSPhotoLibraryUsageDescription</key>
     <string>We need access to your photo library to select photos for your profile and chats.</string>
     <key>NSMicrophoneUsageDescription</key>

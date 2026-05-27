@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:linkup/data/services/biometric_lock_service.dart';
 import 'package:linkup/data/token/token_services.dart';
 import 'package:linkup/logic/bloc/post_login/post_login_bloc.dart';
 import 'package:linkup/logic/bloc/signup/signup_bloc.dart';
@@ -16,73 +19,134 @@ class LoadingScreenPostLogin extends StatefulWidget {
   State<LoadingScreenPostLogin> createState() => _LoadingScreenPostLoginState();
 }
 
-class _LoadingScreenPostLoginState extends State<LoadingScreenPostLogin> with SingleTickerProviderStateMixin {
+class _LoadingScreenPostLoginState extends State<LoadingScreenPostLogin>
+    with SingleTickerProviderStateMixin {
+  static const String _appLockKey = 'app_lock_enabled';
+
   late AnimationController _controller;
   late Animation<double> _animation;
-
   late PostLoginBloc _postLoginBloc;
+
   final TokenServices _tokenServices = TokenServices();
+  final BiometricLockService _biometricLockService = BiometricLockService();
+
+  // Tracks whether we should navigate after the animation completes
+  _NavigationTarget? _pendingNavigation;
+  bool _animationComplete = false;
 
   @override
   void initState() {
     super.initState();
 
-    _controller = AnimationController(vsync: this, duration: const Duration(seconds: 2));
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 2),
+    );
     _animation = CurvedAnimation(parent: _controller, curve: Curves.easeInOut);
 
-    // Start the animation immediately
-    _controller.forward();
+    // When animation finishes, execute any pending navigation immediately
+    _controller.addStatusListener((status) {
+      if (status == AnimationStatus.completed) {
+        _animationComplete = true;
+        _tryNavigate();
+      }
+    });
 
     _postLoginBloc = context.read<PostLoginBloc>();
-    initializer();
-  }
-
-  Future<void> initializer() async {
-    await _tokenCheck();
+    _controller.forward();
+    _tokenCheck();
   }
 
   Future<void> _tokenCheck() async {
-    bool exists = await _tokenServices.tokenExists();
+    final bool exists = await _tokenServices.tokenExists();
 
-    if (exists) {
-      await _tokenServices.registerUserIdIfExists();
+    if (!exists) {
+      // No token — go to landing after animation finishes
+      _pendingNavigation = _NavigationTarget.landing;
+      _tryNavigate();
+      return;
+    }
+
+    await _tokenServices.registerUserIdIfExists();
+    final prefs = await SharedPreferences.getInstance();
+    final bool appLockEnabled = prefs.getBool(_appLockKey) ?? false;
+
+    if (!mounted) return;
+
+    if (appLockEnabled) {
+      // Wait for animation to play first, THEN show biometric prompt
+      await _controller.forward();
+      if (!mounted) return;
+      await _authenticateAndContinue();
+      return;
+    }
+
+    // Normal path: kick off post-login while animation plays in parallel
+    _postLoginBloc.add(StartPostLoginEvent());
+  }
+
+  Future<void> _authenticateAndContinue() async {
+    final bool unlocked = await _biometricLockService.authenticateForUnlock();
+
+    if (!mounted) return;
+
+    if (unlocked) {
       _postLoginBloc.add(StartPostLoginEvent());
     } else {
-      // If no token exists, wait for animation to finish then go to Landing
-      _controller.addStatusListener((status) {
-        if (status == AnimationStatus.completed) {
-          navigateWithFade(context, const LandingPage(), allowBack: false);
-        }
-      });
+      // Authentication failed — retry or go to landing
+      // Re-show the prompt; if they cancel twice just send to landing
+      final bool retry = await _biometricLockService.authenticateForUnlock();
+      if (!mounted) return;
+      if (retry) {
+        _postLoginBloc.add(StartPostLoginEvent());
+      } else {
+        _pendingNavigation = _NavigationTarget.landing;
+        _tryNavigate();
+      }
+    }
+  }
+
+  void _tryNavigate() {
+    if (!_animationComplete || _pendingNavigation == null) return;
+    if (!mounted) return;
+
+    final target = _pendingNavigation!;
+    _pendingNavigation = null;
+
+    switch (target) {
+      case _NavigationTarget.landing:
+        navigateWithFade(context, const LandingPage(), allowBack: false);
+      case _NavigationTarget.matchMaking:
+        navigateWithFade(context, const MatchMakingPage(), allowBack: false);
+      case _NavigationTarget.signUp:
+        navigateWithFade(
+          context,
+          BlocProvider(
+            create: (context) => SignupBloc(),
+            child: const SingupFlowPage(initialIndex: -1),
+          ),
+          allowBack: false,
+        );
     }
   }
 
   @override
   Widget build(BuildContext context) {
     final double size = MediaQuery.of(context).size.width * 0.5;
-    bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
+    final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
       backgroundColor: isDarkMode ? Colors.black : Colors.white,
       body: BlocListener<PostLoginBloc, PostLoginState>(
         listener: (context, state) async {
           if (state is PostLoginLoaded) {
-            // FIX: Wait for the animation controller to finish its 2-second duration
-            // even if the Bloc data loaded earlier.
-            await _controller.forward();
-
-            if (mounted) {
-              if (state.goToSignUpPage) {
-                navigateWithFade(context, BlocProvider(create: (context) => SignupBloc(), child: const SingupFlowPage(initialIndex: -1)), allowBack: false);
-              } else {
-                navigateWithFade(context, const MatchMakingPage(), allowBack: false);
-              }
-            }
+            _pendingNavigation = state.goToSignUpPage
+                ? _NavigationTarget.signUp
+                : _NavigationTarget.matchMaking;
+            _tryNavigate();
           } else if (state is PostLoginError) {
-            await _controller.forward();
-            if (mounted) {
-              navigateWithFade(context, const LandingPage(), allowBack: false);
-            }
+            _pendingNavigation = _NavigationTarget.landing;
+            _tryNavigate();
           }
         },
         child: Center(
@@ -91,7 +155,13 @@ class _LoadingScreenPostLoginState extends State<LoadingScreenPostLogin> with Si
             height: size,
             child: FadeTransition(
               opacity: _animation,
-              child: CustomPaint(size: Size(size, size), painter: DrawingPainter(_animation, isDarkMode ? Colors.white : Colors.black)),
+              child: CustomPaint(
+                size: Size(size, size),
+                painter: DrawingPainter(
+                  _animation,
+                  isDarkMode ? Colors.white : Colors.black,
+                ),
+              ),
             ),
           ),
         ),
@@ -105,3 +175,5 @@ class _LoadingScreenPostLoginState extends State<LoadingScreenPostLogin> with Si
     super.dispose();
   }
 }
+
+enum _NavigationTarget { landing, matchMaking, signUp }

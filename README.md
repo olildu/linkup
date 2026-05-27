@@ -1,11 +1,11 @@
 <p align="center">
   <img src="https://raw.githubusercontent.com/olildu/linkup-frontend/refs/heads/main/assets/images/app_logo/app_logo_transparent.png" 
-       alt="LinkUp Logo" 
+       alt="linkup Logo" 
        width="180">
 </p>
 
 
-# 🚀 LinkUp: The Frontend
+# 🚀 linkup: The Frontend
 
 A modern, real-time social networking application built with **Flutter** for a seamless, cross-platform mobile experience.
 
@@ -88,7 +88,7 @@ flutter run
 The application is currently in active testing. You can try the live build without setting up the backend locally.
 
 **1. Download the Build:**
-Get the latest stable version here: [**Download LinkUp Beta (v1.0.0-beta)**](https://github.com/olildu/linkup-frontend/releases/download/v1.0.0-beta/app-release.apk)
+Get the latest stable version here: [**Download linkup Beta (v1.0.0-beta)**](https://github.com/olildu/linkup-frontend/releases/download/v1.0.0-beta/app-release.apk)
 
 **2. Test Credentials:**
 Use the following pre-configured account to explore the real-time matching and chat features:

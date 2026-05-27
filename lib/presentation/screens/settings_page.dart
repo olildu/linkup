@@ -3,8 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
-import 'package:linkup/data/http_services/user_http_services/user_http_services.dart';
-import 'package:linkup/data/token/token_services.dart';
+import 'package:linkup/logic/bloc/auth/auth_bloc.dart';
 import 'package:linkup/presentation/components/common/menu_tile_builder.dart';
 import 'package:linkup/presentation/components/signup_page/button_builder.dart';
 import 'package:linkup/presentation/components/common/confirmation_dialog_builder.dart';
@@ -44,7 +43,7 @@ class SettingsPage extends StatelessWidget {
       _openExternal(context, Uri.parse('mailto:$_supportEmail?subject=linkup%20Support'));
 
   Future<void> _logout(BuildContext context) async {
-    await TokenServices().clearTokens();
+    await context.read<AuthBloc>().logout();
     if (context.mounted) {
       Navigator.of(context).pushAndRemoveUntil(
         CupertinoPageRoute(builder: (context) => const LoadingScreenPostLogin()),
@@ -74,8 +73,7 @@ class SettingsPage extends StatelessWidget {
         onConfirm: () {
           Future.microtask(() async {
             try {
-              await UserHttpServices().deleteAccount();
-              await TokenServices().clearTokens();
+              await context.read<AuthBloc>().deleteAccount();
               if (context.mounted) {
                 Navigator.of(context).pushAndRemoveUntil(
                   CupertinoPageRoute(builder: (context) => const LoadingScreenPostLogin()),

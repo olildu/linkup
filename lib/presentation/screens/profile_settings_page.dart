@@ -7,6 +7,7 @@ import 'package:get_it/get_it.dart';
 import 'package:linkup/data/models/candidate_info_model.dart';
 import 'package:linkup/data/models/update_metadata_model.dart';
 import 'package:linkup/data/models/user_model.dart';
+import 'package:linkup/logic/bloc/auth/auth_bloc.dart';
 import 'package:linkup/logic/bloc/profile/own/profile_bloc.dart';
 import 'package:linkup/logic/bloc/signup/signup_bloc.dart';
 import 'package:linkup/presentation/components/common/image_picker_builder.dart';
@@ -48,8 +49,11 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
       context,
       CupertinoPageRoute(
         builder: (context) => BlocProvider(
-          create: (context) => SignupBloc(isSigningUp: false),
-          child: SingupFlowPage(initialIndex: index, initialData: optionsData.toJson()),
+          create: (context) => AuthBloc(),
+          child: BlocProvider(
+            create: (context) => SignupBloc(isSigningUp: false),
+            child: SingupFlowPage(initialIndex: index, initialData: optionsData.toJson()),
+          ),
         ),
       ),
     );
@@ -98,9 +102,12 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
                 return;
               }
 
-              Navigator.of(
-                context,
-              ).push(CupertinoPageRoute(builder: (context) => const SettingsPage()));
+              Navigator.of(context).push(
+                CupertinoPageRoute(
+                  builder: (context) =>
+                      BlocProvider(create: (context) => AuthBloc(), child: const SettingsPage()),
+                ),
+              );
             },
           ),
         ],

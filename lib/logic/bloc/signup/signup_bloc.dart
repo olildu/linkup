@@ -18,7 +18,8 @@ class SignupBloc extends Bloc<SignupEvent, SignupState> {
 
   final bool isSigningUp;
 
-  SignupBloc({this.isSigningUp = true}) : super(SignupInitial(currentIndex: 0, progessBarIndex: 0)) {
+  SignupBloc({this.isSigningUp = true})
+    : super(SignupInitial(currentIndex: 0, progessBarIndex: 0)) {
     on<SignupInit>((event, emit) async {
       _signUpPageFlow = event.signUpPageFlow;
       _currentIndex = event.currentIndex;
@@ -46,18 +47,79 @@ class SignupBloc extends Bloc<SignupEvent, SignupState> {
       }
 
       if (_currentIndex > 11 && !isAtEnd) {
-        emit(SignupInitial(buttonText: "Skip", currentIndex: _currentIndex, progessBarIndex: _progressBarIndex));
+        emit(
+          SignupInitial(
+            buttonText: "Skip",
+            currentIndex: _currentIndex,
+            progessBarIndex: _progressBarIndex,
+          ),
+        );
       } else if (_currentIndex == 9) {
-        emit(SignupInitial(buttonText: "Upload Photos", currentIndex: _currentIndex, progessBarIndex: _progressBarIndex));
+        emit(
+          SignupInitial(
+            buttonText: "Upload Photos",
+            currentIndex: _currentIndex,
+            progessBarIndex: _progressBarIndex,
+          ),
+        );
       } else if (!isAtEnd) {
-        emit(SignupInitial(buttonText: "Next", currentIndex: _currentIndex, progessBarIndex: _progressBarIndex));
+        emit(
+          SignupInitial(
+            buttonText: "Next",
+            currentIndex: _currentIndex,
+            progessBarIndex: _progressBarIndex,
+          ),
+        );
+      }
+    });
+
+    on<SignupPrevious>((event, emit) async {
+      if (_currentIndex <= 0) {
+        return;
+      }
+
+      _currentIndex--;
+      if (_signUpPageFlow.flow[_currentIndex]["showProgressBar"] == null) {
+        _progressBarIndex = _signUpPageFlow.flow[_currentIndex]["index"];
+      }
+
+      if (_currentIndex > 11) {
+        emit(
+          SignupInitial(
+            buttonText: "Skip",
+            currentIndex: _currentIndex,
+            progessBarIndex: _progressBarIndex,
+          ),
+        );
+      } else if (_currentIndex == 9) {
+        emit(
+          SignupInitial(
+            buttonText: "Upload Photos",
+            currentIndex: _currentIndex,
+            progessBarIndex: _progressBarIndex,
+          ),
+        );
+      } else {
+        emit(
+          SignupInitial(
+            buttonText: "Next",
+            currentIndex: _currentIndex,
+            progessBarIndex: _progressBarIndex,
+          ),
+        );
       }
     });
 
     on<SignupOptionalFilled>((event, emit) async {
       if (_currentIndex > 11) {
         bool isAtEnd = _currentIndex == _signUpPageFlow.flow.length - 1;
-        emit(SignupInitial(buttonText: isAtEnd ? "Finish" : "Next", currentIndex: _currentIndex, progessBarIndex: _progressBarIndex));
+        emit(
+          SignupInitial(
+            buttonText: isAtEnd ? "Finish" : "Next",
+            currentIndex: _currentIndex,
+            progessBarIndex: _progressBarIndex,
+          ),
+        );
       }
     });
 
@@ -84,7 +146,9 @@ class SignupBloc extends Bloc<SignupEvent, SignupState> {
   }
 
   Future<void> _uploadPhotos(Emitter<SignupState> emit) async {
-    if (SignUpDataParser.data.photos != null && SignUpDataParser.data.photos!.isNotEmpty && isSigningUp) {
+    if (SignUpDataParser.data.photos != null &&
+        SignUpDataParser.data.photos!.isNotEmpty &&
+        isSigningUp) {
       emit(SingupPhotoUploading());
 
       try {
@@ -95,12 +159,19 @@ class SignupBloc extends Bloc<SignupEvent, SignupState> {
         );
 
         if (firstImageDataRes['status'] != 'failed') {
-          final futures =
-              SignUpDataParser.data.photos!.asMap().entries.where((entry) => entry.key != 0).map((entry) async {
+          final futures = SignUpDataParser.data.photos!
+              .asMap()
+              .entries
+              .where((entry) => entry.key != 0)
+              .map((entry) async {
                 final photo = entry.value;
-                final result = await CommonHttpServices().uploadMediaUser(file: File(photo.path), mediaType: MessageType.image);
+                final result = await CommonHttpServices().uploadMediaUser(
+                  file: File(photo.path),
+                  mediaType: MessageType.image,
+                );
                 return result['metadata'] as Map;
-              }).toList();
+              })
+              .toList();
 
           List<Map> uploadedUrls = await Future.wait(futures);
           uploadedUrls.insert(0, firstImageDataRes["original_image_metadata"]);
@@ -115,18 +186,46 @@ class SignupBloc extends Bloc<SignupEvent, SignupState> {
             _progressBarIndex = _signUpPageFlow.flow[_currentIndex]["index"];
           }
 
-          emit(SignupInitial(buttonText: "Next", currentIndex: _currentIndex, progessBarIndex: _progressBarIndex));
+          emit(
+            SignupInitial(
+              buttonText: "Next",
+              currentIndex: _currentIndex,
+              progessBarIndex: _progressBarIndex,
+            ),
+          );
         } else {
-          emit(SingupPhotoUploadError(message: 'Face not detected or multiple faces detected in the first image.'));
-          emit(SignupInitial(buttonText: "Retry Upload", currentIndex: _currentIndex, progessBarIndex: _progressBarIndex));
+          emit(
+            SingupPhotoUploadError(
+              message: 'Face not detected or multiple faces detected in the first image.',
+            ),
+          );
+          emit(
+            SignupInitial(
+              buttonText: "Retry Upload",
+              currentIndex: _currentIndex,
+              progessBarIndex: _progressBarIndex,
+            ),
+          );
         }
       } catch (e, stackTree) {
         log('Photo upload error: $e\n$stackTree');
         emit(SingupPhotoUploadError(message: 'Some error occured, try again.'));
-        emit(SignupInitial(buttonText: "Retry Upload", currentIndex: _currentIndex, progessBarIndex: _progressBarIndex));
+        emit(
+          SignupInitial(
+            buttonText: "Retry Upload",
+            currentIndex: _currentIndex,
+            progessBarIndex: _progressBarIndex,
+          ),
+        );
       }
     } else {
-      emit(SignupInitial(buttonText: "Upload Photos", currentIndex: _currentIndex, progessBarIndex: _progressBarIndex - 1));
+      emit(
+        SignupInitial(
+          buttonText: "Upload Photos",
+          currentIndex: _currentIndex,
+          progessBarIndex: _progressBarIndex - 1,
+        ),
+      );
     }
   }
 }

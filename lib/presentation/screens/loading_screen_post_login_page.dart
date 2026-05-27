@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:linkup/logic/bloc/auth/auth_bloc.dart';
 import 'package:linkup/data/services/biometric_lock_service.dart';
 import 'package:linkup/data/token/token_services.dart';
 import 'package:linkup/logic/bloc/post_login/post_login_bloc.dart';
@@ -38,10 +38,7 @@ class _LoadingScreenPostLoginState extends State<LoadingScreenPostLogin>
   void initState() {
     super.initState();
 
-    _controller = AnimationController(
-      vsync: this,
-      duration: const Duration(seconds: 2),
-    );
+    _controller = AnimationController(vsync: this, duration: const Duration(seconds: 2));
     _animation = CurvedAnimation(parent: _controller, curve: Curves.easeInOut);
 
     // When animation finishes, execute any pending navigation immediately
@@ -122,8 +119,11 @@ class _LoadingScreenPostLoginState extends State<LoadingScreenPostLogin>
         navigateWithFade(
           context,
           BlocProvider(
-            create: (context) => SignupBloc(),
-            child: const SingupFlowPage(initialIndex: -1),
+            create: (context) => AuthBloc(),
+            child: BlocProvider(
+              create: (context) => SignupBloc(),
+              child: const SingupFlowPage(initialIndex: -1),
+            ),
           ),
           allowBack: false,
         );
@@ -157,10 +157,7 @@ class _LoadingScreenPostLoginState extends State<LoadingScreenPostLogin>
               opacity: _animation,
               child: CustomPaint(
                 size: Size(size, size),
-                painter: DrawingPainter(
-                  _animation,
-                  isDarkMode ? Colors.white : Colors.black,
-                ),
+                painter: DrawingPainter(_animation, isDarkMode ? Colors.white : Colors.black),
               ),
             ),
           ),

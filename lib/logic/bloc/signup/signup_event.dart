@@ -12,6 +12,8 @@ final class SignupInit extends SignupEvent {
 
 final class SignupNext extends SignupEvent {}
 
+final class SignupPrevious extends SignupEvent {}
+
 final class SignupUpload extends SignupEvent {}
 
 final class SignupOptionalFilled extends SignupEvent {}

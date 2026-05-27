@@ -189,16 +189,17 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
                         ),
 
                         Gap(20.h),
+
                         MenuTileBuilder(
                           icon: Icons.remove_red_eye_sharp,
                           title: "Preview Profile",
                           onTap: () => _openProfilePreview(user),
                           showBorder: true,
-                          filledBackground: false,
-                          padding: EdgeInsets.symmetric(vertical: 7.h, horizontal: 10.w),
-                          margin: EdgeInsets.only(bottom: 30.h),
-                          borderRadius: 20.r,
+                          filledBackground: true,
                           borderColor: AppColors.notSelected.withValues(alpha: 0.22),
+                          margin: EdgeInsets.only(bottom: 20.h),
+                          padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 14.h),
+                          borderRadius: 18.r,
                           iconSize: 20.sp,
                           arrowSize: 20.sp,
                         ),

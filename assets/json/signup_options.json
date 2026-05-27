@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "programs": [
+    { "id": "btech-computer-science", "label": "BTech Computer Science", "years": 4 },
+    { "id": "btech-information-technology", "label": "BTech Information Technology", "years": 4 },
+    { "id": "btech-mechanical-engineering", "label": "BTech Mechanical Engineering", "years": 4 },
+    { "id": "btech-civil-engineering", "label": "BTech Civil Engineering", "years": 4 },
+    { "id": "btech-electrical-engineering", "label": "BTech Electrical Engineering", "years": 4 },
+    { "id": "bsc-computer-science", "label": "BSc Computer Science", "years": 3 }
+  ]
+}

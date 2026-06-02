@@ -8,7 +8,6 @@ import 'package:linkup/logic/bloc/lobby/lobby_bloc.dart';
 import 'package:linkup/presentation/components/meet_at_8/background_animation.dart';
 import 'package:linkup/presentation/constants/colors.dart';
 import 'package:linkup/presentation/screens/matched_page.dart';
-import 'package:flutter/widgets.dart';
 import 'package:lottie/lottie.dart';
 
 class MeetAt8Page extends StatefulWidget {

@@ -18,7 +18,7 @@ final class ProfileUpdating extends ProfileState {
 }
 
 final class ProfileLoaded extends ProfileState {
-  final UserModel user;
+  final UserEntity user;
 
   ProfileLoaded({required this.user});
 }

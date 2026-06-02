@@ -6,7 +6,7 @@ sealed class PreferencesEvent {}
 final class PreferencesLoadEvent extends PreferencesEvent {}
 
 final class PreferencesUpdateEvent extends PreferencesEvent {
-  final UserPreferenceModel userPreference;
+  final UserPreferenceEntity userPreference;
 
   PreferencesUpdateEvent({required this.userPreference});
 }

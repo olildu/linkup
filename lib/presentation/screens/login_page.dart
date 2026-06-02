@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
+import 'package:linkup/core/di/injection_container.dart';
 import 'package:linkup/data/common_services/validation_utils.dart';
 import 'package:linkup/logic/bloc/auth/auth_bloc.dart';
 import 'package:linkup/logic/bloc/otp/otp_bloc.dart';
@@ -67,7 +68,7 @@ class _LoginPageState extends State<LoginPage> {
                 height: (MediaQuery.of(context).size.height * modalHeight) + MediaQuery.of(context).viewInsets.bottom,
                 child: MultiBlocProvider(
                   providers: [
-                    BlocProvider(create: (context) => OtpBloc()),
+                    BlocProvider(create: (context) => sl<OtpBloc>()),
                     BlocProvider.value(value: authBloc), // Pass existing AuthBloc
                   ],
                   child: ForgotPasswordModalPage(tabHeightChange: onTabChange, filledEmail: _emailController.text),

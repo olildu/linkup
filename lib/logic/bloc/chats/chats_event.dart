@@ -45,12 +45,12 @@ final class SeenEvent extends ChatsEvent {
   SeenEvent(this.message);
 }
 
-final class uploadMediaChatEvent extends ChatsEvent {
+final class UploadMediaChatEvent extends ChatsEvent {
   final File file;
   final MessageType mediaType;
   final String? description;
 
-  uploadMediaChatEvent({required this.file, required this.mediaType, this.description});
+  UploadMediaChatEvent({required this.file, required this.mediaType, this.description});
 }
 
 final class PaginateAddMessagesEvent extends ChatsEvent {

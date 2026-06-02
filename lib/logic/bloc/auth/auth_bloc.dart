@@ -1,26 +1,38 @@
 import 'package:bloc/bloc.dart';
-import 'package:linkup/data/http_services/auth_http_services/auth_http_services.dart';
-import 'package:linkup/data/http_services/user_http_services/user_http_services.dart';
-import 'package:linkup/data/token/token_services.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:linkup/domain/use_cases/auth/delete_account_use_case.dart';
+import 'package:linkup/domain/use_cases/auth/login_use_case.dart';
+import 'package:linkup/domain/use_cases/auth/logout_use_case.dart';
+import 'package:linkup/domain/use_cases/auth/register_use_case.dart';
+import 'package:linkup/domain/use_cases/auth/reset_password_use_case.dart';
 import 'package:meta/meta.dart';
 
 part 'auth_event.dart';
 part 'auth_state.dart';
 
 class AuthBloc extends Bloc<AuthEvent, AuthState> {
-  static const String _appLockKey = 'app_lock_enabled';
+  final LoginUseCase _login;
+  final LogoutUseCase _logout;
+  final RegisterUseCase _register;
+  final ResetPasswordUseCase _resetPassword;
+  final DeleteAccountUseCase _deleteAccount;
 
-  AuthBloc() : super(AuthInitial()) {
+  AuthBloc({
+    required LoginUseCase loginUseCase,
+    required LogoutUseCase logoutUseCase,
+    required RegisterUseCase registerUseCase,
+    required ResetPasswordUseCase resetPasswordUseCase,
+    required DeleteAccountUseCase deleteAccountUseCase,
+  })  : _login = loginUseCase,
+        _logout = logoutUseCase,
+        _register = registerUseCase,
+        _resetPassword = resetPasswordUseCase,
+        _deleteAccount = deleteAccountUseCase,
+        super(AuthInitial()) {
     on<AuthLoginRequested>((event, emit) async {
       emit(AuthLoading());
       try {
-        final res = await AuthHttpServices.login(event.email, event.password);
-        if (res == 200) {
-          emit(AuthAuthenticated());
-        } else {
-          emit(AuthFailure(message: "Invalid email or password"));
-        }
+        await _login(event.email, event.password);
+        emit(AuthAuthenticated());
       } catch (e) {
         emit(AuthFailure(message: e.toString()));
       }
@@ -29,15 +41,8 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     on<AuthRegisterRequested>((event, emit) async {
       emit(AuthLoading());
       try {
-        final success = await AuthHttpServices.completeSignupCreds(
-          emailHash: event.emailHash,
-          password: event.password,
-        );
-        if (success) {
-          emit(AuthAuthenticated());
-        } else {
-          emit(AuthFailure(message: "Registration failed"));
-        }
+        await _register(event.emailHash, event.password);
+        emit(AuthAuthenticated());
       } catch (e) {
         emit(AuthFailure(message: e.toString()));
       }
@@ -46,34 +51,15 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     on<AuthResetPasswordRequested>((event, emit) async {
       emit(AuthLoading());
       try {
-        final success = await AuthHttpServices.resetPassword(
-          emailHash: event.emailHash,
-          password: event.password,
-        );
-        if (success) {
-          emit(AuthAuthenticated());
-        } else {
-          emit(AuthFailure(message: "Reset failed"));
-        }
+        await _resetPassword(event.emailHash, event.password);
+        emit(AuthAuthenticated());
       } catch (e) {
         emit(AuthFailure(message: e.toString()));
       }
     });
   }
 
-  Future<void> logout() async {
-    await TokenServices().clearTokens();
-    await _clearAppLockPreference();
-  }
+  Future<void> logout() => _logout();
 
-  Future<void> deleteAccount() async {
-    await UserHttpServices().deleteAccount();
-    await TokenServices().clearTokens();
-    await _clearAppLockPreference();
-  }
-
-  Future<void> _clearAppLockPreference() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.remove(_appLockKey);
-  }
+  Future<void> deleteAccount() => _deleteAccount();
 }

@@ -5,6 +5,7 @@ import 'dart:developer';
 import 'package:bloc/bloc.dart';
 import 'package:linkup/data/models/matches_connection_model.dart';
 import 'package:linkup/data/websocket_services/lobby_socket_services/lobby_socket_service.dart';
+import 'package:linkup/domain/entities/matches_connection_entity.dart';
 import 'package:meta/meta.dart';
 
 part 'lobby_event.dart';
@@ -25,7 +26,14 @@ class LobbyBloc extends Bloc<LobbyEvent, LobbyState> {
           if (data["type"] == "lobby") {
             if (data["matched"] == true) {
               log("[LobbyBloc] Match found. Dispatching LobbyMatchFoundEvent.");
-              add(LobbyMatchFoundEvent(candidate: MatchesConnectionModel.fromJson(data["candidate"])));
+              final model = MatchesConnectionModel.fromJson(data["candidate"]);
+              add(LobbyMatchFoundEvent(
+                candidate: MatchesConnectionEntity(
+                  id: model.id,
+                  username: model.username,
+                  profilePictureMetaData: model.profilePictureMetaData,
+                ),
+              ));
             } else if (data["matched"] == false) {
               log("[LobbyBloc] No match found. Dispatching LobbyMatchNotFoundEvent.");
               add(LobbyMatchNotFoundEvent());

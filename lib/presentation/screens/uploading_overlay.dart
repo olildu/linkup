@@ -38,8 +38,8 @@ class _CustomOverlayState extends State<CustomOverlay> with SingleTickerProvider
     final txtColor = widget.textColor ?? Theme.of(context).colorScheme.onSurface;
     final iconSize = widget.iconSize ?? Size(48.w, 48.w);
 
-    return WillPopScope(
-      onWillPop: () async => false,
+    return PopScope(
+      canPop: false,
       child: FadeTransition(
         opacity: _fadeIn,
         child: Scaffold(

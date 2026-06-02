@@ -8,7 +8,7 @@ class ConnectLobbyEvent extends LobbyEvent {}
 class DisconnectLobbyEvent extends LobbyEvent {}
 
 class LobbyMatchFoundEvent extends LobbyEvent {
-  final MatchesConnectionModel candidate;
+  final MatchesConnectionEntity candidate;
   LobbyMatchFoundEvent({required this.candidate});
 }
 

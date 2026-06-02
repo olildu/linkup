@@ -27,7 +27,7 @@ void main() {
       final border = textField.decoration!.enabledBorder as OutlineInputBorder;
       
       // Verify Red Error Color
-      expect(border.borderSide.color.red, greaterThan(200));
+      expect((border.borderSide.color.r * 255.0).round(), greaterThan(200));
     });
   });
 }

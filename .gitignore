@@ -34,3 +34,6 @@ doc/api/
 .DS_Store
 ios/Pods/
 ios/Podfile.lock
+
+# FVM Version Cache
+.fvm/

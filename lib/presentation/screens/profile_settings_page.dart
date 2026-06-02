@@ -4,9 +4,10 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
 import 'package:get_it/get_it.dart';
+import 'package:linkup/core/di/injection_container.dart';
 import 'package:linkup/data/models/candidate_info_model.dart';
 import 'package:linkup/data/models/update_metadata_model.dart';
-import 'package:linkup/data/models/user_model.dart';
+import 'package:linkup/domain/entities/user_entity.dart';
 import 'package:linkup/logic/bloc/auth/auth_bloc.dart';
 import 'package:linkup/logic/bloc/profile/own/profile_bloc.dart';
 import 'package:linkup/logic/bloc/signup/signup_bloc.dart';
@@ -32,14 +33,14 @@ class ProfileSettingsPage extends StatefulWidget {
 class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
   bool aboutMeChanged = false;
   late String aboutMeContent;
-  UserModel? cachedUser;
+  UserEntity? cachedUser;
 
   @override
   void initState() {
     super.initState();
   }
 
-  void _openProfilePreview(UserModel user) {
+  void _openProfilePreview(UserEntity user) {
     final int currentUserId = GetIt.I<int>(instanceName: 'user_id');
     showBottomSheetUserProfile(context: context, userId: currentUserId, showChatButton: false);
   }
@@ -49,9 +50,9 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
       context,
       CupertinoPageRoute(
         builder: (context) => BlocProvider(
-          create: (context) => AuthBloc(),
+          create: (context) => sl<AuthBloc>(),
           child: BlocProvider(
-            create: (context) => SignupBloc(isSigningUp: false),
+            create: (context) => SignupBloc(uploadPfpUseCase: sl(), uploadUserMediaUseCase: sl(), isSigningUp: false),
             child: SingupFlowPage(initialIndex: index, initialData: optionsData.toJson()),
           ),
         ),
@@ -105,7 +106,7 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
               Navigator.of(context).push(
                 CupertinoPageRoute(
                   builder: (context) =>
-                      BlocProvider(create: (context) => AuthBloc(), child: const SettingsPage()),
+                      BlocProvider(create: (context) => sl<AuthBloc>(), child: const SettingsPage()),
                 ),
               );
             },
@@ -139,8 +140,8 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
                   if (state is ProfileLoaded) {
                     cachedUser = state.user;
                   }
-                  final UserModel user = cachedUser!;
-                  final candidateInformation = CandidateInfoModel.fromUserModel(user);
+                  final UserEntity user = cachedUser!;
+                  final candidateInformation = CandidateInfoModel.fromUserEntity(user);
                   aboutMeContent = user.about!;
 
                   return SingleChildScrollView(

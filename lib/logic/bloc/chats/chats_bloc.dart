@@ -4,15 +4,18 @@ import 'dart:developer';
 import 'dart:io';
 
 import 'package:bloc/bloc.dart';
-import 'package:isar/isar.dart';
-import 'package:linkup/data/enums/message_type_enum.dart';
-import 'package:linkup/data/http_services/chat_http_services/chat_http_services.dart';
-import 'package:linkup/data/http_services/common_http_services/common_http_services.dart';
-import 'package:linkup/data/isar_classes/message_table.dart';
-import 'package:linkup/data/isar_classes/unsent_messages_table.dart';
+import 'package:linkup/core/enums/message_type_enum.dart';
 import 'package:linkup/data/models/chat_models/media_message_data_model.dart';
 import 'package:linkup/data/models/chat_models/message_model.dart';
 import 'package:linkup/data/websocket_services/chat_socket_services/chat_socket_service.dart';
+import 'package:linkup/domain/entities/media_message_entity.dart';
+import 'package:linkup/domain/entities/message_entity.dart';
+import 'package:linkup/domain/use_cases/chat/cache_message_use_case.dart';
+import 'package:linkup/domain/use_cases/chat/fetch_messages_use_case.dart';
+import 'package:linkup/domain/use_cases/chat/get_cached_messages_use_case.dart';
+import 'package:linkup/domain/use_cases/chat/paginate_messages_use_case.dart';
+import 'package:linkup/domain/use_cases/chat/save_unsent_message_use_case.dart';
+import 'package:linkup/domain/use_cases/chat/upload_chat_media_use_case.dart';
 import 'package:meta/meta.dart';
 import 'package:uuid/uuid.dart';
 
@@ -23,18 +26,39 @@ class ChatsBloc extends Bloc<ChatsEvent, ChatsState> {
   final int currentChatUserId;
   final int currentUserId;
   final int chatRoomId;
-  final Isar isar;
+
+  final FetchMessagesUseCase _fetchMessages;
+  final GetCachedMessagesUseCase _getCachedMessages;
+  final CacheMessageUseCase _cacheMessage;
+  final SaveUnsentMessageUseCase _saveUnsent;
+  final UploadChatMediaUseCase _uploadMedia;
+  final PaginateMessagesUseCase _paginate;
 
   StreamSubscription<String>? _messageSocketSubscription;
   StreamSubscription<bool>? _statusSubscription;
-
   Timer? _typingKillTimer;
   Timer? _typingTimer;
   bool _typingTimerActive = false;
 
-  final String _logTag = "ChatsBloc";
+  final String _logTag = 'ChatsBloc';
 
-  ChatsBloc({required this.currentChatUserId, required this.currentUserId, required this.chatRoomId, required this.isar}) : super(ChatsInitial()) {
+  ChatsBloc({
+    required this.currentChatUserId,
+    required this.currentUserId,
+    required this.chatRoomId,
+    required FetchMessagesUseCase fetchMessagesUseCase,
+    required GetCachedMessagesUseCase getCachedMessagesUseCase,
+    required CacheMessageUseCase cacheMessageUseCase,
+    required SaveUnsentMessageUseCase saveUnsentMessageUseCase,
+    required UploadChatMediaUseCase uploadChatMediaUseCase,
+    required PaginateMessagesUseCase paginateMessagesUseCase,
+  })  : _fetchMessages = fetchMessagesUseCase,
+        _getCachedMessages = getCachedMessagesUseCase,
+        _cacheMessage = cacheMessageUseCase,
+        _saveUnsent = saveUnsentMessageUseCase,
+        _uploadMedia = uploadChatMediaUseCase,
+        _paginate = paginateMessagesUseCase,
+        super(ChatsInitial()) {
     on<StartChatsEvent>(_onStartChats);
     on<SendMessageEvent>(_onSendMessage);
     on<NewMessageEvent>(_onNewMessage);
@@ -43,90 +67,106 @@ class ChatsBloc extends Bloc<ChatsEvent, ChatsState> {
     on<TypingEvent>(_onTypingEvent);
     on<TypingTimeoutEvent>(_onTypingTimeout);
     on<SendTypingEvent>(_onSendTyping);
-    on<uploadMediaChatEvent>(_onuploadMediaChat);
-    on<PaginateAddMessagesEvent>(_onPaginateAddMessagesEvent);
-    on<_ClearSocketDisconnectedFlagEvent>(_onClearSocketDisconnectedFlagEvent);
+    on<UploadMediaChatEvent>(_onUploadMediaChat);
+    on<PaginateAddMessagesEvent>(_onPaginateAddMessages);
+    on<_ClearSocketDisconnectedFlagEvent>(_onClearSocketDisconnectedFlag);
   }
 
-  // Helper Functions
+  // ── Helpers ──────────────────────────────────────────────────────────────
+
+  MessageEntity _messageToEntity(Message m) => MessageEntity(
+        id: m.id,
+        message: m.message,
+        replyID: m.replyID,
+        to: m.to,
+        from_: m.from_,
+        chatRoomId: m.chatRoomId,
+        isSeen: m.isSeen,
+        isSent: m.isSent,
+        timestamp: m.timestamp,
+        media: m.media == null
+            ? null
+            : MediaMessageEntity(
+                fileKey: m.media!.fileKey,
+                mediaType: m.media!.mediaType,
+                blurhashText: m.media!.blurhashText,
+                metadata: m.media!.metadata,
+              ),
+      );
+
+  Message _entityToMessage(MessageEntity e) => Message(
+        id: e.id,
+        message: e.message,
+        replyID: e.replyID,
+        to: e.to,
+        from_: e.from_,
+        chatRoomId: e.chatRoomId,
+        isSeen: e.isSeen,
+        isSent: e.isSent,
+        timestamp: e.timestamp,
+        media: e.media == null
+            ? null
+            : MediaMessageData(
+                fileKey: e.media!.fileKey,
+                mediaType: e.media!.mediaType,
+                blurhashText: e.media!.blurhashText,
+                metadata: e.media!.metadata,
+              ),
+      );
+
   void _startSocketListeners() {
-    // Message Socket Subscription
     _messageSocketSubscription?.cancel();
     _messageSocketSubscription = ChatSocketServices.chatsMessageStream.listen((raw) {
-      log("Raw socket data: $raw", name: _logTag); // Debug log
+      log('Raw socket data: $raw', name: _logTag);
       final data = jsonDecode(raw);
-      if (data["type"] == "chats") {
-        switch (data["chats_type"]) {
-          case "message":
+      if (data['type'] == 'chats') {
+        switch (data['chats_type']) {
+          case 'message':
             add(NewMessageEvent(data));
             break;
-          case "typing":
+          case 'typing':
             add(TypingEvent(data));
             break;
-          case "seen":
+          case 'seen':
             add(SeenEvent(data));
             break;
         }
       }
     });
 
-    // Connection Status Subscription
     _statusSubscription?.cancel();
-    _statusSubscription = ChatSocketServices.chatsConnectionStatusStream.listen((connectionStatus) {
-      log("Connection status : $connectionStatus", name: _logTag);
-      if (connectionStatus == true) {
-        add(StartChatsEvent(showLoading: false));
-      }
+    _statusSubscription = ChatSocketServices.chatsConnectionStatusStream.listen((connected) {
+      log('Connection status: $connected', name: _logTag);
+      if (connected) add(StartChatsEvent(showLoading: false));
     });
   }
 
-  Future<void> _cacheMessageWithLimit(Message message) async {
-    await isar.writeTxn(() async {
-      final messageCount = await isar.messageTables.filter().chatRoomIdEqualTo(chatRoomId).count();
+  // ── Event handlers ────────────────────────────────────────────────────────
 
-      if (messageCount >= 20) {
-        final oldestMessage = await isar.messageTables.filter().chatRoomIdEqualTo(chatRoomId).sortByTimestamp().findFirst();
-
-        if (oldestMessage != null) {
-          await isar.messageTables.delete(oldestMessage.id);
-        }
-      }
-
-      await isar.messageTables.put(MessageTable.fromMessage(message));
-    });
-  }
-
-  // Event Functions
   Future<void> _onStartChats(StartChatsEvent event, Emitter<ChatsState> emit) async {
     if (!event.showLoading) emit(ChatsLoading());
     try {
-      late List<Message> messages = [];
-
       _startSocketListeners();
 
+      List<MessageEntity> entities;
       try {
-        messages = await ChatHttpServices().fetchChatMessages(chatRoomId: chatRoomId);
-      } catch (httpError) {
-        log("No internet reffering to cache", name: _logTag);
-        messages = (await isar.messageTables.filter().chatRoomIdEqualTo(chatRoomId).findAll()).map((e) => e.toMessage()).toList();
+        entities = await _fetchMessages(chatRoomId);
+      } catch (_) {
+        log('No internet, using cache', name: _logTag);
+        entities = await _getCachedMessages(chatRoomId);
       }
 
-      await isar.writeTxn(() async {
-        List first20Messages = (messages.sublist(
-          0,
-          messages.length >= 20 ? 20 : messages.length,
-        ));
-        await isar.messageTables.filter().chatRoomIdEqualTo(chatRoomId).deleteAll();
+      final messages = entities.map(_entityToMessage).toList();
 
-        for (Message message in first20Messages) {
-          await isar.messageTables.put(MessageTable.fromMessage(message));
-        }
-      });
+      final first20 = entities.sublist(0, entities.length >= 20 ? 20 : entities.length);
+      for (final e in first20) {
+        await _cacheMessage(e);
+      }
 
-      log("Chat socket initialized", name: _logTag);
+      log('Chat initialised', name: _logTag);
       emit(ChatsLoaded(messages: messages, isSocketConnected: ChatSocketServices.chatsIsConnected));
-    } catch (e, stackTrace) {
-      log("StartChatsEvent error", error: e, stackTrace: stackTrace, name: _logTag);
+    } catch (e, st) {
+      log('StartChatsEvent error', error: e, stackTrace: st, name: _logTag);
       emit(ChatsError());
     }
   }
@@ -142,21 +182,20 @@ class ChatsBloc extends Bloc<ChatsEvent, ChatsState> {
       }
 
       final isConnected = ChatSocketServices.chatsIsConnected;
+      final outgoing = isConnected ? message : message.copyWith(isSent: false);
+      final updated = List<Message>.from(currentState.messages)..add(outgoing);
 
-      final updatedMessage = isConnected ? message : message.copyWith(isSent: false);
-      final updatedMessages = List<Message>.from(currentState.messages)..add(updatedMessage);
-
-      emit(currentState.copyWith(messages: updatedMessages, otherUserSeenMsg: false));
+      emit(currentState.copyWith(messages: updated, otherUserSeenMsg: false));
 
       if (isConnected) {
         ChatSocketServices.instance().sendMessage(message.toJson());
       } else {
-        add(_ClearSocketDisconnectedFlagEvent(message: updatedMessage));
+        add(_ClearSocketDisconnectedFlagEvent(message: outgoing));
       }
 
-      await _cacheMessageWithLimit(updatedMessage);
-    } catch (e, stackTrace) {
-      log("SendMessageEvent error", error: e, stackTrace: stackTrace, name: _logTag);
+      await _cacheMessage(_messageToEntity(outgoing));
+    } catch (e, st) {
+      log('SendMessageEvent error', error: e, stackTrace: st, name: _logTag);
     }
   }
 
@@ -166,19 +205,16 @@ class ChatsBloc extends Bloc<ChatsEvent, ChatsState> {
       final currentState = state;
 
       if (currentState is ChatsLoaded) {
-        // Log ID check for debugging
-        log("Checking Msg: From ${message.from_} vs ChatUser $currentChatUserId | To ${message.to} vs Me $currentUserId", name: _logTag);
-        
+        log('Msg: from ${message.from_} vs $currentChatUserId | to ${message.to} vs $currentUserId', name: _logTag);
         if (message.to == currentUserId && message.from_ == currentChatUserId) {
-          final updatedMessages = List<Message>.from(currentState.messages)..add(message);
-          log("Message accepted and added to list", name: _logTag);
-          emit(currentState.copyWith(messages: updatedMessages, isTyping: false));
+          final updated = List<Message>.from(currentState.messages)..add(message);
+          emit(currentState.copyWith(messages: updated, isTyping: false));
         }
       } else {
         emit(ChatsLoaded(messages: [message]));
       }
-    } catch (e, stackTrace) {
-      log("NewMessageEvent error", error: e, stackTrace: stackTrace, name: _logTag);
+    } catch (e, st) {
+      log('NewMessageEvent error', error: e, stackTrace: st, name: _logTag);
     }
   }
 
@@ -187,165 +223,143 @@ class ChatsBloc extends Bloc<ChatsEvent, ChatsState> {
       final currentState = state;
       if (currentState is! ChatsLoaded) return;
 
-      final index = currentState.messages.lastIndexWhere((msg) => msg.id == event.messageId);
+      final index = currentState.messages.lastIndexWhere((m) => m.id == event.messageId);
       if (index == -1 || currentState.messages[index].isSeen) return;
 
-      final updatedMessage = currentState.messages[index].copyWith(isSeen: true);
-      final updatedMessages = List<Message>.from(currentState.messages);
-      updatedMessages[index] = updatedMessage;
+      final msgs = List<Message>.from(currentState.messages);
+      msgs[index] = msgs[index].copyWith(isSeen: true);
 
       ChatSocketServices.instance().sendMessage({
-        "type": "chats",
-        "chats_type": "seen",
-        "to": currentChatUserId,
-        "from_": currentUserId,
-        "chat_room_id": chatRoomId,
-        "message_id": event.messageId,
+        'type': 'chats',
+        'chats_type': 'seen',
+        'to': currentChatUserId,
+        'from_': currentUserId,
+        'chat_room_id': chatRoomId,
+        'message_id': event.messageId,
       });
 
-      log("Message marked as seen: ${event.messageId}", name: _logTag);
-      emit(currentState.copyWith(messages: updatedMessages));
-    } catch (e, stackTrace) {
-      log("MarkMessageAsSeenEvent error", error: e, stackTrace: stackTrace, name: _logTag);
+      emit(currentState.copyWith(messages: msgs));
+    } catch (e, st) {
+      log('MarkMessageAsSeenEvent error', error: e, stackTrace: st, name: _logTag);
     }
   }
 
   Future<void> _onSeenEvent(SeenEvent event, Emitter<ChatsState> emit) async {
     try {
+      if (event.message['from_'] != currentChatUserId) return;
       final currentState = state;
-      if (event.message["from_"] != currentChatUserId) return;
-
       if (currentState is ChatsLoaded) {
-        log("Seen event received", name: _logTag);
-        await isar.writeTxn(() async {
-          final message = await isar.messageTables.filter().messageIDEqualTo(event.message["message_id"]).findFirst();
-
-          if (message != null) {
-            message.isSeen = true;
-            await isar.messageTables.put(message);
-          }
-        });
-
         emit(currentState.copyWith(otherUserSeenMsg: true));
       }
-    } catch (e, stackTrace) {
-      log("SeenEvent error", error: e, stackTrace: stackTrace, name: _logTag);
+    } catch (e, st) {
+      log('SeenEvent error', error: e, stackTrace: st, name: _logTag);
     }
   }
 
-  // --- FIXED TYPING EVENT LOGIC ---
   void _onTypingEvent(TypingEvent event, Emitter<ChatsState> emit) {
     try {
-      final currentState = state;
-      // Do NOT try to parse as Message object, use the Map directly
-      final data = event.message; 
-      final fromUserId = data['from_'] as int;
-
+      final fromUserId = event.message['from_'] as int;
       if (fromUserId != currentChatUserId) return;
-
+      final currentState = state;
       if (currentState is ChatsLoaded) {
         emit(currentState.copyWith(isTyping: true, typingUserId: fromUserId));
-        
         _typingKillTimer?.cancel();
         _typingKillTimer = Timer(const Duration(seconds: 3), () {
           add(TypingTimeoutEvent(userId: fromUserId));
         });
-
-        log("Typing event from $fromUserId processed", name: _logTag);
       }
-    } catch (e, stackTrace) {
-      log("TypingEvent error", error: e, stackTrace: stackTrace, name: _logTag);
+    } catch (e, st) {
+      log('TypingEvent error', error: e, stackTrace: st, name: _logTag);
     }
   }
 
   void _onTypingTimeout(TypingTimeoutEvent event, Emitter<ChatsState> emit) {
-    try {
-      final currentState = state;
-      if (currentState is ChatsLoaded && currentState.typingUserId == event.userId) {
-        emit(currentState.copyWith(isTyping: false, typingUserId: null));
-      }
-    } catch (e, stackTrace) {
-      log("TypingTimeoutEvent error", error: e, stackTrace: stackTrace, name: _logTag);
+    final currentState = state;
+    if (currentState is ChatsLoaded && currentState.typingUserId == event.userId) {
+      emit(currentState.copyWith(isTyping: false, typingUserId: null));
     }
   }
 
   void _onSendTyping(SendTypingEvent event, Emitter<ChatsState> emit) {
     try {
-      final currentState = state;
-      if (currentState is ChatsLoaded && !_typingTimerActive) {
+      if (state is ChatsLoaded && !_typingTimerActive) {
         ChatSocketServices.instance().sendMessage({
-          "type": "chats",
-          "chats_type": "typing",
-          "to": event.currentChatUserId,
-          "from_": currentUserId,
-          "chat_room_id": chatRoomId,
+          'type': 'chats',
+          'chats_type': 'typing',
+          'to': event.currentChatUserId,
+          'from_': currentUserId,
+          'chat_room_id': chatRoomId,
         });
-
         _typingTimerActive = true;
         _typingTimer?.cancel();
         _typingTimer = Timer(const Duration(milliseconds: 1500), () {
           _typingTimerActive = false;
         });
-
-        log("Typing event sent", name: _logTag);
       }
-    } catch (e, stackTrace) {
-      log("SendTypingEvent error", error: e, stackTrace: stackTrace, name: _logTag);
+    } catch (e, st) {
+      log('SendTypingEvent error', error: e, stackTrace: st, name: _logTag);
     }
   }
 
-  Future<void> _onuploadMediaChat(uploadMediaChatEvent event, Emitter<ChatsState> emit) async {
+  Future<void> _onUploadMediaChat(UploadMediaChatEvent event, Emitter<ChatsState> emit) async {
     try {
       final currentState = state;
-      if (state is! ChatsLoaded) return;
+      if (currentState is! ChatsLoaded) return;
 
-      final metadata = await CommonHttpServices().uploadMediaChat(file: event.file, mediaType: event.mediaType);
-      log("Media uploaded", name: _logTag);
-      final Message message = Message(
-        id: Uuid().v4(),
-        message: "",
+      final metadata = await _uploadMedia(event.file, event.mediaType);
+      log('Media uploaded', name: _logTag);
+
+      final message = Message(
+        id: const Uuid().v4(),
+        message: '',
         to: currentChatUserId,
         timestamp: DateTime.now(),
         from_: currentUserId,
         chatRoomId: chatRoomId,
-        media: MediaMessageData(fileKey: metadata["file_key"], mediaType: MessageType.image, blurhashText: "", metadata: metadata["metadata"]),
+        media: MediaMessageData(
+          fileKey: metadata['file_key'] as String,
+          mediaType: MessageType.image,
+          blurhashText: '',
+          metadata: metadata['metadata'] as Map<String, dynamic>,
+        ),
       );
 
-      await Future.delayed(Duration(milliseconds: 500));
-
+      await Future.delayed(const Duration(milliseconds: 500));
       add(SendMessageEvent(message: message));
       emit(currentState);
-    } catch (e, stackTrace) {
-      log("uploadMediaChatEvent error", error: e, stackTrace: stackTrace, name: _logTag);
+    } catch (e, st) {
+      log('uploadMediaChatEvent error', error: e, stackTrace: st, name: _logTag);
       emit(ChatsError());
     }
   }
 
-  Future<void> _onPaginateAddMessagesEvent(PaginateAddMessagesEvent event, Emitter<ChatsState> emit) async {
+  Future<void> _onPaginateAddMessages(
+    PaginateAddMessagesEvent event,
+    Emitter<ChatsState> emit,
+  ) async {
     final currentState = state;
     if (currentState is! ChatsLoaded) return;
 
     emit(currentState.copyWith(isFetchingPaginatedMessages: true));
 
-    final olderMessages = await ChatHttpServices().fetchPaginatedChatMessages(
+    final entities = await _paginate(
       chatRoomId: chatRoomId,
       lastMessageId: event.lastMessageID,
       lastMessageTimeStamp: event.lastMessageTimeStamp,
     );
 
-    final currentMessages = currentState.messages;
-    final updatedMessages = [...olderMessages, ...currentMessages];
-
-    emit(currentState.copyWith(messages: updatedMessages, isFetchingPaginatedMessages: true));
+    final older = entities.map(_entityToMessage).toList();
+    emit(currentState.copyWith(
+      messages: [...older, ...currentState.messages],
+      isFetchingPaginatedMessages: false,
+    ));
   }
 
-  Future<void> _onClearSocketDisconnectedFlagEvent(_ClearSocketDisconnectedFlagEvent event, Emitter<ChatsState> emit) async {
-    final currentState = state;
-    if (currentState is! ChatsLoaded) return;
-
-    await isar.writeTxn(() async {
-      await isar.unsentMessagesTables.put(UnsentMessagesTable.fromMessage(event.message));
-    });
+  Future<void> _onClearSocketDisconnectedFlag(
+    _ClearSocketDisconnectedFlagEvent event,
+    Emitter<ChatsState> emit,
+  ) async {
+    await _saveUnsent(_messageToEntity(event.message));
   }
 
   @override

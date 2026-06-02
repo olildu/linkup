@@ -24,7 +24,7 @@ class UploadProgressOverlayBuilder extends StatelessWidget {
       decoration: BoxDecoration(
         color: const Color.fromARGB(255, 0, 0, 0),
         borderRadius: BorderRadius.circular(24.r),
-        border: Border.all(color: Colors.white.withOpacity(0.15)),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.15)),
       ),
 
       child: Column(
@@ -66,7 +66,7 @@ class UploadProgressOverlayBuilder extends StatelessWidget {
                 return LinearProgressIndicator(
                   value: animatedValue,
                   minHeight: 4.h,
-                  backgroundColor: Colors.white.withOpacity(0.08),
+                  backgroundColor: Colors.white.withValues(alpha: 0.08),
                 );
               },
             ),

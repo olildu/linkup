@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
 import 'package:linkup/data/models/candidate_info_model.dart';
-import 'package:linkup/data/models/match_candidate_model.dart';
+import 'package:linkup/domain/entities/match_candidate_entity.dart';
 import 'package:linkup/logic/utils/calculate_age.dart';
 import 'package:linkup/logic/utils/ordinal_helper.dart';
 import 'package:linkup/presentation/components/candidate_detail_scroll/info_builder.dart';
@@ -12,14 +12,14 @@ import 'package:linkup/presentation/screens/full_screen_image_page.dart';
 
 class CandidateDetailBuilder extends StatelessWidget {
   final double availableHeight;
-  final MatchCandidateModel candidate;
+  final MatchCandidateEntity candidate;
 
   const CandidateDetailBuilder({super.key, required this.availableHeight, required this.candidate});
 
   @override
   Widget build(BuildContext context) {
-    final MatchCandidateModel localCandidate = candidate;
-    final candidateInformation = CandidateInfoModel.fromMatchCandidate(localCandidate);
+    final localCandidate = candidate;
+    final candidateInformation = CandidateInfoModel.fromMatchCandidateEntity(localCandidate);
 
     List<Map> imageRest = localCandidate.photos.sublist(1);
 

@@ -53,8 +53,8 @@ void main() {
       final enabledBorder = textFieldWidget.decoration!.enabledBorder as OutlineInputBorder;
       
       // The error color is Color.fromARGB(255, 244, 21, 5) which is red.
-      expect(enabledBorder.borderSide.color.red, greaterThan(200)); 
-      expect(enabledBorder.borderSide.color.green, lessThan(30));
+      expect((enabledBorder.borderSide.color.r * 255.0).round(), greaterThan(200));
+      expect((enabledBorder.borderSide.color.g * 255.0).round(), lessThan(30));
     });
   });
 }

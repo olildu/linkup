@@ -5,7 +5,7 @@ import 'dart:io'; // Required for WebSocket.connect
 
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get_it/get_it.dart';
-import 'package:linkup/data/clients/custom_http_client.dart';
+import 'package:linkup/core/network/custom_http_client.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 import 'package:web_socket_channel/io.dart';
 import 'package:web_socket_channel/status.dart' as status;

@@ -7,11 +7,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
-import 'package:get_it/get_it.dart';
 import 'package:haptic_feedback/haptic_feedback.dart';
-import 'package:isar/isar.dart';
-import 'package:linkup/data/http_services/chat_http_services/chat_http_services.dart';
-import 'package:linkup/data/models/matches_connection_model.dart';
+import 'package:linkup/core/di/injection_container.dart';
+import 'package:linkup/domain/entities/matches_connection_entity.dart';
+import 'package:linkup/domain/use_cases/chat/start_chat_use_case.dart';
 import 'package:linkup/logic/bloc/chats/chats_bloc.dart';
 import 'package:linkup/logic/bloc/matches/matches_bloc.dart';
 import 'package:linkup/logic/bloc/profile/own/profile_bloc.dart';
@@ -22,7 +21,7 @@ import 'package:linkup/presentation/utils/blurhash_util.dart';
 import 'package:octo_image/octo_image.dart';
 
 class MatchedPage extends StatefulWidget {
-  final MatchesConnectionModel matchUser;
+  final MatchesConnectionEntity matchUser;
   final bool meet8State;
 
   const MatchedPage({super.key, required this.matchUser, this.meet8State = false});
@@ -113,15 +112,24 @@ class _MatchedPageState extends State<MatchedPage> {
                     text: "Start Messaging",
                     onPressed: () async {
                       final currentUserId = (context.read<ProfileBloc>().state as ProfileLoaded).user.id;
-                      final response = await ChatHttpServices().startChat(chatUserId: widget.matchUser.id);
+                      final response = await sl<StartChatUseCase>()(widget.matchUser.id);
 
+                      if (!context.mounted) return;
                       if (response["success"] == true) {
                         Navigator.of(context).pushReplacement(
                           CupertinoPageRoute(
                             builder: (ctx) => BlocProvider(
-                              create: (ctx) =>
-                                  ChatsBloc(currentChatUserId: widget.matchUser.id, currentUserId: currentUserId, chatRoomId: response["chat_room_id"], isar: GetIt.instance<Isar>())
-                                    ..add(StartChatsEvent()),
+                              create: (ctx) => ChatsBloc(
+                                currentChatUserId: widget.matchUser.id,
+                                currentUserId: currentUserId,
+                                chatRoomId: response["chat_room_id"],
+                                fetchMessagesUseCase: sl(),
+                                getCachedMessagesUseCase: sl(),
+                                cacheMessageUseCase: sl(),
+                                saveUnsentMessageUseCase: sl(),
+                                uploadChatMediaUseCase: sl(),
+                                paginateMessagesUseCase: sl(),
+                              )..add(StartChatsEvent()),
                               child: ChatPage(
                                 currentChatUserId: widget.matchUser.id,
                                 currentUserId: currentUserId,

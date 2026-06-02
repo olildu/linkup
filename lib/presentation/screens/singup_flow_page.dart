@@ -157,7 +157,7 @@ class _SingupFlowPageState extends State<SingupFlowPage> {
         confirmText: 'Logout',
         cancelText: 'Cancel',
         iconColor: theme.colorScheme.primary,
-        iconBackgroundColor: theme.colorScheme.primary.withOpacity(0.12),
+        iconBackgroundColor: theme.colorScheme.primary.withValues(alpha: 0.12),
         confirmBackgroundColor: theme.colorScheme.primary,
         confirmTextColor: Colors.white,
         verticalButtons: true,

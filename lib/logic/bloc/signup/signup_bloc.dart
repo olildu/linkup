@@ -2,9 +2,10 @@ import 'dart:developer';
 import 'dart:io';
 
 import 'package:bloc/bloc.dart';
+import 'package:linkup/core/enums/message_type_enum.dart';
 import 'package:linkup/data/data_parser/signup_page/data_parser.dart';
-import 'package:linkup/data/enums/message_type_enum.dart';
-import 'package:linkup/data/http_services/common_http_services/common_http_services.dart';
+import 'package:linkup/domain/use_cases/media/upload_pfp_use_case.dart';
+import 'package:linkup/domain/use_cases/media/upload_user_media_use_case.dart';
 import 'package:linkup/presentation/constants/singup_page/flow.dart';
 import 'package:meta/meta.dart';
 
@@ -17,9 +18,16 @@ class SignupBloc extends Bloc<SignupEvent, SignupState> {
   int _progressBarIndex = 0;
 
   final bool isSigningUp;
+  final UploadPfpUseCase _uploadPfp;
+  final UploadUserMediaUseCase _uploadUserMedia;
 
-  SignupBloc({this.isSigningUp = true})
-    : super(SignupInitial(currentIndex: 0, progessBarIndex: 0)) {
+  SignupBloc({
+    required UploadPfpUseCase uploadPfpUseCase,
+    required UploadUserMediaUseCase uploadUserMediaUseCase,
+    this.isSigningUp = true,
+  })  : _uploadPfp = uploadPfpUseCase,
+        _uploadUserMedia = uploadUserMediaUseCase,
+        super(SignupInitial(currentIndex: 0, progessBarIndex: 0)) {
     on<SignupInit>((event, emit) async {
       _signUpPageFlow = event.signUpPageFlow;
       _currentIndex = event.currentIndex;
@@ -153,9 +161,9 @@ class SignupBloc extends Bloc<SignupEvent, SignupState> {
 
       try {
         // Upload first user photo and retrieve user pfp from here
-        final firstImageDataRes = await CommonHttpServices().uploadPfp(
-          file: File(SignUpDataParser.data.photos![0].path),
-          mediaType: MessageType.image,
+        final firstImageDataRes = await _uploadPfp(
+          File(SignUpDataParser.data.photos![0].path),
+          MessageType.image,
         );
 
         if (firstImageDataRes['status'] != 'failed') {
@@ -165,9 +173,9 @@ class SignupBloc extends Bloc<SignupEvent, SignupState> {
               .where((entry) => entry.key != 0)
               .map((entry) async {
                 final photo = entry.value;
-                final result = await CommonHttpServices().uploadMediaUser(
-                  file: File(photo.path),
-                  mediaType: MessageType.image,
+                final result = await _uploadUserMedia(
+                  File(photo.path),
+                  MessageType.image,
                 );
                 return result['metadata'] as Map;
               })

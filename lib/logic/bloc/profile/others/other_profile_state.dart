@@ -8,7 +8,7 @@ final class OtherProfileInitial extends OtherProfileState {}
 final class OtherProfileLoading extends OtherProfileState {}
 
 final class OtherProfileLoaded extends OtherProfileState {
-  final MatchCandidateModel user;
+  final MatchCandidateEntity user;
   OtherProfileLoaded({required this.user});
 }
 

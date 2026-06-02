@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
+import 'package:linkup/core/di/injection_container.dart';
 import 'package:linkup/logic/bloc/auth/auth_bloc.dart';
 import 'package:linkup/logic/bloc/otp/otp_bloc.dart';
 import 'package:linkup/presentation/screens/login_page.dart';
@@ -78,13 +79,13 @@ class _LoginSignupPageState extends State<LoginSignupPage> with SingleTickerProv
 
               Expanded(
                 child: BlocProvider(
-                  create: (context) => AuthBloc(),
+                  create: (context) => sl<AuthBloc>(),
                   child: TabBarView(
                     controller: _tabController,
                     children: [
                       const LoginPage(),
                       BlocProvider(
-                        create: (context) => OtpBloc(),
+                        create: (context) => sl<OtpBloc>(),
                         child: SignUpPage(tabHeightChange: (i) => widget.onTabChange(i)),
                       ),
                     ],

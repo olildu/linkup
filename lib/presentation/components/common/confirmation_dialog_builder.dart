@@ -52,7 +52,7 @@ class ConfirmationDialogBuilder extends StatelessWidget {
       context: context,
       barrierDismissible: true,
       barrierLabel: 'Dismiss',
-      barrierColor: Colors.black.withOpacity(0.25),
+      barrierColor: Colors.black.withValues(alpha: 0.25),
       transitionDuration: const Duration(milliseconds: 180),
       pageBuilder: (context, animation, secondaryAnimation) {
         return Center(child: dialog);
@@ -63,7 +63,7 @@ class ConfirmationDialogBuilder extends StatelessWidget {
             // Fullscreen blur
             BackdropFilter(
               filter: ImageFilter.blur(sigmaX: blurSigma, sigmaY: blurSigma),
-              child: Container(color: Colors.black.withOpacity(0)),
+              child: Container(color: Colors.black.withValues(alpha: 0)),
             ),
             FadeTransition(opacity: animation, child: child),
           ],
@@ -78,8 +78,8 @@ class ConfirmationDialogBuilder extends StatelessWidget {
     final Color effectiveConfirmBackgroundColor = confirmBackgroundColor ?? theme.colorScheme.error;
     final Color effectiveCancelTextColor = cancelTextColor ?? theme.colorScheme.onSurface;
 
-    final dialogBg = Theme.of(context).dialogBackgroundColor;
-    final borderClr = theme.dividerColor.withOpacity(0.5);
+    final dialogBg = Theme.of(context).dialogTheme.backgroundColor ?? Theme.of(context).colorScheme.surface;
+    final borderClr = theme.dividerColor.withValues(alpha: 0.5);
     final TextStyle? primaryButtonTextStyle = theme.textTheme.labelLarge?.copyWith(
       letterSpacing: 1.5,
       fontWeight: FontWeight.w700,

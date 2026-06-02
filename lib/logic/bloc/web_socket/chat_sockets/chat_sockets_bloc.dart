@@ -2,56 +2,85 @@ import 'dart:async';
 import 'dart:developer';
 
 import 'package:bloc/bloc.dart';
-import 'package:isar/isar.dart';
-import 'package:linkup/data/isar_classes/message_table.dart';
-import 'package:linkup/data/isar_classes/unsent_messages_table.dart';
-import 'package:linkup/data/models/chat_models/message_model.dart';
 import 'package:linkup/data/websocket_services/chat_socket_services/chat_socket_service.dart';
+import 'package:linkup/domain/use_cases/chat/delete_unsent_by_message_id_use_case.dart';
+import 'package:linkup/domain/use_cases/chat/get_unsent_messages_use_case.dart';
+import 'package:linkup/domain/entities/message_entity.dart';
+import 'package:linkup/data/models/chat_models/message_model.dart';
+import 'package:linkup/data/models/chat_models/media_message_data_model.dart';
 import 'package:meta/meta.dart';
 
 part 'chat_sockets_event.dart';
 part 'chat_sockets_state.dart';
 
 class ChatSocketsBloc extends Bloc<ChatSocketsEvent, ChatSocketsState> {
-  final Isar isar;
-
   StreamSubscription<bool>? _statusSubscription;
-  final String _logTag = "ChatSocketsBloc";
+  final String _logTag = 'ChatSocketsBloc';
 
-  ChatSocketsBloc({required this.isar}) : super(ChatSocketsInitial()) {
+  final GetUnsentMessagesUseCase _getUnsent;
+  final DeleteUnsentByMessageIdUseCase _deleteUnsentByMsgId;
+
+  ChatSocketsBloc({
+    required GetUnsentMessagesUseCase getUnsentMessagesUseCase,
+    required DeleteUnsentByMessageIdUseCase deleteUnsentByMessageIdUseCase,
+  })  : _getUnsent = getUnsentMessagesUseCase,
+        _deleteUnsentByMsgId = deleteUnsentByMessageIdUseCase,
+        super(ChatSocketsInitial()) {
     on<LoadChatSocketsEvent>((event, emit) async {
       emit(ChatSocketsConnecting());
       try {
         await ChatSocketServices.instance().connect();
 
         _statusSubscription?.cancel();
-        _statusSubscription = ChatSocketServices.chatsConnectionStatusStream.listen((connected) async {
-          log("WebSocket connected: $connected", name: _logTag);
-          if (connected == true) {
-            final allMessages = await isar.unsentMessagesTables.where().findAll();
+        _statusSubscription = ChatSocketServices.chatsConnectionStatusStream.listen(
+          (connected) async {
+            log('WebSocket connected: $connected', name: _logTag);
+            if (!connected) return;
 
-            for (UnsentMessagesTable msg in allMessages) {
+            final unsent = await _getUnsent();
+            for (final entity in unsent) {
               try {
-                Message message = msg.toMessage();
+                final message = _entityToModel(entity);
                 ChatSocketServices.instance().sendMessage(message.toJson());
-                message.copyWith(isSent: true);
-
-                await isar.writeTxn(() async {
-                  await isar.messageTables.put(MessageTable.fromMessage(message));
-                  await isar.unsentMessagesTables.delete(msg.id);
-                });
+                await _deleteUnsentByMsgId(entity.id);
               } catch (e) {
-                log("Failed to resend unsent message: $e", name: _logTag);
+                log('Failed to resend unsent message: $e', name: _logTag);
               }
             }
-          }
-        });
+          },
+        );
 
         emit(ChatSocketsConnected());
       } catch (e) {
-        log("ChatSockets error: $e", name: _logTag);
+        log('ChatSockets error: $e', name: _logTag);
         emit(ChatSocketsError());
       }
     });
+  }
+
+  Message _entityToModel(MessageEntity e) => Message(
+        id: e.id,
+        message: e.message,
+        to: e.to,
+        from_: e.from_,
+        chatRoomId: e.chatRoomId,
+        isSeen: e.isSeen,
+        isSent: e.isSent,
+        timestamp: e.timestamp,
+        replyID: e.replyID,
+        media: e.media == null
+            ? null
+            : MediaMessageData(
+                fileKey: e.media!.fileKey,
+                mediaType: e.media!.mediaType,
+                blurhashText: e.media!.blurhashText,
+                metadata: e.media!.metadata,
+              ),
+      );
+
+  @override
+  Future<void> close() {
+    _statusSubscription?.cancel();
+    return super.close();
   }
 }

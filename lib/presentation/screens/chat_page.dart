@@ -326,7 +326,7 @@ class _ChatPageState extends State<ChatPage> {
 
   void _handleMedia(File imageFile) {
     context.read<ChatsBloc>().add(
-      uploadMediaChatEvent(mediaType: MessageType.image, file: imageFile),
+      UploadMediaChatEvent(mediaType: MessageType.image, file: imageFile),
     );
   }
 

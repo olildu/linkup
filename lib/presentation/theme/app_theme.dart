@@ -24,7 +24,7 @@ class AppTheme {
     error: AppColors.error,
     onError: AppColors.whiteTextColor,
     outline: Color.fromARGB(255, 230, 230, 230),
-  ).copyWith(background: AppColors.lightBackground);
+  );
 
   static ColorScheme _darkColorScheme() => const ColorScheme.dark(
     primary: AppColors.primary,
@@ -36,7 +36,7 @@ class AppTheme {
     error: AppColors.error,
     onError: AppColors.whiteTextColor,
     outline: Color.fromARGB(255, 23, 23, 23),
-  ).copyWith(background: AppColors.darkBackground);
+  );
 
   static ThemeData lightTheme = _buildTheme(Brightness.light);
 
@@ -49,7 +49,7 @@ class AppTheme {
     return ThemeData(
       brightness: brightness,
       colorScheme: colorScheme,
-      scaffoldBackgroundColor: colorScheme.background,
+      scaffoldBackgroundColor: colorScheme.surface,
       textTheme: textTheme,
       cardColor: colorScheme.surface,
       appBarTheme: AppBarTheme(foregroundColor: colorScheme.onSurface, backgroundColor: colorScheme.surface, elevation: 0),

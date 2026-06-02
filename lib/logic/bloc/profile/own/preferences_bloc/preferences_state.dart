@@ -8,7 +8,7 @@ final class PreferencesInitial extends PreferencesState {}
 final class PreferencesLoading extends PreferencesState {}
 
 final class PreferencesLoaded extends PreferencesState {
-  final UserPreferenceModel userPreference;
+  final UserPreferenceEntity userPreference;
   PreferencesLoaded({required this.userPreference});
 }
 

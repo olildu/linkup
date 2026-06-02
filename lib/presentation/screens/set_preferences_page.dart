@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
-import 'package:linkup/data/models/user_preference_model.dart';
+import 'package:linkup/domain/entities/user_preference_entity.dart';
 import 'package:linkup/logic/bloc/profile/own/preferences_bloc/preferences_bloc.dart';
 import 'package:linkup/presentation/components/common/title_sub_builder.dart';
 import 'package:linkup/presentation/components/signup_page/option_builder.dart';
@@ -20,7 +20,7 @@ class _SetPreferencesPageState extends State<SetPreferencesPage> {
   String? _toNullableString(String? val) => (val == "Don't mind") ? null : val;
 
   void _updatePreferences({
-    required UserPreferenceModel existingPreference,
+    required UserPreferenceEntity existingPreference,
     String? interestedGender,
     int? height,
     int? weight,
@@ -34,7 +34,7 @@ class _SetPreferencesPageState extends State<SetPreferencesPage> {
     log('_toNullableString(religion): ${_toNullableString(religion)}');
     log('existingPreference.religion: ${existingPreference.religion}');
 
-    final updatedPreference = UserPreferenceModel(
+    final updatedPreference = UserPreferenceEntity(
       interestedGender: _toNullableString(interestedGender ?? existingPreference.interestedGender),
       height: height ?? existingPreference.height,
       weight: weight ?? existingPreference.weight,
@@ -64,7 +64,7 @@ class _SetPreferencesPageState extends State<SetPreferencesPage> {
             body: const Center(child: CircularProgressIndicator()),
           );
         } else if (state is PreferencesLoaded) {
-          UserPreferenceModel userPreference = state.userPreference;
+          UserPreferenceEntity userPreference = state.userPreference;
           return Scaffold(
             appBar: AppBar(
               scrolledUnderElevation: 0,
@@ -93,7 +93,7 @@ class _SetPreferencesPageState extends State<SetPreferencesPage> {
                         currentOption: userPreference.interestedGender ?? "Don't mind",
                         onChanged: (obj) {
                           _updatePreferences(existingPreference: userPreference, interestedGender: obj);
-                          print(obj);
+                          log('interestedGender: $obj');
                         },
                       ),
 
@@ -122,7 +122,7 @@ class _SetPreferencesPageState extends State<SetPreferencesPage> {
                           }
 
                           _updatePreferences(existingPreference: userPreference, smokingStatus: smokingStatus);
-                          print(smokingStatus);
+                          log('smokingStatus: $smokingStatus');
                         },
                       ),
 
@@ -151,7 +151,7 @@ class _SetPreferencesPageState extends State<SetPreferencesPage> {
                           }
 
                           _updatePreferences(existingPreference: userPreference, drinkingStatus: drinkingStatus);
-                          print(drinkingStatus);
+                          log('drinkingStatus: $drinkingStatus');
                         },
                       ),
 
@@ -167,7 +167,7 @@ class _SetPreferencesPageState extends State<SetPreferencesPage> {
                         textSize: 14.sp,
                         onChanged: (obj) {
                           _updatePreferences(existingPreference: userPreference, currentlyStaying: obj);
-                          print(obj);
+                          log('currentlyStaying: $obj');
                         },
                       ),
 
@@ -184,7 +184,7 @@ class _SetPreferencesPageState extends State<SetPreferencesPage> {
                         onChanged: (obj) {
                           _updatePreferences(existingPreference: userPreference, religion: obj);
 
-                          print(obj);
+                          log('religion: $obj');
                         },
                       ),
 
@@ -200,7 +200,7 @@ class _SetPreferencesPageState extends State<SetPreferencesPage> {
                         currentOption: userPreference.lookingFor ?? "Don't mind",
                         onChanged: (obj) {
                           _updatePreferences(existingPreference: userPreference, lookingFor: obj);
-                          print(obj);
+                          log('lookingFor: $obj');
                         },
                       ),
                     ],

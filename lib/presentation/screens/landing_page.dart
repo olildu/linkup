@@ -67,6 +67,7 @@ class _LandingPageState extends State<LandingPage> {
     ).then((value) async {
       if (value is bool && value) {
         await Future.delayed(const Duration(milliseconds: 500));
+        if (!mounted) return;
         Navigator.of(context).push(CupertinoPageRoute(builder: (context) => const LoadingScreenPostLogin()));
       }
     });

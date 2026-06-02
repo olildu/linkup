@@ -5,6 +5,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
 import 'package:linkup/logic/bloc/lobby/lobby_bloc.dart';
 import 'package:linkup/logic/bloc/matches/matches_bloc.dart';
+import 'package:linkup/core/di/injection_container.dart';
 import 'package:linkup/logic/bloc/profile/own/preferences_bloc/preferences_bloc.dart';
 import 'package:linkup/presentation/constants/colors.dart';
 import 'package:linkup/presentation/screens/around_you_page.dart';
@@ -49,7 +50,7 @@ class _MatchMakingPageState extends State<MatchMakingPage> with SingleTickerProv
                           onPressed: () {
                             Navigator.of(context).push(
                               CupertinoPageRoute(
-                                builder: (context) => BlocProvider(create: (context) => PreferencesBloc(), child: SetPreferencesPage()),
+                                builder: (context) => BlocProvider(create: (context) => sl<PreferencesBloc>(), child: SetPreferencesPage()),
                               ),
                             );
                           },

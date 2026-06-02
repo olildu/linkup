@@ -19,7 +19,7 @@ void main() {
       expect(theme.brightness, expectedBrightness);
       expect(theme.scaffoldBackgroundColor, expectedBackground);
       expect(theme.appBarTheme.foregroundColor, AppColors.lightText);
-      expect(theme.colorScheme.background, expectedBackground); // Check ColorScheme coverage
+      expect(theme.colorScheme.surface, expectedBackground); // Check ColorScheme coverage
       expect(theme.colorScheme.onPrimary, AppColors.whiteTextColor);
       expect(theme.colorScheme.error, AppColors.error);
       expect(theme.colorScheme.primary, AppColors.primary);
@@ -39,7 +39,7 @@ void main() {
       expect(theme.brightness, expectedBrightness);
       expect(theme.scaffoldBackgroundColor, expectedBackground);
       expect(theme.appBarTheme.foregroundColor, AppColors.darkText); // Check AppBarTheme coverage
-      expect(theme.colorScheme.background, expectedBackground); // Check ColorScheme coverage
+      expect(theme.colorScheme.surface, expectedBackground); // Check ColorScheme coverage
       expect(theme.colorScheme.error, AppColors.error);
     });
   });

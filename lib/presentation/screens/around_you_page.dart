@@ -3,7 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_card_swiper/flutter_card_swiper.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
-import 'package:linkup/data/models/match_candidate_model.dart';
+import 'package:linkup/domain/entities/match_candidate_entity.dart';
 import 'package:linkup/logic/bloc/matches/matches_bloc.dart';
 import 'package:linkup/presentation/components/candidate_detail_scroll/candidate_detail_builder.dart';
 import 'package:linkup/presentation/constants/colors.dart';
@@ -26,7 +26,7 @@ class _AroundYouPageState extends State<AroundYouPage> {
       child: BlocBuilder<MatchesBloc, MatchesState>(
         builder: (context, state) {
           if (state is MatchesLoaded) {
-            List<MatchCandidateModel> candidates = state.matches;
+            List<MatchCandidateEntity> candidates = state.matches;
             // If there are no candidates, show the empty message instead of
             // building the CardSwiper (the CardSwiper asserts when cardsCount
             // is 0 or when numberOfCardsDisplayed > cardsCount).

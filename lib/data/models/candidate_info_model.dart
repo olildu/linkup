@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:linkup/data/models/match_candidate_model.dart';
 import 'package:linkup/data/models/user_model.dart';
+import 'package:linkup/domain/entities/match_candidate_entity.dart';
+import 'package:linkup/domain/entities/user_entity.dart';
 
 class CandidateInfoModel {
   final int? id;
@@ -68,6 +70,35 @@ class CandidateInfoModel {
       gender: user.gender,
       currentlyStaying: user.currentlyStaying,
       hometown: user.hometown,
+    );
+  }
+
+  factory CandidateInfoModel.fromUserEntity(UserEntity user) {
+    return CandidateInfoModel(
+      height: user.height,
+      weight: user.weight,
+      religion: user.religion,
+      smokingInfo: user.smokingInfo,
+      drinkingInfo: user.drinkingInfo,
+      lookingFor: user.lookingFor,
+      gender: user.gender,
+      currentlyStaying: user.currentlyStaying,
+      hometown: user.hometown,
+    );
+  }
+
+  factory CandidateInfoModel.fromMatchCandidateEntity(MatchCandidateEntity candidate) {
+    return CandidateInfoModel(
+      id: candidate.id,
+      height: candidate.height,
+      weight: candidate.weight,
+      religion: candidate.religion,
+      smokingInfo: candidate.smokingInfo,
+      drinkingInfo: candidate.drinkingInfo,
+      lookingFor: candidate.lookingFor,
+      gender: candidate.gender,
+      currentlyStaying: candidate.currentlyStaying,
+      hometown: candidate.hometown,
     );
   }
 

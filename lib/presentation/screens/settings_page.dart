@@ -65,15 +65,16 @@ class SettingsPage extends StatelessWidget {
         confirmText: 'Delete',
         cancelText: 'Cancel',
         iconColor: Theme.of(context).colorScheme.error,
-        iconBackgroundColor: Theme.of(context).colorScheme.error.withOpacity(0.12),
+        iconBackgroundColor: Theme.of(context).colorScheme.error.withValues(alpha: 0.12),
         confirmBackgroundColor: Theme.of(context).colorScheme.error,
         confirmTextColor: Colors.white,
         verticalButtons: true,
         primaryOnTop: true,
         onConfirm: () {
+          final authBloc = context.read<AuthBloc>();
           Future.microtask(() async {
             try {
-              await context.read<AuthBloc>().deleteAccount();
+              await authBloc.deleteAccount();
               if (context.mounted) {
                 Navigator.of(context).pushAndRemoveUntil(
                   CupertinoPageRoute(builder: (context) => const LoadingScreenPostLogin()),
@@ -102,7 +103,7 @@ class SettingsPage extends StatelessWidget {
         message: 'Set up a device lock or biometrics first to enable App Lock.',
         cancelText: 'Okay',
         iconColor: Theme.of(context).colorScheme.primary,
-        iconBackgroundColor: Theme.of(context).colorScheme.primary.withOpacity(0.12),
+        iconBackgroundColor: Theme.of(context).colorScheme.primary.withValues(alpha: 0.12),
         confirmBackgroundColor: Theme.of(context).colorScheme.primary,
         confirmTextColor: Colors.white,
         cancelTextColor: Theme.of(context).colorScheme.onSurface,

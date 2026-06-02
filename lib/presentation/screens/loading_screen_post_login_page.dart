@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:linkup/core/di/injection_container.dart';
 import 'package:linkup/logic/bloc/auth/auth_bloc.dart';
+import 'package:linkup/core/network/token_service.dart';
 import 'package:linkup/data/services/biometric_lock_service.dart';
-import 'package:linkup/data/token/token_services.dart';
 import 'package:linkup/logic/bloc/post_login/post_login_bloc.dart';
 import 'package:linkup/logic/bloc/signup/signup_bloc.dart';
 import 'package:linkup/presentation/screens/landing_page.dart';
@@ -27,7 +28,7 @@ class _LoadingScreenPostLoginState extends State<LoadingScreenPostLogin>
   late Animation<double> _animation;
   late PostLoginBloc _postLoginBloc;
 
-  final TokenServices _tokenServices = TokenServices();
+  final TokenService _tokenServices = sl<TokenService>();
   final BiometricLockService _biometricLockService = BiometricLockService();
 
   // Tracks whether we should navigate after the animation completes
@@ -119,9 +120,9 @@ class _LoadingScreenPostLoginState extends State<LoadingScreenPostLogin>
         navigateWithFade(
           context,
           BlocProvider(
-            create: (context) => AuthBloc(),
+            create: (context) => sl<AuthBloc>(),
             child: BlocProvider(
-              create: (context) => SignupBloc(),
+              create: (context) => SignupBloc(uploadPfpUseCase: sl(), uploadUserMediaUseCase: sl()),
                child: const SingupFlowPage(),
             ),
           ),

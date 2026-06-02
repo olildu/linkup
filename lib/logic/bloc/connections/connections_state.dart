@@ -10,12 +10,18 @@ final class ConnectionsLoading extends ConnectionsState {}
 final class ConnectionsError extends ConnectionsState {}
 
 final class ConnectionsLoaded extends ConnectionsState {
-  final List<ChatsConnectionModel> chats;
-  final List<MatchesConnectionModel> matches;
+  final List<ChatConnectionEntity> chats;
+  final List<MatchesConnectionEntity> matches;
 
   ConnectionsLoaded({required this.chats, required this.matches});
 
-  ConnectionsLoaded copyWith({List<ChatsConnectionModel>? chats, List<MatchesConnectionModel>? matches}) {
-    return ConnectionsLoaded(chats: chats ?? this.chats, matches: matches ?? this.matches);
+  ConnectionsLoaded copyWith({
+    List<ChatConnectionEntity>? chats,
+    List<MatchesConnectionEntity>? matches,
+  }) {
+    return ConnectionsLoaded(
+      chats: chats ?? this.chats,
+      matches: matches ?? this.matches,
+    );
   }
 }

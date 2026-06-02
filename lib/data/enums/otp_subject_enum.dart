@@ -1,15 +1,1 @@
-enum EmailOTPSubject {
-  emailVerification,
-  forgotPassword,
-}
-
-extension EmailOTPSubjectX on EmailOTPSubject {
-  String get value {
-    switch (this) {
-      case EmailOTPSubject.emailVerification:
-        return 'email_verification';
-      case EmailOTPSubject.forgotPassword:
-        return 'forgot_password';
-    }
-  }
-}
+export 'package:linkup/core/enums/otp_subject_enum.dart';

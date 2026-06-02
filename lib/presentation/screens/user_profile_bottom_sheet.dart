@@ -3,10 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
-import 'package:get_it/get_it.dart';
-import 'package:isar/isar.dart';
-import 'package:linkup/data/http_services/chat_http_services/chat_http_services.dart';
-import 'package:linkup/data/models/match_candidate_model.dart';
+import 'package:linkup/core/di/injection_container.dart';
+import 'package:linkup/domain/entities/match_candidate_entity.dart';
+import 'package:linkup/domain/use_cases/chat/start_chat_use_case.dart';
 import 'package:linkup/logic/bloc/chats/chats_bloc.dart';
 import 'package:linkup/logic/bloc/profile/others/other_profile_bloc.dart';
 import 'package:linkup/logic/bloc/profile/own/profile_bloc.dart';
@@ -25,7 +24,7 @@ void showBottomSheetUserProfile({required BuildContext context, required int use
       return ClipRRect(
         borderRadius: const BorderRadius.only(topLeft: Radius.circular(20.0), topRight: Radius.circular(20.0)),
         child: BlocProvider(
-          create: (_) => OtherProfileBloc()..add(LoadOtherProfileEvent(userId)),
+          create: (_) => sl<OtherProfileBloc>()..add(LoadOtherProfileEvent(userId)),
           child: BlocBuilder<OtherProfileBloc, OtherProfileState>(
             builder: (context, state) {
               if (state is OtherProfileLoading) {
@@ -55,7 +54,7 @@ void showBottomSheetUserProfile({required BuildContext context, required int use
 }
 
 class OtherProfileLoadedView extends StatelessWidget {
-  final MatchCandidateModel candidate;
+  final MatchCandidateEntity candidate;
   final bool showChatButton;
   final BuildContext parentContext;
   const OtherProfileLoadedView({super.key, required this.candidate, required this.parentContext, this.showChatButton = true});
@@ -77,7 +76,6 @@ class OtherProfileLoadedView extends StatelessWidget {
       padding: EdgeInsets.symmetric(vertical: 10.h, horizontal: 10.w),
       child: ClipRRect(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20.r)),
-
         child: Column(
           children: [
             Expanded(
@@ -92,7 +90,7 @@ class OtherProfileLoadedView extends StatelessWidget {
                 onPressed: () async {
                   final navigator = Navigator.of(parentContext, rootNavigator: true);
                   final currentUserId = (context.read<ProfileBloc>().state as ProfileLoaded).user.id;
-                  final response = await ChatHttpServices().startChat(chatUserId: candidate.id);
+                  final response = await sl<StartChatUseCase>()(candidate.id);
 
                   if (response["success"] == true) {
                     navigator.pop();
@@ -101,8 +99,17 @@ class OtherProfileLoadedView extends StatelessWidget {
                     navigator.push(
                       CupertinoPageRoute(
                         builder: (ctx) => BlocProvider(
-                          create: (ctx) =>
-                              ChatsBloc(currentChatUserId: candidate.id, currentUserId: currentUserId, chatRoomId: response["chat_room_id"], isar: GetIt.instance<Isar>())..add(StartChatsEvent()),
+                          create: (ctx) => ChatsBloc(
+                            currentChatUserId: candidate.id,
+                            currentUserId: currentUserId,
+                            chatRoomId: response["chat_room_id"],
+                            fetchMessagesUseCase: sl(),
+                            getCachedMessagesUseCase: sl(),
+                            cacheMessageUseCase: sl(),
+                            saveUnsentMessageUseCase: sl(),
+                            uploadChatMediaUseCase: sl(),
+                            paginateMessagesUseCase: sl(),
+                          )..add(StartChatsEvent()),
                           child: ChatPage(
                             currentChatUserId: candidate.id,
                             currentUserId: currentUserId,

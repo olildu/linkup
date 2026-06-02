@@ -1,7 +1,8 @@
 import 'dart:developer';
 import 'package:flutter/material.dart';
-import 'package:linkup/data/http_services/auth_http_services/auth_http_services.dart';
+import 'package:linkup/core/di/injection_container.dart';
 import 'package:linkup/data/models/update_metadata_model.dart';
+import 'package:linkup/domain/use_cases/auth/complete_profile_use_case.dart';
 import 'package:linkup/logic/bloc/profile/own/profile_bloc.dart';
 import 'package:linkup/logic/bloc/signup/signup_bloc.dart';
 
@@ -20,8 +21,8 @@ class SignUpDataParser {
     _signupBloc = context.read<SignupBloc>();
 
     if (state is ProfileLoaded) {
-      _data = UpdateMetadataModel.fromJson(state.user.toJson());
-      _latestData = UpdateMetadataModel.fromJson(state.user.toJson());
+      _data = UpdateMetadataModel.fromUserEntity(state.user);
+      _latestData = UpdateMetadataModel.fromUserEntity(state.user);
       log("SignUpDataParser initialized", name: debugTag);
     } else {
       throw Exception("ProfileBloc or SignupBloc is not loaded");
@@ -74,7 +75,7 @@ class SignUpDataParser {
 
   static Future<void> submitRegistration() async {
     log(_data.toJson().toString());
-    await AuthHttpServices.completeProfile(data: _data);
+    await sl<CompleteProfileUseCase>()(_data);
   }
 
   static void updateData(BuildContext context, {bool fromProfilePage = false}) {

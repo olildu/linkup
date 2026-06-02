@@ -12,17 +12,14 @@ final class MatchesError extends MatchesState {}
 final class MatchesEmpty extends MatchesState {}
 
 final class MatchesLoaded extends MatchesState {
-  final List<MatchCandidateModel> matches;
-  final MatchesConnectionModel? matchUser;
+  final List<MatchCandidateEntity> matches;
+  final MatchesConnectionEntity? matchUser;
 
-  MatchesLoaded({
-    required this.matches,
-    this.matchUser,
-  });
+  MatchesLoaded({required this.matches, this.matchUser});
 
   MatchesLoaded copyWith({
-    List<MatchCandidateModel>? matches,
-    MatchesConnectionModel? matchUser,
+    List<MatchCandidateEntity>? matches,
+    MatchesConnectionEntity? matchUser,
     bool clearMatchUser = false,
   }) {
     return MatchesLoaded(
@@ -31,4 +28,3 @@ final class MatchesLoaded extends MatchesState {
     );
   }
 }
-

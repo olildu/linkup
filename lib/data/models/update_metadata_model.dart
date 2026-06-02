@@ -1,3 +1,5 @@
+import 'package:linkup/domain/entities/user_entity.dart';
+
 class UpdateMetadataModel {
   // Core
   final String? universityMajor;
@@ -47,6 +49,28 @@ class UpdateMetadataModel {
     this.drinkingInfo,
     this.lookingFor,
   });
+
+  factory UpdateMetadataModel.fromUserEntity(UserEntity user) {
+    return UpdateMetadataModel(
+      universityMajor: user.universityMajor,
+      universityYear: user.universityYear,
+      username: user.username,
+      dob: user.dob,
+      gender: user.gender,
+      interestedGender: user.interestedGender,
+      profilePicture: user.profilePicture,
+      photos: user.photos,
+      about: user.about,
+      currentlyStaying: user.currentlyStaying,
+      hometown: user.hometown,
+      height: user.height,
+      weight: user.weight,
+      religion: user.religion,
+      smokingInfo: user.smokingInfo,
+      drinkingInfo: user.drinkingInfo,
+      lookingFor: user.lookingFor,
+    );
+  }
 
   factory UpdateMetadataModel.fromJson(Map<String, dynamic> json) {
     return UpdateMetadataModel(

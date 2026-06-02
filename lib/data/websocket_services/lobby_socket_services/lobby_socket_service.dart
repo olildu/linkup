@@ -7,7 +7,7 @@ import 'package:web_socket_channel/web_socket_channel.dart';
 import 'package:web_socket_channel/io.dart';
 import 'package:web_socket_channel/status.dart' as status;
 
-import '../../../presentation/constants/global_constants.dart';
+import 'package:linkup/core/constants/app_constants.dart';
 
 class LobbySocketService {
   static final FlutterSecureStorage _secureStorage = FlutterSecureStorage();

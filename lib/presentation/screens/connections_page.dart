@@ -7,10 +7,10 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
 import 'package:get_it/get_it.dart';
-import 'package:isar/isar.dart';
-import 'package:linkup/data/enums/message_type_enum.dart';
-import 'package:linkup/data/models/chats_connection_model.dart';
-import 'package:linkup/data/models/matches_connection_model.dart';
+import 'package:linkup/core/di/injection_container.dart';
+import 'package:linkup/core/enums/message_type_enum.dart';
+import 'package:linkup/domain/entities/chat_connection_entity.dart';
+import 'package:linkup/domain/entities/matches_connection_entity.dart';
 import 'package:linkup/logic/bloc/chats/chats_bloc.dart';
 import 'package:linkup/logic/bloc/connections/connections_bloc.dart';
 import 'package:linkup/presentation/constants/colors.dart';
@@ -80,6 +80,7 @@ class _YourPeoplePageState extends State<ConnectionsPage> {
                         child: ListView.builder(
                           scrollDirection: Axis.horizontal,
                           itemCount: state.matches.length,
+                          // ignore: deprecated_member_use
                           cacheExtent: 20,
                           itemBuilder: (context, index) {
                             return _buildAvatar(candidate: state.matches[index]);
@@ -136,7 +137,7 @@ class _YourPeoplePageState extends State<ConnectionsPage> {
     );
   }
 
-  Widget _buildAvatar({required MatchesConnectionModel candidate, double diameter = 70.0}) {
+  Widget _buildAvatar({required MatchesConnectionEntity candidate, double diameter = 70.0}) {
     return GestureDetector(
       onTap: () {
         log('Tapped on ${candidate.username}\'s avatar');
@@ -158,7 +159,7 @@ class _YourPeoplePageState extends State<ConnectionsPage> {
     );
   }
 
-  Widget _buildChatTile({required ChatsConnectionModel candidate}) {
+  Widget _buildChatTile({required ChatConnectionEntity candidate}) {
     return Padding(
       padding: EdgeInsets.only(bottom: 5.h),
       child: ListTile(
@@ -172,7 +173,12 @@ class _YourPeoplePageState extends State<ConnectionsPage> {
                   currentChatUserId: candidate.id,
                   currentUserId: GetIt.instance<int>(instanceName: 'user_id'),
                   chatRoomId: candidate.chatRoomId,
-                  isar: GetIt.instance<Isar>(),
+                  fetchMessagesUseCase: sl(),
+                  getCachedMessagesUseCase: sl(),
+                  cacheMessageUseCase: sl(),
+                  saveUnsentMessageUseCase: sl(),
+                  uploadChatMediaUseCase: sl(),
+                  paginateMessagesUseCase: sl(),
                 )..add(StartChatsEvent()),
                 child: ChatPage(
                   currentChatUserId: candidate.id,
@@ -225,7 +231,7 @@ class _YourPeoplePageState extends State<ConnectionsPage> {
     );
   }
 
-  Widget _buildMessageSubtitle(ChatsConnectionModel candidate) {
+  Widget _buildMessageSubtitle(ChatConnectionEntity candidate) {
     if (candidate.messageType == MessageType.image) {
       return Row(
         children: [

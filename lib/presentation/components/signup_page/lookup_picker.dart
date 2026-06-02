@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
-import 'package:linkup/data/http_services/city_lookup_http_services/city_lookup_http_services.dart';
+import 'package:get_it/get_it.dart';
+import 'package:linkup/domain/use_cases/city/search_cities_use_case.dart';
 import 'package:linkup/presentation/components/signup_page/option_builder.dart';
 import 'package:linkup/presentation/components/signup_page/text_input_builder_component.dart';
 import 'package:linkup/presentation/utils/debouncer_class.dart';
@@ -48,7 +49,7 @@ class _LookupPickerState extends State<LookupPicker> {
         try {
           // If this is the city lookup context, attempt remote search.
           if (widget.label.toLowerCase().contains('city')) {
-            final cities = await CityLookupHttpServices.searchCities(val);
+            final cities = await GetIt.instance<SearchCitiesUseCase>()(val);
             if (mounted) setState(() => _searchResults = cities);
             return;
           }

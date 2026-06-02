@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'package:linkup/data/websocket_services/base_socket_service.dart';
-import '../../../presentation/constants/global_constants.dart';
+import 'package:linkup/core/constants/app_constants.dart';
 
 class ChatSocketServices extends BaseSocketService {
   ChatSocketServices() : super(uri: Uri.parse("$WS_BASE_URL/chat"), logTag: 'ChatSocketServices');

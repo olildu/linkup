@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:linkup/presentation/constants/colors.dart';
 import 'package:linkup/presentation/theme/app_typography.dart';
 import 'package:linkup/presentation/theme/app_radius.dart';
+import 'package:linkup/presentation/theme/app_spacing.dart';
 
 class AppTheme {
   static TextTheme _buildTextTheme(Brightness brightness) {
@@ -14,28 +15,34 @@ class AppTheme {
     return AppTypography.textThemeFromBase(base);
   }
 
-  static ColorScheme _lightColorScheme() => const ColorScheme.light(
-    primary: AppColors.primary,
-    onPrimary: AppColors.whiteTextColor,
-    secondary: AppColors.primary,
-    onSecondary: AppColors.whiteTextColor,
-    surface: AppColors.lightBackground,
-    onSurface: AppColors.lightText,
-    error: AppColors.error,
-    onError: AppColors.whiteTextColor,
-    outline: Color.fromARGB(255, 230, 230, 230),
+  static ColorScheme get _lightColorScheme => const ColorScheme.light(
+    primary:                 AppColors.primary,
+    onPrimary:               AppColors.whiteText,
+    secondary:               AppColors.primary,
+    onSecondary:             AppColors.whiteText,
+    error:                   AppColors.error,
+    errorContainer:          AppColors.errorContainer,
+    onError:                 AppColors.whiteText,
+    surface:                 Color(0xFFFAFAFA),
+    onSurface:               Color(0xFF111111),
+    surfaceContainerLow:     Color(0xFFF5F5F5),
+    surfaceContainerHighest: Color(0xFFD7D7D7),
+    outline:                 Color(0xFFE6E6E6),
   );
 
-  static ColorScheme _darkColorScheme() => const ColorScheme.dark(
-    primary: AppColors.primary,
-    onPrimary: AppColors.whiteTextColor,
-    secondary: AppColors.primary,
-    onSecondary: AppColors.whiteTextColor,
-    surface: AppColors.darkBackground,
-    onSurface: AppColors.darkText,
-    error: AppColors.error,
-    onError: AppColors.whiteTextColor,
-    outline: Color.fromARGB(255, 23, 23, 23),
+  static ColorScheme get _darkColorScheme => const ColorScheme.dark(
+    primary:                 AppColors.primary,
+    onPrimary:               AppColors.whiteText,
+    secondary:               AppColors.primary,
+    onSecondary:             AppColors.whiteText,
+    error:                   AppColors.error,
+    errorContainer:          AppColors.errorContainer,
+    onError:                 AppColors.whiteText,
+    surface:                 Color(0xFF111111),
+    onSurface:               Color(0xFFF5F5F5),
+    surfaceContainerLow:     Color(0xFF1F1D1D),
+    surfaceContainerHighest: Color(0xFF2A2A2A),
+    outline:                 Color(0xFF171717),
   );
 
   static ThemeData lightTheme = _buildTheme(Brightness.light);
@@ -43,20 +50,28 @@ class AppTheme {
   static ThemeData darkTheme = _buildTheme(Brightness.dark);
 
   static ThemeData _buildTheme(Brightness brightness) {
-    final colorScheme = brightness == Brightness.light ? _lightColorScheme() : _darkColorScheme();
+    final colorScheme = brightness == Brightness.light ? _lightColorScheme : _darkColorScheme;
     final textTheme = _buildTextTheme(brightness);
 
     return ThemeData(
+      useMaterial3: true,
       brightness: brightness,
       colorScheme: colorScheme,
       scaffoldBackgroundColor: colorScheme.surface,
       textTheme: textTheme,
-      cardColor: colorScheme.surface,
-      appBarTheme: AppBarTheme(foregroundColor: colorScheme.onSurface, backgroundColor: colorScheme.surface, elevation: 0),
+      cardColor: colorScheme.surfaceContainerLow,
+      appBarTheme: AppBarTheme(
+        foregroundColor: colorScheme.onSurface,
+        backgroundColor: colorScheme.surface,
+        elevation: 0,
+      ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
+          backgroundColor: AppColors.primary,
+          foregroundColor: AppColors.whiteText,
           textStyle: textTheme.labelLarge,
-          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+          minimumSize: const Size(double.infinity, 52),
+          padding: EdgeInsets.symmetric(horizontal: AppSpacing.xl, vertical: AppSpacing.md),
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppRadius.md)),
         ),
       ),
@@ -68,6 +83,10 @@ class AppTheme {
         ),
       ),
       inputDecorationTheme: InputDecorationTheme(
+        contentPadding: EdgeInsets.symmetric(
+          horizontal: AppSpacing.lg,
+          vertical: AppSpacing.lg,
+        ),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(AppRadius.sm),
           borderSide: BorderSide(color: colorScheme.outline),
@@ -80,8 +99,8 @@ class AppTheme {
         labelStyle: textTheme.bodyMedium,
       ),
       cardTheme: CardThemeData(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppRadius.sm)),
-        color: colorScheme.surface,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppRadius.md)),
+        color: colorScheme.surfaceContainerLow,
         elevation: 0,
       ),
     );

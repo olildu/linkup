@@ -63,7 +63,7 @@ class OtherProfileLoadedView extends StatelessWidget {
   Widget build(BuildContext context) {
     final height = MediaQuery.of(context).size.height * 0.8;
 
-    final backgroundColor = Theme.of(context).brightness == Brightness.light ? const Color(0xFFF5F5F5) : const Color.fromARGB(255, 0, 0, 0);
+    final backgroundColor = Theme.of(context).colorScheme.surfaceContainerLow;
 
     final availableHeight = showChatButton ? height - 60.h - 30.h : height - 25.h;
 
@@ -122,8 +122,6 @@ class OtherProfileLoadedView extends StatelessWidget {
                     );
                   }
                 },
-                height: 60.h,
-                borderRadius: 50.r,
               ),
             },
           ],

@@ -7,6 +7,7 @@ import 'package:linkup/domain/entities/match_candidate_entity.dart';
 import 'package:linkup/logic/bloc/matches/matches_bloc.dart';
 import 'package:linkup/presentation/components/candidate_detail_scroll/candidate_detail_builder.dart';
 import 'package:linkup/presentation/constants/colors.dart';
+import 'package:linkup/presentation/theme/app_spacing.dart';
 
 class AroundYouPage extends StatefulWidget {
   const AroundYouPage({super.key});
@@ -58,13 +59,8 @@ class _AroundYouPageState extends State<AroundYouPage> {
                           begin: Alignment.topCenter,
                           end: Alignment.bottomCenter,
                           colors: [
-                            if (Theme.of(context).brightness == Brightness.light) ...[
-                              Colors.white,
-                              const Color.fromARGB(255, 215, 215, 215),
-                            ] else ...[
-                              Colors.black,
-                              const Color.fromARGB(255, 0, 0, 0),
-                            ],
+                            Theme.of(context).colorScheme.surface,
+                            Theme.of(context).colorScheme.surfaceContainerHighest,
                           ],
                         ),
                         borderRadius: BorderRadius.circular(20.r),
@@ -93,25 +89,25 @@ class _AroundYouPageState extends State<AroundYouPage> {
   Widget _buildMessage({IconData? icon, required String title, required String subtitle}) {
     return Container(
       color: AppColors.primary,
-      padding: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * 0.05),
+      padding: EdgeInsets.symmetric(horizontal: AppSpacing.screenH),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(icon, size: 100.sp, color: AppColors.whiteTextColor),
-          Gap(30.h),
+          Icon(icon, size: 100.sp, color: AppColors.whiteText),
+          Gap(AppSpacing.xl3.h),
           Text(
             title,
             textAlign: TextAlign.center,
-            style: Theme.of(context).textTheme.headlineLarge?.copyWith(fontSize: 30.sp, color: AppColors.whiteTextColor),
+            style: Theme.of(context).textTheme.displayMedium?.copyWith(color: AppColors.whiteText),
           ),
-          Gap(30.h),
+          Gap(AppSpacing.xl3.h),
           Text(
             subtitle,
             textAlign: TextAlign.center,
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(fontSize: 14.sp, color: AppColors.whiteTextColor.withValues(alpha: 0.9)),
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(color: AppColors.whiteText.withValues(alpha: 0.9)),
           ),
-          Gap(100.h),
+          Gap(AppSpacing.xl5.h),
         ],
       ),
     );

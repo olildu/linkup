@@ -35,7 +35,7 @@ class MessageRenderer extends StatelessWidget {
         ? Colors.transparent
         : replyMessage?.from_ == GetIt.instance<int>(instanceName: 'user_id')
         ? AppColors.primary
-        : Color.fromARGB(255, 33, 37, 42);
+        : Theme.of(context).colorScheme.surfaceContainerHighest;
 
     Widget messageContentRenderer({required Message message, required BorderRadius messageBorderRadius, required Color color, required bool isOnlyEmoji, bool isReply = false}) {
       final media = message.media;
@@ -60,7 +60,7 @@ class MessageRenderer extends StatelessWidget {
             child: OctoImage(
               image: CachedNetworkImageProvider(imageUrl, maxHeight: height.toInt(), maxWidth: width.toInt()),
               placeholderBuilder: blurHash(mediaMetaData["blurhash"]).placeholderBuilder,
-              errorBuilder: OctoError.icon(color: Colors.red),
+              errorBuilder: OctoError.icon(color: Theme.of(context).colorScheme.error),
               fit: BoxFit.cover,
             ),
           ),

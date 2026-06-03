@@ -8,6 +8,8 @@ import 'package:linkup/logic/bloc/otp/otp_bloc.dart';
 import 'package:linkup/presentation/screens/login_page.dart';
 import 'package:linkup/presentation/constants/colors.dart';
 import 'package:linkup/presentation/screens/signup_page.dart';
+import 'package:linkup/presentation/theme/app_radius.dart';
+import 'package:linkup/presentation/theme/app_spacing.dart';
 
 class LoginSignupPage extends StatefulWidget {
   final Function(int) onTabChange;
@@ -42,7 +44,7 @@ class _LoginSignupPageState extends State<LoginSignupPage> with SingleTickerProv
     final colorScheme = Theme.of(context).colorScheme;
 
     return Scaffold(
-      backgroundColor: AppColors.authScaffoldBackground,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       body: SafeArea(
         child: Padding(
           padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 16.h),
@@ -52,7 +54,7 @@ class _LoginSignupPageState extends State<LoginSignupPage> with SingleTickerProv
                 padding: EdgeInsets.symmetric(horizontal: 10.w),
                 child: Container(
                   height: 50.h,
-                  decoration: BoxDecoration(color: AppColors.tabBarTrack, borderRadius: BorderRadius.circular(12.r)),
+                  decoration: BoxDecoration(color: AppColors.tabBarTrack, borderRadius: BorderRadius.circular(AppRadius.sm)),
                   child: TabBar(
                     controller: _tabController,
                     indicatorSize: TabBarIndicatorSize.tab,
@@ -60,13 +62,13 @@ class _LoginSignupPageState extends State<LoginSignupPage> with SingleTickerProv
                     dividerColor: Colors.transparent,
                     indicator: BoxDecoration(
                       color: colorScheme.surface,
-                      borderRadius: BorderRadius.circular(10.r),
+                      borderRadius: BorderRadius.circular(AppRadius.sm),
                       boxShadow: [BoxShadow(color: colorScheme.onSurface.withValues(alpha: 0.1), blurRadius: 4, offset: const Offset(0, 2))],
                     ),
                     labelColor: colorScheme.onSurface,
                     unselectedLabelColor: AppColors.notSelected,
-                    labelStyle: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600, fontSize: 16.sp),
-                    unselectedLabelStyle: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w500, fontSize: 16.sp),
+                    labelStyle: Theme.of(context).textTheme.titleMedium,
+                    unselectedLabelStyle: Theme.of(context).textTheme.titleMedium,
                     tabs: const [
                       Tab(text: 'Log In'),
                       Tab(text: 'Sign Up'),
@@ -75,7 +77,7 @@ class _LoginSignupPageState extends State<LoginSignupPage> with SingleTickerProv
                 ),
               ),
 
-              Gap(32.h),
+              Gap(AppSpacing.xl3.h),
 
               Expanded(
                 child: BlocProvider(

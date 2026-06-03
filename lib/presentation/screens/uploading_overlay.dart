@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
+import 'package:linkup/presentation/theme/app_spacing.dart';
 
 class CustomOverlay extends StatefulWidget {
   final String text;
@@ -46,7 +47,7 @@ class _CustomOverlayState extends State<CustomOverlay> with SingleTickerProvider
           backgroundColor: bgColor,
           body: Center(
             child: Padding(
-              padding: EdgeInsets.symmetric(horizontal: 24.w),
+              padding: EdgeInsets.symmetric(horizontal: AppSpacing.xl2.w),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
@@ -60,7 +61,7 @@ class _CustomOverlayState extends State<CustomOverlay> with SingleTickerProvider
 
                   Text(
                     widget.text,
-                    style: Theme.of(context).textTheme.titleLarge?.copyWith(fontSize: 20.sp, color: txtColor, fontWeight: FontWeight.w600, letterSpacing: 1.2.w),
+                    style: Theme.of(context).textTheme.headlineMedium?.copyWith(color: txtColor, letterSpacing: 1.2.w),
                     textAlign: TextAlign.center,
                   ),
                 ],

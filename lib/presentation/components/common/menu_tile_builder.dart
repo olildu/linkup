@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
 import 'package:linkup/presentation/constants/colors.dart';
+import 'package:linkup/presentation/theme/app_spacing.dart';
 
 class MenuTileBuilder extends StatelessWidget {
   final IconData icon;
@@ -38,7 +39,7 @@ class MenuTileBuilder extends StatelessWidget {
     this.trailingTextColor,
     this.showBorder = true,
     this.filledBackground = true,
-    this.padding = const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+    this.padding = const EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: AppSpacing.md),
     this.margin = EdgeInsets.zero,
     this.borderRadius = 18,
     this.backgroundColor,

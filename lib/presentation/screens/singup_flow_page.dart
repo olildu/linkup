@@ -159,7 +159,7 @@ class _SingupFlowPageState extends State<SingupFlowPage> {
         iconColor: theme.colorScheme.primary,
         iconBackgroundColor: theme.colorScheme.primary.withValues(alpha: 0.12),
         confirmBackgroundColor: theme.colorScheme.primary,
-        confirmTextColor: Colors.white,
+        confirmTextColor: theme.colorScheme.onPrimary,
         verticalButtons: true,
         primaryOnTop: true,
         onConfirm: _logout,
@@ -176,7 +176,7 @@ class _SingupFlowPageState extends State<SingupFlowPage> {
         const CustomOverlay(
           text: 'Uploading',
           backgroundColor: AppColors.primary,
-          textColor: AppColors.whiteTextColor,
+          textColor: AppColors.whiteText,
         ),
         allowBack: true,
       );
@@ -272,22 +272,14 @@ class _SingupFlowPageState extends State<SingupFlowPage> {
                         Gap(20.h),
                         ButtonBuilder(
                           text: state.buttonText,
+                          isEnabled: isNextButtonEnabled,
                           onPressed: () {
-                            if (!isNextButtonEnabled) return;
-
                             _signupBloc.add(SignupNext());
 
                             if (widget.initialData != null) {
                               SignUpDataParser.updateData(context);
                             }
                           },
-                          backgroundColor: isNextButtonEnabled
-                              ? AppColors.primary
-                              : AppColors.notSelected,
-                          textColor: AppColors.whiteTextColor,
-                          isFullWidth: true,
-                          height: 65.h,
-                          borderRadius: 15.r,
                         ),
                       ],
                     );
@@ -318,7 +310,7 @@ class _SingupFlowPageState extends State<SingupFlowPage> {
                           width: 36.r,
                           height: 36.r,
                           decoration: BoxDecoration(
-                            color: const Color.fromARGB(182, 32, 32, 32),
+                            color: AppColors.scrim.withValues(alpha: 0.71),
                             shape: BoxShape.circle,
                             border: Border.all(color: AppColors.notSelected),
                           ),
@@ -359,7 +351,7 @@ class _SingupFlowPageState extends State<SingupFlowPage> {
                           width: 36.r,
                           height: 36.r,
                           decoration: BoxDecoration(
-                            color: const Color.fromARGB(182, 32, 32, 32),
+                            color: AppColors.scrim.withValues(alpha: 0.71),
                             shape: BoxShape.circle,
                             border: Border.all(color: AppColors.notSelected),
                           ),

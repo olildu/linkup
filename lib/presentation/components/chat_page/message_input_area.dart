@@ -7,6 +7,7 @@ import 'package:gap/gap.dart';
 import 'package:linkup/data/models/reply_model.dart';
 import 'package:linkup/logic/bloc/camera/camera_bloc.dart';
 import 'package:linkup/presentation/screens/media_picker_page.dart';
+import 'package:linkup/presentation/theme/app_spacing.dart';
 
 class MessageInputArea extends StatelessWidget {
   final TextEditingController messageController;
@@ -34,7 +35,7 @@ class MessageInputArea extends StatelessWidget {
     final double maxWidth = MediaQuery.sizeOf(context).width;
 
     return Container(
-      padding: EdgeInsets.symmetric(vertical: 8.h),
+      padding: EdgeInsets.symmetric(vertical: AppSpacing.sm.h),
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.surface,
         boxShadow: [BoxShadow(offset: const Offset(0, -2), blurRadius: 5, spreadRadius: -1, color: const Color.fromARGB(255, 26, 26, 26).withValues(alpha: 0.08))],
@@ -44,7 +45,7 @@ class MessageInputArea extends StatelessWidget {
           children: [
             replyPayload != null
                 ? Container(
-                    padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 10.h),
+                    padding: EdgeInsets.symmetric(horizontal: AppSpacing.md.w, vertical: AppSpacing.md.h),
                     width: maxWidth,
                     decoration: BoxDecoration(
                       color: Theme.of(context).colorScheme.surface,
@@ -110,7 +111,7 @@ class MessageInputArea extends StatelessWidget {
                 : SizedBox.shrink(),
 
             Padding(
-              padding: EdgeInsets.only(left: 10.w, right: 10.w, bottom: 5.w),
+              padding: EdgeInsets.only(left: AppSpacing.md.w, right: AppSpacing.md.w, bottom: AppSpacing.xs.w),
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
@@ -128,7 +129,7 @@ class MessageInputArea extends StatelessWidget {
                           hintStyle: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5)),
                           filled: true,
                           fillColor: Theme.of(context).colorScheme.outline,
-                          contentPadding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 10.h),
+                          contentPadding: EdgeInsets.symmetric(horizontal: AppSpacing.lg.w, vertical: AppSpacing.md.h),
                           border: OutlineInputBorder(borderRadius: BorderRadius.circular(25.r), borderSide: BorderSide.none),
                           enabledBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(25.r),

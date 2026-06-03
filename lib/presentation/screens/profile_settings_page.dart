@@ -18,6 +18,8 @@ import 'package:linkup/presentation/components/common/title_sub_builder.dart';
 import 'package:linkup/presentation/components/common/upload_progress_overlay_builder.dart';
 import 'package:linkup/presentation/components/signup_page/button_builder.dart';
 import 'package:linkup/presentation/constants/colors.dart';
+import 'package:linkup/presentation/theme/app_radius.dart';
+import 'package:linkup/presentation/theme/app_spacing.dart';
 import 'package:linkup/presentation/screens/singup_flow_page.dart';
 import 'package:linkup/presentation/screens/settings_page.dart';
 import 'package:linkup/presentation/screens/user_profile_bottom_sheet.dart';
@@ -68,11 +70,7 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
         scrolledUnderElevation: 0,
         title: Text(
           'Profile Settings',
-          style: Theme.of(context).textTheme.titleLarge?.copyWith(
-            fontSize: 20.sp,
-            fontWeight: FontWeight.w600,
-            color: Theme.of(context).colorScheme.onSurface,
-          ),
+          style: Theme.of(context).textTheme.headlineMedium?.copyWith(color: Theme.of(context).colorScheme.onSurface),
         ),
         centerTitle: true,
         backgroundColor: Colors.transparent,
@@ -123,17 +121,14 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
         },
         child: SafeArea(
           child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 20.h),
+            padding: EdgeInsets.symmetric(horizontal: AppSpacing.xl.w, vertical: AppSpacing.xl.h),
             child: Builder(
               builder: (context) {
                 if (state is ProfileError) {
                   return Center(
                     child: Text(
                       'Error loading profile settings',
-                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        fontSize: 16.sp,
-                        color: Theme.of(context).colorScheme.error,
-                      ),
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Theme.of(context).colorScheme.error),
                     ),
                   );
                 } else if (state is ProfileLoaded || state is ProfileUpdating) {
@@ -206,8 +201,8 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
                           filledBackground: true,
                           borderColor: AppColors.notSelected.withValues(alpha: 0.22),
                           margin: EdgeInsets.only(bottom: 20.h),
-                          padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 14.h),
-                          borderRadius: 18.r,
+                          padding: EdgeInsets.symmetric(horizontal: AppSpacing.md.w, vertical: AppSpacing.md.h),
+                          borderRadius: AppRadius.md,
                           iconSize: 20.sp,
                           arrowSize: 20.sp,
                         ),
@@ -224,7 +219,7 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
                                   initialValue: aboutMeContent,
                                   maxLines: 3,
                                   border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.all(Radius.circular(10.r)),
+                                    borderRadius: BorderRadius.all(Radius.circular(AppRadius.sm)),
                                     borderSide: BorderSide(color: AppColors.notSelected),
                                   ),
                                   onChanged: (value) {
@@ -238,26 +233,24 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
                                 if (aboutMeChanged) ...[
                                   Gap(20.h),
 
-                                  ButtonBuilder(
-                                    text: "Save",
+                                  SizedBox(
                                     width: 70.w,
-                                    isFullWidth: false,
-                                    borderRadius: 10.r,
-                                    padding: EdgeInsets.zero,
-                                    height: 50.h,
-                                    onPressed: () {
-                                      FocusScope.of(context).unfocus();
-                                      context.read<ProfileBloc>().add(
-                                        ProfileUpdateEvent(
-                                          userUpdatedModel: UpdateMetadataModel(
-                                            about: aboutMeContent,
+                                    child: ButtonBuilder(
+                                      text: "Save",
+                                      onPressed: () {
+                                        FocusScope.of(context).unfocus();
+                                        context.read<ProfileBloc>().add(
+                                          ProfileUpdateEvent(
+                                            userUpdatedModel: UpdateMetadataModel(
+                                              about: aboutMeContent,
+                                            ),
                                           ),
-                                        ),
-                                      );
-                                      setState(() {
-                                        aboutMeChanged = false;
-                                      });
-                                    },
+                                        );
+                                        setState(() {
+                                          aboutMeChanged = false;
+                                        });
+                                      },
+                                    ),
                                   ),
                                 ],
                               ],

@@ -10,6 +10,8 @@ import 'package:linkup/presentation/components/login/text_input_field.dart';
 import 'package:linkup/presentation/components/login/otp_input_field.dart';
 import 'package:linkup/presentation/components/signup_page/button_builder.dart';
 import 'package:linkup/presentation/constants/colors.dart';
+import 'package:linkup/presentation/theme/app_radius.dart';
+import 'package:linkup/presentation/theme/app_spacing.dart';
 import 'package:linkup/presentation/utils/show_error_toast.dart';
 
 class ForgotPasswordModalPage extends StatefulWidget {
@@ -97,36 +99,32 @@ class _ForgotPasswordModalPageState extends State<ForgotPasswordModalPage> with 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.authScaffoldBackground,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       body: SafeArea(
         child: Padding(
-          padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 16.h),
+          padding: EdgeInsets.symmetric(horizontal: AppSpacing.xl2.w, vertical: AppSpacing.lg.h),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Gap(10.h),
+              Gap(AppSpacing.sm.h),
               Row(
                 children: [
                   InkWell(
                     onTap: () => Navigator.pop(context),
-                    borderRadius: BorderRadius.circular(24.r),
+                    borderRadius: BorderRadius.circular(AppRadius.lg),
                     child: Padding(
-                      padding: EdgeInsets.all(8.r),
+                      padding: EdgeInsets.all(AppSpacing.sm),
                       child: Icon(Icons.arrow_back_ios_new_rounded, size: 20.sp, color: Theme.of(context).colorScheme.onSurface),
                     ),
                   ),
-                  Gap(10.w),
+                  Gap(AppSpacing.sm.w),
                   Text(
                     "Forgot Password?",
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          fontSize: 20.sp,
-                          fontWeight: FontWeight.w400,
-                          color: Theme.of(context).colorScheme.onSurface,
-                        ),
+                    style: Theme.of(context).textTheme.headlineMedium?.copyWith(color: Theme.of(context).colorScheme.onSurface),
                   ),
                 ],
               ),
-              Gap(30.h),
+              Gap(AppSpacing.xl2.h),
               Expanded(
                 child: MultiBlocListener(
                   listeners: [
@@ -183,10 +181,8 @@ class _ForgotPasswordModalPageState extends State<ForgotPasswordModalPage> with 
                     children: [TextInputField(label: 'Email', hintText: 'Enter your registered email', controller: _emailController, hasError: state is OtpFailure)],
                   ),
                   Padding(
-                    padding: EdgeInsets.only(bottom: 10.h),
+                    padding: EdgeInsets.only(bottom: AppSpacing.sm.h),
                     child: ButtonBuilder(
-                      width: double.infinity,
-                      height: 55.h,
                       text: 'Send OTP',
                       onPressed: () => context.read<OtpBloc>().add(SendOTPEvent(email: _emailController.text.trim())),
                       isLoading: state is OtpLoading,
@@ -218,10 +214,8 @@ class _ForgotPasswordModalPageState extends State<ForgotPasswordModalPage> with 
                     children: [OtpInputField(label: 'OTP Code', hintText: '••••••', controller: _otpController, hasError: state is OtpFailure)],
                   ),
                   Padding(
-                    padding: EdgeInsets.only(bottom: 10.h),
+                    padding: EdgeInsets.only(bottom: AppSpacing.sm.h),
                     child: ButtonBuilder(
-                      width: double.infinity,
-                      height: 55.h,
                       text: 'Verify OTP',
                       onPressed: () =>
                           context.read<OtpBloc>().add(VerifyOTPEvent(otp: int.parse(_otpController.text.trim()), email: _emailController.text.trim(), subject: EmailOTPSubject.forgotPassword)),
@@ -261,7 +255,7 @@ class _ForgotPasswordModalPageState extends State<ForgotPasswordModalPage> with 
                         hasError: state is AuthFailure,
                         toggleObscure: () => _hideUnhidePassword(),
                       ),
-                      Gap(10.h),
+                      Gap(AppSpacing.sm.h),
                       TextInputField(
                         label: 'Confirm New Password',
                         hintText: 'Re-enter your new password',
@@ -270,9 +264,9 @@ class _ForgotPasswordModalPageState extends State<ForgotPasswordModalPage> with 
                         hasError: state is AuthFailure,
                         toggleObscure: () => _hideUnhidePassword(),
                       ),
-                      Gap(20.h),
+                      Gap(AppSpacing.xl.h),
                       Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 5.w),
+                        padding: EdgeInsets.symmetric(horizontal: AppSpacing.xs.w),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
@@ -287,10 +281,8 @@ class _ForgotPasswordModalPageState extends State<ForgotPasswordModalPage> with 
                     ],
                   ),
                   Padding(
-                    padding: EdgeInsets.only(bottom: 10.h),
+                    padding: EdgeInsets.only(bottom: AppSpacing.sm.h),
                     child: ButtonBuilder(
-                      width: double.infinity,
-                      height: 55.h,
                       text: 'Change Password',
                       onPressed: () => context.read<AuthBloc>().add(AuthResetPasswordRequested(emailHash: _emailHash, password: _passwordController.text.trim())),
                       isLoading: state is AuthLoading,
@@ -308,7 +300,7 @@ class _ForgotPasswordModalPageState extends State<ForgotPasswordModalPage> with 
 
   Widget _buildRequirementItem(String text, bool isMet) {
     return Padding(
-      padding: EdgeInsets.symmetric(vertical: 2.h),
+      padding: EdgeInsets.symmetric(vertical: AppSpacing.xxs.h),
       child: Row(
         children: [
           Icon(
@@ -316,7 +308,7 @@ class _ForgotPasswordModalPageState extends State<ForgotPasswordModalPage> with 
             color: isMet ? AppColors.success : AppColors.whiteGreyTextColor,
             size: 16.sp,
           ),
-          Gap(8.w),
+          Gap(AppSpacing.sm.w),
           Expanded(
             child: CustomTextWidget(
               text,

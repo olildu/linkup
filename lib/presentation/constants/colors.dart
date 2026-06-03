@@ -1,29 +1,49 @@
-// ignore_for_file: deprecated_member_use
-
 import 'package:flutter/material.dart';
 // Backwards-compat export: some test files import this file and expect `AppTheme`.
 export 'package:linkup/presentation/theme/app_theme.dart';
 
-class AppColors {
-  static const Color lightBackground = Colors.white;
-  static const Color lightText = Colors.black;
+/// Raw palette — hex values live here and nowhere else.
+/// Do not reference these directly in UI code. Use [AppColors] instead.
+abstract final class _Palette {
+  static const teal400  = Color(0xFF00B3B3);
+  static const red600   = Color(0xFFF41505);
+  static const red50    = Color(0x1AFF0000); // red at 10% alpha
+  static const green800 = Color(0xFF2E7D32);
+  static const grey200  = Color(0xFFE0E0E0);
+  static const grey300  = Color(0xFFBFBFBF);
+  static const grey400  = Color(0xFFB4B4B4);
+  static const grey500  = Color(0xFFAFAFAF);
+  static const grey600  = Color(0xFF636363);
+  static const white    = Color(0xFFFFFFFF);
+  static const black    = Color(0xFF000000);
+}
 
-  static const Color darkBackground = Colors.black;
-  static const Color darkText = Colors.white;
+/// Semantic color tokens — use these in all UI code.
+///
+/// For colors that adapt between light and dark mode, use
+/// [Theme.of(context).colorScheme] — those are defined in [AppTheme].
+abstract final class AppColors {
+  // Brand
+  static const primary        = _Palette.teal400;
 
-  static const Color notSelected = Color.fromARGB(255, 99, 99, 99);
-  static const Color whiteTextColor = Colors.white;
-  static const Color whiteGreyTextColor = Color.fromARGB(255, 180, 180, 180);
-  static const Color primary = Color(0xFF00B3B3);
+  // States
+  static const error          = _Palette.red600;
+  static const errorContainer = _Palette.red50;
+  static const success        = _Palette.green800;
 
-  static const Color error = Color(0xFFF41505);
-  static const Color success = Color(0xFF2E7D32);
-  static const Color hint = Color(0xFFBFBFBF);
-  static const Color subtitleLight = Color.fromARGB(255, 175, 175, 175);
-  static const Color link = primary;
+  // Text / interactive
+  static const hint           = _Palette.grey300;
+  static const notSelected    = _Palette.grey600;
+  static const subtitleLight  = _Palette.grey500;
+  static const whiteGreyTextColor = _Palette.grey400;
+  static const whiteText      = _Palette.white;
 
-  static const Color authScaffoldBackground = Color(0xFFFAFAFA);
-  static const Color tabBarTrack = Color(0xFFE0E0E0);
+  // Surfaces (theme-agnostic)
+  static const tabBarTrack    = _Palette.grey200;
+
+  // Overlay / full-screen (always dark regardless of theme)
+  static const scrim          = _Palette.black;
+  static const onScrim        = _Palette.white;
 }
 
 /// Semantic text-style helpers built from [ThemeData].
@@ -36,9 +56,7 @@ class AppTextStyles {
 
   static TextStyle? subtitle(BuildContext context) =>
       Theme.of(context).textTheme.bodySmall?.copyWith(
-        color: Theme.of(context).brightness == Brightness.dark
-            ? const Color.fromARGB(255, 200, 200, 200)
-            : AppColors.subtitleLight,
+        color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
       );
 
   static TextStyle? label(BuildContext context) => Theme.of(context).textTheme.labelLarge?.copyWith(

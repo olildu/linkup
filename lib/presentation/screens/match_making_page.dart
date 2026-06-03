@@ -8,6 +8,7 @@ import 'package:linkup/logic/bloc/matches/matches_bloc.dart';
 import 'package:linkup/core/di/injection_container.dart';
 import 'package:linkup/logic/bloc/profile/own/preferences_bloc/preferences_bloc.dart';
 import 'package:linkup/presentation/constants/colors.dart';
+import 'package:linkup/presentation/theme/app_spacing.dart';
 import 'package:linkup/presentation/screens/around_you_page.dart';
 import 'package:linkup/presentation/screens/matched_page.dart';
 import 'package:linkup/presentation/screens/meet_at_8_page.dart';
@@ -36,7 +37,7 @@ class _MatchMakingPageState extends State<MatchMakingPage> with SingleTickerProv
       child: Scaffold(
         body: SafeArea(
           child: Padding(
-            padding: EdgeInsets.only(left: 10.w, right: 10.w, top: 30.h, bottom: 10.h),
+            padding: EdgeInsets.only(left: AppSpacing.sm.w, right: AppSpacing.sm.w, top: AppSpacing.xl3.h, bottom: AppSpacing.sm.h),
 
             child: Column(
               children: [
@@ -62,7 +63,7 @@ class _MatchMakingPageState extends State<MatchMakingPage> with SingleTickerProv
 
                     Text(
                       'linkup',
-                      style: Theme.of(context).textTheme.displayLarge?.copyWith(fontSize: 30.sp, color: Theme.of(context).colorScheme.onSurface),
+                      style: Theme.of(context).textTheme.displayMedium?.copyWith(color: Theme.of(context).colorScheme.onSurface),
                     ),
 
                     Row(
@@ -111,7 +112,7 @@ class _MatchMakingPageState extends State<MatchMakingPage> with SingleTickerProv
                             ],
                           ),
                         ),
-                        Gap(20.h),
+                        Gap(AppSpacing.xl.h),
                         Expanded(
                           child: TabBarView(
                             physics: NeverScrollableScrollPhysics(),

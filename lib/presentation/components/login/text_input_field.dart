@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
 import 'package:linkup/presentation/constants/colors.dart';
+import 'package:linkup/presentation/theme/app_radius.dart';
 
 class TextInputField extends StatefulWidget {
   final String label;
@@ -28,33 +29,33 @@ class _TextInputFieldState extends State<TextInputField> {
       children: [
         Text(
           widget.label,
-          style: AppTextStyles.label(context)?.copyWith(fontSize: 16.sp),
+          style: Theme.of(context).textTheme.labelLarge?.copyWith(
+            color: colorScheme.onSurface,
+          ),
         ),
         Gap(8.h),
         TextField(
           controller: widget.controller,
           obscureText: widget.obscureText,
           style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                color: colorScheme.onSurface,
-              ),
+            color: colorScheme.onSurface,
+          ),
           decoration: InputDecoration(
             hintText: widget.hintText,
-            hintStyle: AppTextStyles.hint(context),
             filled: true,
             fillColor: colorScheme.surface,
             border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12.r),
+              borderRadius: BorderRadius.circular(AppRadius.sm),
               borderSide: BorderSide(color: borderColor),
             ),
             enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12.r),
+              borderRadius: BorderRadius.circular(AppRadius.sm),
               borderSide: BorderSide(color: borderColor),
             ),
             focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12.r),
+              borderRadius: BorderRadius.circular(AppRadius.sm),
               borderSide: BorderSide(color: widget.hasError ? colorScheme.error : colorScheme.primary),
             ),
-            contentPadding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.h),
             suffixIcon: widget.toggleObscure != null
                 ? IconButton(
                     icon: Icon(

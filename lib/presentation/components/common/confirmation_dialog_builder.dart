@@ -13,9 +13,9 @@ class ConfirmationDialogBuilder extends StatelessWidget {
   final String cancelText;
   final VoidCallback? onConfirm;
   final VoidCallback? onCancel;
-  final Color iconColor;
-  final Color iconBackgroundColor;
-  final Color confirmTextColor;
+  final Color? iconColor;
+  final Color? iconBackgroundColor;
+  final Color? confirmTextColor;
   final Color? confirmBackgroundColor;
   final Color? cancelTextColor;
   final List<Widget>? actions;
@@ -32,9 +32,9 @@ class ConfirmationDialogBuilder extends StatelessWidget {
     required this.cancelText,
     this.onConfirm,
     this.onCancel,
-    this.iconColor = Colors.red,
-    this.iconBackgroundColor = const Color(0x1AFF0000),
-    this.confirmTextColor = Colors.white,
+    this.iconColor,
+    this.iconBackgroundColor,
+    this.confirmTextColor,
     this.confirmBackgroundColor,
     this.cancelTextColor,
     this.actions,
@@ -75,15 +75,19 @@ class ConfirmationDialogBuilder extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final Color effectiveConfirmBackgroundColor = confirmBackgroundColor ?? theme.colorScheme.error;
-    final Color effectiveCancelTextColor = cancelTextColor ?? theme.colorScheme.onSurface;
+    final colorScheme = theme.colorScheme;
+    final Color effectiveIconColor = iconColor ?? colorScheme.error;
+    final Color effectiveIconBg = iconBackgroundColor ?? colorScheme.errorContainer;
+    final Color effectiveConfirmBg = confirmBackgroundColor ?? colorScheme.error;
+    final Color effectiveConfirmFg = confirmTextColor ?? colorScheme.onError;
+    final Color effectiveCancelTextColor = cancelTextColor ?? colorScheme.onSurface;
 
-    final dialogBg = Theme.of(context).dialogTheme.backgroundColor ?? Theme.of(context).colorScheme.surface;
+    final dialogBg = theme.dialogTheme.backgroundColor ?? colorScheme.surface;
     final borderClr = theme.dividerColor.withValues(alpha: 0.5);
     final TextStyle? primaryButtonTextStyle = theme.textTheme.labelLarge?.copyWith(
       letterSpacing: 1.5,
       fontWeight: FontWeight.w700,
-      color: confirmTextColor,
+      color: effectiveConfirmFg,
     );
     final TextStyle? cancelButtonTextStyle = theme.textTheme.labelLarge?.copyWith(
       letterSpacing: 1.5,
@@ -108,10 +112,10 @@ class ConfirmationDialogBuilder extends StatelessWidget {
               width: 48.r,
               height: 48.r,
               decoration: BoxDecoration(
-                color: iconBackgroundColor,
+                color: effectiveIconBg,
                 borderRadius: BorderRadius.circular(8.r),
               ),
-              child: Icon(icon, color: iconColor, size: 24.sp),
+              child: Icon(icon, color: effectiveIconColor, size: 24.sp),
             ),
             Gap(16.h),
             Text(
@@ -133,8 +137,8 @@ class ConfirmationDialogBuilder extends StatelessWidget {
                     width: double.infinity,
                     child: FilledButton(
                       style: FilledButton.styleFrom(
-                        backgroundColor: confirmBackgroundColor ?? Colors.white,
-                        foregroundColor: confirmTextColor,
+                        backgroundColor: effectiveConfirmBg,
+                        foregroundColor: effectiveConfirmFg,
                         padding: EdgeInsets.symmetric(vertical: 16.h),
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.r)),
                       ),
@@ -153,7 +157,7 @@ class ConfirmationDialogBuilder extends StatelessWidget {
                   child: OutlinedButton(
                     style: OutlinedButton.styleFrom(
                       side: BorderSide(color: borderClr),
-                      foregroundColor: cancelTextColor ?? theme.colorScheme.onSurface,
+                      foregroundColor: effectiveCancelTextColor,
                       padding: EdgeInsets.symmetric(vertical: 16.h),
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.r)),
                     ),
@@ -171,7 +175,7 @@ class ConfirmationDialogBuilder extends StatelessWidget {
                   child: OutlinedButton(
                     style: OutlinedButton.styleFrom(
                       side: BorderSide(color: borderClr),
-                      foregroundColor: cancelTextColor ?? theme.colorScheme.onSurface,
+                      foregroundColor: effectiveCancelTextColor,
                       padding: EdgeInsets.symmetric(vertical: 16.h),
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.r)),
                     ),
@@ -188,8 +192,8 @@ class ConfirmationDialogBuilder extends StatelessWidget {
                     width: double.infinity,
                     child: FilledButton(
                       style: FilledButton.styleFrom(
-                        backgroundColor: confirmBackgroundColor ?? Colors.white,
-                        foregroundColor: confirmTextColor,
+                        backgroundColor: effectiveConfirmBg,
+                        foregroundColor: effectiveConfirmFg,
                         padding: EdgeInsets.symmetric(vertical: 16.h),
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.r)),
                       ),
@@ -216,8 +220,8 @@ class ConfirmationDialogBuilder extends StatelessWidget {
                       ),
                       FilledButton(
                         style: FilledButton.styleFrom(
-                          backgroundColor: effectiveConfirmBackgroundColor,
-                          foregroundColor: confirmTextColor,
+                          backgroundColor: effectiveConfirmBg,
+                          foregroundColor: effectiveConfirmFg,
                           padding: EdgeInsets.symmetric(horizontal: 18.w, vertical: 12.h),
                           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14.r)),
                         ),

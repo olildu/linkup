@@ -1,5 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:linkup/presentation/constants/colors.dart';
 
 class FullScreenImageScreen extends StatefulWidget {
   final String imagePath;
@@ -43,12 +44,12 @@ class _FullScreenImageScreenState extends State<FullScreenImageScreen> with Sing
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.black,
+      backgroundColor: AppColors.scrim,
       appBar: AppBar(
         scrolledUnderElevation: 0,
         backgroundColor: Colors.transparent,
         elevation: 0,
-        iconTheme: const IconThemeData(color: Colors.white),
+        iconTheme: const IconThemeData(color: AppColors.onScrim),
       ),
       body: Center(
         child: InteractiveViewer(

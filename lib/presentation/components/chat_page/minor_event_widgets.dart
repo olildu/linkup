@@ -3,15 +3,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
 import 'package:linkup/presentation/components/chat_page/event_intro_animation.dart';
+import 'package:linkup/presentation/theme/app_radius.dart';
+import 'package:linkup/presentation/theme/app_spacing.dart';
 import 'package:linkup/presentation/utils/blurhash_util.dart';
 import 'package:octo_image/octo_image.dart';
 
 Widget buildTypingIndicator({required BuildContext context, required Map imageMetaData, required String userName}) {
-  final Radius largeRadius = Radius.circular(20.r);
+  final BorderRadius messageBorderRadius = BorderRadius.all(Radius.circular(AppRadius.md));
 
-  final BorderRadius messageBorderRadius = BorderRadius.only(topLeft: largeRadius, topRight: largeRadius, bottomLeft: largeRadius, bottomRight: largeRadius);
-
-  final color = Color.fromARGB(255, 33, 37, 42);
+  final color = Theme.of(context).colorScheme.surfaceContainerHighest;
   final textColor = Theme.of(context).colorScheme.onSecondaryContainer;
 
   return EventIntroAnimation(
@@ -29,14 +29,14 @@ Widget buildTypingIndicator({required BuildContext context, required Map imageMe
           ),
         ),
 
-        Gap(8.w),
+        Gap(AppSpacing.sm.w),
         Container(
           constraints: BoxConstraints(maxWidth: 0.75.sw),
-          padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.h),
+          padding: EdgeInsets.symmetric(horizontal: AppSpacing.md.w, vertical: AppSpacing.sm.h),
           decoration: BoxDecoration(color: color, borderRadius: messageBorderRadius),
           child: Text(
             '$userName is typing...',
-            style: Theme.of(context).textTheme.bodySmall?.copyWith(fontSize: 14.sp, color: textColor, fontWeight: FontWeight.w400, fontStyle: FontStyle.italic),
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(color: textColor, fontStyle: FontStyle.italic),
           ),
         ),
       ],
@@ -52,7 +52,7 @@ Widget buildSeenIndicator() {
       child: Builder(
         builder: (context) => Text(
           "Seen",
-          style: Theme.of(context).textTheme.labelSmall?.copyWith(fontSize: 10.sp, fontWeight: FontWeight.w300, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5)),
+          style: Theme.of(context).textTheme.labelSmall?.copyWith(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5)),
         ),
       ),
     ),

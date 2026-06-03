@@ -162,7 +162,6 @@ class _LoginPageState extends State<LoginPage> {
                       Padding(
                         padding: EdgeInsets.only(bottom: 10.h),
                         child: ButtonBuilder(
-                          width: double.infinity,
                           text: 'Log In',
                           onPressed: () {
                             context.read<AuthBloc>().add(AuthLoginRequested(email: _emailController.text.trim(), password: _passwordController.text));

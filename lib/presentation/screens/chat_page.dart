@@ -23,6 +23,8 @@ import 'package:linkup/presentation/components/chat_page/message_renderer.dart';
 import 'package:linkup/presentation/components/chat_page/sending_animation.dart';
 import 'package:linkup/presentation/components/chat_page/swipe_wrapper.dart';
 import 'package:linkup/presentation/constants/colors.dart';
+import 'package:linkup/presentation/theme/app_radius.dart';
+import 'package:linkup/presentation/theme/app_spacing.dart';
 import 'package:linkup/presentation/screens/user_profile_bottom_sheet.dart';
 import 'package:linkup/presentation/utils/blurhash_util.dart';
 import 'package:linkup/presentation/utils/scaffold_message_display.dart';
@@ -231,7 +233,7 @@ class _ChatPageState extends State<ChatPage> {
         ? Colors.transparent
         : isSentByMe
         ? AppColors.primary
-        : Color.fromARGB(255, 33, 37, 42);
+        : Theme.of(context).colorScheme.surfaceContainerHighest;
 
     BorderRadius messageBorderRadius = getBorderRadius(
       groupInfo: groupInfo,
@@ -241,7 +243,7 @@ class _ChatPageState extends State<ChatPage> {
     );
 
     return Container(
-      margin: EdgeInsets.only(top: groupInfo.isFirstInGroup ? 8.h : 2.h, bottom: 1.5.h),
+      margin: EdgeInsets.only(top: groupInfo.isFirstInGroup ? AppSpacing.sm.h : AppSpacing.xxs.h, bottom: AppSpacing.xxs.h),
       child: Column(
         crossAxisAlignment: alignment,
         children: [
@@ -251,14 +253,14 @@ class _ChatPageState extends State<ChatPage> {
             children: [
               if (!isSentByMe && (groupInfo.isLastInGroup || groupInfo.isOnlyMessageInGroup)) ...[
                 Padding(
-                  padding: EdgeInsets.only(right: 13.w, bottom: 2.h),
+                  padding: EdgeInsets.only(right: AppSpacing.md.w, bottom: AppSpacing.xxs.h),
                   child: ClipOval(
                     child: OctoImage(
                       image: CachedNetworkImageProvider(widget.userImageMetaData["url"]),
                       placeholderBuilder: blurHash(
                         widget.userImageMetaData["blurhash"],
                       ).placeholderBuilder,
-                      errorBuilder: OctoError.icon(color: Colors.red),
+                      errorBuilder: OctoError.icon(color: Theme.of(context).colorScheme.error),
                       fit: BoxFit.cover,
                       width: 30.r,
                       height: 30.r,
@@ -267,7 +269,7 @@ class _ChatPageState extends State<ChatPage> {
                 ),
               ] else if (!isSentByMe) ...[
                 Padding(
-                  padding: EdgeInsets.only(right: 13.w, bottom: 2.h),
+                  padding: EdgeInsets.only(right: AppSpacing.md.w, bottom: AppSpacing.xxs.h),
                   child: SizedBox(width: 30.r, height: 30.r),
                 ),
               ],
@@ -350,8 +352,6 @@ class _ChatPageState extends State<ChatPage> {
         onConfirm: _onBlockConfirmed,
         iconColor: Theme.of(context).colorScheme.error,
         iconBackgroundColor: Theme.of(context).colorScheme.error.withValues(alpha: 0.12),
-        confirmBackgroundColor: Colors.white,
-        confirmTextColor: Colors.black,
         cancelTextColor: Theme.of(context).colorScheme.onSurface,
         verticalButtons: true,
         primaryOnTop: true,
@@ -412,26 +412,26 @@ class _ChatPageState extends State<ChatPage> {
   // 2. Helper widget for report options
   Widget _buildReportOption(BuildContext ctx, String reason) {
     return Padding(
-      padding: EdgeInsets.only(bottom: 10.h),
+      padding: EdgeInsets.only(bottom: AppSpacing.sm.h),
       child: Material(
         color: Theme.of(ctx).colorScheme.surfaceContainerHighest.withValues(alpha: 0.45),
-        borderRadius: BorderRadius.circular(14.r),
+        borderRadius: BorderRadius.circular(AppRadius.sm),
         child: InkWell(
-          borderRadius: BorderRadius.circular(14.r),
+          borderRadius: BorderRadius.circular(AppRadius.sm),
           onTap: () {
             Navigator.pop(ctx); // Close dialog
             _onReportConfirmed(reason);
           },
           child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 14.h),
+            padding: EdgeInsets.symmetric(horizontal: AppSpacing.md.w, vertical: AppSpacing.md.h),
             child: Row(
               children: [
                 Icon(Icons.flag_outlined, size: 18.sp, color: Theme.of(ctx).colorScheme.error),
-                Gap(12.w),
+                Gap(AppSpacing.md.w),
                 Expanded(
                   child: Text(
                     reason,
-                    style: Theme.of(ctx).textTheme.bodyLarge?.copyWith(fontSize: 14.sp),
+                    style: Theme.of(ctx).textTheme.bodyLarge,
                   ),
                 ),
                 Icon(
@@ -491,14 +491,10 @@ class _ChatPageState extends State<ChatPage> {
                   height: 30.r,
                 ),
               ),
-              Gap(10.w),
+              Gap(AppSpacing.sm.w),
               Text(
                 widget.userName,
-                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                  fontSize: 18.sp,
-                  fontWeight: FontWeight.w500,
-                  color: Theme.of(context).colorScheme.onSurface,
-                ),
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Theme.of(context).colorScheme.onSurface),
               ),
             ],
           ),
@@ -535,13 +531,10 @@ class _ChatPageState extends State<ChatPage> {
                         color: Theme.of(context).colorScheme.onSurface,
                         size: 20.sp,
                       ),
-                      Gap(10.w),
+                      Gap(AppSpacing.sm.w),
                       Text(
                         'Report User',
-                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          fontSize: 14.sp,
-                          fontWeight: FontWeight.w500,
-                        ),
+                        style: Theme.of(context).textTheme.bodyLarge,
                       ),
                     ],
                   ),
@@ -551,10 +544,10 @@ class _ChatPageState extends State<ChatPage> {
                   child: Row(
                     children: [
                       Icon(Icons.block, color: Theme.of(context).colorScheme.error, size: 20.sp),
-                      Gap(10.w),
+                      Gap(AppSpacing.sm.w),
                       Text(
                         'Block User',
-                        style: AppTextStyles.destructive(context)?.copyWith(fontSize: 14.sp),
+                        style: AppTextStyles.destructive(context),
                       ),
                     ],
                   ),
@@ -589,10 +582,7 @@ class _ChatPageState extends State<ChatPage> {
             return Center(
               child: Text(
                 'Error loading messages',
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: Theme.of(context).colorScheme.error,
-                  fontSize: 16.sp,
-                ),
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Theme.of(context).colorScheme.error),
               ),
             );
           } else if (state is ChatsLoaded) {
@@ -615,12 +605,12 @@ class _ChatPageState extends State<ChatPage> {
               children: [
                 Expanded(
                   child: Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 10.w),
+                    padding: EdgeInsets.symmetric(horizontal: AppSpacing.sm.w),
                     child: AnimatedList(
                       key: _animatedListKey,
                       controller: _scrollController,
                       reverse: true,
-                      padding: EdgeInsets.only(top: 10.h, bottom: 10.h),
+                      padding: EdgeInsets.symmetric(vertical: AppSpacing.sm.h),
                       initialItemCount: totalItemCount,
                       itemBuilder: (context, index, animation) {
                         // Index 0: Typing Indicator
@@ -647,7 +637,7 @@ class _ChatPageState extends State<ChatPage> {
                             return FadeTransition(
                               opacity: animation,
                               child: Padding(
-                                padding: EdgeInsets.only(top: 5.h),
+                                padding: EdgeInsets.only(top: AppSpacing.xs.h),
                                 child: buildSeenIndicator(),
                               ),
                             );
@@ -662,7 +652,7 @@ class _ChatPageState extends State<ChatPage> {
                             child: Container(
                               width: 20.w,
                               height: 20.h,
-                              margin: EdgeInsets.symmetric(vertical: 8.h),
+                              margin: EdgeInsets.symmetric(vertical: AppSpacing.sm.h),
                               child: CircularProgressIndicator(strokeWidth: 2.5),
                             ),
                           );
@@ -710,10 +700,7 @@ class _ChatPageState extends State<ChatPage> {
             return Center(
               child: Text(
                 'No messages yet',
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
-                  fontSize: 16.sp,
-                ),
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6)),
               ),
             );
           }

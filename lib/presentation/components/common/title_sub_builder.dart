@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
-import 'package:linkup/presentation/constants/colors.dart';
+import 'package:linkup/presentation/theme/app_spacing.dart';
 
 class BuildTitleSubtitle extends StatelessWidget {
   final String title;
@@ -16,23 +16,14 @@ class BuildTitleSubtitle extends StatelessWidget {
       children: [
         Text(
           title,
-          style: Theme.of(context).textTheme.titleLarge?.copyWith(
-            fontSize: 18.sp,
-            fontWeight: FontWeight.w600,
-            color: Theme.of(context).colorScheme.onSurface,
-          ),
+          style: Theme.of(context).textTheme.headlineMedium?.copyWith(color: Theme.of(context).colorScheme.onSurface),
         ),
 
-        Gap(10.h),
+        Gap(AppSpacing.sm.h),
 
         Text(
           subtitle,
-          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-            fontSize: 14.sp,
-            color: Theme.of(context).brightness == Brightness.dark
-                ? AppColors.whiteGreyTextColor
-                : AppColors.subtitleLight,
-          ),
+          style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6)),
         ),
       ],
     );

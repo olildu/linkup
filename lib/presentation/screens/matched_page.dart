@@ -16,6 +16,8 @@ import 'package:linkup/logic/bloc/matches/matches_bloc.dart';
 import 'package:linkup/logic/bloc/profile/own/profile_bloc.dart';
 import 'package:linkup/presentation/components/signup_page/button_builder.dart';
 import 'package:linkup/presentation/components/signup_page/page_title_builder_component.dart';
+import 'package:linkup/presentation/theme/app_radius.dart';
+import 'package:linkup/presentation/theme/app_spacing.dart';
 import 'package:linkup/presentation/screens/chat_page.dart';
 import 'package:linkup/presentation/utils/blurhash_util.dart';
 import 'package:octo_image/octo_image.dart';
@@ -67,7 +69,7 @@ class _MatchedPageState extends State<MatchedPage> {
           ? null
           : AppBar(
               leading: IconButton(
-                padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 20.h),
+                padding: EdgeInsets.symmetric(horizontal: AppSpacing.xl.w, vertical: AppSpacing.xl.h),
                 icon: Icon(Icons.arrow_back_ios_new_rounded, color: Theme.of(context).colorScheme.onSurface, size: 20.sp),
 
                 onPressed: () {
@@ -78,7 +80,7 @@ class _MatchedPageState extends State<MatchedPage> {
             ),
 
       body: Padding(
-        padding: EdgeInsets.only(left: 20.w, right: 20.w, top: widget.meet8State ? 40.h : 60.h, bottom: 70.h),
+        padding: EdgeInsets.only(left: AppSpacing.xl.w, right: AppSpacing.xl.w, top: widget.meet8State ? AppSpacing.xl3.h : AppSpacing.xl4.h, bottom: AppSpacing.xl5.h),
         child: Stack(
           alignment: Alignment.center,
           children: [
@@ -95,9 +97,9 @@ class _MatchedPageState extends State<MatchedPage> {
                     _imageBuilder(imageMetaData: widget.matchUser.profilePictureMetaData, offsetX: _offset, angle: _rotationAngle),
                   ],
                 ),
-                Gap(50.h),
+                Gap(AppSpacing.xl4.h),
                 Container(
-                  padding: EdgeInsets.symmetric(horizontal: 30.w),
+                  padding: EdgeInsets.symmetric(horizontal: AppSpacing.xl2.h),
                   child: PageTitle(
                     inputText: widget.meet8State
                         ? "Congratulations!\n${widget.matchUser.username} and you have been matched"
@@ -142,7 +144,6 @@ class _MatchedPageState extends State<MatchedPage> {
                         );
                       }
                     },
-                    height: 60.h,
                   ),
                 ],
               ],
@@ -166,11 +167,11 @@ class _MatchedPageState extends State<MatchedPage> {
       child: Transform.rotate(
         angle: angle,
         child: ClipRRect(
-          borderRadius: BorderRadius.circular(20.r),
+          borderRadius: BorderRadius.circular(AppRadius.md),
           child: OctoImage(
             image: CachedNetworkImageProvider(url),
             placeholderBuilder: blurHash(blurhash).placeholderBuilder,
-            errorBuilder: OctoError.icon(color: Colors.red),
+            errorBuilder: OctoError.icon(color: Theme.of(context).colorScheme.error),
             fit: BoxFit.cover,
             width: _imageWidth,
             height: _imageHeight,
@@ -194,6 +195,7 @@ class _MatchedPageState extends State<MatchedPage> {
         minBlastForce: 10,
         gravity: 0.1,
         particleDrag: 0.05,
+        // Intentionally varied rainbow colors — not brand tokens
         colors: const [Colors.red, Colors.blue, Colors.green, Colors.orange, Colors.purple, Colors.yellow],
       ),
     );

@@ -59,7 +59,7 @@ class _OptionBuilderState extends State<OptionBuilder> {
                   widget.options[index],
                   style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                         fontSize: widget.textSize,
-                        color: AppColors.whiteTextColor,
+                        color: AppColors.whiteText,
                       ),
                 ),
               ),

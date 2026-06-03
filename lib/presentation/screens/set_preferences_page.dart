@@ -8,6 +8,7 @@ import 'package:linkup/domain/entities/user_preference_entity.dart';
 import 'package:linkup/logic/bloc/profile/own/preferences_bloc/preferences_bloc.dart';
 import 'package:linkup/presentation/components/common/title_sub_builder.dart';
 import 'package:linkup/presentation/components/signup_page/option_builder.dart';
+import 'package:linkup/presentation/theme/app_spacing.dart';
 
 class SetPreferencesPage extends StatefulWidget {
   const SetPreferencesPage({super.key});
@@ -70,7 +71,7 @@ class _SetPreferencesPageState extends State<SetPreferencesPage> {
               scrolledUnderElevation: 0,
               title: Text(
                 'Set Your Preferences',
-                style: Theme.of(context).textTheme.titleLarge?.copyWith(fontSize: 20.sp, fontWeight: FontWeight.w600, color: Theme.of(context).colorScheme.onSurface),
+                style: Theme.of(context).textTheme.headlineMedium?.copyWith(color: Theme.of(context).colorScheme.onSurface),
               ),
               centerTitle: true,
               backgroundColor: Colors.transparent,
@@ -78,14 +79,14 @@ class _SetPreferencesPageState extends State<SetPreferencesPage> {
 
             body: SafeArea(
               child: Padding(
-                padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 20.h),
+                padding: EdgeInsets.symmetric(horizontal: AppSpacing.xl.w, vertical: AppSpacing.xl.h),
                 child: SingleChildScrollView(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       BuildTitleSubtitle(title: "Interested Gender", subtitle: "Choose who you'd like to connect with on campus."),
 
-                      Gap(20.h),
+                      Gap(AppSpacing.xl.h),
 
                       OptionBuilder(
                         options: ["Male", "Female"],
@@ -97,11 +98,11 @@ class _SetPreferencesPageState extends State<SetPreferencesPage> {
                         },
                       ),
 
-                      Gap(20.h),
+                      Gap(AppSpacing.xl.h),
 
                       BuildTitleSubtitle(title: 'Smoking Preference', subtitle: 'Let us know your comfort level with smoking habits.'),
 
-                      Gap(20.h),
+                      Gap(AppSpacing.xl.h),
 
                       OptionBuilder(
                         options: ["Open to smokers", "Prefer non-smokers", "Don't mind"],
@@ -126,11 +127,11 @@ class _SetPreferencesPageState extends State<SetPreferencesPage> {
                         },
                       ),
 
-                      Gap(20.h),
+                      Gap(AppSpacing.xl.h),
 
                       BuildTitleSubtitle(title: 'Drinking Preference', subtitle: 'Share your preference regarding social drinking.'),
 
-                      Gap(20.h),
+                      Gap(AppSpacing.xl.h),
 
                       OptionBuilder(
                         options: ["Open to drinkers", "Prefer non-drinkers", "Don't mind"],
@@ -155,11 +156,11 @@ class _SetPreferencesPageState extends State<SetPreferencesPage> {
                         },
                       ),
 
-                      Gap(20.h),
+                      Gap(AppSpacing.xl.h),
 
                       BuildTitleSubtitle(title: 'Location of Residence', subtitle: 'Tell us where you’d prefer your match to be located.'),
 
-                      Gap(20.h),
+                      Gap(AppSpacing.xl.h),
 
                       OptionBuilder(
                         options: ["Campus Hostel", "PG", "Home", "Flat", "Other", "Don't mind"],
@@ -171,11 +172,11 @@ class _SetPreferencesPageState extends State<SetPreferencesPage> {
                         },
                       ),
 
-                      Gap(20.h),
+                      Gap(AppSpacing.xl.h),
 
                       BuildTitleSubtitle(title: 'Religion', subtitle: 'Mention any religious preferences for better compatibility.'),
 
-                      Gap(20.h),
+                      Gap(AppSpacing.xl.h),
 
                       OptionBuilder(
                         options: ["Islam", "Sikhism", "Jainism", "Christianity", "Hinduism", "Buddhism", "Don't mind"],
@@ -188,11 +189,11 @@ class _SetPreferencesPageState extends State<SetPreferencesPage> {
                         },
                       ),
 
-                      Gap(20.h),
+                      Gap(AppSpacing.xl.h),
 
                       BuildTitleSubtitle(title: 'Looking For', subtitle: 'Let others know if you’re here for something casual or serious.'),
 
-                      Gap(20.h),
+                      Gap(AppSpacing.xl.h),
 
                       OptionBuilder(
                         options: ["Casual", "Open to anything", "Serious", "Friends", "Don't mind"],
@@ -213,7 +214,7 @@ class _SetPreferencesPageState extends State<SetPreferencesPage> {
           return Center(
             child: Text(
               'Error loading preferences. Please try again later.',
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(fontSize: 16.sp, color: Theme.of(context).colorScheme.error),
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Theme.of(context).colorScheme.error),
             ),
           );
         }

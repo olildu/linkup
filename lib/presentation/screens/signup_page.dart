@@ -101,7 +101,7 @@ class _SignUpPageState extends State<SignUpPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFAFAFAFA),
+      backgroundColor: Theme.of(context).colorScheme.surface,
       body: MultiBlocListener(
         listeners: [
           BlocListener<OtpBloc, OtpState>(
@@ -185,8 +185,6 @@ class _SignUpPageState extends State<SignUpPage> {
                   Padding(
                     padding: EdgeInsets.only(bottom: 10.h),
                     child: ButtonBuilder(
-                      width: double.infinity,
-                      height: 55.h,
                       text: 'Verify with OTP',
                       onPressed: () {
                         context.read<OtpBloc>().add(SendOTPEvent(email: _emailController.text.trim()));
@@ -235,8 +233,6 @@ class _SignUpPageState extends State<SignUpPage> {
                   Padding(
                     padding: EdgeInsets.only(bottom: 10.h),
                     child: ButtonBuilder(
-                      width: double.infinity,
-                      height: 55.h,
                       text: 'Submit OTP',
                       onPressed: () {
                         context.read<OtpBloc>().add(VerifyOTPEvent(otp: int.parse(_otpController.text.trim()), email: _emailController.text.trim(), subject: EmailOTPSubject.emailVerification));
@@ -307,8 +303,6 @@ class _SignUpPageState extends State<SignUpPage> {
                   Padding(
                     padding: EdgeInsets.only(bottom: 10.h),
                     child: ButtonBuilder(
-                      width: double.infinity,
-                      height: 55.h,
                       text: 'Save password',
                       onPressed: () {
                         context.read<AuthBloc>().add(AuthRegisterRequested(emailHash: _emailHash, password: _passwordController.text.trim()));

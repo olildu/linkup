@@ -87,6 +87,8 @@ class _LandingPageState extends State<LandingPage> {
               crossAxisAlignment: CrossAxisAlignment.start,
 
               children: [
+                Gap(AppSpacing.xl.h),
+
                 PageTitle(inputText: "More than just classmates", highlightWord: "classmates", fontSize: 23, textColor: AppColors.whiteText),
 
                 Spacer(),

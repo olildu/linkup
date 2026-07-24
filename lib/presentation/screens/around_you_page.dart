@@ -60,7 +60,7 @@ class _AroundYouPageState extends State<AroundYouPage> {
                           end: Alignment.bottomCenter,
                           colors: [
                             Theme.of(context).colorScheme.surface,
-                            Theme.of(context).colorScheme.surfaceContainerHighest,
+                            Theme.of(context).colorScheme.surface,
                           ],
                         ),
                         borderRadius: BorderRadius.circular(20.r),

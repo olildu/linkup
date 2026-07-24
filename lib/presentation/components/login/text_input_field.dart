@@ -11,8 +11,20 @@ class TextInputField extends StatefulWidget {
   final bool obscureText;
   final VoidCallback? toggleObscure;
   final bool hasError;
+  final TextInputType? keyboardType;
+  final Iterable<String>? autofillHints;
 
-  const TextInputField({super.key, required this.label, required this.hintText, required this.controller, this.obscureText = false, this.toggleObscure, this.hasError = false});
+  const TextInputField({
+    super.key,
+    required this.label,
+    required this.hintText,
+    required this.controller,
+    this.obscureText = false,
+    this.toggleObscure,
+    this.hasError = false,
+    this.keyboardType,
+    this.autofillHints,
+  });
 
   @override
   State<TextInputField> createState() => _TextInputFieldState();
@@ -37,6 +49,8 @@ class _TextInputFieldState extends State<TextInputField> {
         TextField(
           controller: widget.controller,
           obscureText: widget.obscureText,
+          keyboardType: widget.keyboardType,
+          autofillHints: widget.autofillHints,
           style: Theme.of(context).textTheme.bodyLarge?.copyWith(
             color: colorScheme.onSurface,
           ),

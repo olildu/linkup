@@ -171,7 +171,14 @@ class _SignUpPageState extends State<SignUpPage> {
                 children: [
                   Column(
                     children: [
-                      TextInputField(label: 'Email', hintText: 'Enter your MUJ college email', controller: _emailController, hasError: hasError),
+                      TextInputField(
+                        label: 'Email',
+                        hintText: 'Enter your MUJ college email',
+                        controller: _emailController,
+                        hasError: hasError,
+                        keyboardType: TextInputType.emailAddress,
+                        autofillHints: const [AutofillHints.email],
+                      ),
                       if (hasError)
                         Padding(
                           padding: EdgeInsets.symmetric(vertical: 8.0.h, horizontal: 5.w),

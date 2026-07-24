@@ -131,7 +131,14 @@ class _LoginPageState extends State<LoginPage> {
                       // Top Section: Inputs & Forgot Password
                       Column(
                         children: [
-                          TextInputField(label: 'Email', hintText: 'Enter your email', controller: _emailController, hasError: state is AuthFailure),
+                          TextInputField(
+                            label: 'Email',
+                            hintText: 'Enter your email',
+                            controller: _emailController,
+                            hasError: state is AuthFailure,
+                            keyboardType: TextInputType.emailAddress,
+                            autofillHints: const [AutofillHints.email],
+                          ),
                           Gap(24.h),
                           TextInputField(
                             label: 'Password',
@@ -160,7 +167,7 @@ class _LoginPageState extends State<LoginPage> {
 
                       // Bottom Section: Action Button
                       Padding(
-                        padding: EdgeInsets.only(bottom: 10.h),
+                        padding: EdgeInsets.only(bottom: 0.h),
                         child: ButtonBuilder(
                           text: 'Log In',
                           onPressed: () {

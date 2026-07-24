@@ -178,7 +178,16 @@ class _ForgotPasswordModalPageState extends State<ForgotPasswordModalPage> with 
                 children: [
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [TextInputField(label: 'Email', hintText: 'Enter your registered email', controller: _emailController, hasError: state is OtpFailure)],
+                    children: [
+                      TextInputField(
+                        label: 'Email',
+                        hintText: 'Enter your registered email',
+                        controller: _emailController,
+                        hasError: state is OtpFailure,
+                        keyboardType: TextInputType.emailAddress,
+                        autofillHints: const [AutofillHints.email],
+                      ),
+                    ],
                   ),
                   Padding(
                     padding: EdgeInsets.only(bottom: AppSpacing.sm.h),

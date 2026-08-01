@@ -24,6 +24,7 @@ CREATE TABLE users (
    profile_picture JSON,                  -- now nullable
    is_profile_complete BOOLEAN DEFAULT FALSE, -- added flag
    is_deleted BOOLEAN DEFAULT FALSE,      -- <--- ADD THIS LINE
+   times_queued INTEGER NOT NULL DEFAULT 0, -- exposure balancing: times placed in another user's match_queue
    created_at TIMESTAMP DEFAULT NOW()
 );
 

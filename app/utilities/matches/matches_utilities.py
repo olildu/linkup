@@ -105,31 +105,58 @@ def get_matches_by_preference(user: MatchUserModel, limit: int = 10, cursor: Psy
 
     matched_users += cursor.fetchall()
 
-    query = f"""
-        SELECT DISTINCT users.id, users.username, users.gender, users.university_id, users.profile_picture::text
+    # Widen the candidate pool beyond `limit` so there's something to score/rank
+    # by preference match + exposure before trimming down. Preferences are no
+    # longer hard AND-filters (small user base would starve the queue), they're
+    # a soft ranking signal instead.
+    pool_size = max(limit * 5, 30)
+
+    query = """
+        SELECT DISTINCT users.id, users.username, users.gender, users.university_id,
+               users.profile_picture::text, users.times_queued
         FROM users
-        JOIN user_metadata metadata ON users.id = metadata.user_id
         WHERE users.university_id = %s
           AND users.gender = %s
           AND users.id NOT IN %s
+        LIMIT %s;
     """
-    params = [university_id, interested_gender, exclusion_tuple]
-
-    for i, (key, value) in enumerate(preferences.items()):
-        query += f""" AND EXISTS (
-            SELECT 1 FROM user_metadata m{i}
-            WHERE m{i}.user_id = users.id
-              AND m{i}.key = %s
-              AND m{i}.value = %s
-        )"""
-        params.extend([key, value])
-
-    query += f" LIMIT {limit};"
-
+    params = [university_id, interested_gender, exclusion_tuple, pool_size]
 
     cursor.execute(query, params)
+    candidate_rows = cursor.fetchall()
 
-    matched_users += cursor.fetchall()
+    if not candidate_rows and not matched_users:
+        print("No matches found")
+        return []
+
+    candidate_ids = tuple(row[0] for row in candidate_rows) if candidate_rows else (-1,)
+    metadata_lookup_ids = candidate_ids if len(candidate_ids) > 1 else (candidate_ids[0], candidate_ids[0])
+
+    metadata_query = """
+        SELECT user_id, key, value
+        FROM user_metadata
+        WHERE user_id IN %s
+    """
+    cursor.execute(metadata_query, (metadata_lookup_ids,))
+    all_metadata = cursor.fetchall()
+
+    metadata_map = {}
+    for user_id_, key, value in all_metadata:
+        metadata_map.setdefault(user_id_, {})[key] = value
+
+    def preference_score(user_id_: int) -> int:
+        user_meta = metadata_map.get(user_id_, {})
+        return sum(1 for key, value in preferences.items() if user_meta.get(key) == value)
+
+    # Rank by: preference match score desc, exposure (times_queued) asc, then
+    # a random tiebreak so equally-ranked candidates don't always order the same way.
+    ranked_rows = sorted(
+        candidate_rows,
+        key=lambda row: (-preference_score(row[0]), row[5], random.random()),
+    )
+    new_candidate_rows = ranked_rows[:limit]
+
+    matched_users += [row[:5] for row in new_candidate_rows]
 
     if not matched_users:
         print("No matches found")
@@ -137,15 +164,12 @@ def get_matches_by_preference(user: MatchUserModel, limit: int = 10, cursor: Psy
 
     matched_user_ids = tuple([u[0] for u in matched_users])
     if len(matched_user_ids) == 1:
-        matched_user_ids = (matched_user_ids[0], matched_user_ids[0])  
+        matched_user_ids = (matched_user_ids[0], matched_user_ids[0])
 
-    metadata_query = """
-        SELECT user_id, key, value
-        FROM user_metadata
-        WHERE user_id IN %s
-    """
+    # Re-fetch metadata to also cover the `existing_matches` rows fetched earlier
+    # (those weren't part of the candidate_rows metadata lookup above).
     cursor.execute(metadata_query, (matched_user_ids,))
-    all_metadata = cursor.fetchall() 
+    all_metadata = cursor.fetchall()
 
     metadata_map = {}
     for user_id_, key, value in all_metadata:
@@ -162,25 +186,31 @@ def get_matches_by_preference(user: MatchUserModel, limit: int = 10, cursor: Psy
             print(f"Error building model for user {user_id_}: {e}")
             raise HTTPException(status_code=500, detail=f"Error building model for user {user_id_}: {e}")
 
+    # Exposure balancing: only count users newly added to a queue this call,
+    # not ones re-fetched from an existing queue (avoids double-counting).
+    if new_candidate_rows:
+        new_candidate_ids = tuple(row[0] for row in new_candidate_rows)
+        cursor.execute(
+            "UPDATE users SET times_queued = times_queued + 1 WHERE id IN %s;",
+            (new_candidate_ids,),
+        )
 
-        # 1. Fetch existing match_queue
-        cursor.execute("SELECT match_queue FROM user_discovery_pool WHERE user_id = %s", (user_id,))
-        row = cursor.fetchone()
-        existing_queue = row[0] if row else []
+    # Fetch existing match_queue, merge, and limit to 10 unique
+    cursor.execute("SELECT match_queue FROM user_discovery_pool WHERE user_id = %s", (user_id,))
+    row = cursor.fetchone()
+    existing_queue = row[0] if row else []
 
-        # 2. Merge and limit to 10 unique
-        merged_queue = list(dict.fromkeys(existing_queue + list(matched_user_ids)))[:10]
+    merged_queue = list(dict.fromkeys(existing_queue + list(matched_user_ids)))[:10]
 
-        # 3. Upsert with simpler query
-        upsert_query = """
-            INSERT INTO user_discovery_pool (user_id, match_queue)
-            VALUES (%s, %s)
-            ON CONFLICT (user_id) DO UPDATE
-            SET match_queue = EXCLUDED.match_queue
-        """
-        cursor.execute(upsert_query, (user_id, merged_queue))
+    upsert_query = """
+        INSERT INTO user_discovery_pool (user_id, match_queue)
+        VALUES (%s, %s)
+        ON CONFLICT (user_id) DO UPDATE
+        SET match_queue = EXCLUDED.match_queue
+    """
+    cursor.execute(upsert_query, (user_id, merged_queue))
 
     cursor.connection.commit()
     random.shuffle(results)
-    
+
     return results

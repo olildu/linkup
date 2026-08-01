@@ -30,7 +30,10 @@ services:
       DATABASE_HOST: postgres
       REDIS_URL: redis://redis:6379
     ports:
-      - "8002:8002"
+      # Host 8000 matches what the existing Cloudflare Tunnel already routes
+      # linkup.olildu.dpdns.org to; 8002 is taken by an unrelated project on
+      # this shared host.
+      - "8000:8002"
     depends_on:
       postgres:
         condition: service_healthy

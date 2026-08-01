@@ -3,6 +3,7 @@ import psycopg2
 from functools import wraps
 
 from app.controllers.logger_controller import logger_controller
+from app.constants.global_constants import DAILY_LIKE_LIMIT
 
 def handle_db_errors(func):
     @wraps(func)
@@ -39,3 +40,17 @@ def assert_in_match_queue(liker_id: int, liked_id: int, cursor):
     
     if not result or not result[0]:
         raise HTTPException(status_code=400, detail="User not in match queue")
+
+def assert_under_daily_like_limit(liker_id: int, cursor):
+    """
+    Raises HTTP 429 if `liker_id` has already reached DAILY_LIKE_LIMIT
+    right-swipes within the last rolling 24 hours.
+    """
+    cursor.execute("""
+        SELECT COUNT(*) FROM likes
+        WHERE liker_id = %s AND liked = TRUE
+          AND created_at >= NOW() - INTERVAL '24 hours';
+    """, (liker_id,))
+
+    if cursor.fetchone()[0] >= DAILY_LIKE_LIMIT:
+        raise HTTPException(status_code=429, detail="Daily like limit reached. Try again later.")

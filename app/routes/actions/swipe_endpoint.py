@@ -1,9 +1,9 @@
 import asyncio
 from fastapi import APIRouter, Depends
-from app.constants.global_constants import oauth2_scheme
+from app.constants.global_constants import oauth2_scheme, DAILY_LIKE_LIMIT
 from app.routes.matches.connections_websocket_endpoints import DataModel, send_event_to_user_connection
 from app.utilities.common.common_utilites import get_signed_imagekit
-from app.utilities.exception.swipe.swipe_exceptions import assert_in_match_queue, handle_db_errors
+from app.utilities.exception.swipe.swipe_exceptions import assert_in_match_queue, assert_under_daily_like_limit, handle_db_errors
 from app.utilities.swipe.swipe_utilities import handle_post_action, update_discovery_and_post_action
 from app.utilities.token.token_utilities import decode_token
 from app.controllers.db_controller import db_pool
@@ -22,6 +22,19 @@ async def like_swipe(body: SwipeRequest, token: str = Depends(oauth2_scheme)):
     try:
         with conn.cursor() as cursor:
             assert_in_match_queue(liker_id, liked_id, cursor)
+            assert_under_daily_like_limit(liker_id, cursor)
+
+            cursor.execute("""
+                INSERT INTO likes (liker_id, liked_id, liked)
+                VALUES (%s, %s, %s);
+            """, (liker_id, liked_id, True))
+
+            cursor.execute("""
+                SELECT COUNT(*) FROM likes
+                WHERE liker_id = %s AND liked = TRUE
+                  AND created_at >= NOW() - INTERVAL '24 hours';
+            """, (liker_id,))
+            swipes_remaining = max(0, DAILY_LIKE_LIMIT - cursor.fetchone()[0])
 
             cursor.execute("""
                 SELECT users.id, users.username, users.profile_picture
@@ -73,13 +86,10 @@ async def like_swipe(body: SwipeRequest, token: str = Depends(oauth2_scheme)):
                         "id": match_user[0],
                         "username": match_user[1],
                         "profile_picture": get_signed_imagekit(match_user[2])
-                    }
+                    },
+                    "swipes_remaining": swipes_remaining
                 }
 
-            cursor.execute("""
-                INSERT INTO likes (liker_id, liked_id, liked)
-                VALUES (%s, %s, %s);
-            """, (liker_id, liked_id, True))
             conn.commit()
 
         update_discovery_and_post_action(liker_id, liked_id, conn)
@@ -88,7 +98,8 @@ async def like_swipe(body: SwipeRequest, token: str = Depends(oauth2_scheme)):
 
         return {
             "match": False,
-            "message": "Like recorded"
+            "message": "Like recorded",
+            "swipes_remaining": swipes_remaining
         }
     finally:
         db_pool.putconn(conn)

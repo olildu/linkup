@@ -2,6 +2,7 @@ from fastapi import Depends, HTTPException
 from app.models.user_model import build_user_model
 from app.utilities.password.password_utilities import verify_password
 from app.utilities.user.user_db_utilities import get_user_from_db
+from app.constants.global_constants import DAILY_LIKE_LIMIT
 
 from app.controllers.db_controller import db_pool
 
@@ -44,6 +45,13 @@ def get_user_details(user_id: int):
 
         user_preferences = cursor.fetchall()
 
+        cursor.execute("""
+            SELECT COUNT(*) FROM likes
+            WHERE liker_id = %s AND liked = TRUE
+              AND created_at >= NOW() - INTERVAL '24 hours';
+        """, (user_id,))
+        likes_used_today = cursor.fetchone()[0]
+
         user = build_user_model(
             user_metadata=user_meta_row,
             core_data=user_row,
@@ -51,7 +59,10 @@ def get_user_details(user_id: int):
             user_preferences=user_preferences
         )
 
-        return user.model_dump(exclude={"hashed_password", "email"})
+        return {
+            **user.model_dump(exclude={"hashed_password", "email"}),
+            "swipes_remaining": max(0, DAILY_LIKE_LIMIT - likes_used_today),
+        }
     finally:
         if 'cursor' in locals():
             cursor.close()

@@ -28,6 +28,8 @@ class UserModel {
 
   final String? lookingFor;
 
+  final int? swipesRemaining;
+
   UserModel({
     required this.id,
     this.username,
@@ -48,6 +50,7 @@ class UserModel {
     this.smokingInfo,
     this.drinkingInfo,
     this.lookingFor,
+    this.swipesRemaining,
   });
 
   factory UserModel.fromJson(Map<String, dynamic> json) {
@@ -71,6 +74,7 @@ class UserModel {
       smokingInfo: json['smoking_info'],
       drinkingInfo: json['drinking_info'],
       lookingFor: json['looking_for'],
+      swipesRemaining: json['swipes_remaining'],
     );
   }
 
@@ -95,6 +99,7 @@ class UserModel {
       'smoking_info': smokingInfo,
       'drinking_info': drinkingInfo,
       'looking_for': lookingFor,
+      'swipes_remaining': swipesRemaining,
     };
   }
 }

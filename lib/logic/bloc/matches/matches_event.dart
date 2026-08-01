@@ -9,6 +9,8 @@ class MatchesDeckCompletedEvent extends MatchesEvent{}
 
 final class ClearMatchUserEvent extends MatchesEvent {}
 
+final class ClearLimitMessageEvent extends MatchesEvent {}
+
 class SwipeProfileEvent extends MatchesEvent{
   final int likedId;
   final int previousIndex;

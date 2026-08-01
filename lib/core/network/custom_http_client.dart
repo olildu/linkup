@@ -6,6 +6,14 @@ import 'package:get_it/get_it.dart';
 import 'package:http/http.dart' as http;
 import 'package:linkup/core/constants/app_constants.dart';
 
+class SwipeLimitException implements Exception {
+  final String message;
+  SwipeLimitException(this.message);
+
+  @override
+  String toString() => message;
+}
+
 class CustomHttpClient {
   final _storage = GetIt.instance<FlutterSecureStorage>();
 
@@ -35,6 +43,8 @@ class CustomHttpClient {
   Future<http.Response> _execute(Future<http.Response> Function() request) async {
     try {
       return handleResponse(await request());
+    } on SwipeLimitException {
+      rethrow;
     } on SocketException {
       throw Exception('No internet connection. Please check your network.');
     } on HttpException {
@@ -71,6 +81,7 @@ class CustomHttpClient {
       }
     } catch (_) {}
 
+    if (response.statusCode == 429) throw SwipeLimitException(message);
     throw Exception(message);
   }
 

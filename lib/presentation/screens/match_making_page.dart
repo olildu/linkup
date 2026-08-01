@@ -15,6 +15,7 @@ import 'package:linkup/presentation/screens/meet_at_8_page.dart';
 import 'package:linkup/presentation/screens/profile_settings_page.dart';
 import 'package:linkup/presentation/screens/connections_page.dart';
 import 'package:linkup/presentation/screens/set_preferences_page.dart';
+import 'package:linkup/presentation/utils/scaffold_message_display.dart';
 
 class MatchMakingPage extends StatefulWidget {
   const MatchMakingPage({super.key});
@@ -32,6 +33,11 @@ class _MatchMakingPageState extends State<MatchMakingPage> with SingleTickerProv
           final matchUser = state.matchUser!;
 
           await Navigator.of(context).push(MaterialPageRoute(builder: (_) => MatchedPage(matchUser: matchUser)));
+        }
+
+        if (state is MatchesLoaded && state.limitMessage != null && context.mounted) {
+          showScaffoldMessage(context: context, message: state.limitMessage!);
+          context.read<MatchesBloc>().add(ClearLimitMessageEvent());
         }
       },
       child: Scaffold(

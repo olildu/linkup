@@ -8,6 +8,7 @@ import 'package:linkup/logic/bloc/matches/matches_bloc.dart';
 import 'package:linkup/presentation/components/candidate_detail_scroll/candidate_detail_builder.dart';
 import 'package:linkup/presentation/constants/colors.dart';
 import 'package:linkup/presentation/theme/app_spacing.dart';
+import 'package:linkup/presentation/utils/scaffold_message_display.dart';
 
 class AroundYouPage extends StatefulWidget {
   const AroundYouPage({super.key});
@@ -43,7 +44,12 @@ class _AroundYouPageState extends State<AroundYouPage> {
               cardsCount: candidates.length,
               isLoop: false,
               allowedSwipeDirection: AllowedSwipeDirection.symmetric(vertical: false, horizontal: true),
-              onSwipe: (previousIndex, currentIndex, direction) {
+              onSwipe: (previousIndex, currentIndex, direction) async {
+                if (direction == CardSwiperDirection.right && state.swipesRemaining == 0) {
+                  showScaffoldMessage(context: context, message: "Daily like limit reached. Try again later.");
+                  return false;
+                }
+
                 context.read<MatchesBloc>().add(SwipeProfileEvent(likedId: candidates[previousIndex].id, direction: direction, previousIndex: previousIndex));
 
                 scrollController.jumpTo(0);

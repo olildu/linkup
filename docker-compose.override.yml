@@ -1,0 +1,6 @@
+# Auto-merged by `docker compose up` for local dev: hot-reload + live source mount.
+services:
+  backend:
+    volumes:
+      - .:/app
+    command: ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8002", "--reload"]

@@ -1,0 +1,34 @@
+name: Build and publish release image
+
+# Only fires on an explicit version tag push (e.g. `git tag v1.2.0 && git push origin v1.2.0`).
+# Ordinary pushes/merges to main do NOT trigger a build or redeploy.
+on:
+  push:
+    tags:
+      - "v*.*.*"
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          tags: |
+            ghcr.io/olildu/linkup-backend:${{ github.ref_name }}
+            ghcr.io/olildu/linkup-backend:latest

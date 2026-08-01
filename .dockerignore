@@ -1,0 +1,12 @@
+.git
+__pycache__
+**/__pycache__
+*.pyc
+.env
+.env.*
+!.env.example
+app.log
+venv
+.venv
+.vscode
+app/test/seed_profiles.jsonl

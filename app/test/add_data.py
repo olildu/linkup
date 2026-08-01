@@ -1,3 +1,4 @@
+import argparse
 import random
 import string
 import requests
@@ -18,7 +19,13 @@ DRINKING_OPTIONS = ["Yes", "Trying to quit", "Occasionally", "No", "No, prefer n
 LOOKING_FOR_OPTIONS = ["Casual", "Open to anything", "Serious", "Friends", "Not sure yet"]
 
 BASE_URL = "http://127.0.0.1:8000"
+BASE_URL = "https://linkup.olildu.dpdns.org/api/v1"
 TIMEOUT = 15  # seconds
+
+# Tag all seed-generated accounts with this email domain so cleanup_seed_data.py
+# can find and delete them later without touching real user data.
+SEED_EMAIL_DOMAIN = "linkupseedtest.com"
+SEED_RECORD_FILE = "seed_profiles.jsonl"
 
 
 # --- Helpers to generate valid data ---
@@ -39,6 +46,17 @@ def generate_strong_password() -> str:
             re.search(r'[!@#$%^&*(),.?":{}|<>]', password)
         ):
             return password
+
+
+def generate_seed_email() -> str:
+    # Tagged domain (not fake.email()'s default @example.*) so seed accounts
+    # are trivially identifiable and never collide with real user emails.
+    return f"{fake.user_name()}{random.randint(1000, 9999)}@{SEED_EMAIL_DOMAIN}"
+
+
+def record_seed_profile(record: dict):
+    with open(SEED_RECORD_FILE, "a") as f:
+        f.write(json.dumps(record) + "\n")
 
 
 def rand_date_between(min_age: int = 18, max_age: int = 30) -> date:
@@ -126,7 +144,11 @@ def request_otp(session: requests.Session, email: str):
 
 
 def verify_otp(session: requests.Session, email: str, otp: int = 123456) -> str:
-    resp = session.post(f"{BASE_URL}/verify-otp", json={"email": email, "otp": otp}, timeout=TIMEOUT)
+    resp = session.post(
+        f"{BASE_URL}/verify-otp",
+        json={"email": email, "otp": otp, "subject": "email_verification"},
+        timeout=TIMEOUT,
+    )
     expect_ok(resp, "Verify OTP")
     data = resp.json()
     if "email_hash" not in data:
@@ -160,7 +182,7 @@ def register_profile(session: requests.Session, access_token: str, payload: dict
 def create_one_user() -> Optional[dict]:
     session = requests.Session()
 
-    email = fake.email()
+    email = generate_seed_email()
     password = generate_strong_password()
 
     try:
@@ -180,6 +202,11 @@ def create_one_user() -> Optional[dict]:
         reg_result = register_profile(session, access_token, profile_payload)
 
         print(f"[OK] user_id={user_id} email={email} username={profile_payload['username']}")
+        record_seed_profile({
+            "email": email,
+            "user_id": user_id,
+            "username": profile_payload["username"],
+        })
         return {
             "email": email,
             "user_id": user_id,
@@ -196,8 +223,17 @@ def create_one_user() -> Optional[dict]:
 
 
 # --- Bulk create ---
-if __name__ == "__main__":
-    N = 50  # how many users to create
+def main():
+    global BASE_URL
+
+    parser = argparse.ArgumentParser(description="Create N fake profiles via the live API.")
+    parser.add_argument("n", type=int, help="Number of profiles to create")
+    parser.add_argument("--base-url", default=BASE_URL, help=f"API base URL (default: {BASE_URL})")
+    args = parser.parse_args()
+
+    BASE_URL = args.base_url
+    N = args.n
+
     results = []
     for i in range(1, N + 1):
         print(f"\n=== Creating user {i}/{N} ===")
@@ -208,3 +244,7 @@ if __name__ == "__main__":
             results.append(result)
 
     print(f"\nDone. Success: {len(results)}/{N}")
+
+
+if __name__ == "__main__":
+    main()

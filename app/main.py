@@ -16,6 +16,7 @@ from app.routes.user.get_user_data import user_router
 from app.routes.auth.auth_endpoints import auth_router
 from app.routes.common.common_endpoints import common_router
 from app.routes.cities.cities_endpoints import location_router
+from app.routes.internal.status_endpoints import status_router
 
 from app.routes.chats.chat_websocket_endpoints import chatsocket_router
 from app.routes.matches.connections_websocket_endpoints import connectionsocket_router
@@ -58,6 +59,7 @@ app.include_router(matches_router, prefix=api_v1_prefix)
 app.include_router(chats_router, prefix=api_v1_prefix)
 app.include_router(common_router, prefix=api_v1_prefix)
 app.include_router(location_router, prefix=api_v1_prefix)
+app.include_router(status_router, prefix=api_v1_prefix)
 
 # --- WEBSOCKET ROUTERS ---
 app.include_router(chatsocket_router, prefix=api_v1_prefix) 
@@ -90,3 +92,7 @@ async def read_delete_account():
 @app.get("/child-safety")
 async def read_delete_account():
     return FileResponse('static/child-safety.html')
+
+@app.get("/logs")
+async def read_logs():
+    return FileResponse('static/logs.html')

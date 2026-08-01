@@ -45,6 +45,10 @@ services:
   watchtower:
     image: containrrr/watchtower
     restart: unless-stopped
+    environment:
+      # containrrr/watchtower's bundled Docker client negotiates down to an
+      # old API version that newer Docker Engines (this host: 1.54) reject.
+      DOCKER_API_VERSION: "1.44"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     command: --label-enable --interval 300 --cleanup

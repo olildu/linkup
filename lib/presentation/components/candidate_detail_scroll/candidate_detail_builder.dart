@@ -28,7 +28,10 @@ class CandidateDetailBuilder extends StatelessWidget {
     List<Map> imageRest = localCandidate.photos.sublist(1);
 
     void showFullScreenImage(String imagePath) {
-      Navigator.push(context, CupertinoPageRoute(builder: (context) => FullScreenImageScreen(imagePath: imagePath)));
+      Navigator.push(
+        context,
+        CupertinoPageRoute(builder: (context) => FullScreenImageScreen(imagePath: imagePath)),
+      );
     }
 
     return Column(
@@ -54,10 +57,16 @@ class CandidateDetailBuilder extends StatelessWidget {
               left: 0.w,
               right: 0.w,
               child: Padding(
-                padding: EdgeInsets.symmetric(horizontal: AppSpacing.md.w, vertical: AppSpacing.md.h),
+                padding: EdgeInsets.symmetric(
+                  horizontal: AppSpacing.md.w,
+                  vertical: AppSpacing.md.h,
+                ),
                 child: Container(
                   width: MediaQuery.sizeOf(context).width - AppSpacing.xl.w,
-                  padding: EdgeInsets.symmetric(horizontal: AppSpacing.lg.w, vertical: AppSpacing.lg.h),
+                  padding: EdgeInsets.symmetric(
+                    horizontal: AppSpacing.lg.w,
+                    vertical: AppSpacing.lg.h,
+                  ),
                   decoration: BoxDecoration(
                     color: colorScheme.surfaceContainerHighest,
                     borderRadius: BorderRadius.circular(AppRadius.md),
@@ -77,14 +86,20 @@ class CandidateDetailBuilder extends StatelessWidget {
 
                       Row(
                         children: [
-                          Icon(Icons.school, size: 16.sp, color: colorScheme.onSurface.withValues(alpha: 0.7)),
+                          Icon(
+                            Icons.school,
+                            size: 16.sp,
+                            color: colorScheme.onSurface.withValues(alpha: 0.7),
+                          ),
 
                           Gap(AppSpacing.xs.w),
 
                           Expanded(
                             child: Text(
                               '${localCandidate.universityMajor} Student',
-                              style: textTheme.bodyLarge?.copyWith(color: colorScheme.onSurface.withValues(alpha: 0.7)),
+                              style: textTheme.bodyLarge?.copyWith(
+                                color: colorScheme.onSurface.withValues(alpha: 0.7),
+                              ),
                               overflow: TextOverflow.ellipsis,
                               maxLines: 1,
                             ),
@@ -94,13 +109,19 @@ class CandidateDetailBuilder extends StatelessWidget {
                       Gap(AppSpacing.xs.h),
                       Row(
                         children: [
-                          Icon(Icons.calendar_today, size: 16.sp, color: colorScheme.onSurface.withValues(alpha: 0.7)),
+                          Icon(
+                            Icons.calendar_today,
+                            size: 16.sp,
+                            color: colorScheme.onSurface.withValues(alpha: 0.7),
+                          ),
 
                           Gap(AppSpacing.xs.w),
 
                           Text(
                             '${getOrdinalSuffix(localCandidate.universityYear)} Year',
-                            style: textTheme.bodyLarge?.copyWith(color: colorScheme.onSurface.withValues(alpha: 0.7)),
+                            style: textTheme.bodyLarge?.copyWith(
+                              color: colorScheme.onSurface.withValues(alpha: 0.7),
+                            ),
                           ),
                         ],
                       ),
@@ -112,13 +133,16 @@ class CandidateDetailBuilder extends StatelessWidget {
           ],
         ),
 
-        Gap(AppSpacing.xs.h),
+        Gap(AppSpacing.sm.h),
 
         // About section card
         Container(
           width: MediaQuery.sizeOf(context).width,
-          decoration: BoxDecoration(color: Theme.of(context).cardColor, borderRadius: BorderRadius.circular(AppRadius.md)),
-          padding: EdgeInsets.symmetric(vertical: AppSpacing.lg.h),
+          decoration: BoxDecoration(
+            color: Theme.of(context).cardColor,
+            borderRadius: BorderRadius.circular(AppRadius.md),
+          ),
+          padding: EdgeInsets.symmetric(vertical: AppSpacing.lg.h, horizontal: AppSpacing.lg.w),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
@@ -130,7 +154,10 @@ class CandidateDetailBuilder extends StatelessWidget {
               Gap(AppSpacing.md.h),
               Text(
                 localCandidate.about,
-                style: textTheme.bodySmall?.copyWith(height: 1.5, color: colorScheme.onSurface.withValues(alpha: 0.8)),
+                style: textTheme.bodySmall?.copyWith(
+                  height: 1.5,
+                  color: colorScheme.onSurface.withValues(alpha: 0.8),
+                ),
               ),
               Gap(AppSpacing.xl.h),
               Text(
@@ -142,17 +169,22 @@ class CandidateDetailBuilder extends StatelessWidget {
               Wrap(
                 spacing: AppSpacing.sm.w,
                 runSpacing: AppSpacing.sm.h,
-                children: candidateInformation.asIconMap(showLocationInfo: false).entries.where((entry) => entry.value['value'] != null).map((entry) {
-                  final icon = entry.value['icon'] as IconData;
-                  final text = entry.value['value'] as String;
-                  return InfoBuilder(text: text, icon: icon);
-                }).toList(),
+                children: candidateInformation
+                    .asIconMap(showLocationInfo: false)
+                    .entries
+                    .where((entry) => entry.value['value'] != null)
+                    .map((entry) {
+                      final icon = entry.value['icon'] as IconData;
+                      final text = entry.value['value'] as String;
+                      return InfoBuilder(text: text, icon: icon);
+                    })
+                    .toList(),
               ),
             ],
           ),
         ),
 
-        Gap(AppSpacing.xs.h),
+        Gap(AppSpacing.sm.h),
 
         SizedBox(
           height: availableHeight * 0.8 * imageRest.length + 10,
@@ -162,28 +194,37 @@ class CandidateDetailBuilder extends StatelessWidget {
             itemBuilder: (context, index) {
               return Column(
                 children: [
-                  ImageBuilder(imageMetaData: imageRest[index], height: availableHeight * 0.8, onTap: () => showFullScreenImage(imageRest[index]['url'])),
-                  Gap(AppSpacing.xs.h),
+                  ImageBuilder(
+                    imageMetaData: imageRest[index],
+                    height: availableHeight * 0.8,
+                    onTap: () => showFullScreenImage(imageRest[index]['url']),
+                  ),
+                  Gap(AppSpacing.sm.h),
                 ],
               );
             },
           ),
         ),
 
-        Gap(AppSpacing.xs.h),
+        Gap(AppSpacing.sm.h),
 
         // Location information card
         Container(
           width: MediaQuery.sizeOf(context).width,
-          decoration: BoxDecoration(color: Theme.of(context).cardColor, borderRadius: BorderRadius.circular(AppRadius.md)),
-          padding: EdgeInsets.symmetric(vertical: AppSpacing.lg.h),
+          decoration: BoxDecoration(
+            color: Theme.of(context).cardColor,
+            borderRadius: BorderRadius.circular(AppRadius.md),
+          ),
+          padding: EdgeInsets.symmetric(vertical: AppSpacing.lg.h, horizontal: AppSpacing.lg.w),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
             children: [
               Text(
                 '${localCandidate.username} lives in',
-                style: textTheme.bodySmall?.copyWith(color: colorScheme.onSurface.withValues(alpha: 0.7)),
+                style: textTheme.bodySmall?.copyWith(
+                  color: colorScheme.onSurface.withValues(alpha: 0.7),
+                ),
               ),
               Gap(AppSpacing.xs.h),
               Text(

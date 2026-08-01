@@ -63,14 +63,13 @@ class OtherProfileLoadedView extends StatelessWidget {
   Widget build(BuildContext context) {
     final height = MediaQuery.of(context).size.height * 0.8;
 
-    final backgroundColor = Theme.of(context).colorScheme.surfaceContainerLow;
 
     final availableHeight = showChatButton ? height - 60.h - 30.h : height - 25.h;
 
     return Container(
       height: height,
       decoration: BoxDecoration(
-        color: backgroundColor,
+        color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.vertical(top: Radius.circular(20.r)),
       ),
       padding: EdgeInsets.symmetric(vertical: 10.h, horizontal: 10.w),

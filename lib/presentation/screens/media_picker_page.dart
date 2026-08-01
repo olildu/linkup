@@ -166,7 +166,7 @@ class MediaPickerPage extends StatelessWidget {
                                       "Send",
                                       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                                             fontWeight: FontWeight.w500,
-                                            color: Theme.of(context).colorScheme.onSurface,
+                                            color: Colors.black,
                                           ),
                                     ),
                                   ],

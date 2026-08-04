@@ -4,8 +4,11 @@ import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
+import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:linkup/core/errors/error_message_mapper.dart';
 import 'package:linkup/presentation/constants/colors.dart';
+import 'package:linkup/presentation/theme/app_media_ratios.dart';
 import 'package:linkup/presentation/utils/blurhash_util.dart';
 import 'package:linkup/presentation/utils/show_error_toast.dart';
 import 'package:octo_image/octo_image.dart';
@@ -59,6 +62,22 @@ class _ImagePickerBuilderState extends State<ImagePickerBuilder> {
       );
   }
 
+  Future<XFile?> _cropImage(XFile source) async {
+    final CroppedFile? cropped = await ImageCropper().cropImage(
+      sourcePath: source.path,
+      aspectRatio: const CropAspectRatio(ratioX: AppMediaRatios.candidatePhoto, ratioY: 1),
+      uiSettings: [
+        AndroidUiSettings(
+          lockAspectRatio: true,
+          hideBottomControls: false,
+          toolbarTitle: 'Adjust photo',
+        ),
+        IOSUiSettings(aspectRatioLockEnabled: true, resetAspectRatioEnabled: false, title: 'Adjust photo'),
+      ],
+    );
+    return cropped == null ? null : XFile(cropped.path);
+  }
+
   Future<void> _pickImages() async {
     if (_displayedItems.where((item) => item != null).length >= widget.maxImages) return;
 
@@ -67,54 +86,59 @@ class _ImagePickerBuilderState extends State<ImagePickerBuilder> {
           ? await _picker.pickMultiImage()
           : [(await _picker.pickImage(source: ImageSource.gallery))].whereType<XFile>().toList();
 
-      if (pickedImages.isNotEmpty) {
-        setState(() {
-          final int occupiedSlots = _displayedItems.where((item) => item != null).length;
-          final int remainingSlots = widget.maxImages - occupiedSlots;
+      if (pickedImages.isEmpty) return;
 
-          if (remainingSlots > 0) {
-            final newImagesToAdd = pickedImages.where((newlyPickedFile) {
-              return !_displayedItems.whereType<XFile>().any(
-                (existingXFile) => existingXFile.path == newlyPickedFile.path,
-              );
-            }).toList();
+      final int occupiedSlots = _displayedItems.where((item) => item != null).length;
+      final int remainingSlots = widget.maxImages - occupiedSlots;
+      if (remainingSlots <= 0) return;
 
-            int imagesToAddCount = newImagesToAdd.length > remainingSlots
-                ? remainingSlots
-                : newImagesToAdd.length;
-            if (imagesToAddCount > 0) {
-              final newImages = newImagesToAdd.sublist(0, imagesToAddCount);
-              final emptySlotIndices = _displayedItems
-                  .asMap()
-                  .entries
-                  .where((entry) => entry.value == null)
-                  .map((entry) => entry.key)
-                  .toList();
-              bool shouldChangePfp = false;
+      final newImagesToAdd = pickedImages.where((newlyPickedFile) {
+        return !_displayedItems.whereType<XFile>().any(
+          (existingXFile) => existingXFile.path == newlyPickedFile.path,
+        );
+      }).toList();
 
-              for (final image in newImages) {
-                if (emptySlotIndices.isNotEmpty) {
-                  final targetIndex = emptySlotIndices.removeAt(0);
-                  _displayedItems[targetIndex] = image;
-                  shouldChangePfp = shouldChangePfp || targetIndex == 0;
-                } else {
-                  _displayedItems.add(image);
-                }
-              }
+      final int imagesToAddCount = newImagesToAdd.length > remainingSlots
+          ? remainingSlots
+          : newImagesToAdd.length;
+      if (imagesToAddCount == 0) return;
 
-              widget.onImagesChanged(
-                _displayedItems.where((item) => item != null).toList(),
-                shouldChangePfp,
-              );
-            }
-          }
-        });
+      final List<XFile> imagesToCrop = newImagesToAdd.sublist(0, imagesToAddCount);
+      final List<XFile> croppedImages = [];
+      for (final image in imagesToCrop) {
+        final XFile? cropped = await _cropImage(image);
+        if (cropped != null) croppedImages.add(cropped);
       }
+
+      if (croppedImages.isEmpty || !mounted) return;
+
+      setState(() {
+        final emptySlotIndices = _displayedItems
+            .asMap()
+            .entries
+            .where((entry) => entry.value == null)
+            .map((entry) => entry.key)
+            .toList();
+        bool shouldChangePfp = false;
+
+        for (final image in croppedImages) {
+          if (emptySlotIndices.isNotEmpty) {
+            final targetIndex = emptySlotIndices.removeAt(0);
+            _displayedItems[targetIndex] = image;
+            shouldChangePfp = shouldChangePfp || targetIndex == 0;
+          } else {
+            _displayedItems.add(image);
+          }
+        }
+
+        widget.onImagesChanged(
+          _displayedItems.where((item) => item != null).toList(),
+          shouldChangePfp,
+        );
+      });
     } catch (e) {
-      String errorMessage = 'Failed to pick images';
-      if (e is Exception) errorMessage = 'Failed to pick images: ${e.toString()}';
       if (mounted) {
-        showToast(context: context, message: errorMessage);
+        showToast(context: context, message: friendlyErrorMessage(e));
       }
     }
   }

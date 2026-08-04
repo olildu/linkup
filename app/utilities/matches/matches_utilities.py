@@ -27,18 +27,18 @@ def get_last_message_timestamp(chat : ConnectionChatModel, chat_last_message : d
         return datetime.min  
 
 
-def get_matches(user_id: int) -> MatchUserModel:
+def get_matches(user_id: int, refresh: bool = False) -> MatchUserModel:
     conn = db_pool.getconn()
     try:
         cursor = conn.cursor()
-        # Query 1: user info 
+        # Query 1: user info
         cursor.execute("SELECT id, username, university_id FROM users WHERE id = %s", (user_id,))
         user_row = cursor.fetchone()
         if not user_row:
             return None
-    
+
         user_id, username, university_id = user_row
-    
+
         # Query 2: preferences
         cursor.execute("SELECT key, value FROM user_preferences WHERE user_id = %s", (user_id,))
         preferences = {key: value for key, value in cursor.fetchall()}
@@ -53,7 +53,14 @@ def get_matches(user_id: int) -> MatchUserModel:
         row = cursor.fetchone()
 
         already_interacted = row[0] if row else []
-        existing_matches = row[1] if row else []
+
+        if refresh:
+            # Discard the stale, not-yet-swiped queue so a fresh one gets
+            # generated against the user's just-updated preferences.
+            cursor.execute("UPDATE user_discovery_pool SET match_queue = '{}' WHERE user_id = %s", (user_id,))
+            existing_matches = []
+        else:
+            existing_matches = row[1] if row else []
 
         user = MatchUserModel(
             id=user_id,

@@ -18,15 +18,15 @@ matches_router = APIRouter(prefix="/matches")
 
 @matches_router.get("/get-matches")
 @handle_db_errors
-async def return_matches(token: str = Depends(oauth2_scheme)):
+async def return_matches(refresh: bool = False, token: str = Depends(oauth2_scheme)):
     """
     Get matches for the user.
     """
 
     id = decode_token(token)
-    
+
     try:
-        return get_matches(user_id=id)
+        return get_matches(user_id=id, refresh=refresh)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 

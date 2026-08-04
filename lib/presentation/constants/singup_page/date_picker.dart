@@ -249,7 +249,6 @@ class DatePickerState extends State<DatePicker> {
         buildDivider(height: 1.h, color: AppColors.notSelected, borderRadius: BorderRadius.circular(1.5.r)),
         Expanded(
           child: Container(
-            height: 2.5.h,
             padding: EdgeInsets.symmetric(vertical: 30.w),
             child: Align(
               child: Column(

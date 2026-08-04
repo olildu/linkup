@@ -73,15 +73,13 @@ class SignUpPageFlow {
   }
 
   Widget buildAction(int index) {
-    if (index == 4) {
-      return _buildMajorPicker();
+    final action = flow[index]['action'];
+    if (action == null) {
+      // Major and year picker steps don't define a static 'action' entry.
+      return index == 5 ? _buildMajorPicker() : _buildYearPicker();
     }
 
-    if (index == 5) {
-      return _buildYearPicker();
-    }
-
-    return flow[index]['action'] as Widget;
+    return action as Widget;
   }
 
   int _selectedYearIndex() {
@@ -127,7 +125,7 @@ class SignUpPageFlow {
       },
       {
         'title': PageTitle(
-          inputText: "When's your birthday? We'll celebrate with you!",
+          inputText: "When's your birthday? We'll celebrate with you",
           highlightWord: "birthday",
         ),
         'action': DatePicker(

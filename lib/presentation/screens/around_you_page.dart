@@ -56,22 +56,27 @@ class _AroundYouPageState extends State<AroundYouPage> {
                 return true;
               },
               cardBuilder: (context, index, percentThresholdX, percentThresholdY) {
-                return Container(
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter,
-                      colors: [
-                        Theme.of(context).colorScheme.surface,
-                        Theme.of(context).colorScheme.surface,
-                      ],
-                    ),
-                    borderRadius: BorderRadius.circular(20.r),
-                  ),
-                  child: SingleChildScrollView(
-                    controller: scrollController,
-                    child: CandidateDetailBuilder(key: PageStorageKey('candidate_${candidates[index].id}'), candidate: candidates[index]),
-                  ),
+                return LayoutBuilder(
+                  builder: (context, constraints) {
+                    double availableHeight = constraints.maxHeight;
+                    return Container(
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment.topCenter,
+                          end: Alignment.bottomCenter,
+                          colors: [
+                            Theme.of(context).colorScheme.surface,
+                            Theme.of(context).colorScheme.surface,
+                          ],
+                        ),
+                        borderRadius: BorderRadius.circular(20.r),
+                      ),
+                      child: SingleChildScrollView(
+                        controller: scrollController,
+                        child: CandidateDetailBuilder(key: PageStorageKey('candidate_${candidates[index].id}'), availableHeight: availableHeight, candidate: candidates[index]),
+                      ),
+                    );
+                  }
                 );
               },
             );

@@ -65,7 +65,7 @@ class _ImagePickerBuilderState extends State<ImagePickerBuilder> {
   Future<XFile?> _cropImage(XFile source) async {
     final CroppedFile? cropped = await ImageCropper().cropImage(
       sourcePath: source.path,
-      aspectRatio: const CropAspectRatio(ratioX: AppMediaRatios.candidatePhoto, ratioY: 1),
+      aspectRatio: const CropAspectRatio(ratioX: 9, ratioY: 16),
       uiSettings: [
         AndroidUiSettings(
           lockAspectRatio: true,

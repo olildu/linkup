@@ -62,7 +62,7 @@ class OtherProfileLoadedView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final height = MediaQuery.of(context).size.height * 0.8;
-    // final availableHeight = showChatButton ? height - 60.h - 30.h : height - 25.h;
+    final availableHeight = showChatButton ? height - 60.h - 30.h : height - 25.h;
 
     return Container(
       height: height,
@@ -77,8 +77,7 @@ class OtherProfileLoadedView extends StatelessWidget {
           children: [
             Expanded(
               child: SingleChildScrollView(
-                child: CandidateDetailBuilder(candidate: candidate),
-                // child: CandidateDetailBuilder(availableHeight: availableHeight, candidate: candidate),
+                child: CandidateDetailBuilder(availableHeight: availableHeight, candidate: candidate),
               ),
             ),
             if (showChatButton) ...{

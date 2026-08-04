@@ -19,7 +19,6 @@ class CandidateDetailBuilder extends StatelessWidget {
 
   const CandidateDetailBuilder({super.key, required this.availableHeight, required this.candidate});
 
-
   @override
   Widget build(BuildContext context) {
     final localCandidate = candidate;
@@ -189,7 +188,7 @@ class CandidateDetailBuilder extends StatelessWidget {
         Gap(AppSpacing.sm.h),
 
         SizedBox(
-          height: availableHeight * 0.8 * imageRest.length + 10,
+          height: availableHeight * imageRest.length + 10,
           child: ListView.builder(
             physics: NeverScrollableScrollPhysics(),
             itemCount: imageRest.length,
@@ -198,7 +197,7 @@ class CandidateDetailBuilder extends StatelessWidget {
                 children: [
                   ImageBuilder(
                     imageMetaData: imageRest[index],
-                    height: availableHeight * 0.8,
+                    height: availableHeight,
                     onTap: () => showFullScreenImage(imageRest[index]['url']),
                   ),
                   Gap(AppSpacing.sm.h),

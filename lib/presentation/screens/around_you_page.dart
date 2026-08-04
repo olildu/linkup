@@ -8,7 +8,7 @@ import 'package:linkup/logic/bloc/matches/matches_bloc.dart';
 import 'package:linkup/presentation/components/candidate_detail_scroll/candidate_detail_builder.dart';
 import 'package:linkup/presentation/constants/colors.dart';
 import 'package:linkup/presentation/theme/app_spacing.dart';
-import 'package:linkup/presentation/utils/scaffold_message_display.dart';
+import 'package:linkup/presentation/utils/swipe_limit_alert.dart';
 
 class AroundYouPage extends StatefulWidget {
   const AroundYouPage({super.key});
@@ -46,7 +46,7 @@ class _AroundYouPageState extends State<AroundYouPage> {
               allowedSwipeDirection: AllowedSwipeDirection.symmetric(vertical: false, horizontal: true),
               onSwipe: (previousIndex, currentIndex, direction) async {
                 if (direction == CardSwiperDirection.right && state.swipesRemaining == 0) {
-                  showScaffoldMessage(context: context, message: "Daily like limit reached. Try again later.");
+                  showSwipeLimitAlert(context);
                   return false;
                 }
 
@@ -56,27 +56,22 @@ class _AroundYouPageState extends State<AroundYouPage> {
                 return true;
               },
               cardBuilder: (context, index, percentThresholdX, percentThresholdY) {
-                return LayoutBuilder(
-                  builder: (context, constraints) {
-                    double availableHeight = constraints.maxHeight;
-                    return Container(
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          begin: Alignment.topCenter,
-                          end: Alignment.bottomCenter,
-                          colors: [
-                            Theme.of(context).colorScheme.surface,
-                            Theme.of(context).colorScheme.surface,
-                          ],
-                        ),
-                        borderRadius: BorderRadius.circular(20.r),
-                      ),
-                      child: SingleChildScrollView(
-                        controller: scrollController,
-                        child: CandidateDetailBuilder(key: PageStorageKey('candidate_${candidates[index].id}'), availableHeight: availableHeight, candidate: candidates[index]),
-                      ),
-                    );
-                  },
+                return Container(
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      colors: [
+                        Theme.of(context).colorScheme.surface,
+                        Theme.of(context).colorScheme.surface,
+                      ],
+                    ),
+                    borderRadius: BorderRadius.circular(20.r),
+                  ),
+                  child: SingleChildScrollView(
+                    controller: scrollController,
+                    child: CandidateDetailBuilder(key: PageStorageKey('candidate_${candidates[index].id}'), candidate: candidates[index]),
+                  ),
                 );
               },
             );

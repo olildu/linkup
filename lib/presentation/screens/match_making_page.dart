@@ -15,7 +15,7 @@ import 'package:linkup/presentation/screens/meet_at_8_page.dart';
 import 'package:linkup/presentation/screens/profile_settings_page.dart';
 import 'package:linkup/presentation/screens/connections_page.dart';
 import 'package:linkup/presentation/screens/set_preferences_page.dart';
-import 'package:linkup/presentation/utils/scaffold_message_display.dart';
+import 'package:linkup/presentation/utils/swipe_limit_alert.dart';
 
 class MatchMakingPage extends StatefulWidget {
   const MatchMakingPage({super.key});
@@ -36,7 +36,7 @@ class _MatchMakingPageState extends State<MatchMakingPage> with SingleTickerProv
         }
 
         if (state is MatchesLoaded && state.limitMessage != null && context.mounted) {
-          showScaffoldMessage(context: context, message: state.limitMessage!);
+          showSwipeLimitAlert(context);
           context.read<MatchesBloc>().add(ClearLimitMessageEvent());
         }
       },
@@ -54,12 +54,15 @@ class _MatchMakingPageState extends State<MatchMakingPage> with SingleTickerProv
                       children: [
                         IconButton(
                           icon: Icon(Icons.tune_rounded, size: 28.sp),
-                          onPressed: () {
-                            Navigator.of(context).push(
+                          onPressed: () async {
+                            await Navigator.of(context).push(
                               CupertinoPageRoute(
                                 builder: (context) => BlocProvider(create: (context) => sl<PreferencesBloc>(), child: SetPreferencesPage()),
                               ),
                             );
+                            if (context.mounted) {
+                              context.read<MatchesBloc>().add(LoadMatchesEvent(refresh: true));
+                            }
                           },
                         ),
 

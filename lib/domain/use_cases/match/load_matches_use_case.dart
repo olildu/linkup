@@ -5,5 +5,6 @@ class LoadMatchesUseCase {
   final MatchRepository _repository;
   const LoadMatchesUseCase(this._repository);
 
-  Future<List<MatchCandidateEntity>> call() => _repository.getMatchUsers();
+  Future<List<MatchCandidateEntity>> call({bool refresh = false}) =>
+      _repository.getMatchUsers(refresh: refresh);
 }

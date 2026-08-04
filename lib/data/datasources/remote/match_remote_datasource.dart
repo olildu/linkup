@@ -13,8 +13,10 @@ class MatchRemoteDatasource {
 
   MatchRemoteDatasource(this._client);
 
-  Future<List<MatchCandidateModel>> getMatchUsers() async {
-    final response = await _client.get(Uri.parse('$BASE_URL/matches/get-matches'));
+  Future<List<MatchCandidateModel>> getMatchUsers({bool refresh = false}) async {
+    final response = await _client.get(
+      Uri.parse('$BASE_URL/matches/get-matches${refresh ? '?refresh=true' : ''}'),
+    );
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);
       return (data['matches'] as List)

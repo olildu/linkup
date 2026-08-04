@@ -22,8 +22,8 @@ class MatchRepositoryImpl implements MatchRepository {
         _chatLocalDatasource = chatLocalDatasource;
 
   @override
-  Future<List<MatchCandidateEntity>> getMatchUsers() async {
-    final models = await _matchDatasource.getMatchUsers();
+  Future<List<MatchCandidateEntity>> getMatchUsers({bool refresh = false}) async {
+    final models = await _matchDatasource.getMatchUsers(refresh: refresh);
     return models
         .map((m) => MatchCandidateEntity(
               id: m.id,

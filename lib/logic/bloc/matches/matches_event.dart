@@ -3,7 +3,11 @@ part of 'matches_bloc.dart';
 @immutable
 sealed class MatchesEvent {}
 
-class LoadMatchesEvent extends MatchesEvent{}
+class LoadMatchesEvent extends MatchesEvent{
+  final bool refresh;
+
+  LoadMatchesEvent({this.refresh = false});
+}
 
 class MatchesDeckCompletedEvent extends MatchesEvent{}
 

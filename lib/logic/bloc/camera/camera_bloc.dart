@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:bloc/bloc.dart';
 import 'package:camera/camera.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
+import 'package:linkup/core/errors/error_message_mapper.dart';
 import 'package:gal/gal.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:meta/meta.dart';
@@ -45,7 +46,7 @@ class CameraBloc extends Bloc<CameraEvent, CameraState> {
         log('Camera initialized successfully', name: _logTag);
       } catch (e, st) {
         log('Camera init failed: $e', name: _logTag, stackTrace: st);
-        emit(CameraError(e.toString()));
+        emit(CameraError(friendlyErrorMessage(e)));
       }
     });
 
@@ -65,7 +66,7 @@ class CameraBloc extends Bloc<CameraEvent, CameraState> {
         log('Switched to camera index $_selectedIndex', name: _logTag);
       } catch (e, st) {
         log('Camera switch failed: $e', name: _logTag, stackTrace: st);
-        emit(CameraError(e.toString()));
+        emit(CameraError(friendlyErrorMessage(e)));
       }
     });
 
@@ -109,7 +110,7 @@ class CameraBloc extends Bloc<CameraEvent, CameraState> {
         _imageProcessing = false;
       } catch (e, st) {
         log('Capture failed: $e', name: _logTag, stackTrace: st);
-        emit(CameraError(e.toString()));
+        emit(CameraError(friendlyErrorMessage(e)));
         _imageProcessing = false;
       }
     });
@@ -131,7 +132,7 @@ class CameraBloc extends Bloc<CameraEvent, CameraState> {
         _controller = null;
       } catch (e, st) {
         log('Gallery pick failed: $e', name: _logTag, stackTrace: st);
-        emit(CameraError(e.toString()));
+        emit(CameraError(friendlyErrorMessage(e)));
       }
     });
 
@@ -147,7 +148,7 @@ class CameraBloc extends Bloc<CameraEvent, CameraState> {
         }
       } catch (e, st) {
         log('Save failed: $e', name: _logTag, stackTrace: st);
-        emit(CameraError(e.toString()));
+        emit(CameraError(friendlyErrorMessage(e)));
       }
     });
   }

@@ -5,14 +5,8 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get_it/get_it.dart';
 import 'package:http/http.dart' as http;
 import 'package:linkup/core/constants/app_constants.dart';
-
-class SwipeLimitException implements Exception {
-  final String message;
-  SwipeLimitException(this.message);
-
-  @override
-  String toString() => message;
-}
+import 'package:linkup/core/errors/api_exception.dart';
+import 'package:linkup/core/errors/error_message_mapper.dart';
 
 class CustomHttpClient {
   final _storage = GetIt.instance<FlutterSecureStorage>();
@@ -45,44 +39,44 @@ class CustomHttpClient {
       return handleResponse(await request());
     } on SwipeLimitException {
       rethrow;
+    } on ApiException {
+      rethrow;
     } on SocketException {
-      throw Exception('No internet connection. Please check your network.');
+      throw ApiException(
+        statusCode: 0,
+        message: 'No internet connection. Please check your network.',
+        rawDetail: 'socket_exception',
+      );
     } on HttpException {
-      throw Exception("Couldn't find the requested service.");
+      throw ApiException(
+        statusCode: 0,
+        message: "Couldn't find the requested service.",
+        rawDetail: 'http_exception',
+      );
     } on FormatException {
-      throw Exception('Bad response format from server.');
+      throw ApiException(
+        statusCode: 0,
+        message: 'Unexpected response from the server. Please try again.',
+        rawDetail: 'format_exception',
+      );
     } catch (e) {
-      throw Exception('An unexpected error occurred. Please try again.');
+      throw ApiException(statusCode: 0, message: friendlyErrorMessage(e), rawDetail: e.toString());
     }
   }
 
   http.Response handleResponse(http.Response response) {
     if (response.statusCode >= 200 && response.statusCode < 300) return response;
 
-    String message = 'Something went wrong (Error ${response.statusCode})';
+    String detail = '';
     try {
       final body = jsonDecode(response.body) as Map<String, dynamic>;
-      final detail = body['detail']?.toString() ?? '';
-
-      if (detail.contains('duplicate key') && detail.contains('users_email_key')) {
-        message = 'This email is already registered. Please log in.';
-      } else if (detail.contains('OTP verification failed')) {
-        message = 'The code you entered is incorrect. Please try again.';
-      } else if (detail.contains('Password must contain at')) {
-        message = 'Password must contain at least one uppercase letter, one lowercase letter, and one symbol.';
-      } else if (detail.contains('Face not detected')) {
-        message = "We couldn't detect a clear face in your photo.";
-      } else if (response.statusCode == 401) {
-        message = 'Session expired. Please log in again.';
-      } else if (response.statusCode == 500) {
-        message = 'Server maintenance. Please try again in a few minutes.';
-      } else if (detail.isNotEmpty) {
-        message = detail;
-      }
+      detail = body['detail']?.toString() ?? '';
     } catch (_) {}
 
+    final message = friendlyFromResponse(response.statusCode, detail);
+
     if (response.statusCode == 429) throw SwipeLimitException(message);
-    throw Exception(message);
+    throw ApiException(statusCode: response.statusCode, message: message, rawDetail: detail);
   }
 
   Future<http.Response> _withAuth(Future<http.Response> Function(String) request) async {

@@ -37,32 +37,8 @@ class SignupOptionsConfig {
     return const SignupOptionsConfig(
       version: 1,
       programs: [
-        SignupProgramOption(
-          id: 'btech-computer-science',
-          label: 'BTech Computer Science',
-          years: 4,
-        ),
-        SignupProgramOption(
-          id: 'btech-information-technology',
-          label: 'BTech Information Technology',
-          years: 4,
-        ),
-        SignupProgramOption(
-          id: 'btech-mechanical-engineering',
-          label: 'BTech Mechanical Engineering',
-          years: 4,
-        ),
-        SignupProgramOption(
-          id: 'btech-civil-engineering',
-          label: 'BTech Civil Engineering',
-          years: 4,
-        ),
-        SignupProgramOption(
-          id: 'btech-electrical-engineering',
-          label: 'BTech Electrical Engineering',
-          years: 4,
-        ),
-        SignupProgramOption(id: 'bsc-computer-science', label: 'BSc Computer Science', years: 3),
+        SignupProgramOption(id: 'btech', label: 'BTech', years: 4),
+        SignupProgramOption(id: 'bsc', label: 'BSc', years: 3),
       ],
     );
   }

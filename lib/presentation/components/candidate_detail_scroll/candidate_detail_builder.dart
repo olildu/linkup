@@ -9,14 +9,14 @@ import 'package:linkup/logic/utils/ordinal_helper.dart';
 import 'package:linkup/presentation/components/candidate_detail_scroll/info_builder.dart';
 import 'package:linkup/presentation/components/signup_page/image_builder.dart';
 import 'package:linkup/presentation/screens/full_screen_image_page.dart';
+import 'package:linkup/presentation/theme/app_media_ratios.dart';
 import 'package:linkup/presentation/theme/app_radius.dart';
 import 'package:linkup/presentation/theme/app_spacing.dart';
 
 class CandidateDetailBuilder extends StatelessWidget {
-  final double availableHeight;
   final MatchCandidateEntity candidate;
 
-  const CandidateDetailBuilder({super.key, required this.availableHeight, required this.candidate});
+  const CandidateDetailBuilder({super.key, required this.candidate});
 
   @override
   Widget build(BuildContext context) {
@@ -39,17 +39,12 @@ class CandidateDetailBuilder extends StatelessWidget {
         // First image card
         Stack(
           children: [
-            LayoutBuilder(
-              builder: (context, constraints) {
-                Map imagePath = localCandidate.photos[0];
-                return ImageBuilder(
-                  imageMetaData: imagePath,
-                  height: availableHeight,
-                  onTap: () {
-                    showFullScreenImage(imagePath['url']);
-                  },
-                );
-              },
+            AspectRatio(
+              aspectRatio: AppMediaRatios.candidatePhoto,
+              child: ImageBuilder(
+                imageMetaData: localCandidate.photos[0],
+                onTap: () => showFullScreenImage(localCandidate.photos[0]['url']),
+              ),
             ),
 
             Positioned(
@@ -186,24 +181,24 @@ class CandidateDetailBuilder extends StatelessWidget {
 
         Gap(AppSpacing.sm.h),
 
-        SizedBox(
-          height: availableHeight * 0.8 * imageRest.length + 10,
-          child: ListView.builder(
-            physics: NeverScrollableScrollPhysics(),
-            itemCount: imageRest.length,
-            itemBuilder: (context, index) {
-              return Column(
-                children: [
-                  ImageBuilder(
+        ListView.builder(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          itemCount: imageRest.length,
+          itemBuilder: (context, index) {
+            return Column(
+              children: [
+                AspectRatio(
+                  aspectRatio: AppMediaRatios.candidatePhoto,
+                  child: ImageBuilder(
                     imageMetaData: imageRest[index],
-                    height: availableHeight * 0.8,
                     onTap: () => showFullScreenImage(imageRest[index]['url']),
                   ),
-                  Gap(AppSpacing.sm.h),
-                ],
-              );
-            },
-          ),
+                ),
+                Gap(AppSpacing.sm.h),
+              ],
+            );
+          },
         ),
 
         Gap(AppSpacing.sm.h),

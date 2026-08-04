@@ -4,6 +4,8 @@ import 'dart:developer';
 import 'package:http/http.dart' as http;
 import 'package:linkup/core/constants/app_constants.dart';
 import 'package:linkup/core/enums/otp_subject_enum.dart';
+import 'package:linkup/core/errors/api_exception.dart';
+import 'package:linkup/core/errors/error_message_mapper.dart';
 import 'package:linkup/core/network/custom_http_client.dart';
 import 'package:linkup/data/models/update_metadata_model.dart';
 
@@ -12,6 +14,24 @@ class AuthRemoteDatasource {
   static const _tag = 'AuthRemoteDatasource';
 
   AuthRemoteDatasource(this._client);
+
+  /// Maps a failed pre-auth response (login/signup/otp/reset — these run
+  /// before an access token exists, so they can't go through
+  /// [CustomHttpClient]) to a friendly [ApiException].
+  Never _throwFriendly(http.Response response) {
+    String detail = '';
+    try {
+      final body = jsonDecode(response.body);
+      if (body is Map<String, dynamic>) {
+        detail = body['detail']?.toString() ?? '';
+      }
+    } catch (_) {}
+    throw ApiException(
+      statusCode: response.statusCode,
+      message: friendlyFromResponse(response.statusCode, detail),
+      rawDetail: detail,
+    );
+  }
 
   Future<({String accessToken, String refreshToken, int userId})> login(
     String email,
@@ -33,7 +53,7 @@ class AuthRemoteDatasource {
         userId: body['user_id'] as int,
       );
     }
-    throw Exception('Login failed: ${response.statusCode}');
+    _throwFriendly(response);
   }
 
   Future<int> sendEmailOTP(String email) async {
@@ -61,7 +81,7 @@ class AuthRemoteDatasource {
       body: jsonEncode({'email': email, 'otp': otp, 'subject': subject.value}),
     );
     if (response.statusCode == 200) return jsonDecode(response.body);
-    throw Exception(_client.handleResponse(response));
+    _throwFriendly(response);
   }
 
   Future<({String accessToken, String refreshToken, int userId})> register(
@@ -83,8 +103,7 @@ class AuthRemoteDatasource {
         );
       }
     }
-    final error = jsonDecode(response.body);
-    throw Exception('Signup failed: ${error['detail'] ?? 'Unknown error'}');
+    _throwFriendly(response);
   }
 
   Future<bool> resetPassword(String emailHash, String password) async {
@@ -96,8 +115,7 @@ class AuthRemoteDatasource {
     if (response.statusCode == 200 || response.statusCode == 201) {
       return jsonDecode(response.body)['status'] == 'success';
     }
-    final error = jsonDecode(response.body);
-    throw Exception('Reset failed: ${error['detail'] ?? 'Unknown error'}');
+    _throwFriendly(response);
   }
 
   Future<bool> completeProfile(UpdateMetadataModel data) async {
@@ -105,10 +123,6 @@ class AuthRemoteDatasource {
       Uri.parse('$BASE_URL/register'),
       body: jsonEncode(data.toJson()),
     );
-    if (response.statusCode == 200 || response.statusCode == 201) {
-      return jsonDecode(response.body)['msg'] != null;
-    }
-    final error = jsonDecode(response.body);
-    throw Exception('Profile completion failed: ${error['detail'] ?? 'Unknown error'}');
+    return jsonDecode(response.body)['msg'] != null;
   }
 }

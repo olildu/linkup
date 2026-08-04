@@ -2,7 +2,7 @@ import 'dart:developer';
 
 import 'package:bloc/bloc.dart';
 import 'package:flutter_card_swiper/flutter_card_swiper.dart';
-import 'package:linkup/core/network/custom_http_client.dart';
+import 'package:linkup/core/errors/api_exception.dart';
 import 'package:linkup/domain/entities/match_candidate_entity.dart';
 import 'package:linkup/domain/entities/matches_connection_entity.dart';
 import 'package:linkup/domain/use_cases/match/load_matches_use_case.dart';
@@ -25,7 +25,7 @@ class MatchesBloc extends Bloc<MatchesEvent, MatchesState> {
     on<LoadMatchesEvent>((event, emit) async {
       emit(MatchesLoading());
       try {
-        final matches = await _loadMatches();
+        final matches = await _loadMatches(refresh: event.refresh);
         log(matches.toString(), name: 'MatchesBloc');
         if (matches.isEmpty) {
           emit(MatchesEmpty());

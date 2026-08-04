@@ -1,4 +1,5 @@
 import 'package:bloc/bloc.dart';
+import 'package:linkup/core/errors/error_message_mapper.dart';
 import 'package:linkup/domain/use_cases/auth/delete_account_use_case.dart';
 import 'package:linkup/domain/use_cases/auth/login_use_case.dart';
 import 'package:linkup/domain/use_cases/auth/logout_use_case.dart';
@@ -34,7 +35,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         await _login(event.email, event.password);
         emit(AuthAuthenticated());
       } catch (e) {
-        emit(AuthFailure(message: e.toString()));
+        emit(AuthFailure(message: friendlyErrorMessage(e)));
       }
     });
 
@@ -44,7 +45,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         await _register(event.emailHash, event.password);
         emit(AuthAuthenticated());
       } catch (e) {
-        emit(AuthFailure(message: e.toString()));
+        emit(AuthFailure(message: friendlyErrorMessage(e)));
       }
     });
 
@@ -54,7 +55,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         await _resetPassword(event.emailHash, event.password);
         emit(AuthAuthenticated());
       } catch (e) {
-        emit(AuthFailure(message: e.toString()));
+        emit(AuthFailure(message: friendlyErrorMessage(e)));
       }
     });
   }

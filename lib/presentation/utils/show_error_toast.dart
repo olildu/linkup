@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:linkup/core/errors/error_message_mapper.dart';
 
 /// Call this to show the toast
 void showToast({
@@ -15,7 +16,7 @@ void showToast({
 
   overlayEntry = OverlayEntry(
     builder: (context) => ToastWidget(
-      message: message,
+      message: sanitizeDisplayMessage(message),
       icon: icon,
       backgroundColor: backgroundColor ?? colorScheme.error,
       textColor: textColor ?? colorScheme.onError,

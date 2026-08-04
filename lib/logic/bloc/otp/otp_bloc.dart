@@ -1,5 +1,6 @@
 import 'package:bloc/bloc.dart';
 import 'package:linkup/core/enums/otp_subject_enum.dart';
+import 'package:linkup/core/errors/error_message_mapper.dart';
 import 'package:linkup/domain/use_cases/auth/send_otp_use_case.dart';
 import 'package:linkup/domain/use_cases/auth/verify_otp_use_case.dart';
 import 'package:meta/meta.dart';
@@ -27,7 +28,7 @@ class OtpBloc extends Bloc<OtpBlocEvent, OtpState> {
           emit(OtpFailure(message: 'Failed to send OTP'));
         }
       } catch (e) {
-        emit(OtpFailure(message: e.toString()));
+        emit(OtpFailure(message: friendlyErrorMessage(e)));
       }
     });
 
@@ -37,7 +38,7 @@ class OtpBloc extends Bloc<OtpBlocEvent, OtpState> {
         final res = await _verifyOTP(event.email, event.otp, event.subject);
         emit(OtpVerified(emailHash: res['email_hash']));
       } catch (e) {
-        emit(OtpFailure(message: e.toString()));
+        emit(OtpFailure(message: friendlyErrorMessage(e)));
       }
     });
   }

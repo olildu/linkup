@@ -13,15 +13,18 @@ class MatchRemoteDatasource {
 
   MatchRemoteDatasource(this._client);
 
-  Future<List<MatchCandidateModel>> getMatchUsers({bool refresh = false}) async {
+  Future<({List<MatchCandidateModel> matches, int? swipesRemaining})> getMatchUsers({bool refresh = false}) async {
     final response = await _client.get(
       Uri.parse('$BASE_URL/matches/get-matches${refresh ? '?refresh=true' : ''}'),
     );
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);
-      return (data['matches'] as List)
-          .map((j) => MatchCandidateModel.fromJson(j))
-          .toList();
+      return (
+        matches: (data['matches'] as List)
+            .map((j) => MatchCandidateModel.fromJson(j))
+            .toList(),
+        swipesRemaining: data['swipes_remaining'] as int?,
+      );
     }
     log('getMatchUsers error: ${response.statusCode}', name: _tag);
     throw Exception('Failed to fetch matches: ${response.statusCode}');

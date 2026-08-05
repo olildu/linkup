@@ -33,24 +33,34 @@ class _AroundYouPageState extends State<AroundYouPage> {
             // building the CardSwiper (the CardSwiper asserts when cardsCount
             // is 0 or when numberOfCardsDisplayed > cardsCount).
             if (candidates.isEmpty) {
-              return _buildMessage(icon: Icons.tune_rounded, title: "You’ve seen all nearby profiles", subtitle: "Come back later or adjust your search preferences.");
+              return _buildMessage(
+                icon: Icons.tune_rounded,
+                title: "You’ve seen all nearby profiles",
+                subtitle: "Come back later or adjust your search preferences.",
+              );
             }
-
-            final displayCount = candidates.length < 3 ? candidates.length : 3;
 
             return CardSwiper(
               padding: EdgeInsets.zero,
-              numberOfCardsDisplayed: displayCount,
               cardsCount: candidates.length,
               isLoop: false,
-              allowedSwipeDirection: AllowedSwipeDirection.symmetric(vertical: false, horizontal: true),
+              allowedSwipeDirection: AllowedSwipeDirection.symmetric(
+                vertical: false,
+                horizontal: true,
+              ),
               onSwipe: (previousIndex, currentIndex, direction) async {
                 if (direction == CardSwiperDirection.right && state.swipesRemaining == 0) {
                   showSwipeLimitAlert(context);
                   return false;
                 }
 
-                context.read<MatchesBloc>().add(SwipeProfileEvent(likedId: candidates[previousIndex].id, direction: direction, previousIndex: previousIndex));
+                context.read<MatchesBloc>().add(
+                  SwipeProfileEvent(
+                    likedId: candidates[previousIndex].id,
+                    direction: direction,
+                    previousIndex: previousIndex,
+                  ),
+                );
 
                 scrollController.jumpTo(0);
                 return true;
@@ -73,17 +83,29 @@ class _AroundYouPageState extends State<AroundYouPage> {
                       ),
                       child: SingleChildScrollView(
                         controller: scrollController,
-                        child: CandidateDetailBuilder(key: PageStorageKey('candidate_${candidates[index].id}'), availableHeight: availableHeight, candidate: candidates[index]),
+                        child: CandidateDetailBuilder(
+                          key: PageStorageKey('candidate_${candidates[index].id}'),
+                          availableHeight: availableHeight,
+                          candidate: candidates[index],
+                        ),
                       ),
                     );
-                  }
+                  },
                 );
               },
             );
           } else if (state is MatchesError) {
-            return _buildMessage(icon: Icons.search_off_rounded, title: "There’s been a glitch in the matrix", subtitle: "Things should be up and running soon. Please try restarting the app.");
+            return _buildMessage(
+              icon: Icons.search_off_rounded,
+              title: "There’s been a glitch in the matrix",
+              subtitle: "Things should be up and running soon. Please try restarting the app.",
+            );
           } else if (state is MatchesEmpty) {
-            return _buildMessage(icon: Icons.tune_rounded, title: "You’ve seen all nearby profiles", subtitle: "Come back later or adjust your search preferences.");
+            return _buildMessage(
+              icon: Icons.tune_rounded,
+              title: "You’ve seen all nearby profiles",
+              subtitle: "Come back later or adjust your search preferences.",
+            );
           } else {
             return const Center(child: CircularProgressIndicator());
           }
@@ -111,7 +133,9 @@ class _AroundYouPageState extends State<AroundYouPage> {
           Text(
             subtitle,
             textAlign: TextAlign.center,
-            style: Theme.of(context).textTheme.bodySmall?.copyWith(color: AppColors.whiteText.withValues(alpha: 0.9)),
+            style: Theme.of(
+              context,
+            ).textTheme.bodySmall?.copyWith(color: AppColors.whiteText.withValues(alpha: 0.9)),
           ),
           Gap(AppSpacing.xl5.h),
         ],

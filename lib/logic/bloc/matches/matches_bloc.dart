@@ -25,13 +25,13 @@ class MatchesBloc extends Bloc<MatchesEvent, MatchesState> {
     on<LoadMatchesEvent>((event, emit) async {
       emit(MatchesLoading());
       try {
-        final matches = await _loadMatches(refresh: event.refresh);
-        log(matches.toString(), name: 'MatchesBloc');
-        if (matches.isEmpty) {
+        final result = await _loadMatches(refresh: event.refresh);
+        log(result.matches.toString(), name: 'MatchesBloc');
+        if (result.matches.isEmpty) {
           emit(MatchesEmpty());
           return;
         }
-        emit(MatchesLoaded(matches: matches));
+        emit(MatchesLoaded(matches: result.matches, swipesRemaining: result.swipesRemaining));
       } on Exception catch (e, st) {
         log('Error loading matches: $e', stackTrace: st);
         emit(MatchesError());

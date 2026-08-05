@@ -9,7 +9,6 @@ import 'package:linkup/logic/utils/ordinal_helper.dart';
 import 'package:linkup/presentation/components/candidate_detail_scroll/info_builder.dart';
 import 'package:linkup/presentation/components/signup_page/image_builder.dart';
 import 'package:linkup/presentation/screens/full_screen_image_page.dart';
-import 'package:linkup/presentation/theme/app_media_ratios.dart';
 import 'package:linkup/presentation/theme/app_radius.dart';
 import 'package:linkup/presentation/theme/app_spacing.dart';
 

@@ -22,30 +22,33 @@ class MatchRepositoryImpl implements MatchRepository {
         _chatLocalDatasource = chatLocalDatasource;
 
   @override
-  Future<List<MatchCandidateEntity>> getMatchUsers({bool refresh = false}) async {
-    final models = await _matchDatasource.getMatchUsers(refresh: refresh);
-    return models
-        .map((m) => MatchCandidateEntity(
-              id: m.id,
-              username: m.username,
-              gender: m.gender,
-              universityId: m.universityId,
-              profilePictureMetaData: m.profilePictureMetaData,
-              dob: m.dob,
-              universityMajor: m.universityMajor,
-              universityYear: m.universityYear,
-              photos: m.photos,
-              about: m.about,
-              currentlyStaying: m.currentlyStaying,
-              hometown: m.hometown,
-              height: m.height,
-              weight: m.weight,
-              religion: m.religion,
-              smokingInfo: m.smokingInfo,
-              drinkingInfo: m.drinkingInfo,
-              lookingFor: m.lookingFor,
-            ))
-        .toList();
+  Future<({List<MatchCandidateEntity> matches, int? swipesRemaining})> getMatchUsers({bool refresh = false}) async {
+    final result = await _matchDatasource.getMatchUsers(refresh: refresh);
+    return (
+      matches: result.matches
+          .map((m) => MatchCandidateEntity(
+                id: m.id,
+                username: m.username,
+                gender: m.gender,
+                universityId: m.universityId,
+                profilePictureMetaData: m.profilePictureMetaData,
+                dob: m.dob,
+                universityMajor: m.universityMajor,
+                universityYear: m.universityYear,
+                photos: m.photos,
+                about: m.about,
+                currentlyStaying: m.currentlyStaying,
+                hometown: m.hometown,
+                height: m.height,
+                weight: m.weight,
+                religion: m.religion,
+                smokingInfo: m.smokingInfo,
+                drinkingInfo: m.drinkingInfo,
+                lookingFor: m.lookingFor,
+              ))
+          .toList(),
+      swipesRemaining: result.swipesRemaining,
+    );
   }
 
   @override

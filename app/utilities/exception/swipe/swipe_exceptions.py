@@ -46,11 +46,17 @@ def assert_under_daily_like_limit(liker_id: int, cursor):
     Raises HTTP 429 if `liker_id` has already reached DAILY_LIKE_LIMIT
     right-swipes within the last rolling 24 hours.
     """
+    if get_swipes_remaining(liker_id, cursor) <= 0:
+        raise HTTPException(status_code=429, detail="Daily like limit reached. Try again later.")
+
+def get_swipes_remaining(user_id: int, cursor) -> int:
+    """
+    Number of right-swipes `user_id` has left in the rolling 24-hour window.
+    """
     cursor.execute("""
         SELECT COUNT(*) FROM likes
         WHERE liker_id = %s AND liked = TRUE
           AND created_at >= NOW() - INTERVAL '24 hours';
-    """, (liker_id,))
-
-    if cursor.fetchone()[0] >= DAILY_LIKE_LIMIT:
-        raise HTTPException(status_code=429, detail="Daily like limit reached. Try again later.")
+    """, (user_id,))
+    likes_used_today = cursor.fetchone()[0]
+    return max(0, DAILY_LIKE_LIMIT - likes_used_today)

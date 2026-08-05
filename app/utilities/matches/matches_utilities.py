@@ -8,6 +8,7 @@ from psycopg2.extensions import cursor as Psycopg2Cursor
 from app.controllers.db_controller import db_pool
 from app.models.connection_user_model import ConnectionChatModel
 from app.models.match_canidate_model import build_candidate_model
+from app.utilities.exception.swipe.swipe_exceptions import get_swipes_remaining
 
 class MatchUserModel(BaseModel):
     id: int
@@ -73,11 +74,12 @@ def get_matches(user_id: int, refresh: bool = False) -> MatchUserModel:
 
         return {
             "matches" : get_matches_by_preference(
-                user = user, 
+                user = user,
                 cursor = cursor,
                 limit = 10 - len(user.existing_matches)
             ),
             "preferences_set": True if len(user.preferences.keys()) > 1 else False,
+            "swipes_remaining": get_swipes_remaining(user_id, cursor),
         }
     finally:
         if 'cursor' in locals():

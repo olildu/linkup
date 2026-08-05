@@ -1,5 +1,5 @@
 import json
-from typing import Dict
+from typing import Dict, Optional
 from pydantic import BaseModel
 from app.constants.global_constants import oauth2_scheme
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect, status
@@ -19,6 +19,7 @@ class DataModel(BaseModel):
     to: int
     type: str
     sub_type: str
+    data: Optional[dict] = None
 
 # Step 4: Function to push events to a specific user's active socket
 async def send_event_to_user_connection(event: DataModel):

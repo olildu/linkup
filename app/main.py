@@ -10,7 +10,8 @@ import os
 
 from app.controllers.db_controller import create_pool
 from app.routes.chats.chats_endpoints import chats_router
-from app.routes.actions.swipe_endpoint import swipe_route 
+from app.routes.actions.swipe_endpoint import swipe_route
+from app.routes.actions.likes_endpoint import likes_route
 from app.routes.matches.matches_endpoint import matches_router
 from app.routes.user.get_user_data import user_router
 from app.routes.auth.auth_endpoints import auth_router
@@ -55,6 +56,7 @@ api_v1_prefix = "/api/v1"
 app.include_router(auth_router, prefix=api_v1_prefix)
 app.include_router(user_router, prefix=api_v1_prefix)
 app.include_router(swipe_route, prefix=api_v1_prefix)
+app.include_router(likes_route, prefix=api_v1_prefix)
 app.include_router(matches_router, prefix=api_v1_prefix)
 app.include_router(chats_router, prefix=api_v1_prefix)
 app.include_router(common_router, prefix=api_v1_prefix)

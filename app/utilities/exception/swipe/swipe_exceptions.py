@@ -41,6 +41,24 @@ def assert_in_match_queue(liker_id: int, liked_id: int, cursor):
     if not result or not result[0]:
         raise HTTPException(status_code=400, detail="User not in match queue")
 
+def assert_has_liked_me(liker_id: int, current_user_id: int, cursor):
+    """
+    Check that `liker_id` has an active (undeleted) like on `current_user_id`.
+    Raises HTTP 400 if not found — prevents like-back/pass from being spoofed
+    for a user who never liked the caller.
+    """
+    cursor.execute("""
+        SELECT EXISTS (
+            SELECT 1 FROM likes
+            WHERE liker_id = %s AND liked_id = %s AND liked = TRUE
+        );
+    """, (liker_id, current_user_id))
+
+    result = cursor.fetchone()
+
+    if not result or not result[0]:
+        raise HTTPException(status_code=400, detail="This user has not liked you")
+
 def assert_under_daily_like_limit(liker_id: int, cursor):
     """
     Raises HTTP 429 if `liker_id` has already reached DAILY_LIKE_LIMIT

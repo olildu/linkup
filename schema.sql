@@ -120,12 +120,15 @@ CREATE TABLE likes (
    liker_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
    liked_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
    liked BOOLEAN NOT NULL,
-   created_at TIMESTAMP DEFAULT NOW()
+   seen_at TIMESTAMP NULL DEFAULT NULL,   -- Likes-You badge: cleared when recipient views the queue (independent of when they decide)
+   created_at TIMESTAMP DEFAULT NOW(),
+   CONSTRAINT uq_likes_liker_liked UNIQUE (liker_id, liked_id)
 );
 
 
 CREATE INDEX idx_likes_liker_id ON likes(liker_id);
 CREATE INDEX idx_likes_liked_id ON likes(liked_id);
+CREATE INDEX idx_likes_liked_pending ON likes (liked_id, created_at) WHERE liked = TRUE;
 
 
 -- MATCHES
@@ -174,6 +177,10 @@ ON CONFLICT (id) DO NOTHING;
 
 
 -- CRON CLEANUP EXAMPLE
+-- Intentionally left disabled (cron.schedule below stays commented out): the
+-- Likes-You feature relies on unreciprocated likes persisting indefinitely in
+-- the queue until the recipient explicitly likes-back or passes. Enabling
+-- this cron would silently wipe pending Likes-You entries after 5 days.
 CREATE OR REPLACE FUNCTION delete_old_likes()
 RETURNS void AS $$
 BEGIN

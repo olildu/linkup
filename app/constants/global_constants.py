@@ -24,4 +24,13 @@ IMAGEKIT_PUBLIC_KEY = os.environ.get("IMAGEKIT_PUBLIC_KEY")
 IMAGEKIT_PRIVATE_KEY = os.environ.get("IMAGEKIT_PRIVATE_KEY")
 IMAGEKIT_ENDPOINT_URL = os.environ.get("IMAGEKIT_ENDPOINT_URL")
 
+SEAWEEDFS_S3_ENDPOINT = os.environ.get("SEAWEEDFS_S3_ENDPOINT", "http://seaweedfs:8333")
+SEAWEEDFS_ACCESS_KEY = os.environ.get("SEAWEEDFS_ACCESS_KEY")
+SEAWEEDFS_SECRET_KEY = os.environ.get("SEAWEEDFS_SECRET_KEY")
+SEAWEEDFS_BUCKET = os.environ.get("SEAWEEDFS_BUCKET", "linkup-media")
+
+IMGPROXY_PUBLIC_URL = os.environ.get("IMGPROXY_PUBLIC_URL")
+IMGPROXY_KEY = os.environ.get("IMGPROXY_KEY")
+IMGPROXY_SALT = os.environ.get("IMGPROXY_SALT")
+
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")

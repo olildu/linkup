@@ -2,7 +2,6 @@ import asyncio
 import tempfile
 import cv2
 from fastapi import APIRouter, Depends, File, Form, UploadFile, HTTPException, BackgroundTasks
-from imagekitio.models.UploadFileRequestOptions import UploadFileRequestOptions
 from enum import Enum
 import uuid
 from io import BytesIO
@@ -13,9 +12,9 @@ import requests
 
 from app.constants.global_constants import oauth2_scheme
 from app.utilities.media.media_utilities import generate_blurhash
+from app.utilities.media.imgproxy_utilities import build_signed_url
 from app.utilities.token.token_utilities import decode_token
-from app.controllers.b2_controller import bucket
-from app.controllers.imagekit_controller import imagekit
+from app.controllers import seaweedfs_controller
 from app.controllers.logger_controller import logger_controller
 
 common_router = APIRouter(prefix="/upload")
@@ -29,24 +28,13 @@ MAX_FILE_SIZE_BYTES = MAX_FILE_SIZE_MB * 1024 * 1024  # 5 MB
 
 async def upload_file_async_chat(webp_content: bytes, file_key: str):
     loop = asyncio.get_event_loop()
-    await loop.run_in_executor(None, bucket.upload_bytes, webp_content, file_key)
+    await loop.run_in_executor(None, seaweedfs_controller.upload_bytes, webp_content, file_key)
 
 async def upload_file_async_user(file_path: str, file_key: str) -> tuple[str, str]:
-    parts = file_key.split("/")
-    folder = f"/{parts[0]}/{parts[1]}"
-    file_name = parts[-1]
-    options = UploadFileRequestOptions(folder=folder, is_private_file=True)
-
     loop = asyncio.get_event_loop()
-    result = await loop.run_in_executor(None, lambda: imagekit.upload(
-        file=open(file_path, "rb"), file_name=file_name, options=options
-    ))
+    await loop.run_in_executor(None, seaweedfs_controller.upload_file, file_path, file_key)
 
-    return result.file_path, imagekit.url({
-        "path": result.file_path,
-        "signed": True,
-        "expire_seconds": 1200
-    })
+    return file_key, build_signed_url(file_key)
 
 def process_image_half_and_convert_webp(content: bytes) -> tuple[bytes, int, int]:
     image = Image.open(BytesIO(content))
@@ -128,16 +116,14 @@ async def upload_media(
         if len(webp_content) > MAX_FILE_SIZE_BYTES:
             raise HTTPException(status_code=413, detail="Converted file too large.")
 
-        file_key = f"media/{user_id}/{uuid.uuid4()}.webp"
+        file_key = f"sw/media/{user_id}/{uuid.uuid4()}.webp"
         blurhash = generate_blurhash(webp_content)
 
         start_time = time.time()
         await upload_file_async_chat(webp_content, file_key)
         logger_controller.info(f"Upload time for {file_key}: {time.time() - start_time:.2f} sec")
 
-        auth_token = bucket.get_download_authorization(file_name_prefix=file_key, valid_duration_in_seconds=600)
-        base_url = bucket.get_download_url(file_key)
-        signed_url = f"{base_url}?Authorization={auth_token}"
+        signed_url = build_signed_url(file_key, expire_seconds=600)
 
         return {
             "file_key": file_key,
@@ -181,7 +167,7 @@ async def upload_media_user(
 
         blurhash = generate_blurhash(webp_content)
 
-        file_key = f"media/{user_id}/{uuid.uuid4()}.webp"
+        file_key = f"sw/media/{user_id}/{uuid.uuid4()}.webp"
         start_time = time.time()
         file_key_remote, signed_url = await upload_file_async_user(temp_file_path, file_key)
         logger_controller.info(f"Upload time for {file_key}: {time.time() - start_time:.2f}s")
@@ -223,8 +209,8 @@ async def generate_profile_picture(
             temp_input_file.write(content)
             input_path = temp_input_file.name
 
-        # Upload original image to imagekit
-        original_file_key = f"media/{user_id}/{uuid.uuid4()}.jpg"
+        # Upload original image
+        original_file_key = f"sw/media/{user_id}/{uuid.uuid4()}.jpg"
         original_file_key_remote, original_signed_url = await upload_file_async_user(input_path, original_file_key)
 
         # Temp file for cropped face
@@ -248,7 +234,7 @@ async def generate_profile_picture(
             raise HTTPException(status_code=413, detail="Converted file too large.")
 
         # Upload profile picture (webp)
-        profile_file_key = f"profile_pictures/{user_id}/pfp.webp"
+        profile_file_key = f"sw/profile_pictures/{user_id}/pfp.webp"
         blurhash_pfp = generate_blurhash(webp_content)
         blurhash_original_image = generate_blurhash(content)
 
@@ -318,7 +304,7 @@ async def generate_profile_picture_from_url(
             raise HTTPException(status_code=413, detail="Converted file too large.")
 
         # Upload profile picture (webp)
-        profile_file_key = f"profile_pictures/{user_id}/pfp.webp"
+        profile_file_key = f"sw/profile_pictures/{user_id}/pfp.webp"
         blurhash_pfp = generate_blurhash(webp_content)
 
         start_time = time.time()

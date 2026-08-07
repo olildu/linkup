@@ -52,32 +52,55 @@ The backend is structured to handle high-frequency swiping and messaging through
 | :--- | :--- | :--- |
 | **Auth Service** | Multi-stage registration and secure login | `auth_endpoints.py`, `auth_utilities.py` |
 | **Match Engine** | Location-based filtering and swipe logic | `swipe_endpoint.py`, `matches_utilities.py` |
+| **Likes-You Queue** | Ordered "who liked you" reveal queue, like-back/pass, live badge | `likes_endpoint.py`, `likes_utilities.py` |
 | **Chat Service** | Persistence and delivery of real-time interactions | `chat_websocket_endpoints.py`, `chat_utilities.py` |
 | **Controller Layer** | Interface for PostgreSQL, Redis, and Cloud Storage | `db_controller.py`, `redis_controller.py` |
 
 ## 🛠️ Development Setup
 
-Requires **Python 3.11+**.
+Requires **Docker** and **Docker Compose**. (Requires **Python 3.12+** if running outside Docker.)
 
-### **1. Installation**
+### **1. Configuration**
 ```bash
-  git clone https://github.com/olildu/linkup-backend.git
-  cd linkup-backend
-  pip install -r requirements.txt
+  cp .env.example .env
+  # fill in real secrets (JWT, ImageKit, Backblaze B2, Brevo, etc.)
 ```
+`DATABASE_HOST`/`REDIS_URL` are overridden by `docker-compose.yml` to point at
+the sibling `postgres`/`redis` containers regardless of what's in `.env`.
 
-### **2. Configuration**
+### **2. Running the Server**
 ```bash
-  DB_HOST=localhost
-  DB_NAME=linkup
-  REDIS_URL=redis://localhost:6379
-  SECRET_KEY=your_secret_key
+  cd backend
+  docker compose up --build
 ```
+This starts `postgres`, `redis`, and `backend` (hot-reload enabled via
+`docker-compose.override.yml`, auto-merged by `docker compose up`). The API
+is served at `http://localhost:8002`.
 
-### **3. Running the Server**
-```bash
-  uvicorn app.main:app --reload
-```
+On every backend container start, `migrate.py` runs automatically before
+`uvicorn` to bring the database schema up to date — see
+[Database Migrations](#-database-migrations) below.
+
+For a production deployment (prebuilt image, restart policies, Watchtower
+auto-updates), see `docker-compose.prod.yml`.
+
+## 🗄️ Database Migrations
+
+`schema.sql` is only executed by Postgres on first container init against an
+**empty** volume — editing it has no effect on a database that already
+exists. `migrations/` + `migrate.py` are what actually keep an existing
+database (local dev or prod) in sync with it.
+
+- Whenever you change `schema.sql`, also add a new idempotent file to
+  `migrations/000N_short_description.sql` (see `migrations/README.md` for
+  the convention).
+- `migrate.py` tracks applied filenames in a `schema_migrations` table and
+  only runs what's new. It's wired into the `command:` of every compose
+  file, so it runs automatically on backend startup.
+- To run it manually against an already-running container:
+  ```bash
+  docker compose exec backend python migrate.py
+  ```
 
 ## 📱 Ecosystem Logic
 

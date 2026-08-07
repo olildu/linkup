@@ -17,7 +17,7 @@ class ImagePickerBuilder extends StatefulWidget {
   final int maxImages;
   final Function(List<dynamic>, bool changePfp) onImagesChanged;
   final bool allowMultipleSelection;
-  final List<Map> initialImages;
+  final List<dynamic> initialImages;
   final bool onSignUp;
 
   const ImagePickerBuilder({
@@ -52,7 +52,7 @@ class _ImagePickerBuilderState extends State<ImagePickerBuilder> {
     }
   }
 
-  void _syncDisplayedItems(List<Map> initialImages) {
+  void _syncDisplayedItems(List<dynamic> initialImages) {
     _displayedItems
       ..clear()
       ..addAll(

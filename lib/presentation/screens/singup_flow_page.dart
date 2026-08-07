@@ -110,6 +110,9 @@ class _SingupFlowPageState extends State<SingupFlowPage> {
   @override
   void dispose() {
     _dataValidatorProvider.removeListener(_dataValidatorListener);
+    if (!_isLoadingSignupOptions) {
+      _signUpPageFlow.dispose();
+    }
     super.dispose();
   }
 

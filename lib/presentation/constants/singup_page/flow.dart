@@ -24,12 +24,24 @@ class SignUpPageFlow {
   final Map<String, dynamic>? initialData;
   SignupProgramOption? _selectedProgram;
 
+  // Owned by SignUpPageFlow (not the step widgets) so typed text survives the
+  // step widget being disposed/recreated when navigating back and forth.
+  final TextEditingController usernameController = TextEditingController();
+  final TextEditingController aboutController = TextEditingController();
+
   SignUpPageFlow(this.context, {required this.signupOptions, this.initialData}) {
     _selectedProgram =
         signupOptions.programForValue(initialData?['university_major']) ??
         signupOptions.defaultProgram;
+    usernameController.text = initialData?['username'] ?? '';
+    aboutController.text = initialData?['about'] ?? '';
     initialData == null ? _initializeSignUpFlow() : _initializeUpdateFlow();
     SignUpDataParser.initialize(context);
+  }
+
+  void dispose() {
+    usernameController.dispose();
+    aboutController.dispose();
   }
 
   DataValidatorProvider get dataValidatorProvider =>
@@ -45,6 +57,7 @@ class SignUpPageFlow {
       items: _majorLabels,
       label: 'Major',
       placeHolder: 'Search your major',
+      initialValue: _selectedProgram?.label,
       onChanged: (val) {
         Future.delayed(const Duration(milliseconds: 200), () {
           final selectedProgram =
@@ -73,6 +86,15 @@ class SignUpPageFlow {
   }
 
   Widget buildAction(int index) {
+    // Steps whose current value can change over the lifetime of the flow use a
+    // 'builder' so they're rebuilt fresh (reading the latest SignUpDataParser
+    // value) every time the step is revisited, instead of a widget instance
+    // that was frozen the first time the flow was constructed.
+    final builder = flow[index]['builder'];
+    if (builder != null) {
+      return (builder as Widget Function())();
+    }
+
     final action = flow[index]['action'];
     if (action == null) {
       // Major and year picker steps don't define a static 'action' entry.
@@ -83,7 +105,7 @@ class SignUpPageFlow {
   }
 
   int _selectedYearIndex() {
-    final currentYear = initialData?['university_year'];
+    final currentYear = SignUpDataParser.data.universityYear ?? initialData?['university_year'];
     if (currentYear is int && currentYear > 0) {
       final maxIndex = _yearLabels().length - 1;
       return currentYear - 1 > maxIndex ? maxIndex : currentYear - 1;
@@ -111,7 +133,7 @@ class SignUpPageFlow {
         'action': TextInput(
           label: "Name",
           placeHolder: "Enter your name",
-          initialValue: 'Balls Mon',
+          controller: usernameController,
           onChanged: (val) {
             if (val.trim().isNotEmpty) {
               dataValidatorProvider.allowDisallow(true);
@@ -128,7 +150,8 @@ class SignUpPageFlow {
           inputText: "When's your birthday? We'll celebrate with you",
           highlightWord: "birthday",
         ),
-        'action': DatePicker(
+        'builder': () => DatePicker(
+          initialDate: SignUpDataParser.data.dob,
           onChanged: (val) {
             Future.delayed(const Duration(milliseconds: 500), () {
               dataValidatorProvider.allowDisallow(true);
@@ -143,8 +166,9 @@ class SignUpPageFlow {
           inputText: "Select your gender to help others get to know you better",
           highlightWord: "gender",
         ),
-        'action': OptionBuilder(
+        'builder': () => OptionBuilder(
           options: ["Male", "Female"],
+          currentOption: SignUpDataParser.data.gender,
           onChanged: (val) {
             dataValidatorProvider.allowDisallow(true);
             SignUpDataParser.updateField(gender: val);
@@ -157,8 +181,9 @@ class SignUpPageFlow {
           inputText: "Let us know who you're interested in connecting with",
           highlightWord: "interested",
         ),
-        'action': OptionBuilder(
+        'builder': () => OptionBuilder(
           options: ["Male", "Female"],
+          currentOption: SignUpDataParser.data.interestedGender,
           onChanged: (val) {
             dataValidatorProvider.allowDisallow(true);
             SignUpDataParser.updateField(interestedGender: val);
@@ -185,13 +210,13 @@ class SignUpPageFlow {
           inputText: "Where are you currently staying?",
           highlightWord: "currently",
         ),
-        'action': OptionBuilder(
+        'builder': () => OptionBuilder(
           options: ["Campus Hostel", "PG", "Home", "Flat", "Other"],
           onChanged: (val) {
             dataValidatorProvider.allowDisallow(true);
             SignUpDataParser.updateField(currentlyStaying: val);
           },
-          currentOption: initialData?["currently_staying"],
+          currentOption: SignUpDataParser.data.currentlyStaying ?? initialData?["currently_staying"],
         ),
         'index': 6,
       },
@@ -200,7 +225,8 @@ class SignUpPageFlow {
           inputText: "Where is your hometown? Let us know where you’re from!",
           highlightWord: "hometown",
         ),
-        'action': CityLookup(
+        'builder': () => CityLookup(
+          initialValue: SignUpDataParser.data.hometown,
           onChanged: (val) {
             dataValidatorProvider.allowDisallow(true);
             SignUpDataParser.updateField(hometown: val);
@@ -213,10 +239,11 @@ class SignUpPageFlow {
           inputText: "Add at least 2 photos so others can see you and put face to name",
           highlightWord: "photos",
         ),
-        'action': SingleChildScrollView(
+        'builder': () => SingleChildScrollView(
           child: Column(
             children: [
               ImagePickerBuilder(
+                initialImages: SignUpDataParser.data.photos ?? const [],
                 onImagesChanged: (p0, _) {
                   if (p0.isNotEmpty && p0.length >= 2) {
                     dataValidatorProvider.allowDisallow(true);
@@ -248,6 +275,7 @@ class SignUpPageFlow {
         'action': TextInput(
           label: "About",
           placeHolder: "Tell us about yourself",
+          controller: aboutController,
           onChanged: (val) {
             if (val.isNotEmpty) {
               dataValidatorProvider.allowDisallow(true);
@@ -276,18 +304,21 @@ class SignUpPageFlow {
           inputText: "How tall are you? Some people are into stats!",
           highlightWord: "tall",
         ),
-        'action': BuildPicker(
-          controller: FixedExtentScrollController(initialItem: 0),
-          items: List.generate(100, (index) => "${110 + index + 1} cm"),
-          onSelectedItemChanged: (index) {
-            Future.delayed(const Duration(milliseconds: 500), () {
-              dataValidatorProvider.allowDisallow(true);
-              SignUpDataParser.updateField(height: 110 + index + 1);
-            });
-          },
-          selectedIndex: initialData?["height"] != null ? (initialData!["height"] - 111) : null,
-          dividerGap: 0.15,
-        ),
+        'builder': () {
+          final height = SignUpDataParser.data.height ?? initialData?["height"];
+          return BuildPicker(
+            controller: FixedExtentScrollController(initialItem: height != null ? height - 111 : 50),
+            items: List.generate(100, (index) => "${110 + index + 1} cm"),
+            onSelectedItemChanged: (index) {
+              Future.delayed(const Duration(milliseconds: 500), () {
+                dataValidatorProvider.allowDisallow(true);
+                SignUpDataParser.updateField(height: 110 + index + 1);
+              });
+            },
+            selectedIndex: height != null ? (height - 111) : null,
+            dividerGap: 0.15,
+          );
+        },
         'showProgressBar': false,
       },
       {
@@ -295,18 +326,21 @@ class SignUpPageFlow {
           inputText: "What's your weight? Totally up to you if you want to share.",
           highlightWord: "weight",
         ),
-        'action': BuildPicker(
-          controller: FixedExtentScrollController(initialItem: 0),
-          items: List.generate(90, (index) => "${30 + index + 1} kg"),
-          onSelectedItemChanged: (index) {
-            Future.delayed(const Duration(milliseconds: 500), () {
-              dataValidatorProvider.allowDisallow(true);
-              SignUpDataParser.updateField(weight: 30 + index + 1);
-            });
-          },
-          dividerGap: 0.15,
-          selectedIndex: initialData?["weight"] != null ? (initialData!["weight"] - 31) : null,
-        ),
+        'builder': () {
+          final weight = SignUpDataParser.data.weight ?? initialData?["weight"];
+          return BuildPicker(
+            controller: FixedExtentScrollController(initialItem: weight != null ? weight - 31 : 45),
+            items: List.generate(90, (index) => "${30 + index + 1} kg"),
+            onSelectedItemChanged: (index) {
+              Future.delayed(const Duration(milliseconds: 500), () {
+                dataValidatorProvider.allowDisallow(true);
+                SignUpDataParser.updateField(weight: 30 + index + 1);
+              });
+            },
+            dividerGap: 0.15,
+            selectedIndex: weight != null ? (weight - 31) : null,
+          );
+        },
         'showProgressBar': false,
       },
       {
@@ -314,7 +348,7 @@ class SignUpPageFlow {
           inputText: "What's your religion? Only if you feel like sharing!",
           highlightWord: "religion",
         ),
-        'action': OptionBuilder(
+        'builder': () => OptionBuilder(
           options: [
             "Islam",
             "Sikhism",
@@ -328,7 +362,7 @@ class SignUpPageFlow {
             dataValidatorProvider.allowDisallow(true);
             SignUpDataParser.updateField(religion: val);
           },
-          currentOption: initialData?['religion'],
+          currentOption: SignUpDataParser.data.religion ?? initialData?['religion'],
         ),
         'showProgressBar': false,
       },
@@ -337,13 +371,13 @@ class SignUpPageFlow {
           inputText: "Do you smoke? Just helping people vibe better",
           highlightWord: "smoke",
         ),
-        'action': OptionBuilder(
+        'builder': () => OptionBuilder(
           options: ["Yes", "Trying to quit", "Occasionally", "No"],
           onChanged: (val) {
             dataValidatorProvider.allowDisallow(true);
             SignUpDataParser.updateField(smokingInfo: val);
           },
-          currentOption: initialData?["smoking_info"],
+          currentOption: SignUpDataParser.data.smokingInfo ?? initialData?["smoking_info"],
         ),
         'showProgressBar': false,
       },
@@ -352,13 +386,13 @@ class SignUpPageFlow {
           inputText: "Do you enjoy a drink now and then or not your thing?",
           highlightWord: "drink",
         ),
-        'action': OptionBuilder(
+        'builder': () => OptionBuilder(
           options: ["Yes", "Trying to quit", "Occasionally", "No"],
           onChanged: (val) {
             dataValidatorProvider.allowDisallow(true);
             SignUpDataParser.updateField(drinkingInfo: val);
           },
-          currentOption: initialData?["drinking_info"],
+          currentOption: SignUpDataParser.data.drinkingInfo ?? initialData?["drinking_info"],
         ),
         'showProgressBar': false,
       },
@@ -367,13 +401,13 @@ class SignUpPageFlow {
           inputText: "What kind of connection are you looking for?",
           highlightWord: "connection",
         ),
-        'action': OptionBuilder(
+        'builder': () => OptionBuilder(
           options: ["Casual", "Open to anything", "Serious", "Friends", "Not sure yet"],
           onChanged: (val) {
             dataValidatorProvider.allowDisallow(true);
             SignUpDataParser.updateField(lookingFor: val);
           },
-          currentOption: initialData?["looking_for"],
+          currentOption: SignUpDataParser.data.lookingFor ?? initialData?["looking_for"],
         ),
         'showProgressBar': false,
       },
@@ -387,13 +421,13 @@ class SignUpPageFlow {
           inputText: "Where are you currently staying?",
           highlightWord: "currently",
         ),
-        'action': OptionBuilder(
+        'builder': () => OptionBuilder(
           options: ["Campus Hostel", "PG", "Home", "Flat", "Other"],
           onChanged: (val) {
             dataValidatorProvider.allowDisallow(true);
             SignUpDataParser.updateField(currentlyStaying: val);
           },
-          currentOption: initialData?["currently_staying"],
+          currentOption: SignUpDataParser.data.currentlyStaying ?? initialData?["currently_staying"],
         ),
         'showProgressBar': false,
       },
@@ -402,7 +436,8 @@ class SignUpPageFlow {
           inputText: "Where is your hometown? Let us know where you’re from!",
           highlightWord: "hometown",
         ),
-        'action': CityLookup(
+        'builder': () => CityLookup(
+          initialValue: SignUpDataParser.data.hometown,
           onChanged: (val) {
             dataValidatorProvider.allowDisallow(true);
             SignUpDataParser.updateField(hometown: val);
@@ -415,18 +450,21 @@ class SignUpPageFlow {
           inputText: "How tall are you? Some people are into stats!",
           highlightWord: "tall",
         ),
-        'action': BuildPicker(
-          controller: FixedExtentScrollController(initialItem: 0),
-          items: List.generate(100, (index) => "${110 + index + 1} cm"),
-          onSelectedItemChanged: (index) {
-            Future.delayed(const Duration(milliseconds: 500), () {
-              dataValidatorProvider.allowDisallow(true);
-              SignUpDataParser.updateField(height: 110 + index + 1);
-            });
-          },
-          selectedIndex: initialData?["height"] != null ? (initialData!["height"] - 111) : null,
-          dividerGap: 0.15,
-        ),
+        'builder': () {
+          final height = SignUpDataParser.data.height ?? initialData?["height"];
+          return BuildPicker(
+            controller: FixedExtentScrollController(initialItem: height != null ? height - 111 : 50),
+            items: List.generate(100, (index) => "${110 + index + 1} cm"),
+            onSelectedItemChanged: (index) {
+              Future.delayed(const Duration(milliseconds: 500), () {
+                dataValidatorProvider.allowDisallow(true);
+                SignUpDataParser.updateField(height: 110 + index + 1);
+              });
+            },
+            selectedIndex: height != null ? (height - 111) : null,
+            dividerGap: 0.15,
+          );
+        },
         'showProgressBar': false,
       },
       {
@@ -434,18 +472,21 @@ class SignUpPageFlow {
           inputText: "What's your weight? Totally up to you if you want to share.",
           highlightWord: "weight",
         ),
-        'action': BuildPicker(
-          controller: FixedExtentScrollController(initialItem: 0),
-          items: List.generate(90, (index) => "${30 + index + 1} kg"),
-          onSelectedItemChanged: (index) {
-            Future.delayed(const Duration(milliseconds: 500), () {
-              dataValidatorProvider.allowDisallow(true);
-              SignUpDataParser.updateField(weight: 30 + index + 1);
-            });
-          },
-          dividerGap: 0.15,
-          selectedIndex: initialData?["weight"] != null ? (initialData!["weight"] - 31) : null,
-        ),
+        'builder': () {
+          final weight = SignUpDataParser.data.weight ?? initialData?["weight"];
+          return BuildPicker(
+            controller: FixedExtentScrollController(initialItem: weight != null ? weight - 31 : 45),
+            items: List.generate(90, (index) => "${30 + index + 1} kg"),
+            onSelectedItemChanged: (index) {
+              Future.delayed(const Duration(milliseconds: 500), () {
+                dataValidatorProvider.allowDisallow(true);
+                SignUpDataParser.updateField(weight: 30 + index + 1);
+              });
+            },
+            dividerGap: 0.15,
+            selectedIndex: weight != null ? (weight - 31) : null,
+          );
+        },
         'showProgressBar': false,
       },
       {
@@ -453,7 +494,7 @@ class SignUpPageFlow {
           inputText: "What's your religion? Only if you feel like sharing!",
           highlightWord: "religion",
         ),
-        'action': OptionBuilder(
+        'builder': () => OptionBuilder(
           options: [
             "Islam",
             "Sikhism",
@@ -467,7 +508,7 @@ class SignUpPageFlow {
             dataValidatorProvider.allowDisallow(true);
             SignUpDataParser.updateField(religion: val);
           },
-          currentOption: initialData?['religion'],
+          currentOption: SignUpDataParser.data.religion ?? initialData?['religion'],
         ),
         'showProgressBar': false,
       },
@@ -476,13 +517,13 @@ class SignUpPageFlow {
           inputText: "Do you smoke? Just helping people vibe better",
           highlightWord: "smoke",
         ),
-        'action': OptionBuilder(
+        'builder': () => OptionBuilder(
           options: ["Yes", "Trying to quit", "Occasionally", "No"],
           onChanged: (val) {
             dataValidatorProvider.allowDisallow(true);
             SignUpDataParser.updateField(smokingInfo: val);
           },
-          currentOption: initialData?["smoking_info"],
+          currentOption: SignUpDataParser.data.smokingInfo ?? initialData?["smoking_info"],
         ),
         'showProgressBar': false,
       },
@@ -491,13 +532,13 @@ class SignUpPageFlow {
           inputText: "Do you enjoy a drink now and then or not your thing?",
           highlightWord: "drink",
         ),
-        'action': OptionBuilder(
+        'builder': () => OptionBuilder(
           options: ["Yes", "Trying to quit", "Occasionally", "No"],
           onChanged: (val) {
             dataValidatorProvider.allowDisallow(true);
             SignUpDataParser.updateField(drinkingInfo: val);
           },
-          currentOption: initialData?["drinking_info"],
+          currentOption: SignUpDataParser.data.drinkingInfo ?? initialData?["drinking_info"],
         ),
         'showProgressBar': false,
       },
@@ -506,13 +547,13 @@ class SignUpPageFlow {
           inputText: "What kind of connection are you looking for?",
           highlightWord: "connection",
         ),
-        'action': OptionBuilder(
+        'builder': () => OptionBuilder(
           options: ["Casual", "Open to anything", "Serious", "Friends", "Not sure yet"],
           onChanged: (val) {
             dataValidatorProvider.allowDisallow(true);
             SignUpDataParser.updateField(lookingFor: val);
           },
-          currentOption: initialData?["looking_for"],
+          currentOption: SignUpDataParser.data.lookingFor ?? initialData?["looking_for"],
         ),
         'showProgressBar': false,
       },

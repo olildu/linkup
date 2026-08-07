@@ -3,7 +3,8 @@ import 'package:linkup/presentation/components/signup_page/lookup_picker.dart';
 
 class CityLookup extends StatelessWidget {
   final Function(String) onChanged;
-  const CityLookup({super.key, required this.onChanged});
+  final String? initialValue;
+  const CityLookup({super.key, required this.onChanged, this.initialValue});
 
   static const List<String> _initialCities = [
     "Mumbai, Maharashtra",
@@ -36,6 +37,7 @@ class CityLookup extends StatelessWidget {
       onChanged: onChanged,
       label: 'City',
       placeHolder: 'Search your hometown',
+      initialValue: initialValue,
     );
   }
 }

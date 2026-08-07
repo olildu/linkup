@@ -21,8 +21,9 @@ class _Debouncer {
 
 class DatePicker extends StatefulWidget {
   final void Function(DateTime date)? onChanged;
+  final DateTime? initialDate;
 
-  const DatePicker({super.key, this.onChanged});
+  const DatePicker({super.key, this.onChanged, this.initialDate});
 
   @override
   DatePickerState createState() => DatePickerState();
@@ -78,9 +79,16 @@ class DatePickerState extends State<DatePicker> {
       'December': List.generate(31, (index) => (index + 1).toString()),
     };
 
-    selectedYearIndex = (years.length ~/ 2);
-    selectedMonthIndex = 5;
-    selectedDayIndex = 14;
+    final initial = widget.initialDate;
+    if (initial != null && initial.year >= minYear && initial.year <= maxYear) {
+      selectedYearIndex = initial.year - minYear;
+      selectedMonthIndex = initial.month - 1;
+      selectedDayIndex = initial.day - 1;
+    } else {
+      selectedYearIndex = (years.length ~/ 2);
+      selectedMonthIndex = 5;
+      selectedDayIndex = 14;
+    }
 
     _monthController = FixedExtentScrollController(initialItem: selectedMonthIndex);
     _dayController = FixedExtentScrollController(initialItem: selectedDayIndex);

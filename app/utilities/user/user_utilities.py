@@ -1,16 +1,8 @@
 from fastapi import Depends, HTTPException
 from app.models.user_model import build_user_model
-from app.utilities.password.password_utilities import verify_password
-from app.utilities.user.user_db_utilities import get_user_from_db
 from app.utilities.exception.swipe.swipe_exceptions import get_swipes_remaining
 
 from app.controllers.db_controller import db_pool
-
-def authenticate_user(email: str, password: str):
-    user = get_user_from_db(email=email)
-    if user and verify_password(password, user["hashed_password"]):
-        return user
-    return None
 
 def get_user_details(user_id: int):
     conn = db_pool.getconn()

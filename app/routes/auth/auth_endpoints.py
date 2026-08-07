@@ -13,10 +13,11 @@ from app.models.register_request_model import RegisterRequest
 
 from app.models.signup_request_model import SignUpRequest
 from app.utilities.auth.auth_utilities import EmailOTPData, add_partial_user_to_db, generate_otp, send_otp_email, store_otp, verify_otp_internal, reset_user_password
-from app.utilities.password.password_utilities import hash_password
+from app.utilities.exception.auth.auth_exceptions import assert_under_login_attempt_limit, record_failed_login_attempt, reset_login_attempts
+from app.utilities.password.password_utilities import hash_password, verify_password
 from app.utilities.token.token_utilities import create_access_token, create_refresh_token, decode_token
 from app.utilities.user.user_db_utilities import add_user_to_db, get_user_from_db
-from app.utilities.user.user_utilities import authenticate_user, get_user_details
+from app.utilities.user.user_utilities import get_user_details
 
 from app.constants.global_constants import oauth2_scheme
 
@@ -52,9 +53,19 @@ def send_otp(email: EmailStr):
 
 @auth_router.post("/token")
 async def login(form_data: OAuth2PasswordRequestForm = Depends()):
-    user = authenticate_user(form_data.username, form_data.password)
-    if not user:
+    email = form_data.username
+    assert_under_login_attempt_limit(email)
+
+    user = get_user_from_db(email=email)
+    if user is None:
+        record_failed_login_attempt(email)
+        raise HTTPException(status_code=404, detail="No account found with this email")
+
+    if not verify_password(form_data.password, user["hashed_password"]):
+        record_failed_login_attempt(email)
         raise HTTPException(status_code=400, detail="Invalid username or password")
+
+    reset_login_attempts(email)
 
     access_token = create_access_token(
         data={"id": user['id'], "email" : user['email']},

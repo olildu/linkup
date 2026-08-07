@@ -15,17 +15,21 @@ class AuthRemoteDatasource {
 
   AuthRemoteDatasource(this._client);
 
+  String _extractDetail(http.Response response) {
+    try {
+      final body = jsonDecode(response.body);
+      if (body is Map<String, dynamic>) {
+        return body['detail']?.toString() ?? '';
+      }
+    } catch (_) {}
+    return '';
+  }
+
   /// Maps a failed pre-auth response (login/signup/otp/reset — these run
   /// before an access token exists, so they can't go through
   /// [CustomHttpClient]) to a friendly [ApiException].
   Never _throwFriendly(http.Response response) {
-    String detail = '';
-    try {
-      final body = jsonDecode(response.body);
-      if (body is Map<String, dynamic>) {
-        detail = body['detail']?.toString() ?? '';
-      }
-    } catch (_) {}
+    final detail = _extractDetail(response);
     throw ApiException(
       statusCode: response.statusCode,
       message: friendlyFromResponse(response.statusCode, detail),
@@ -52,6 +56,9 @@ class AuthRemoteDatasource {
         refreshToken: body['refresh_token'] as String,
         userId: body['user_id'] as int,
       );
+    }
+    if (response.statusCode == 404) {
+      throw AccountNotFoundException(friendlyFromResponse(404, _extractDetail(response)));
     }
     _throwFriendly(response);
   }

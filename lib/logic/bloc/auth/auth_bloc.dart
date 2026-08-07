@@ -1,4 +1,5 @@
 import 'package:bloc/bloc.dart';
+import 'package:linkup/core/errors/api_exception.dart';
 import 'package:linkup/core/errors/error_message_mapper.dart';
 import 'package:linkup/domain/use_cases/auth/delete_account_use_case.dart';
 import 'package:linkup/domain/use_cases/auth/login_use_case.dart';
@@ -34,6 +35,8 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       try {
         await _login(event.email, event.password);
         emit(AuthAuthenticated());
+      } on AccountNotFoundException catch (e) {
+        emit(AuthAccountNotFound(message: e.message));
       } catch (e) {
         emit(AuthFailure(message: friendlyErrorMessage(e)));
       }

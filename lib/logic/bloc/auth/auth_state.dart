@@ -10,3 +10,8 @@ final class AuthFailure extends AuthState {
   final String message;
   AuthFailure({required this.message});
 }
+
+final class AuthAccountNotFound extends AuthState {
+  final String message;
+  AuthAccountNotFound({required this.message});
+}

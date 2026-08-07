@@ -24,3 +24,14 @@ class SwipeLimitException implements Exception {
   @override
   String toString() => message;
 }
+
+/// Thrown when login fails because no account exists for the given email.
+/// Kept as a distinct type so [AuthBloc] can special-case the "no account"
+/// flow without string-matching a generic exception.
+class AccountNotFoundException implements Exception {
+  final String message;
+  AccountNotFoundException(this.message);
+
+  @override
+  String toString() => message;
+}

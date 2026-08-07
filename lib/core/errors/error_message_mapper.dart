@@ -17,6 +17,8 @@ const List<MapEntry<String, String>> _detailRules = [
   MapEntry('duplicate key', 'This email is already registered. Please log in.'),
   MapEntry('Invalid username or password', 'Incorrect email or password.'),
   MapEntry('Invalid email or password', 'Incorrect email or password.'),
+  MapEntry('No account found with this email', 'No account found with this email.'),
+  MapEntry('Too many login attempts', 'Too many attempts. Please wait a few minutes and try again.'),
   MapEntry('OTP verification failed', 'The code you entered is incorrect. Please try again.'),
   MapEntry('Invalid OTP', 'The code you entered is incorrect. Please try again.'),
   MapEntry('OTP expired', 'That code has expired. Please request a new one.'),

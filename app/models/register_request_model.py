@@ -5,6 +5,7 @@ from pydantic import BaseModel, EmailStr, field_validator, model_validator
 from datetime import date
 
 from app.models.user_model import UserModel
+from app.utilities.signup.signup_options_utilities import get_allowed_majors
 
 class RegisterRequest(BaseModel):
     #Core
@@ -56,7 +57,13 @@ class RegisterRequest(BaseModel):
         if len(v) < 2:
             raise ValueError('At least two photos are required')
         return v
-    
+
+    @field_validator('university_major')
+    def check_university_major(cls, v):
+        if v not in get_allowed_majors():
+            raise ValueError('Invalid university major')
+        return v
+
     model_config = {
         "extra": "ignore"
     }

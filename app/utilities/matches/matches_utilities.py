@@ -1,7 +1,6 @@
 from datetime import datetime
 import random
 from typing import List, Optional
-from fastapi import HTTPException
 from pydantic import BaseModel
 from psycopg2.extensions import cursor as Psycopg2Cursor
 
@@ -105,8 +104,10 @@ def get_matches_by_preference(user: MatchUserModel, limit: int = 10, cursor: Psy
 
     query = f"""
     SELECT DISTINCT users.id, users.username, users.gender, users.university_id, users.profile_picture::text
-    FROM users 
+    FROM users
         where users.id IN %s
+          AND users.is_deleted = FALSE
+          AND users.is_profile_complete = TRUE
     """
 
     params = [user_existing_matches_tuple]
@@ -127,6 +128,8 @@ def get_matches_by_preference(user: MatchUserModel, limit: int = 10, cursor: Psy
         WHERE users.university_id = %s
           AND users.gender = %s
           AND users.id NOT IN %s
+          AND users.is_deleted = FALSE
+          AND users.is_profile_complete = TRUE
         LIMIT %s;
     """
     params = [university_id, interested_gender, exclusion_tuple, pool_size]
@@ -192,8 +195,10 @@ def get_matches_by_preference(user: MatchUserModel, limit: int = 10, cursor: Psy
             candidate = build_candidate_model(user_meta, user_data)
             results.append(candidate.model_dump())
         except Exception as e:
-            print(f"Error building model for user {user_id_}: {e}")
-            raise HTTPException(status_code=500, detail=f"Error building model for user {user_id_}: {e}")
+            # Skip this one malformed candidate rather than failing the whole
+            # matches list for the requesting user.
+            print(f"Skipping candidate {user_id_}, failed to build model: {e}")
+            continue
 
     # Exposure balancing: only count users newly added to a queue this call,
     # not ones re-fetched from an existing queue (avoids double-counting).

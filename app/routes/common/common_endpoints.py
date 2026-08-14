@@ -13,6 +13,7 @@ import requests
 from app.constants.global_constants import oauth2_scheme
 from app.utilities.media.media_utilities import generate_blurhash
 from app.utilities.media.imgproxy_utilities import build_signed_url
+from app.utilities.common.url_safety import is_safe_url
 from app.utilities.token.token_utilities import decode_token
 from app.controllers import seaweedfs_controller
 from app.controllers.logger_controller import logger_controller
@@ -265,8 +266,11 @@ async def generate_profile_picture_from_url(
     try:
         user_id = decode_token(token)
 
+        if not is_safe_url(image_url):
+            raise HTTPException(status_code=400, detail="Unsafe or invalid image URL")
+
         # Download image from URL
-        response = requests.get(image_url)
+        response = requests.get(image_url, timeout=10)
         if response.status_code != 200:
             raise HTTPException(status_code=400, detail="Unable to fetch image from URL")
 

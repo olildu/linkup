@@ -16,6 +16,7 @@ import 'package:linkup/data/datasources/local/message_local_datasource.dart';
 import 'package:linkup/data/datasources/remote/auth_remote_datasource.dart';
 import 'package:linkup/data/datasources/remote/chat_remote_datasource.dart';
 import 'package:linkup/data/datasources/remote/city_lookup_remote_datasource.dart';
+import 'package:linkup/data/datasources/remote/likes_remote_datasource.dart';
 import 'package:linkup/data/datasources/remote/match_remote_datasource.dart';
 import 'package:linkup/data/datasources/remote/media_remote_datasource.dart';
 import 'package:linkup/data/datasources/remote/swipe_remote_datasource.dart';
@@ -24,6 +25,7 @@ import 'package:linkup/data/datasources/remote/user_remote_datasource.dart';
 import 'package:linkup/data/repositories/auth_repository_impl.dart';
 import 'package:linkup/data/repositories/chat_repository_impl.dart';
 import 'package:linkup/data/repositories/city_lookup_repository_impl.dart';
+import 'package:linkup/data/repositories/likes_repository_impl.dart';
 import 'package:linkup/data/repositories/match_repository_impl.dart';
 import 'package:linkup/data/repositories/media_repository_impl.dart';
 import 'package:linkup/data/repositories/user_repository_impl.dart';
@@ -31,6 +33,7 @@ import 'package:linkup/data/repositories/user_repository_impl.dart';
 import 'package:linkup/domain/repositories/auth_repository.dart';
 import 'package:linkup/domain/repositories/chat_repository.dart';
 import 'package:linkup/domain/repositories/city_lookup_repository.dart';
+import 'package:linkup/domain/repositories/likes_repository.dart';
 import 'package:linkup/domain/repositories/match_repository.dart';
 import 'package:linkup/domain/repositories/media_repository.dart';
 import 'package:linkup/domain/repositories/user_repository.dart';
@@ -55,6 +58,11 @@ import 'package:linkup/domain/use_cases/chat/save_unsent_message_use_case.dart';
 import 'package:linkup/domain/use_cases/chat/start_chat_use_case.dart';
 import 'package:linkup/domain/use_cases/chat/upload_chat_media_use_case.dart';
 
+import 'package:linkup/domain/use_cases/likes/get_received_likes_use_case.dart';
+import 'package:linkup/domain/use_cases/likes/get_unseen_likes_count_use_case.dart';
+import 'package:linkup/domain/use_cases/likes/like_back_use_case.dart';
+import 'package:linkup/domain/use_cases/likes/pass_like_use_case.dart';
+
 import 'package:linkup/domain/use_cases/match/cache_connections_use_case.dart';
 import 'package:linkup/domain/use_cases/match/get_cached_connections_use_case.dart';
 import 'package:linkup/domain/use_cases/match/get_connections_use_case.dart';
@@ -77,6 +85,7 @@ import 'package:linkup/domain/use_cases/city/search_cities_use_case.dart';
 
 import 'package:linkup/logic/bloc/auth/auth_bloc.dart';
 import 'package:linkup/logic/bloc/connections/connections_bloc.dart';
+import 'package:linkup/logic/bloc/likes/likes_bloc.dart';
 import 'package:linkup/logic/bloc/login/login_bloc.dart';
 import 'package:linkup/logic/bloc/matches/matches_bloc.dart';
 import 'package:linkup/logic/bloc/otp/otp_bloc.dart';
@@ -107,16 +116,37 @@ Future<void> initDependencies() async {
 
   // ── Datasources ───────────────────────────────────────────────────────────
 
-  sl.registerLazySingleton<AuthRemoteDatasource>(() => AuthRemoteDatasource(sl()));
-  sl.registerLazySingleton<UserRemoteDatasource>(() => UserRemoteDatasource(sl()));
-  sl.registerLazySingleton<ChatRemoteDatasource>(() => ChatRemoteDatasource(sl()));
-  sl.registerLazySingleton<MatchRemoteDatasource>(() => MatchRemoteDatasource(sl()));
-  sl.registerLazySingleton<SwipeRemoteDatasource>(() => SwipeRemoteDatasource(sl()));
-  sl.registerLazySingleton<MediaRemoteDatasource>(() => MediaRemoteDatasource(sl()));
-  sl.registerLazySingleton<CityLookupRemoteDatasource>(() => CityLookupRemoteDatasource(sl()));
+  sl.registerLazySingleton<AuthRemoteDatasource>(
+    () => AuthRemoteDatasource(sl()),
+  );
+  sl.registerLazySingleton<UserRemoteDatasource>(
+    () => UserRemoteDatasource(sl()),
+  );
+  sl.registerLazySingleton<ChatRemoteDatasource>(
+    () => ChatRemoteDatasource(sl()),
+  );
+  sl.registerLazySingleton<MatchRemoteDatasource>(
+    () => MatchRemoteDatasource(sl()),
+  );
+  sl.registerLazySingleton<LikesRemoteDatasource>(
+    () => LikesRemoteDatasource(sl()),
+  );
+  sl.registerLazySingleton<SwipeRemoteDatasource>(
+    () => SwipeRemoteDatasource(sl()),
+  );
+  sl.registerLazySingleton<MediaRemoteDatasource>(
+    () => MediaRemoteDatasource(sl()),
+  );
+  sl.registerLazySingleton<CityLookupRemoteDatasource>(
+    () => CityLookupRemoteDatasource(sl()),
+  );
 
-  sl.registerLazySingleton<MessageLocalDatasource>(() => MessageLocalDatasource(sl()));
-  sl.registerLazySingleton<ChatLocalDatasource>(() => ChatLocalDatasource(sl()));
+  sl.registerLazySingleton<MessageLocalDatasource>(
+    () => MessageLocalDatasource(sl()),
+  );
+  sl.registerLazySingleton<ChatLocalDatasource>(
+    () => ChatLocalDatasource(sl()),
+  );
 
   // ── Repositories ──────────────────────────────────────────────────────────
 
@@ -146,9 +176,15 @@ Future<void> initDependencies() async {
     ),
   );
 
+  sl.registerLazySingleton<LikesRepository>(
+    () => LikesRepositoryImpl(likesDatasource: sl()),
+  );
+
   sl.registerLazySingleton<MediaRepository>(() => MediaRepositoryImpl(sl()));
 
-  sl.registerLazySingleton<CityLookupRepository>(() => CityLookupRepositoryImpl(sl()));
+  sl.registerLazySingleton<CityLookupRepository>(
+    () => CityLookupRepositoryImpl(sl()),
+  );
 
   // ── Use cases — auth ──────────────────────────────────────────────────────
 
@@ -192,6 +228,13 @@ Future<void> initDependencies() async {
   sl.registerFactory(() => CacheConnectionsUseCase(sl()));
   sl.registerFactory(() => GetCachedConnectionsUseCase(sl()));
 
+  // ── Use cases — likes ─────────────────────────────────────────────────────
+
+  sl.registerFactory(() => GetReceivedLikesUseCase(sl()));
+  sl.registerFactory(() => GetUnseenLikesCountUseCase(sl()));
+  sl.registerFactory(() => LikeBackUseCase(sl()));
+  sl.registerFactory(() => PassLikeUseCase(sl()));
+
   // ── Use cases — media ─────────────────────────────────────────────────────
 
   sl.registerFactory(() => UploadUserMediaUseCase(sl()));
@@ -205,10 +248,7 @@ Future<void> initDependencies() async {
   // ── Blocs (singletons — shared across the widget tree via MultiBlocProvider) ──
 
   sl.registerLazySingleton<MatchesBloc>(
-    () => MatchesBloc(
-      loadMatchesUseCase: sl(),
-      swipeUseCase: sl(),
-    ),
+    () => MatchesBloc(loadMatchesUseCase: sl(), swipeUseCase: sl()),
   );
 
   sl.registerLazySingleton<ConnectionsBloc>(
@@ -218,6 +258,15 @@ Future<void> initDependencies() async {
       getCachedConnectionsUseCase: sl(),
       blockUserUseCase: sl(),
       reportUserUseCase: sl(),
+    ),
+  );
+
+  sl.registerLazySingleton<LikesBloc>(
+    () => LikesBloc(
+      getReceivedLikesUseCase: sl(),
+      getUnseenLikesCountUseCase: sl(),
+      likeBackUseCase: sl(),
+      passLikeUseCase: sl(),
     ),
   );
 
@@ -252,10 +301,7 @@ Future<void> initDependencies() async {
   sl.registerFactory<LoginBloc>(() => LoginBloc(loginUseCase: sl()));
 
   sl.registerFactory<OtpBloc>(
-    () => OtpBloc(
-      sendOTPUseCase: sl(),
-      verifyOTPUseCase: sl(),
-    ),
+    () => OtpBloc(sendOTPUseCase: sl(), verifyOTPUseCase: sl()),
   );
 
   sl.registerFactory<PreferencesBloc>(

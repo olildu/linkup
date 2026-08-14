@@ -8,8 +8,14 @@ import 'package:linkup/presentation/theme/app_spacing.dart';
 import 'package:linkup/presentation/utils/blurhash_util.dart';
 import 'package:octo_image/octo_image.dart';
 
-Widget buildTypingIndicator({required BuildContext context, required Map imageMetaData, required String userName}) {
-  final BorderRadius messageBorderRadius = BorderRadius.all(Radius.circular(AppRadius.md));
+Widget buildTypingIndicator({
+  required BuildContext context,
+  required Map imageMetaData,
+  required String userName,
+}) {
+  final BorderRadius messageBorderRadius = BorderRadius.all(
+    Radius.circular(AppRadius.md),
+  );
 
   final color = Theme.of(context).colorScheme.surfaceContainerHighest;
   final textColor = Theme.of(context).colorScheme.onSecondaryContainer;
@@ -21,8 +27,13 @@ Widget buildTypingIndicator({required BuildContext context, required Map imageMe
       children: [
         ClipOval(
           child: OctoImage(
-            image: CachedNetworkImageProvider(imageMetaData['url']),
-            placeholderBuilder: blurHash(imageMetaData['blurhash']).placeholderBuilder,
+            image: CachedNetworkImageProvider(
+              imageMetaData['url'],
+              cacheKey: imageMetaData['file_key'],
+            ),
+            placeholderBuilder: blurHash(
+              imageMetaData['blurhash'],
+            ).placeholderBuilder,
             fit: BoxFit.cover,
             width: 30.r,
             height: 30.r,
@@ -32,11 +43,20 @@ Widget buildTypingIndicator({required BuildContext context, required Map imageMe
         Gap(AppSpacing.sm.w),
         Container(
           constraints: BoxConstraints(maxWidth: 0.75.sw),
-          padding: EdgeInsets.symmetric(horizontal: AppSpacing.md.w, vertical: AppSpacing.sm.h),
-          decoration: BoxDecoration(color: color, borderRadius: messageBorderRadius),
+          padding: EdgeInsets.symmetric(
+            horizontal: AppSpacing.md.w,
+            vertical: AppSpacing.sm.h,
+          ),
+          decoration: BoxDecoration(
+            color: color,
+            borderRadius: messageBorderRadius,
+          ),
           child: Text(
             '$userName is typing...',
-            style: Theme.of(context).textTheme.bodySmall?.copyWith(color: textColor, fontStyle: FontStyle.italic),
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+              color: textColor,
+              fontStyle: FontStyle.italic,
+            ),
           ),
         ),
       ],
@@ -52,7 +72,11 @@ Widget buildSeenIndicator() {
       child: Builder(
         builder: (context) => Text(
           "Seen",
-          style: Theme.of(context).textTheme.labelSmall?.copyWith(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5)),
+          style: Theme.of(context).textTheme.labelSmall?.copyWith(
+            color: Theme.of(
+              context,
+            ).colorScheme.onSurface.withValues(alpha: 0.5),
+          ),
         ),
       ),
     ),

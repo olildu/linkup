@@ -51,17 +51,35 @@ class MediaPickerPage extends StatelessWidget {
                                   builder: (context) {
                                     if (state is CameraLoaded) {
                                       return AspectRatio(
-                                        aspectRatio: state.controller.value.aspectRatio,
+                                        aspectRatio:
+                                            state.controller.value.aspectRatio,
                                         child: FittedBox(
                                           fit: BoxFit.cover,
-                                          child: SizedBox(width: state.controller.value.previewSize!.height, height: state.controller.value.previewSize!.width, child: CameraPreview(state.controller)),
+                                          child: SizedBox(
+                                            width: state
+                                                .controller
+                                                .value
+                                                .previewSize!
+                                                .height,
+                                            height: state
+                                                .controller
+                                                .value
+                                                .previewSize!
+                                                .width,
+                                            child: CameraPreview(
+                                              state.controller,
+                                            ),
+                                          ),
                                         ),
                                       );
                                     } else if (state is CameraLoading) {
                                       return SizedBox.shrink();
                                     } else if (state is CameraError) {
                                       return Center(
-                                        child: Text(state.message, style: AppTextStyles.error(context)),
+                                        child: Text(
+                                          state.message,
+                                          style: AppTextStyles.error(context),
+                                        ),
                                       );
                                     } else if (state is MediaCaptureSuccess) {
                                       return Stack(
@@ -74,7 +92,18 @@ class MediaPickerPage extends StatelessWidget {
                                                 child: SizedBox(
                                                   width: state.height,
                                                   height: state.width,
-                                                  child: Transform.flip(flipX: state.takenFromFrontCamera ? true : false, child: Image.file(File(state.mediaFile.path))),
+                                                  child: Transform.flip(
+                                                    flipX:
+                                                        state
+                                                            .takenFromFrontCamera
+                                                        ? true
+                                                        : false,
+                                                    child: Image.file(
+                                                      File(
+                                                        state.mediaFile.path,
+                                                      ),
+                                                    ),
+                                                  ),
                                                 ),
                                               ),
                                             ),
@@ -84,14 +113,32 @@ class MediaPickerPage extends StatelessWidget {
                                             top: 16.h,
                                             right: 16.w,
                                             child: IconButton(
-                                              icon: Icon(Icons.download_rounded, color: Colors.white, size: 30.sp),
+                                              icon: Icon(
+                                                Icons.download_rounded,
+                                                color: Colors.white,
+                                                size: 30.sp,
+                                              ),
                                               onPressed: () async {
-                                                context.read<CameraBloc>().add(CameraSavePictureEvent(imageFile: state.mediaFile));
+                                                context.read<CameraBloc>().add(
+                                                  CameraSavePictureEvent(
+                                                    imageFile: state.mediaFile,
+                                                  ),
+                                                );
                                               },
                                               style: ButtonStyle(
-                                                backgroundColor: WidgetStateProperty.all(Colors.black.withValues(alpha: 0.4)),
-                                                shape: WidgetStateProperty.all(const CircleBorder()),
-                                                padding: WidgetStateProperty.all(EdgeInsets.all(6.r)),
+                                                backgroundColor:
+                                                    WidgetStateProperty.all(
+                                                      Colors.black.withValues(
+                                                        alpha: 0.4,
+                                                      ),
+                                                    ),
+                                                shape: WidgetStateProperty.all(
+                                                  const CircleBorder(),
+                                                ),
+                                                padding:
+                                                    WidgetStateProperty.all(
+                                                      EdgeInsets.all(6.r),
+                                                    ),
                                               ),
                                             ),
                                           ),
@@ -109,10 +156,16 @@ class MediaPickerPage extends StatelessWidget {
                             top: 20.h,
                             left: 20.w,
                             child: IconButton(
-                              icon: Icon(Icons.close_rounded, color: Colors.white, size: 30.sp),
+                              icon: Icon(
+                                Icons.close_rounded,
+                                color: Colors.white,
+                                size: 30.sp,
+                              ),
                               onPressed: () {
                                 if (state is MediaCaptureSuccess) {
-                                  context.read<CameraBloc>().add(CameraInitEvent());
+                                  context.read<CameraBloc>().add(
+                                    CameraInitEvent(),
+                                  );
                                   return;
                                 }
                                 Navigator.pop(context);
@@ -130,11 +183,20 @@ class MediaPickerPage extends StatelessWidget {
                             alignment: Alignment.bottomRight,
                             child: GestureDetector(
                               onTap: () {
-                                Navigator.of(context).pop(File(state.mediaFile.path));
+                                Navigator.of(
+                                  context,
+                                ).pop(File(state.mediaFile.path));
                               },
                               child: Container(
-                                margin: EdgeInsets.only(top: 10.h, bottom: 20.h, right: 5.w),
-                                padding: EdgeInsets.symmetric(vertical: 10.h, horizontal: 10.w),
+                                margin: EdgeInsets.only(
+                                  top: 10.h,
+                                  bottom: 20.h,
+                                  right: 5.w,
+                                ),
+                                padding: EdgeInsets.symmetric(
+                                  vertical: 10.h,
+                                  horizontal: 10.w,
+                                ),
                                 decoration: BoxDecoration(
                                   color: Colors.white,
                                   borderRadius: BorderRadius.only(
@@ -152,19 +214,29 @@ class MediaPickerPage extends StatelessWidget {
                                       height: 26.r,
                                       child: ClipOval(
                                         child: OctoImage(
-                                          image: CachedNetworkImageProvider(userImageMetaData['url']),
-                                          placeholderBuilder: blurHash(userImageMetaData['blurhash']).placeholderBuilder,
-                                          errorBuilder: OctoError.icon(color: Colors.red),
+                                          image: CachedNetworkImageProvider(
+                                            userImageMetaData['url'],
+                                            cacheKey: userImageMetaData['file_key'],
+                                          ),
+                                          placeholderBuilder: blurHash(
+                                            userImageMetaData['blurhash'],
+                                          ).placeholderBuilder,
+                                          errorBuilder: OctoError.icon(
+                                            color: Colors.red,
+                                          ),
                                           fit: BoxFit.cover,
                                         ),
                                       ),
                                     ),
-                                    
+
                                     Gap(8.w),
 
                                     Text(
                                       "Send",
-                                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .bodyMedium
+                                          ?.copyWith(
                                             fontWeight: FontWeight.w500,
                                             color: Colors.black,
                                           ),
@@ -176,20 +248,27 @@ class MediaPickerPage extends StatelessWidget {
                           );
                         } else {
                           return Container(
-                            padding: EdgeInsets.symmetric(vertical: 15.h, horizontal: 10.w),
+                            padding: EdgeInsets.symmetric(
+                              vertical: 15.h,
+                              horizontal: 10.w,
+                            ),
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 _buildIconButton(
                                   icon: Icons.image_rounded,
                                   onPressed: () async {
-                                    context.read<CameraBloc>().add(CameraGalleryPictureEvent());
+                                    context.read<CameraBloc>().add(
+                                      CameraGalleryPictureEvent(),
+                                    );
                                   },
                                 ),
                                 GestureDetector(
                                   onTap: () {
                                     if (state is CameraLoaded) {
-                                      context.read<CameraBloc>().add(CameraTakePictureEvent());
+                                      context.read<CameraBloc>().add(
+                                        CameraTakePictureEvent(),
+                                      );
                                     }
                                   },
                                   child: Container(
@@ -198,13 +277,24 @@ class MediaPickerPage extends StatelessWidget {
                                     decoration: BoxDecoration(
                                       shape: BoxShape.circle,
                                       color: Colors.white,
-                                      boxShadow: [BoxShadow(color: Colors.white.withValues(alpha: 0.6), blurRadius: 10, spreadRadius: 1)],
+                                      boxShadow: [
+                                        BoxShadow(
+                                          color: Colors.white.withValues(
+                                            alpha: 0.6,
+                                          ),
+                                          blurRadius: 10,
+                                          spreadRadius: 1,
+                                        ),
+                                      ],
                                     ),
                                     child: Center(
                                       child: Container(
                                         width: 56.w,
                                         height: 56.w,
-                                        decoration: const BoxDecoration(shape: BoxShape.circle, color: Colors.redAccent),
+                                        decoration: const BoxDecoration(
+                                          shape: BoxShape.circle,
+                                          color: Colors.redAccent,
+                                        ),
                                       ),
                                     ),
                                   ),
@@ -212,7 +302,9 @@ class MediaPickerPage extends StatelessWidget {
                                 _buildIconButton(
                                   icon: Icons.sync_rounded,
                                   onPressed: () {
-                                    context.read<CameraBloc>().add(CameraSwitchEvent());
+                                    context.read<CameraBloc>().add(
+                                      CameraSwitchEvent(),
+                                    );
                                   },
                                 ),
                               ],
@@ -231,9 +323,15 @@ class MediaPickerPage extends StatelessWidget {
     );
   }
 
-  Widget _buildIconButton({required IconData icon, required VoidCallback onPressed}) {
+  Widget _buildIconButton({
+    required IconData icon,
+    required VoidCallback onPressed,
+  }) {
     return Container(
-      decoration: BoxDecoration(color: Colors.grey.shade800, shape: BoxShape.circle),
+      decoration: BoxDecoration(
+        color: Colors.grey.shade800,
+        shape: BoxShape.circle,
+      ),
       child: IconButton(
         icon: Icon(icon, size: 30.sp, color: Colors.white),
         onPressed: onPressed,

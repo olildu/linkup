@@ -63,7 +63,8 @@ class _ChatPageState extends State<ChatPage> {
 
   ReplyModel? _replyPayload;
 
-  final GlobalKey<AnimatedListState> _animatedListKey = GlobalKey<AnimatedListState>();
+  final GlobalKey<AnimatedListState> _animatedListKey =
+      GlobalKey<AnimatedListState>();
   List<Message> _currentMessages = [];
 
   @override
@@ -114,7 +115,9 @@ class _ChatPageState extends State<ChatPage> {
     }
 
     if (mounted && isTypingNow) {
-      context.read<ChatsBloc>().add(SendTypingEvent(currentChatUserId: widget.currentChatUserId));
+      context.read<ChatsBloc>().add(
+        SendTypingEvent(currentChatUserId: widget.currentChatUserId),
+      );
     }
   }
 
@@ -155,7 +158,9 @@ class _ChatPageState extends State<ChatPage> {
         messageType: MessageType.text,
       );
 
-      context.read<ConnectionsBloc>().add(ReloadChatConnectionsEvent(liveChatData: liveChatData));
+      context.read<ConnectionsBloc>().add(
+        ReloadChatConnectionsEvent(liveChatData: liveChatData),
+      );
     }
   }
 
@@ -226,7 +231,9 @@ class _ChatPageState extends State<ChatPage> {
       messages: messages,
     );
 
-    final alignment = isSentByMe ? CrossAxisAlignment.end : CrossAxisAlignment.start;
+    final alignment = isSentByMe
+        ? CrossAxisAlignment.end
+        : CrossAxisAlignment.start;
     final containsReply = message.replyID != null ? true : false;
 
     final color = isOnlyEmoji
@@ -243,24 +250,39 @@ class _ChatPageState extends State<ChatPage> {
     );
 
     return Container(
-      margin: EdgeInsets.only(top: groupInfo.isFirstInGroup ? AppSpacing.sm.h : AppSpacing.xxs.h, bottom: AppSpacing.xxs.h),
+      margin: EdgeInsets.only(
+        top: groupInfo.isFirstInGroup ? AppSpacing.sm.h : AppSpacing.xxs.h,
+        bottom: AppSpacing.xxs.h,
+      ),
       child: Column(
         crossAxisAlignment: alignment,
         children: [
           Row(
-            mainAxisAlignment: isSentByMe ? MainAxisAlignment.end : MainAxisAlignment.start,
+            mainAxisAlignment: isSentByMe
+                ? MainAxisAlignment.end
+                : MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
-              if (!isSentByMe && (groupInfo.isLastInGroup || groupInfo.isOnlyMessageInGroup)) ...[
+              if (!isSentByMe &&
+                  (groupInfo.isLastInGroup ||
+                      groupInfo.isOnlyMessageInGroup)) ...[
                 Padding(
-                  padding: EdgeInsets.only(right: AppSpacing.md.w, bottom: AppSpacing.xxs.h),
+                  padding: EdgeInsets.only(
+                    right: AppSpacing.md.w,
+                    bottom: AppSpacing.xxs.h,
+                  ),
                   child: ClipOval(
                     child: OctoImage(
-                      image: CachedNetworkImageProvider(widget.userImageMetaData["url"]),
+                      image: CachedNetworkImageProvider(
+                        widget.userImageMetaData["url"],
+                        cacheKey: widget.userImageMetaData["file_key"],
+                      ),
                       placeholderBuilder: blurHash(
                         widget.userImageMetaData["blurhash"],
                       ).placeholderBuilder,
-                      errorBuilder: OctoError.icon(color: Theme.of(context).colorScheme.error),
+                      errorBuilder: OctoError.icon(
+                        color: Theme.of(context).colorScheme.error,
+                      ),
                       fit: BoxFit.cover,
                       width: 30.r,
                       height: 30.r,
@@ -269,7 +291,10 @@ class _ChatPageState extends State<ChatPage> {
                 ),
               ] else if (!isSentByMe) ...[
                 Padding(
-                  padding: EdgeInsets.only(right: AppSpacing.md.w, bottom: AppSpacing.xxs.h),
+                  padding: EdgeInsets.only(
+                    right: AppSpacing.md.w,
+                    bottom: AppSpacing.xxs.h,
+                  ),
                   child: SizedBox(width: 30.r, height: 30.r),
                 ),
               ],
@@ -278,10 +303,14 @@ class _ChatPageState extends State<ChatPage> {
                 onVisibilityChanged: (info) {
                   if (!isSentByMe && !message.isSeen) {
                     final int lastIndex = messages.length - 1;
-                    final int seenIndex = messages.indexWhere((m) => m.id == message.id);
+                    final int seenIndex = messages.indexWhere(
+                      (m) => m.id == message.id,
+                    );
                     final int seenDiff = lastIndex - seenIndex;
 
-                    context.read<ChatsBloc>().add(MarkMessageAsSeenEvent(messageId: message.id));
+                    context.read<ChatsBloc>().add(
+                      MarkMessageAsSeenEvent(messageId: message.id),
+                    );
 
                     if (_initalSeenMarked) {
                       context.read<ConnectionsBloc>().add(
@@ -299,7 +328,9 @@ class _ChatPageState extends State<ChatPage> {
                     ReplyModel(
                       messageID: message.id,
                       message: message.message,
-                      userName: message.from_ == GetIt.instance<int>(instanceName: 'user_id')
+                      userName:
+                          message.from_ ==
+                              GetIt.instance<int>(instanceName: 'user_id')
                           ? "yourself"
                           : widget.userName,
                     ),
@@ -351,7 +382,9 @@ class _ChatPageState extends State<ChatPage> {
         cancelText: 'Cancel',
         onConfirm: _onBlockConfirmed,
         iconColor: Theme.of(context).colorScheme.error,
-        iconBackgroundColor: Theme.of(context).colorScheme.error.withValues(alpha: 0.12),
+        iconBackgroundColor: Theme.of(
+          context,
+        ).colorScheme.error.withValues(alpha: 0.12),
         cancelTextColor: Theme.of(context).colorScheme.onSurface,
         verticalButtons: true,
         primaryOnTop: true,
@@ -363,7 +396,10 @@ class _ChatPageState extends State<ChatPage> {
   void _onBlockConfirmed() {
     // 1. Trigger the Bloc Event
     context.read<ConnectionsBloc>().add(
-      BlockUserEvent(userIdToBlock: widget.currentChatUserId, chatRoomId: widget.chatRoomId),
+      BlockUserEvent(
+        userIdToBlock: widget.currentChatUserId,
+        chatRoomId: widget.chatRoomId,
+      ),
     );
 
     // 2. Navigate back to connections page immediately
@@ -387,14 +423,16 @@ class _ChatPageState extends State<ChatPage> {
             onPressed: () => Navigator.pop(context),
             child: Text(
               'Cancel',
-              style: Theme.of(
-                context,
-              ).textTheme.bodyMedium?.copyWith(color: Theme.of(context).colorScheme.onSurface),
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                color: Theme.of(context).colorScheme.onSurface,
+              ),
             ),
           ),
         ],
         iconColor: Theme.of(context).colorScheme.error,
-        iconBackgroundColor: Theme.of(context).colorScheme.error.withValues(alpha: 0.12),
+        iconBackgroundColor: Theme.of(
+          context,
+        ).colorScheme.error.withValues(alpha: 0.12),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -414,7 +452,9 @@ class _ChatPageState extends State<ChatPage> {
     return Padding(
       padding: EdgeInsets.only(bottom: AppSpacing.sm.h),
       child: Material(
-        color: Theme.of(ctx).colorScheme.surfaceContainerHighest.withValues(alpha: 0.45),
+        color: Theme.of(
+          ctx,
+        ).colorScheme.surfaceContainerHighest.withValues(alpha: 0.45),
         borderRadius: BorderRadius.circular(AppRadius.sm),
         child: InkWell(
           borderRadius: BorderRadius.circular(AppRadius.sm),
@@ -423,21 +463,27 @@ class _ChatPageState extends State<ChatPage> {
             _onReportConfirmed(reason);
           },
           child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: AppSpacing.md.w, vertical: AppSpacing.md.h),
+            padding: EdgeInsets.symmetric(
+              horizontal: AppSpacing.md.w,
+              vertical: AppSpacing.md.h,
+            ),
             child: Row(
               children: [
-                Icon(Icons.flag_outlined, size: 18.sp, color: Theme.of(ctx).colorScheme.error),
+                Icon(
+                  Icons.flag_outlined,
+                  size: 18.sp,
+                  color: Theme.of(ctx).colorScheme.error,
+                ),
                 Gap(AppSpacing.md.w),
                 Expanded(
-                  child: Text(
-                    reason,
-                    style: Theme.of(ctx).textTheme.bodyLarge,
-                  ),
+                  child: Text(reason, style: Theme.of(ctx).textTheme.bodyLarge),
                 ),
                 Icon(
                   Icons.chevron_right_rounded,
                   size: 18.sp,
-                  color: Theme.of(ctx).colorScheme.onSurface.withValues(alpha: 0.45),
+                  color: Theme.of(
+                    ctx,
+                  ).colorScheme.onSurface.withValues(alpha: 0.45),
                 ),
               ],
             ),
@@ -482,7 +528,10 @@ class _ChatPageState extends State<ChatPage> {
             children: [
               ClipOval(
                 child: OctoImage(
-                  image: CachedNetworkImageProvider(widget.userImageMetaData['url']),
+                  image: CachedNetworkImageProvider(
+                    widget.userImageMetaData['url'],
+                    cacheKey: widget.userImageMetaData['file_key'],
+                  ),
                   placeholderBuilder: blurHash(
                     widget.userImageMetaData['blurhash'],
                   ).placeholderBuilder,
@@ -494,7 +543,9 @@ class _ChatPageState extends State<ChatPage> {
               Gap(AppSpacing.sm.w),
               Text(
                 widget.userName,
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Theme.of(context).colorScheme.onSurface),
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  color: Theme.of(context).colorScheme.onSurface,
+                ),
               ),
             ],
           ),
@@ -512,7 +563,10 @@ class _ChatPageState extends State<ChatPage> {
         // --- ADD THIS ACTIONS BLOCK ---
         actions: [
           PopupMenuButton<String>(
-            icon: Icon(Icons.more_vert, color: Theme.of(context).colorScheme.onSurface),
+            icon: Icon(
+              Icons.more_vert,
+              color: Theme.of(context).colorScheme.onSurface,
+            ),
             onSelected: (value) {
               if (value == 'block') {
                 _showBlockConfirmation();
@@ -543,7 +597,11 @@ class _ChatPageState extends State<ChatPage> {
                   value: 'block',
                   child: Row(
                     children: [
-                      Icon(Icons.block, color: Theme.of(context).colorScheme.error, size: 20.sp),
+                      Icon(
+                        Icons.block,
+                        color: Theme.of(context).colorScheme.error,
+                        size: 20.sp,
+                      ),
                       Gap(AppSpacing.sm.w),
                       Text(
                         'Block User',
@@ -562,7 +620,8 @@ class _ChatPageState extends State<ChatPage> {
         listener: (context, state) {
           if (state is ChatsLoaded) {
             if (state.messages.length > _currentMessages.length) {
-              final int newItemsCount = state.messages.length - _currentMessages.length;
+              final int newItemsCount =
+                  state.messages.length - _currentMessages.length;
               for (int i = 0; i < newItemsCount; i++) {
                 _animatedListKey.currentState?.insertItem(
                   0,
@@ -576,13 +635,17 @@ class _ChatPageState extends State<ChatPage> {
         builder: (context, state) {
           if (state is ChatsLoading) {
             return Center(
-              child: CircularProgressIndicator(color: Theme.of(context).colorScheme.primary),
+              child: CircularProgressIndicator(
+                color: Theme.of(context).colorScheme.primary,
+              ),
             );
           } else if (state is ChatsError) {
             return Center(
               child: Text(
                 'Error loading messages',
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Theme.of(context).colorScheme.error),
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  color: Theme.of(context).colorScheme.error,
+                ),
               ),
             );
           } else if (state is ChatsLoaded) {
@@ -591,7 +654,10 @@ class _ChatPageState extends State<ChatPage> {
             }
             if (!_initalSeenMarked) {
               context.read<ConnectionsBloc>().add(
-                MarkMessagesSeenEvent(chatRoomId: widget.chatRoomId, decrementCounterTo: 0),
+                MarkMessagesSeenEvent(
+                  chatRoomId: widget.chatRoomId,
+                  decrementCounterTo: 0,
+                ),
               );
               _initalSeenMarked = true;
             }
@@ -599,7 +665,8 @@ class _ChatPageState extends State<ChatPage> {
             _isSocketConnected = state.isSocketConnected;
 
             const int topWidgetCount = 1;
-            final int totalItemCount = _currentMessages.length + 2 + topWidgetCount;
+            final int totalItemCount =
+                _currentMessages.length + 2 + topWidgetCount;
 
             return Column(
               children: [
@@ -632,8 +699,10 @@ class _ChatPageState extends State<ChatPage> {
                         // Index 1: Seen Indicator
                         if (index == 1) {
                           if (state.messages.isNotEmpty &&
-                              state.messages.last.from_ == widget.currentUserId &&
-                              (state.otherUserSeenMsg || state.messages.last.isSeen)) {
+                              state.messages.last.from_ ==
+                                  widget.currentUserId &&
+                              (state.otherUserSeenMsg ||
+                                  state.messages.last.isSeen)) {
                             return FadeTransition(
                               opacity: animation,
                               child: Padding(
@@ -647,20 +716,27 @@ class _ChatPageState extends State<ChatPage> {
                         }
 
                         // Loading indicator for paginated
-                        if (index == totalItemCount - 1 && state.isFetchingPaginatedMessages) {
+                        if (index == totalItemCount - 1 &&
+                            state.isFetchingPaginatedMessages) {
                           return Center(
                             child: Container(
                               width: 20.w,
                               height: 20.h,
-                              margin: EdgeInsets.symmetric(vertical: AppSpacing.sm.h),
-                              child: CircularProgressIndicator(strokeWidth: 2.5),
+                              margin: EdgeInsets.symmetric(
+                                vertical: AppSpacing.sm.h,
+                              ),
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2.5,
+                              ),
                             ),
                           );
                         }
 
                         // --- CHAT MESSAGES ---
                         final chronologicalIndex =
-                            _currentMessages.length - (index - (2 + topWidgetCount)) - 1;
+                            _currentMessages.length -
+                            (index - (2 + topWidgetCount)) -
+                            1;
 
                         if (chronologicalIndex < 0 ||
                             chronologicalIndex >= _currentMessages.length) {
@@ -700,7 +776,11 @@ class _ChatPageState extends State<ChatPage> {
             return Center(
               child: Text(
                 'No messages yet',
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6)),
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.onSurface.withValues(alpha: 0.6),
+                ),
               ),
             );
           }

@@ -26,7 +26,11 @@ class MatchedPage extends StatefulWidget {
   final MatchesConnectionEntity matchUser;
   final bool meet8State;
 
-  const MatchedPage({super.key, required this.matchUser, this.meet8State = false});
+  const MatchedPage({
+    super.key,
+    required this.matchUser,
+    this.meet8State = false,
+  });
 
   @override
   State<MatchedPage> createState() => _MatchedPageState();
@@ -44,8 +48,12 @@ class _MatchedPageState extends State<MatchedPage> {
   @override
   void initState() {
     super.initState();
-    _confettiControllerLeft = ConfettiController(duration: const Duration(seconds: 3));
-    _confettiControllerRight = ConfettiController(duration: const Duration(seconds: 3));
+    _confettiControllerLeft = ConfettiController(
+      duration: const Duration(seconds: 3),
+    );
+    _confettiControllerRight = ConfettiController(
+      duration: const Duration(seconds: 3),
+    );
 
     Future.delayed(Duration(milliseconds: 300), () async {
       await Haptics.vibrate(HapticsType.success);
@@ -69,8 +77,15 @@ class _MatchedPageState extends State<MatchedPage> {
           ? null
           : AppBar(
               leading: IconButton(
-                padding: EdgeInsets.symmetric(horizontal: AppSpacing.xl.w, vertical: AppSpacing.xl.h),
-                icon: Icon(Icons.arrow_back_ios_new_rounded, color: Theme.of(context).colorScheme.onSurface, size: 20.sp),
+                padding: EdgeInsets.symmetric(
+                  horizontal: AppSpacing.xl.w,
+                  vertical: AppSpacing.xl.h,
+                ),
+                icon: Icon(
+                  Icons.arrow_back_ios_new_rounded,
+                  color: Theme.of(context).colorScheme.onSurface,
+                  size: 20.sp,
+                ),
 
                 onPressed: () {
                   context.read<MatchesBloc>().add(ClearMatchUserEvent());
@@ -80,7 +95,12 @@ class _MatchedPageState extends State<MatchedPage> {
             ),
 
       body: Padding(
-        padding: EdgeInsets.only(left: AppSpacing.xl.w, right: AppSpacing.xl.w, top: widget.meet8State ? AppSpacing.xl3.h : AppSpacing.xl4.h, bottom: AppSpacing.xl5.h),
+        padding: EdgeInsets.only(
+          left: AppSpacing.xl.w,
+          right: AppSpacing.xl.w,
+          top: widget.meet8State ? AppSpacing.xl3.h : AppSpacing.xl4.h,
+          bottom: AppSpacing.xl5.h,
+        ),
         child: Stack(
           alignment: Alignment.center,
           children: [
@@ -92,9 +112,20 @@ class _MatchedPageState extends State<MatchedPage> {
                   alignment: Alignment.center,
                   children: [
                     Center(
-                      child: _imageBuilder(imageMetaData: (context.read<ProfileBloc>().state as ProfileLoaded).user.profilePicture!, offsetX: -_offset, angle: -_rotationAngle),
+                      child: _imageBuilder(
+                        imageMetaData:
+                            (context.read<ProfileBloc>().state as ProfileLoaded)
+                                .user
+                                .profilePicture!,
+                        offsetX: -_offset,
+                        angle: -_rotationAngle,
+                      ),
                     ),
-                    _imageBuilder(imageMetaData: widget.matchUser.profilePictureMetaData, offsetX: _offset, angle: _rotationAngle),
+                    _imageBuilder(
+                      imageMetaData: widget.matchUser.profilePictureMetaData,
+                      offsetX: _offset,
+                      angle: _rotationAngle,
+                    ),
                   ],
                 ),
                 Gap(AppSpacing.xl4.h),
@@ -113,8 +144,13 @@ class _MatchedPageState extends State<MatchedPage> {
                   ButtonBuilder(
                     text: "Start Messaging",
                     onPressed: () async {
-                      final currentUserId = (context.read<ProfileBloc>().state as ProfileLoaded).user.id;
-                      final response = await sl<StartChatUseCase>()(widget.matchUser.id);
+                      final currentUserId =
+                          (context.read<ProfileBloc>().state as ProfileLoaded)
+                              .user
+                              .id;
+                      final response = await sl<StartChatUseCase>()(
+                        widget.matchUser.id,
+                      );
 
                       if (!context.mounted) return;
                       if (response["success"] == true) {
@@ -136,7 +172,8 @@ class _MatchedPageState extends State<MatchedPage> {
                                 currentChatUserId: widget.matchUser.id,
                                 currentUserId: currentUserId,
                                 userName: widget.matchUser.username,
-                                userImageMetaData: widget.matchUser.profilePictureMetaData,
+                                userImageMetaData:
+                                    widget.matchUser.profilePictureMetaData,
                                 chatRoomId: response["chat_room_id"],
                               ),
                             ),
@@ -149,17 +186,30 @@ class _MatchedPageState extends State<MatchedPage> {
               ],
             ),
 
-            _confettiBuilder(controller: _confettiControllerLeft, alignment: Alignment.centerLeft, blastDirection: 0),
+            _confettiBuilder(
+              controller: _confettiControllerLeft,
+              alignment: Alignment.centerLeft,
+              blastDirection: 0,
+            ),
 
-            _confettiBuilder(controller: _confettiControllerRight, alignment: Alignment.centerRight, blastDirection: pi),
+            _confettiBuilder(
+              controller: _confettiControllerRight,
+              alignment: Alignment.centerRight,
+              blastDirection: pi,
+            ),
           ],
         ),
       ),
     );
   }
 
-  Widget _imageBuilder({required Map imageMetaData, required double offsetX, required double angle}) {
+  Widget _imageBuilder({
+    required Map imageMetaData,
+    required double offsetX,
+    required double angle,
+  }) {
     final String url = imageMetaData["url"];
+    final String? fileKey = imageMetaData["file_key"];
     final String blurhash = imageMetaData["blurhash"];
 
     return Transform.translate(
@@ -169,9 +219,11 @@ class _MatchedPageState extends State<MatchedPage> {
         child: ClipRRect(
           borderRadius: BorderRadius.circular(AppRadius.md),
           child: OctoImage(
-            image: CachedNetworkImageProvider(url),
+            image: CachedNetworkImageProvider(url, cacheKey: fileKey),
             placeholderBuilder: blurHash(blurhash).placeholderBuilder,
-            errorBuilder: OctoError.icon(color: Theme.of(context).colorScheme.error),
+            errorBuilder: OctoError.icon(
+              color: Theme.of(context).colorScheme.error,
+            ),
             fit: BoxFit.cover,
             width: _imageWidth,
             height: _imageHeight,
@@ -181,7 +233,11 @@ class _MatchedPageState extends State<MatchedPage> {
     );
   }
 
-  Widget _confettiBuilder({required ConfettiController controller, required Alignment alignment, required double blastDirection}) {
+  Widget _confettiBuilder({
+    required ConfettiController controller,
+    required Alignment alignment,
+    required double blastDirection,
+  }) {
     return Positioned(
       top: MediaQuery.of(context).size.height * 0.07,
       left: alignment == Alignment.centerLeft ? 0 : null,
@@ -196,7 +252,14 @@ class _MatchedPageState extends State<MatchedPage> {
         gravity: 0.1,
         particleDrag: 0.05,
         // Intentionally varied rainbow colors — not brand tokens
-        colors: const [Colors.red, Colors.blue, Colors.green, Colors.orange, Colors.purple, Colors.yellow],
+        colors: const [
+          Colors.red,
+          Colors.blue,
+          Colors.green,
+          Colors.orange,
+          Colors.purple,
+          Colors.yellow,
+        ],
       ),
     );
   }

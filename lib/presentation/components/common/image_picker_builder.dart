@@ -8,7 +8,6 @@ import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:linkup/core/errors/error_message_mapper.dart';
 import 'package:linkup/presentation/constants/colors.dart';
-import 'package:linkup/presentation/theme/app_media_ratios.dart';
 import 'package:linkup/presentation/utils/blurhash_util.dart';
 import 'package:linkup/presentation/utils/show_error_toast.dart';
 import 'package:octo_image/octo_image.dart';
@@ -72,23 +71,33 @@ class _ImagePickerBuilderState extends State<ImagePickerBuilder> {
           hideBottomControls: false,
           toolbarTitle: 'Adjust photo',
         ),
-        IOSUiSettings(aspectRatioLockEnabled: true, resetAspectRatioEnabled: false, title: 'Adjust photo'),
+        IOSUiSettings(
+          aspectRatioLockEnabled: true,
+          resetAspectRatioEnabled: false,
+          title: 'Adjust photo',
+        ),
       ],
     );
     return cropped == null ? null : XFile(cropped.path);
   }
 
   Future<void> _pickImages() async {
-    if (_displayedItems.where((item) => item != null).length >= widget.maxImages) return;
+    if (_displayedItems.where((item) => item != null).length >=
+        widget.maxImages)
+      return;
 
     try {
       final List<XFile> pickedImages = widget.allowMultipleSelection
           ? await _picker.pickMultiImage()
-          : [(await _picker.pickImage(source: ImageSource.gallery))].whereType<XFile>().toList();
+          : [
+              (await _picker.pickImage(source: ImageSource.gallery)),
+            ].whereType<XFile>().toList();
 
       if (pickedImages.isEmpty) return;
 
-      final int occupiedSlots = _displayedItems.where((item) => item != null).length;
+      final int occupiedSlots = _displayedItems
+          .where((item) => item != null)
+          .length;
       final int remainingSlots = widget.maxImages - occupiedSlots;
       if (remainingSlots <= 0) return;
 
@@ -103,7 +112,10 @@ class _ImagePickerBuilderState extends State<ImagePickerBuilder> {
           : newImagesToAdd.length;
       if (imagesToAddCount == 0) return;
 
-      final List<XFile> imagesToCrop = newImagesToAdd.sublist(0, imagesToAddCount);
+      final List<XFile> imagesToCrop = newImagesToAdd.sublist(
+        0,
+        imagesToAddCount,
+      );
       final List<XFile> croppedImages = [];
       for (final image in imagesToCrop) {
         final XFile? cropped = await _cropImage(image);
@@ -147,21 +159,29 @@ class _ImagePickerBuilderState extends State<ImagePickerBuilder> {
     setState(() {
       if (index < _displayedItems.length) {
         _displayedItems[index] = null;
-        widget.onImagesChanged(_displayedItems.where((item) => item != null).toList(), false);
+        widget.onImagesChanged(
+          _displayedItems.where((item) => item != null).toList(),
+          false,
+        );
       }
     });
   }
 
   Widget _buildImageContainer(double contentSize, int index) {
-    final bool hasImage = index < _displayedItems.length && _displayedItems[index] != null;
-    final bool canAddMore = _displayedItems.where((item) => item != null).length < widget.maxImages;
+    final bool hasImage =
+        index < _displayedItems.length && _displayedItems[index] != null;
+    final bool canAddMore =
+        _displayedItems.where((item) => item != null).length < widget.maxImages;
     final bool isAddButton = !hasImage && canAddMore;
     Widget imageDisplayWidget;
     if (hasImage) {
       final item = _displayedItems[index];
       if (item is Map) {
         imageDisplayWidget = OctoImage(
-          image: CachedNetworkImageProvider(item["url"]),
+          image: CachedNetworkImageProvider(
+            item["url"],
+            cacheKey: item["file_key"],
+          ),
           placeholderBuilder: blurHash(item["blurhash"]).placeholderBuilder,
           errorBuilder: OctoError.icon(color: Colors.red),
           fit: BoxFit.cover,
@@ -177,8 +197,15 @@ class _ImagePickerBuilderState extends State<ImagePickerBuilder> {
       imageDisplayWidget = Center(
         child: Container(
           padding: EdgeInsets.all((contentSize * 0.08).sp),
-          decoration: BoxDecoration(color: AppColors.primary, shape: BoxShape.circle),
-          child: Icon(Icons.add_rounded, color: Colors.white, size: (contentSize * 0.2).sp),
+          decoration: BoxDecoration(
+            color: AppColors.primary,
+            shape: BoxShape.circle,
+          ),
+          child: Icon(
+            Icons.add_rounded,
+            color: Colors.white,
+            size: (contentSize * 0.2).sp,
+          ),
         ),
       );
     }
@@ -200,14 +227,19 @@ class _ImagePickerBuilderState extends State<ImagePickerBuilder> {
           decoration: BoxDecoration(
             color: hasImage
                 ? Colors.transparent
-                : Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
+                : Theme.of(
+                    context,
+                  ).colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
             borderRadius: BorderRadius.circular(15.r),
           ),
           child: hasImage
               ? Stack(
                   fit: StackFit.expand,
                   children: [
-                    ClipRRect(borderRadius: BorderRadius.circular(15.r), child: imageDisplayWidget),
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(15.r),
+                      child: imageDisplayWidget,
+                    ),
 
                     if (_displayedItems.length > 2 || widget.onSignUp)
                       Positioned(
@@ -221,7 +253,11 @@ class _ImagePickerBuilderState extends State<ImagePickerBuilder> {
                               color: Colors.black54,
                               shape: BoxShape.circle,
                             ),
-                            child: Icon(Icons.close, color: Colors.white, size: 14.sp),
+                            child: Icon(
+                              Icons.close,
+                              color: Colors.white,
+                              size: 14.sp,
+                            ),
                           ),
                         ),
                       ),
@@ -247,7 +283,9 @@ class _ImagePickerBuilderState extends State<ImagePickerBuilder> {
         double totalShellWidthForAllItemsInRow = 3 * shellWidthPerItem;
         double totalGapSpaceInRow = 2 * itemGap;
         double effectiveContentWidthForRow =
-            availableWidth - totalShellWidthForAllItemsInRow - totalGapSpaceInRow;
+            availableWidth -
+            totalShellWidthForAllItemsInRow -
+            totalGapSpaceInRow;
         if (effectiveContentWidthForRow < 0) effectiveContentWidthForRow = 0;
 
         double smallItemContentWidth = (effectiveContentWidthForRow / 3);

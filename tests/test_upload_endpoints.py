@@ -153,6 +153,42 @@ def test_upload_media_user_rejects_corrupt_file(client, make_user, auth_header):
     assert resp.status_code == 400
 
 
+def test_upload_media_chat_rejects_oversized_converted_output(client, make_user, auth_header, monkeypatch):
+    import app.routes.common.common_endpoints as endpoints_module
+
+    def fake_process(content):
+        return b"x" * (endpoints_module.MAX_FILE_SIZE_BYTES + 1), 100, 100
+
+    monkeypatch.setattr(endpoints_module, "process_image_half_and_convert_webp", fake_process)
+
+    user_id = make_user()
+    resp = client.post(
+        UPLOAD_MEDIA,
+        headers=auth_header(user_id),
+        files={"file": ("test.jpg", imf.make_image_bytes(), "image/jpeg")},
+        data={"media_type": "image"},
+    )
+    assert resp.status_code == 413
+
+
+def test_upload_media_user_generic_exception_500(client, make_user, auth_header, monkeypatch):
+    import app.routes.common.common_endpoints as endpoints_module
+
+    def _raise(content):
+        raise RuntimeError("simulated unexpected failure")
+
+    monkeypatch.setattr(endpoints_module, "process_image_to_webp_file", _raise)
+
+    user_id = make_user()
+    resp = client.post(
+        UPLOAD_MEDIA_USER,
+        headers=auth_header(user_id),
+        files={"file": ("test.jpg", imf.make_image_bytes(), "image/jpeg")},
+        data={"media_type": "image"},
+    )
+    assert resp.status_code == 500
+
+
 def test_upload_media_requires_auth(client):
     resp = client.post(
         UPLOAD_MEDIA,
@@ -235,6 +271,46 @@ def test_upload_media_user_pfp_invalid_image(client, make_user, auth_header):
     assert resp.status_code == 400
 
 
+def test_upload_media_user_pfp_rejects_oversized_converted_output(client, make_user, auth_header, seaweed_object, monkeypatch):
+    # The 413 response doesn't expose the original image's file_key (raised
+    # before the return statement), so the original upload made just before
+    # the size check trips is left in SeaweedFS - acceptable for a local dev
+    # bucket, not worth threading the key through just to clean it up here.
+    import app.routes.common.common_endpoints as endpoints_module
+
+    def fake_process(content):
+        return "/tmp/fake.webp", b"x" * (endpoints_module.MAX_FILE_SIZE_BYTES + 1), 100, 100
+
+    monkeypatch.setattr(endpoints_module, "process_image_to_webp_file", fake_process)
+
+    user_id = make_user()
+    resp = client.post(
+        UPLOAD_PFP,
+        headers=auth_header(user_id),
+        files={"file": ("face.jpg", imf.face_image_bytes(), "image/jpeg")},
+        data={"media_type": "image"},
+    )
+    assert resp.status_code == 413
+
+
+def test_upload_media_user_pfp_generic_exception_500(client, make_user, auth_header, monkeypatch):
+    import app.routes.common.common_endpoints as endpoints_module
+
+    def _raise(*a, **kw):
+        raise RuntimeError("simulated unexpected failure")
+
+    monkeypatch.setattr(endpoints_module, "extract_face", _raise)
+
+    user_id = make_user()
+    resp = client.post(
+        UPLOAD_PFP,
+        headers=auth_header(user_id),
+        files={"file": ("face.jpg", imf.face_image_bytes(), "image/jpeg")},
+        data={"media_type": "image"},
+    )
+    assert resp.status_code == 500
+
+
 def test_upload_media_user_pfp_from_url(client, make_user, auth_header, seaweed_object, monkeypatch):
     import app.routes.common.common_endpoints as endpoints_module
 
@@ -242,7 +318,7 @@ def test_upload_media_user_pfp_from_url(client, make_user, auth_header, seaweed_
         status_code = 200
         content = imf.face_image_bytes()
 
-    monkeypatch.setattr(endpoints_module.requests, "get", lambda url: FakeResponse())
+    monkeypatch.setattr(endpoints_module.requests, "get", lambda url, **kwargs: FakeResponse())
 
     user_id = make_user()
     resp = client.post(
@@ -265,7 +341,7 @@ def test_upload_media_user_pfp_from_url_unreachable(client, make_user, auth_head
         status_code = 404
         content = b""
 
-    monkeypatch.setattr(endpoints_module.requests, "get", lambda url: FakeResponse())
+    monkeypatch.setattr(endpoints_module.requests, "get", lambda url, **kwargs: FakeResponse())
 
     user_id = make_user()
     resp = client.post(
@@ -283,7 +359,7 @@ def test_upload_media_user_pfp_from_url_no_face(client, make_user, auth_header, 
         status_code = 200
         content = imf.no_face_image_bytes()
 
-    monkeypatch.setattr(endpoints_module.requests, "get", lambda url: FakeResponse())
+    monkeypatch.setattr(endpoints_module.requests, "get", lambda url, **kwargs: FakeResponse())
 
     user_id = make_user()
     resp = client.post(
@@ -292,3 +368,82 @@ def test_upload_media_user_pfp_from_url_no_face(client, make_user, auth_header, 
         data={"image_url": "https://example.com/noface.jpg"},
     )
     assert resp.status_code == 422
+
+
+def test_upload_media_user_pfp_from_url_ssrf_blocked(client, make_user, auth_header, monkeypatch):
+    import app.routes.common.common_endpoints as endpoints_module
+
+    def _fail(*a, **kw):
+        raise AssertionError("should never fetch an unsafe URL")
+
+    monkeypatch.setattr(endpoints_module.requests, "get", _fail)
+
+    user_id = make_user()
+    resp = client.post(
+        UPLOAD_PFP_FROM_URL,
+        headers=auth_header(user_id),
+        data={"image_url": "http://169.254.169.254/latest/meta-data/"},
+    )
+    assert resp.status_code == 400
+
+
+def test_upload_media_user_pfp_from_url_invalid_image_content(client, make_user, auth_header, monkeypatch):
+    import app.routes.common.common_endpoints as endpoints_module
+
+    class FakeResponse:
+        status_code = 200
+        content = b"this is not image data"
+
+    monkeypatch.setattr(endpoints_module.requests, "get", lambda url, **kwargs: FakeResponse())
+
+    user_id = make_user()
+    resp = client.post(
+        UPLOAD_PFP_FROM_URL,
+        headers=auth_header(user_id),
+        data={"image_url": "https://example.com/notanimage.jpg"},
+    )
+    assert resp.status_code == 400
+
+
+def test_upload_media_user_pfp_from_url_rejects_oversized_converted_output(client, make_user, auth_header, monkeypatch):
+    import app.routes.common.common_endpoints as endpoints_module
+
+    class FakeResponse:
+        status_code = 200
+        content = imf.face_image_bytes()
+
+    def fake_process(content):
+        return "/tmp/fake.webp", b"x" * (endpoints_module.MAX_FILE_SIZE_BYTES + 1), 100, 100
+
+    monkeypatch.setattr(endpoints_module.requests, "get", lambda url, **kwargs: FakeResponse())
+    monkeypatch.setattr(endpoints_module, "process_image_to_webp_file", fake_process)
+
+    user_id = make_user()
+    resp = client.post(
+        UPLOAD_PFP_FROM_URL,
+        headers=auth_header(user_id),
+        data={"image_url": "https://example.com/avatar.jpg"},
+    )
+    assert resp.status_code == 413
+
+
+def test_upload_media_user_pfp_from_url_generic_exception_500(client, make_user, auth_header, monkeypatch):
+    import app.routes.common.common_endpoints as endpoints_module
+
+    class FakeResponse:
+        status_code = 200
+        content = imf.face_image_bytes()
+
+    def _raise(*a, **kw):
+        raise RuntimeError("simulated unexpected failure")
+
+    monkeypatch.setattr(endpoints_module.requests, "get", lambda url, **kwargs: FakeResponse())
+    monkeypatch.setattr(endpoints_module, "extract_face", _raise)
+
+    user_id = make_user()
+    resp = client.post(
+        UPLOAD_PFP_FROM_URL,
+        headers=auth_header(user_id),
+        data={"image_url": "https://example.com/avatar.jpg"},
+    )
+    assert resp.status_code == 500

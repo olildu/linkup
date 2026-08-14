@@ -11,13 +11,16 @@ GET_CHAT = "/api/v1/chats/get/chat"
 GET_CHAT_PAGINATED = "/api/v1/chats/get/chat-paginated"
 
 
-@pytest.fixture
+@pytest.fixture(scope="module")
 def async_client():
     """/chats/get/chat and /chats/get/chat-paginated read from
     `request.app.state.db_pool` (an asyncpg pool created in app.main's
     lifespan). The shared `client` fixture never triggers that lifespan
     (plain `TestClient(app)`, not used as a context manager), so it's only
-    usable here where the pool is actually needed.
+    usable here where the pool is actually needed. Module-scoped so the
+    whole file shares one pool instead of spinning up/tearing down a fresh
+    one per test (which showed up as an intermittent flake under full-suite
+    load).
     """
     with TestClient(app) as c:
         yield c

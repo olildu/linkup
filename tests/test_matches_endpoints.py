@@ -2,6 +2,8 @@
 import pytest
 import uuid
 
+from app.utilities.matches.matches_utilities import MatchUserModel, get_matches_by_preference
+
 GET_MATCHES = "/api/v1/matches/get-matches"
 GET_CONNECTIONS = "/api/v1/matches/get-connections"
 
@@ -113,3 +115,90 @@ def test_get_connections_chat_with_no_messages_sorts_last(client, make_user, aut
 
     db_cursor.execute("DELETE FROM chat_participants WHERE chat_id = %s;", (chat_id,))
     db_cursor.execute("DELETE FROM chats WHERE id = %s;", (chat_id,))
+
+
+# ---------------------------------------------------------------------------
+# get_matches_by_preference edge cases, exercised directly (unit-style)
+# rather than through the HTTP endpoint - the candidate pool depends on
+# what other rows happen to exist, so a dedicated university_id keeps these
+# deterministic regardless of other data in the dev DB.
+# ---------------------------------------------------------------------------
+
+def _make_user_model(user_id: int, university_id: int, existing_matches=None) -> MatchUserModel:
+    return MatchUserModel(
+        id=user_id,
+        username="x",
+        university_id=university_id,
+        already_interacted=[],
+        preferences={"interested_gender": "Female"},
+        existing_matches=existing_matches or [],
+    )
+
+
+def test_get_matches_by_preference_no_candidates_returns_empty(db_cursor, make_user):
+    user_id = make_user()
+    user = _make_user_model(user_id, university_id=999999)  # no one is in this "university"
+
+    result = get_matches_by_preference(user=user, cursor=db_cursor, limit=10)
+
+    assert result == []
+
+
+@pytest.fixture
+def scratch_university(db_cursor):
+    """A dedicated university row so candidate-pool queries are
+    deterministic regardless of whatever else exists in the dev DB.
+    universities.id is SERIAL but schema.sql seeds id=1 without advancing
+    the sequence, so a plain INSERT can collide with it - pick an explicit
+    high id instead.
+    """
+    university_id = 900000 + uuid.uuid4().int % 90000
+    db_cursor.execute(
+        "INSERT INTO universities (id, name, location) VALUES (%s, %s, 'Nowhere');",
+        (university_id, f"Pytest University {uuid.uuid4().hex[:8]}"),
+    )
+    yield university_id
+    db_cursor.execute("DELETE FROM universities WHERE id = %s;", (university_id,))
+
+
+def test_get_matches_by_preference_limit_zero_returns_empty(db_cursor, make_user, scratch_university):
+    user_id = make_user()
+    db_cursor.execute(
+        """
+        INSERT INTO users (email, username, password_hash, university_id, gender, is_profile_complete)
+        VALUES (%s, 'candidate', 'x', %s, 'Female', TRUE) RETURNING id;
+        """,
+        (f"pytest_{uuid.uuid4().hex}@example.com", scratch_university),
+    )
+    candidate_id = db_cursor.fetchone()[0]
+
+    try:
+        user = _make_user_model(user_id, university_id=scratch_university)
+        # candidate_rows is non-empty (the row above matches), but limit=0
+        # means ranked_rows[:0] is empty and matched_users never gets
+        # populated from existing_matches either.
+        result = get_matches_by_preference(user=user, cursor=db_cursor, limit=0)
+        assert result == []
+    finally:
+        db_cursor.execute("DELETE FROM users WHERE id = %s;", (candidate_id,))
+
+
+def test_get_matches_by_preference_skips_malformed_candidate(db_cursor, make_user, scratch_university):
+    user_id = make_user()
+    db_cursor.execute(
+        """
+        INSERT INTO users (email, username, password_hash, university_id, gender, is_profile_complete)
+        VALUES (%s, 'malformed', 'x', %s, 'Female', TRUE) RETURNING id;
+        """,
+        (f"pytest_{uuid.uuid4().hex}@example.com", scratch_university),
+    )
+    malformed_id = db_cursor.fetchone()[0]
+    # Deliberately no user_metadata rows at all - build_candidate_model
+    # requires "dob" and will KeyError.
+
+    try:
+        user = _make_user_model(user_id, university_id=scratch_university, existing_matches=[malformed_id])
+        result = get_matches_by_preference(user=user, cursor=db_cursor, limit=10)
+        assert result == []
+    finally:
+        db_cursor.execute("DELETE FROM users WHERE id = %s;", (malformed_id,))

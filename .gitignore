@@ -5,3 +5,4 @@
 app.log
 /venv
 /.vscode
+.coverage

@@ -259,19 +259,12 @@ async def update_user_metadata(
 
         # Update or insert other metadata
         for key, value in update_data.items():
-            cursor.execute("SELECT 1 FROM user_metadata WHERE user_id = %s AND key = %s", (user_id, key))
-            exists = cursor.fetchone()
-            if exists:
-                query = "UPDATE user_metadata SET value = %s WHERE user_id = %s AND key = %s"
-                cursor.execute(
-                    query,
-                    (str(value), user_id, key)
-                )
-            else:
-                cursor.execute(
-                    "INSERT INTO user_metadata (user_id, key, value) VALUES (%s, %s, %s)",
-                    (user_id, key, str(value))
-                )
+            cursor.execute("""
+                INSERT INTO user_metadata (user_id, key, value)
+                VALUES (%s, %s, %s)
+                ON CONFLICT (user_id, key) DO UPDATE
+                SET value = EXCLUDED.value
+            """, (user_id, key, str(value)))
 
         conn.commit()
 

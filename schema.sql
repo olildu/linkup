@@ -52,7 +52,8 @@ CREATE TABLE user_metadata (
    id SERIAL PRIMARY KEY,
    user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
    key VARCHAR NOT NULL,
-   value TEXT
+   value TEXT,
+   UNIQUE (user_id, key)
 );
 
 

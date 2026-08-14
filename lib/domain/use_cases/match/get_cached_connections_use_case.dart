@@ -5,5 +5,6 @@ class GetCachedConnectionsUseCase {
   final MatchRepository _repository;
   const GetCachedConnectionsUseCase(this._repository);
 
-  Future<List<ChatConnectionEntity>> call() => _repository.getCachedConnections();
+  Future<List<ChatConnectionEntity>> call() =>
+      _repository.getCachedConnections();
 }

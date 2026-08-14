@@ -37,7 +37,8 @@ final class ChatsLoaded extends ChatsState {
       isTyping: isTyping ?? this.isTyping,
       otherUserSeenMsg: otherUserSeenMsg ?? this.otherUserSeenMsg,
       typingUserId: typingUserId ?? this.typingUserId,
-      isFetchingPaginatedMessages: isFetchingPaginatedMessages ?? this.isFetchingPaginatedMessages,
+      isFetchingPaginatedMessages:
+          isFetchingPaginatedMessages ?? this.isFetchingPaginatedMessages,
       isSocketConnected: isSocketConnected ?? this.isSocketConnected,
     );
   }

@@ -27,18 +27,31 @@ class ReplyRenderer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final indicatorBar = Padding(
-      padding: EdgeInsets.only(top: barTopPadding.h, bottom: barBottomPadding.h),
-      child: Container(width: barWidth, decoration: BoxDecoration(color: barColor, borderRadius: BorderRadius.circular(barRadius))),
+      padding: EdgeInsets.only(
+        top: barTopPadding.h,
+        bottom: barBottomPadding.h,
+      ),
+      child: Container(
+        width: barWidth,
+        decoration: BoxDecoration(
+          color: barColor,
+          borderRadius: BorderRadius.circular(barRadius),
+        ),
+      ),
     );
 
     final informationText = Column(
-      crossAxisAlignment: isReversed ? CrossAxisAlignment.start : CrossAxisAlignment.end,
+      crossAxisAlignment: isReversed
+          ? CrossAxisAlignment.start
+          : CrossAxisAlignment.end,
       children: [
         Text(
           isSentByMe ? "You replied" : "Replied to you",
           style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
-              ),
+            color: Theme.of(
+              context,
+            ).colorScheme.onSurface.withValues(alpha: 0.6),
+          ),
         ),
       ],
     );
@@ -47,19 +60,24 @@ class ReplyRenderer extends StatelessWidget {
       child: Opacity(
         opacity: 0.8,
         child: Column(
-          crossAxisAlignment: isSentByMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+          crossAxisAlignment: isSentByMe
+              ? CrossAxisAlignment.end
+              : CrossAxisAlignment.start,
           children: [
             Gap(13.h),
             informationText,
             Gap(5.h),
             Expanded(
               child: Row(
-                children:
-                    isReversed
-                        ? [indicatorBar, Gap(7.w), Opacity(opacity: 0.6, child: replyMessageContent)]
-                        : [replyMessageContent, Gap(7.w), indicatorBar],
+                children: isReversed
+                    ? [
+                        indicatorBar,
+                        Gap(7.w),
+                        Opacity(opacity: 0.6, child: replyMessageContent),
+                      ]
+                    : [replyMessageContent, Gap(7.w), indicatorBar],
               ),
-            ), 
+            ),
           ],
         ),
       ),

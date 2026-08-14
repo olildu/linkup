@@ -87,7 +87,9 @@ class CandidateInfoModel {
     );
   }
 
-  factory CandidateInfoModel.fromMatchCandidateEntity(MatchCandidateEntity candidate) {
+  factory CandidateInfoModel.fromMatchCandidateEntity(
+    MatchCandidateEntity candidate,
+  ) {
     return CandidateInfoModel(
       id: candidate.id,
       height: candidate.height,
@@ -117,27 +119,75 @@ class CandidateInfoModel {
     // }..removeWhere((key, value) => value == null);
   }
 
-  Map<String, Map<String, dynamic>> asIconMap({bool showGender = true, bool showLocationInfo = true}) {
+  Map<String, Map<String, dynamic>> asIconMap({
+    bool showGender = true,
+    bool showLocationInfo = true,
+  }) {
     final map = <String, Map<String, dynamic>>{};
 
     if (showGender) {
-      map['gender'] = {'icon': gender == "Male" ? Icons.man_rounded : Icons.woman_rounded, 'value': gender, 'index': -1, 'title': "Gender"};
+      map['gender'] = {
+        'icon': gender == "Male" ? Icons.man_rounded : Icons.woman_rounded,
+        'value': gender,
+        'index': -1,
+        'title': "Gender",
+      };
     }
 
     if (showLocationInfo) {
       map.addAll({
-        'currently_staying': {'icon': Icons.location_city_rounded, 'value': currentlyStaying, 'index': -1, 'title': "Currently Staying"},
-        'hometown': {'icon': Icons.home_rounded, 'value': hometown, 'index': 0, 'title': "Hometown"},
+        'currently_staying': {
+          'icon': Icons.location_city_rounded,
+          'value': currentlyStaying,
+          'index': -1,
+          'title': "Currently Staying",
+        },
+        'hometown': {
+          'icon': Icons.home_rounded,
+          'value': hometown,
+          'index': 0,
+          'title': "Hometown",
+        },
       });
     }
 
     map.addAll({
-      'height': {'icon': Icons.straighten_rounded, 'value': height != null ? '$height cm' : null, 'index': 1, 'title': "Height"},
-      'weight': {'icon': Icons.monitor_weight, 'value': weight != null ? '$weight kg' : null, 'index': 2, 'title': "Weight"},
-      'religion': {'icon': Icons.church_rounded, 'value': religion, 'index': 3, 'title': "Religion"},
-      'smoking': {'icon': Icons.smoking_rooms_rounded, 'value': smokingInfo, 'index': 4, 'title': "Smoking"},
-      'drinking': {'icon': Icons.local_bar_rounded, 'value': drinkingInfo, 'index': 5, 'title': "Drinking"},
-      'looking_for': {'icon': Icons.favorite_outline_rounded, 'value': lookingFor, 'index': 6, 'title': "Looking For"},
+      'height': {
+        'icon': Icons.straighten_rounded,
+        'value': height != null ? '$height cm' : null,
+        'index': 1,
+        'title': "Height",
+      },
+      'weight': {
+        'icon': Icons.monitor_weight,
+        'value': weight != null ? '$weight kg' : null,
+        'index': 2,
+        'title': "Weight",
+      },
+      'religion': {
+        'icon': Icons.church_rounded,
+        'value': religion,
+        'index': 3,
+        'title': "Religion",
+      },
+      'smoking': {
+        'icon': Icons.smoking_rooms_rounded,
+        'value': smokingInfo,
+        'index': 4,
+        'title': "Smoking",
+      },
+      'drinking': {
+        'icon': Icons.local_bar_rounded,
+        'value': drinkingInfo,
+        'index': 5,
+        'title': "Drinking",
+      },
+      'looking_for': {
+        'icon': Icons.favorite_outline_rounded,
+        'value': lookingFor,
+        'index': 6,
+        'title': "Looking For",
+      },
     });
 
     // map.removeWhere((key, item) => item['value'] == null);

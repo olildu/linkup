@@ -25,9 +25,9 @@ class SignupBloc extends Bloc<SignupEvent, SignupState> {
     required UploadPfpUseCase uploadPfpUseCase,
     required UploadUserMediaUseCase uploadUserMediaUseCase,
     this.isSigningUp = true,
-  })  : _uploadPfp = uploadPfpUseCase,
-        _uploadUserMedia = uploadUserMediaUseCase,
-        super(SignupInitial(currentIndex: 0, progessBarIndex: 0)) {
+  }) : _uploadPfp = uploadPfpUseCase,
+       _uploadUserMedia = uploadUserMediaUseCase,
+       super(SignupInitial(currentIndex: 0, progessBarIndex: 0)) {
     on<SignupInit>((event, emit) async {
       _signUpPageFlow = event.signUpPageFlow;
       _currentIndex = event.currentIndex;
@@ -184,7 +184,9 @@ class SignupBloc extends Bloc<SignupEvent, SignupState> {
           List<Map> uploadedUrls = await Future.wait(futures);
           uploadedUrls.insert(0, firstImageDataRes["original_image_metadata"]);
           SignUpDataParser.updateField(photos: uploadedUrls);
-          SignUpDataParser.updateField(profilePicture: firstImageDataRes['profile_metadata']);
+          SignUpDataParser.updateField(
+            profilePicture: firstImageDataRes['profile_metadata'],
+          );
 
           emit(SingupPhotoUploaded());
 
@@ -204,7 +206,8 @@ class SignupBloc extends Bloc<SignupEvent, SignupState> {
         } else {
           emit(
             SingupPhotoUploadError(
-              message: 'Face not detected or multiple faces detected in the first image.',
+              message:
+                  'Face not detected or multiple faces detected in the first image.',
             ),
           );
           emit(

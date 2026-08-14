@@ -3,7 +3,7 @@ class MessageGroupModel {
   final bool isLastInGroup;
   final bool isOnlyMessageInGroup;
   final int groupSize;
-  final int positionInGroup; 
+  final int positionInGroup;
   final bool prevMessageEmoji;
   final bool nextMessageEmoji;
 

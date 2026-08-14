@@ -11,8 +11,10 @@ class FullScreenImageScreen extends StatefulWidget {
   State<FullScreenImageScreen> createState() => _FullScreenImageScreenState();
 }
 
-class _FullScreenImageScreenState extends State<FullScreenImageScreen> with SingleTickerProviderStateMixin {
-  final TransformationController _transformationController = TransformationController();
+class _FullScreenImageScreenState extends State<FullScreenImageScreen>
+    with SingleTickerProviderStateMixin {
+  final TransformationController _transformationController =
+      TransformationController();
   late Matrix4 _initialTransform;
 
   late AnimationController _animationController;
@@ -21,7 +23,10 @@ class _FullScreenImageScreenState extends State<FullScreenImageScreen> with Sing
   @override
   void initState() {
     super.initState();
-    _animationController = AnimationController(vsync: this, duration: const Duration(milliseconds: 300));
+    _animationController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 300),
+    );
 
     _animationController.addListener(() {
       if (_animation != null) {
@@ -63,15 +68,27 @@ class _FullScreenImageScreenState extends State<FullScreenImageScreen> with Sing
             _animationController.stop();
 
             if (_transformationController.value != _initialTransform) {
-              _animation = Matrix4Tween(
-                begin: _transformationController.value,
-                end: _initialTransform,
-              ).animate(CurvedAnimation(parent: _animationController, curve: Curves.easeOut));
+              _animation =
+                  Matrix4Tween(
+                    begin: _transformationController.value,
+                    end: _initialTransform,
+                  ).animate(
+                    CurvedAnimation(
+                      parent: _animationController,
+                      curve: Curves.easeOut,
+                    ),
+                  );
 
               _animationController.forward(from: 0.0);
             }
           },
-          child: Hero(tag: widget.imagePath, child: CachedNetworkImage(imageUrl: widget.imagePath, fit: BoxFit.cover)),
+          child: Hero(
+            tag: widget.imagePath,
+            child: CachedNetworkImage(
+              imageUrl: widget.imagePath,
+              fit: BoxFit.cover,
+            ),
+          ),
         ),
       ),
     );

@@ -50,7 +50,11 @@ final class UploadMediaChatEvent extends ChatsEvent {
   final MessageType mediaType;
   final String? description;
 
-  UploadMediaChatEvent({required this.file, required this.mediaType, this.description});
+  UploadMediaChatEvent({
+    required this.file,
+    required this.mediaType,
+    this.description,
+  });
 }
 
 final class PaginateAddMessagesEvent extends ChatsEvent {
@@ -58,7 +62,11 @@ final class PaginateAddMessagesEvent extends ChatsEvent {
   final String lastMessageID;
   final DateTime lastMessageTimeStamp;
 
-  PaginateAddMessagesEvent({required this.chatRoomId, required this.lastMessageID, required this.lastMessageTimeStamp});
+  PaginateAddMessagesEvent({
+    required this.chatRoomId,
+    required this.lastMessageID,
+    required this.lastMessageTimeStamp,
+  });
 }
 
 final class _ClearSocketDisconnectedFlagEvent extends ChatsEvent {

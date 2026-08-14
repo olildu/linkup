@@ -37,7 +37,9 @@ class UploadProgressOverlayBuilder extends StatelessWidget {
                 width: 18.sp,
                 child: CircularProgressIndicator(
                   strokeWidth: 2,
-                  valueColor: AlwaysStoppedAnimation(Theme.of(context).colorScheme.primary),
+                  valueColor: AlwaysStoppedAnimation(
+                    Theme.of(context).colorScheme.primary,
+                  ),
                 ),
               ),
 
@@ -46,9 +48,10 @@ class UploadProgressOverlayBuilder extends StatelessWidget {
               Expanded(
                 child: Text(
                   "$message $current/$total",
-                  style: Theme.of(
-                    context,
-                  ).textTheme.bodyMedium?.copyWith(fontSize: 16.sp, fontWeight: FontWeight.w500),
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    fontSize: 16.sp,
+                    fontWeight: FontWeight.w500,
+                  ),
                 ),
               ),
             ],

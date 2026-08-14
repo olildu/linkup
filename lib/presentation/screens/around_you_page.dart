@@ -49,7 +49,8 @@ class _AroundYouPageState extends State<AroundYouPage> {
                 horizontal: true,
               ),
               onSwipe: (previousIndex, currentIndex, direction) async {
-                if (direction == CardSwiperDirection.right && state.swipesRemaining == 0) {
+                if (direction == CardSwiperDirection.right &&
+                    state.swipesRemaining == 0) {
                   showSwipeLimitAlert(context);
                   return false;
                 }
@@ -65,40 +66,44 @@ class _AroundYouPageState extends State<AroundYouPage> {
                 scrollController.jumpTo(0);
                 return true;
               },
-              cardBuilder: (context, index, percentThresholdX, percentThresholdY) {
-                return LayoutBuilder(
-                  builder: (context, constraints) {
-                    double availableHeight = constraints.maxHeight;
-                    return Container(
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          begin: Alignment.topCenter,
-                          end: Alignment.bottomCenter,
-                          colors: [
-                            Theme.of(context).colorScheme.surface,
-                            Theme.of(context).colorScheme.surface,
-                          ],
-                        ),
-                        borderRadius: BorderRadius.circular(20.r),
-                      ),
-                      child: SingleChildScrollView(
-                        controller: scrollController,
-                        child: CandidateDetailBuilder(
-                          key: PageStorageKey('candidate_${candidates[index].id}'),
-                          availableHeight: availableHeight,
-                          candidate: candidates[index],
-                        ),
-                      ),
+              cardBuilder:
+                  (context, index, percentThresholdX, percentThresholdY) {
+                    return LayoutBuilder(
+                      builder: (context, constraints) {
+                        double availableHeight = constraints.maxHeight;
+                        return Container(
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              begin: Alignment.topCenter,
+                              end: Alignment.bottomCenter,
+                              colors: [
+                                Theme.of(context).colorScheme.surface,
+                                Theme.of(context).colorScheme.surface,
+                              ],
+                            ),
+                            borderRadius: BorderRadius.circular(20.r),
+                          ),
+                          child: SingleChildScrollView(
+                            controller: scrollController,
+                            child: CandidateDetailBuilder(
+                              key: PageStorageKey(
+                                'candidate_${candidates[index].id}',
+                              ),
+                              availableHeight: availableHeight,
+                              candidate: candidates[index],
+                            ),
+                          ),
+                        );
+                      },
                     );
                   },
-                );
-              },
             );
           } else if (state is MatchesError) {
             return _buildMessage(
               icon: Icons.search_off_rounded,
               title: "There’s been a glitch in the matrix",
-              subtitle: "Things should be up and running soon. Please try restarting the app.",
+              subtitle:
+                  "Things should be up and running soon. Please try restarting the app.",
             );
           } else if (state is MatchesEmpty) {
             return _buildMessage(
@@ -114,7 +119,11 @@ class _AroundYouPageState extends State<AroundYouPage> {
     );
   }
 
-  Widget _buildMessage({IconData? icon, required String title, required String subtitle}) {
+  Widget _buildMessage({
+    IconData? icon,
+    required String title,
+    required String subtitle,
+  }) {
     return Container(
       color: AppColors.primary,
       padding: EdgeInsets.symmetric(horizontal: AppSpacing.screenH),
@@ -127,15 +136,17 @@ class _AroundYouPageState extends State<AroundYouPage> {
           Text(
             title,
             textAlign: TextAlign.center,
-            style: Theme.of(context).textTheme.displayMedium?.copyWith(color: AppColors.whiteText),
+            style: Theme.of(
+              context,
+            ).textTheme.displayMedium?.copyWith(color: AppColors.whiteText),
           ),
           Gap(AppSpacing.xl3.h),
           Text(
             subtitle,
             textAlign: TextAlign.center,
-            style: Theme.of(
-              context,
-            ).textTheme.bodySmall?.copyWith(color: AppColors.whiteText.withValues(alpha: 0.9)),
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+              color: AppColors.whiteText.withValues(alpha: 0.9),
+            ),
           ),
           Gap(AppSpacing.xl5.h),
         ],

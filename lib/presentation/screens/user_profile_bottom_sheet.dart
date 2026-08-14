@@ -13,18 +13,29 @@ import 'package:linkup/presentation/components/candidate_detail_scroll/candidate
 import 'package:linkup/presentation/components/signup_page/button_builder.dart';
 import 'package:linkup/presentation/screens/chat_page.dart';
 
-void showBottomSheetUserProfile({required BuildContext context, required int userId, bool showChatButton = true}) {
+void showBottomSheetUserProfile({
+  required BuildContext context,
+  required int userId,
+  bool showChatButton = true,
+}) {
   final parentContext = context;
 
   showModalBottomSheet(
     context: context,
     isScrollControlled: true,
-    constraints: BoxConstraints(maxHeight: MediaQuery.of(context).size.height * 0.8, minHeight: MediaQuery.of(context).size.height * 0.8),
+    constraints: BoxConstraints(
+      maxHeight: MediaQuery.of(context).size.height * 0.8,
+      minHeight: MediaQuery.of(context).size.height * 0.8,
+    ),
     builder: (context) {
       return ClipRRect(
-        borderRadius: const BorderRadius.only(topLeft: Radius.circular(20.0), topRight: Radius.circular(20.0)),
+        borderRadius: const BorderRadius.only(
+          topLeft: Radius.circular(20.0),
+          topRight: Radius.circular(20.0),
+        ),
         child: BlocProvider(
-          create: (_) => sl<OtherProfileBloc>()..add(LoadOtherProfileEvent(userId)),
+          create: (_) =>
+              sl<OtherProfileBloc>()..add(LoadOtherProfileEvent(userId)),
           child: BlocBuilder<OtherProfileBloc, OtherProfileState>(
             builder: (context, state) {
               if (state is OtherProfileLoading) {
@@ -33,16 +44,30 @@ void showBottomSheetUserProfile({required BuildContext context, required int use
                   child: Center(child: CircularProgressIndicator()),
                 );
               } else if (state is OtherProfileLoaded) {
-                return OtherProfileLoadedView(candidate: state.user, showChatButton: showChatButton, parentContext: parentContext);
+                return OtherProfileLoadedView(
+                  candidate: state.user,
+                  showChatButton: showChatButton,
+                  parentContext: parentContext,
+                );
               } else if (state is OtherProfileError) {
                 return SizedBox(
                   height: double.infinity,
-                  child: Center(child: Text("Error loading profile", style: Theme.of(context).textTheme.bodyLarge)),
+                  child: Center(
+                    child: Text(
+                      "Error loading profile",
+                      style: Theme.of(context).textTheme.bodyLarge,
+                    ),
+                  ),
                 );
               } else {
                 return SizedBox(
                   height: double.infinity,
-                  child: Center(child: Text("No data available", style: Theme.of(context).textTheme.bodyLarge)),
+                  child: Center(
+                    child: Text(
+                      "No data available",
+                      style: Theme.of(context).textTheme.bodyLarge,
+                    ),
+                  ),
                 );
               }
             },
@@ -57,12 +82,19 @@ class OtherProfileLoadedView extends StatelessWidget {
   final MatchCandidateEntity candidate;
   final bool showChatButton;
   final BuildContext parentContext;
-  const OtherProfileLoadedView({super.key, required this.candidate, required this.parentContext, this.showChatButton = true});
+  const OtherProfileLoadedView({
+    super.key,
+    required this.candidate,
+    required this.parentContext,
+    this.showChatButton = true,
+  });
 
   @override
   Widget build(BuildContext context) {
     final height = MediaQuery.of(context).size.height * 0.8;
-    final availableHeight = showChatButton ? height - 60.h - 30.h : height - 25.h;
+    final availableHeight = showChatButton
+        ? height - 60.h - 30.h
+        : height - 25.h;
 
     return Container(
       height: height,
@@ -77,7 +109,10 @@ class OtherProfileLoadedView extends StatelessWidget {
           children: [
             Expanded(
               child: SingleChildScrollView(
-                child: CandidateDetailBuilder(availableHeight: availableHeight, candidate: candidate),
+                child: CandidateDetailBuilder(
+                  availableHeight: availableHeight,
+                  candidate: candidate,
+                ),
               ),
             ),
             if (showChatButton) ...{
@@ -85,8 +120,14 @@ class OtherProfileLoadedView extends StatelessWidget {
               ButtonBuilder(
                 text: "Start Messaging",
                 onPressed: () async {
-                  final navigator = Navigator.of(parentContext, rootNavigator: true);
-                  final currentUserId = (context.read<ProfileBloc>().state as ProfileLoaded).user.id;
+                  final navigator = Navigator.of(
+                    parentContext,
+                    rootNavigator: true,
+                  );
+                  final currentUserId =
+                      (context.read<ProfileBloc>().state as ProfileLoaded)
+                          .user
+                          .id;
                   final response = await sl<StartChatUseCase>()(candidate.id);
 
                   if (response["success"] == true) {

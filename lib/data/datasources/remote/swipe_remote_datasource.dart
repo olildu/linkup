@@ -9,8 +9,13 @@ class SwipeRemoteDatasource {
 
   SwipeRemoteDatasource(this._client);
 
-  Future<Map<String, dynamic>> swipe(int likedId, CardSwiperDirection direction) async {
-    final endpoint = direction == CardSwiperDirection.left ? '/swipe/left' : '/swipe/right';
+  Future<Map<String, dynamic>> swipe(
+    int likedId,
+    CardSwiperDirection direction,
+  ) async {
+    final endpoint = direction == CardSwiperDirection.left
+        ? '/swipe/left'
+        : '/swipe/right';
     final response = await _client.post(
       Uri.parse('$BASE_URL$endpoint'),
       body: jsonEncode({'liked_id': likedId.toString()}),

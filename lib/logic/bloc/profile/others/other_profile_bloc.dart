@@ -10,8 +10,8 @@ class OtherProfileBloc extends Bloc<OtherProfileEvent, OtherProfileState> {
   final GetOtherProfileUseCase _getOtherProfile;
 
   OtherProfileBloc({required GetOtherProfileUseCase getOtherProfileUseCase})
-      : _getOtherProfile = getOtherProfileUseCase,
-        super(OtherProfileInitial()) {
+    : _getOtherProfile = getOtherProfileUseCase,
+      super(OtherProfileInitial()) {
     on<LoadOtherProfileEvent>((event, emit) async {
       emit(OtherProfileLoading());
       try {

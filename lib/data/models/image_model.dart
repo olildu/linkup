@@ -5,6 +5,9 @@ class ImageModel {
   ImageModel({required this.url, required this.blurHash});
 
   factory ImageModel.fromJson(Map<String, dynamic> json) {
-    return ImageModel(url: json['url'] as String, blurHash: json['blurhash'] as String);
+    return ImageModel(
+      url: json['url'] as String,
+      blurHash: json['blurhash'] as String,
+    );
   }
 }

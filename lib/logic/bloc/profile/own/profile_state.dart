@@ -14,7 +14,11 @@ final class ProfileUpdating extends ProfileState {
   final int total;
   final String message;
 
-  ProfileUpdating({required this.current, required this.total, required this.message});
+  ProfileUpdating({
+    required this.current,
+    required this.total,
+    required this.message,
+  });
 }
 
 final class ProfileLoaded extends ProfileState {

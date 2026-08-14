@@ -9,7 +9,14 @@ class BuildPicker extends StatefulWidget {
   final double dividerGap;
   final int? selectedIndex;
 
-  const BuildPicker({super.key, required this.controller, required this.items, required this.onSelectedItemChanged, this.selectedIndex, this.dividerGap = 0.25});
+  const BuildPicker({
+    super.key,
+    required this.controller,
+    required this.items,
+    required this.onSelectedItemChanged,
+    this.selectedIndex,
+    this.dividerGap = 0.25,
+  });
 
   @override
   State<BuildPicker> createState() => _BuildPickerState();
@@ -34,7 +41,8 @@ class _BuildPickerState extends State<BuildPicker> {
   @override
   void didUpdateWidget(covariant BuildPicker oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (oldWidget.selectedIndex != widget.selectedIndex && widget.selectedIndex != null) {
+    if (oldWidget.selectedIndex != widget.selectedIndex &&
+        widget.selectedIndex != null) {
       _currentSelectedIndex = widget.selectedIndex!;
       widget.controller.jumpToItem(_currentSelectedIndex);
     }
@@ -64,8 +72,12 @@ class _BuildPickerState extends State<BuildPicker> {
                   widget.items[index],
                   style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                     fontSize: 20.sp,
-                    fontWeight: _currentSelectedIndex == index ? FontWeight.bold : FontWeight.normal,
-                    color: _currentSelectedIndex == index ? Theme.of(context).colorScheme.onSurface : AppColors.notSelected,
+                    fontWeight: _currentSelectedIndex == index
+                        ? FontWeight.bold
+                        : FontWeight.normal,
+                    color: _currentSelectedIndex == index
+                        ? Theme.of(context).colorScheme.onSurface
+                        : AppColors.notSelected,
                   ),
                 ),
               );
@@ -80,7 +92,10 @@ class _BuildPickerState extends State<BuildPicker> {
           child: Container(
             height: 2.5.h,
             margin: EdgeInsets.symmetric(horizontal: 10.w),
-            decoration: BoxDecoration(color: AppColors.primary, borderRadius: BorderRadius.circular(1.5.r)),
+            decoration: BoxDecoration(
+              color: AppColors.primary,
+              borderRadius: BorderRadius.circular(1.5.r),
+            ),
           ),
         ),
 
@@ -90,7 +105,10 @@ class _BuildPickerState extends State<BuildPicker> {
           child: Container(
             height: 2.5.h,
             margin: EdgeInsets.symmetric(horizontal: 10.w),
-            decoration: BoxDecoration(color: AppColors.primary, borderRadius: BorderRadius.circular(1.5.r)),
+            decoration: BoxDecoration(
+              color: AppColors.primary,
+              borderRadius: BorderRadius.circular(1.5.r),
+            ),
           ),
         ),
       ],

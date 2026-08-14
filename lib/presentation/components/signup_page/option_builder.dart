@@ -9,7 +9,14 @@ class OptionBuilder extends StatefulWidget {
   final String? currentOption;
   final double textSize;
 
-  const OptionBuilder({super.key, required this.options, required this.onChanged, this.currentIndex = -1, this.currentOption, this.textSize = 16});
+  const OptionBuilder({
+    super.key,
+    required this.options,
+    required this.onChanged,
+    this.currentIndex = -1,
+    this.currentOption,
+    this.textSize = 16,
+  });
 
   @override
   State<OptionBuilder> createState() => _OptionBuilderState();
@@ -52,15 +59,17 @@ class _OptionBuilderState extends State<OptionBuilder> {
                 duration: const Duration(milliseconds: 150),
                 padding: EdgeInsets.symmetric(horizontal: 25.w, vertical: 15.h),
                 decoration: BoxDecoration(
-                  color: _currentIndex == index ? AppColors.primary : AppColors.notSelected,
+                  color: _currentIndex == index
+                      ? AppColors.primary
+                      : AppColors.notSelected,
                   borderRadius: BorderRadius.circular(50),
                 ),
                 child: Text(
                   widget.options[index],
                   style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                        fontSize: widget.textSize,
-                        color: AppColors.whiteText,
-                      ),
+                    fontSize: widget.textSize,
+                    color: AppColors.whiteText,
+                  ),
                 ),
               ),
             );

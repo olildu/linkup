@@ -3,7 +3,7 @@ import 'package:linkup/data/enums/message_type_enum.dart';
 class ChatsConnectionModel {
   final int id;
   final String username;
-  final Map profilePictureMetaData; 
+  final Map profilePictureMetaData;
   final int chatRoomId;
   final int unseenCounter;
   final String? message;
@@ -34,11 +34,20 @@ class ChatsConnectionModel {
     );
   }
 
-  ChatsConnectionModel copyWith({int? id, String? username, Map? profilePictureMetaData, int? chatRoomId, int? unseenCounter, String? message, MessageType? messageType}) {
+  ChatsConnectionModel copyWith({
+    int? id,
+    String? username,
+    Map? profilePictureMetaData,
+    int? chatRoomId,
+    int? unseenCounter,
+    String? message,
+    MessageType? messageType,
+  }) {
     return ChatsConnectionModel(
       id: id ?? this.id,
       username: username ?? this.username,
-      profilePictureMetaData: profilePictureMetaData ?? this.profilePictureMetaData,
+      profilePictureMetaData:
+          profilePictureMetaData ?? this.profilePictureMetaData,
       chatRoomId: chatRoomId ?? this.chatRoomId,
       unseenCounter: unseenCounter ?? this.unseenCounter,
       message: message ?? this.message,

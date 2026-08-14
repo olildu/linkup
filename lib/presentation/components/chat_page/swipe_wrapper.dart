@@ -10,13 +10,19 @@ class SwipeWrapper extends StatefulWidget {
   final Message payload;
   final Widget child;
 
-  const SwipeWrapper({super.key, required this.child, required this.payload, required this.onSwipe});
+  const SwipeWrapper({
+    super.key,
+    required this.child,
+    required this.payload,
+    required this.onSwipe,
+  });
 
   @override
   State<SwipeWrapper> createState() => _SwipeWrapperState();
 }
 
-class _SwipeWrapperState extends State<SwipeWrapper> with SingleTickerProviderStateMixin {
+class _SwipeWrapperState extends State<SwipeWrapper>
+    with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late bool isSentByMe;
 
@@ -26,8 +32,12 @@ class _SwipeWrapperState extends State<SwipeWrapper> with SingleTickerProviderSt
   @override
   void initState() {
     super.initState();
-    isSentByMe = widget.payload.from_ == GetIt.instance<int>(instanceName: 'user_id');
-    _controller = AnimationController(vsync: this, duration: Duration(milliseconds: 200));
+    isSentByMe =
+        widget.payload.from_ == GetIt.instance<int>(instanceName: 'user_id');
+    _controller = AnimationController(
+      vsync: this,
+      duration: Duration(milliseconds: 200),
+    );
   }
 
   void _handleDragUpdate(DragUpdateDetails details) {
@@ -76,8 +86,15 @@ class _SwipeWrapperState extends State<SwipeWrapper> with SingleTickerProviderSt
                 width: 36.r,
                 height: 36.r,
                 padding: EdgeInsets.all(8.r),
-                decoration: BoxDecoration(color: const Color.fromARGB(70, 194, 194, 194), shape: BoxShape.circle),
-                child: Icon(Symbols.reply, color: const Color.fromARGB(255, 255, 255, 255), size: 16.r),
+                decoration: BoxDecoration(
+                  color: const Color.fromARGB(70, 194, 194, 194),
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(
+                  Symbols.reply,
+                  color: const Color.fromARGB(255, 255, 255, 255),
+                  size: 16.r,
+                ),
               ),
             ),
           ),
@@ -85,7 +102,10 @@ class _SwipeWrapperState extends State<SwipeWrapper> with SingleTickerProviderSt
         GestureDetector(
           onHorizontalDragUpdate: _handleDragUpdate,
           onHorizontalDragEnd: _handleDragEnd,
-          child: Transform.translate(offset: Offset(slideAmount, 0), child: widget.child),
+          child: Transform.translate(
+            offset: Offset(slideAmount, 0),
+            child: widget.child,
+          ),
         ),
       ],
     );

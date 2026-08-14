@@ -36,17 +36,25 @@ class _SetPreferencesPageState extends State<SetPreferencesPage> {
     log('existingPreference.religion: ${existingPreference.religion}');
 
     final updatedPreference = UserPreferenceEntity(
-      interestedGender: _toNullableString(interestedGender ?? existingPreference.interestedGender),
+      interestedGender: _toNullableString(
+        interestedGender ?? existingPreference.interestedGender,
+      ),
       height: height ?? existingPreference.height,
       weight: weight ?? existingPreference.weight,
       religion: _toNullableString(religion ?? existingPreference.religion),
       drinkingStatus: drinkingStatus ?? existingPreference.drinkingStatus,
       smokingStatus: smokingStatus ?? existingPreference.smokingStatus,
-      lookingFor: _toNullableString(lookingFor ?? existingPreference.lookingFor),
-      currentlyStaying: _toNullableString(currentlyStaying ?? existingPreference.currentlyStaying),
+      lookingFor: _toNullableString(
+        lookingFor ?? existingPreference.lookingFor,
+      ),
+      currentlyStaying: _toNullableString(
+        currentlyStaying ?? existingPreference.currentlyStaying,
+      ),
     );
 
-    context.read<PreferencesBloc>().add(PreferencesUpdateEvent(userPreference: updatedPreference));
+    context.read<PreferencesBloc>().add(
+      PreferencesUpdateEvent(userPreference: updatedPreference),
+    );
   }
 
   @override
@@ -71,7 +79,9 @@ class _SetPreferencesPageState extends State<SetPreferencesPage> {
               scrolledUnderElevation: 0,
               title: Text(
                 'Set Your Preferences',
-                style: Theme.of(context).textTheme.headlineMedium?.copyWith(color: Theme.of(context).colorScheme.onSurface),
+                style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                  color: Theme.of(context).colorScheme.onSurface,
+                ),
               ),
               centerTitle: true,
               backgroundColor: Colors.transparent,
@@ -79,33 +89,52 @@ class _SetPreferencesPageState extends State<SetPreferencesPage> {
 
             body: SafeArea(
               child: Padding(
-                padding: EdgeInsets.symmetric(horizontal: AppSpacing.xl.w, vertical: AppSpacing.xl.h),
+                padding: EdgeInsets.symmetric(
+                  horizontal: AppSpacing.xl.w,
+                  vertical: AppSpacing.xl.h,
+                ),
                 child: SingleChildScrollView(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      BuildTitleSubtitle(title: "Interested Gender", subtitle: "Choose who you'd like to connect with on campus."),
+                      BuildTitleSubtitle(
+                        title: "Interested Gender",
+                        subtitle:
+                            "Choose who you'd like to connect with on campus.",
+                      ),
 
                       Gap(AppSpacing.xl.h),
 
                       OptionBuilder(
                         options: ["Male", "Female"],
                         textSize: 14.sp,
-                        currentOption: userPreference.interestedGender ?? "Don't mind",
+                        currentOption:
+                            userPreference.interestedGender ?? "Don't mind",
                         onChanged: (obj) {
-                          _updatePreferences(existingPreference: userPreference, interestedGender: obj);
+                          _updatePreferences(
+                            existingPreference: userPreference,
+                            interestedGender: obj,
+                          );
                           log('interestedGender: $obj');
                         },
                       ),
 
                       Gap(AppSpacing.xl.h),
 
-                      BuildTitleSubtitle(title: 'Smoking Preference', subtitle: 'Let us know your comfort level with smoking habits.'),
+                      BuildTitleSubtitle(
+                        title: 'Smoking Preference',
+                        subtitle:
+                            'Let us know your comfort level with smoking habits.',
+                      ),
 
                       Gap(AppSpacing.xl.h),
 
                       OptionBuilder(
-                        options: ["Open to smokers", "Prefer non-smokers", "Don't mind"],
+                        options: [
+                          "Open to smokers",
+                          "Prefer non-smokers",
+                          "Don't mind",
+                        ],
                         textSize: 14.sp,
                         currentOption: userPreference.smokingStatus == null
                             ? "Don't mind"
@@ -122,19 +151,30 @@ class _SetPreferencesPageState extends State<SetPreferencesPage> {
                             smokingStatus = null;
                           }
 
-                          _updatePreferences(existingPreference: userPreference, smokingStatus: smokingStatus);
+                          _updatePreferences(
+                            existingPreference: userPreference,
+                            smokingStatus: smokingStatus,
+                          );
                           log('smokingStatus: $smokingStatus');
                         },
                       ),
 
                       Gap(AppSpacing.xl.h),
 
-                      BuildTitleSubtitle(title: 'Drinking Preference', subtitle: 'Share your preference regarding social drinking.'),
+                      BuildTitleSubtitle(
+                        title: 'Drinking Preference',
+                        subtitle:
+                            'Share your preference regarding social drinking.',
+                      ),
 
                       Gap(AppSpacing.xl.h),
 
                       OptionBuilder(
-                        options: ["Open to drinkers", "Prefer non-drinkers", "Don't mind"],
+                        options: [
+                          "Open to drinkers",
+                          "Prefer non-drinkers",
+                          "Don't mind",
+                        ],
                         currentOption: userPreference.drinkingStatus == null
                             ? "Don't mind"
                             : userPreference.drinkingStatus!
@@ -151,39 +191,72 @@ class _SetPreferencesPageState extends State<SetPreferencesPage> {
                             drinkingStatus = null;
                           }
 
-                          _updatePreferences(existingPreference: userPreference, drinkingStatus: drinkingStatus);
+                          _updatePreferences(
+                            existingPreference: userPreference,
+                            drinkingStatus: drinkingStatus,
+                          );
                           log('drinkingStatus: $drinkingStatus');
                         },
                       ),
 
                       Gap(AppSpacing.xl.h),
 
-                      BuildTitleSubtitle(title: 'Location of Residence', subtitle: 'Tell us where you’d prefer your match to be located.'),
+                      BuildTitleSubtitle(
+                        title: 'Location of Residence',
+                        subtitle:
+                            'Tell us where you’d prefer your match to be located.',
+                      ),
 
                       Gap(AppSpacing.xl.h),
 
                       OptionBuilder(
-                        options: ["Campus Hostel", "PG", "Home", "Flat", "Other", "Don't mind"],
-                        currentOption: userPreference.currentlyStaying ?? "Don't mind",
+                        options: [
+                          "Campus Hostel",
+                          "PG",
+                          "Home",
+                          "Flat",
+                          "Other",
+                          "Don't mind",
+                        ],
+                        currentOption:
+                            userPreference.currentlyStaying ?? "Don't mind",
                         textSize: 14.sp,
                         onChanged: (obj) {
-                          _updatePreferences(existingPreference: userPreference, currentlyStaying: obj);
+                          _updatePreferences(
+                            existingPreference: userPreference,
+                            currentlyStaying: obj,
+                          );
                           log('currentlyStaying: $obj');
                         },
                       ),
 
                       Gap(AppSpacing.xl.h),
 
-                      BuildTitleSubtitle(title: 'Religion', subtitle: 'Mention any religious preferences for better compatibility.'),
+                      BuildTitleSubtitle(
+                        title: 'Religion',
+                        subtitle:
+                            'Mention any religious preferences for better compatibility.',
+                      ),
 
                       Gap(AppSpacing.xl.h),
 
                       OptionBuilder(
-                        options: ["Islam", "Sikhism", "Jainism", "Christianity", "Hinduism", "Buddhism", "Don't mind"],
+                        options: [
+                          "Islam",
+                          "Sikhism",
+                          "Jainism",
+                          "Christianity",
+                          "Hinduism",
+                          "Buddhism",
+                          "Don't mind",
+                        ],
                         currentOption: userPreference.religion ?? "Don't mind",
                         textSize: 14.sp,
                         onChanged: (obj) {
-                          _updatePreferences(existingPreference: userPreference, religion: obj);
+                          _updatePreferences(
+                            existingPreference: userPreference,
+                            religion: obj,
+                          );
 
                           log('religion: $obj');
                         },
@@ -191,16 +264,30 @@ class _SetPreferencesPageState extends State<SetPreferencesPage> {
 
                       Gap(AppSpacing.xl.h),
 
-                      BuildTitleSubtitle(title: 'Looking For', subtitle: 'Let others know if you’re here for something casual or serious.'),
+                      BuildTitleSubtitle(
+                        title: 'Looking For',
+                        subtitle:
+                            'Let others know if you’re here for something casual or serious.',
+                      ),
 
                       Gap(AppSpacing.xl.h),
 
                       OptionBuilder(
-                        options: ["Casual", "Open to anything", "Serious", "Friends", "Don't mind"],
+                        options: [
+                          "Casual",
+                          "Open to anything",
+                          "Serious",
+                          "Friends",
+                          "Don't mind",
+                        ],
                         textSize: 14.sp,
-                        currentOption: userPreference.lookingFor ?? "Don't mind",
+                        currentOption:
+                            userPreference.lookingFor ?? "Don't mind",
                         onChanged: (obj) {
-                          _updatePreferences(existingPreference: userPreference, lookingFor: obj);
+                          _updatePreferences(
+                            existingPreference: userPreference,
+                            lookingFor: obj,
+                          );
                           log('lookingFor: $obj');
                         },
                       ),
@@ -214,7 +301,9 @@ class _SetPreferencesPageState extends State<SetPreferencesPage> {
           return Center(
             child: Text(
               'Error loading preferences. Please try again later.',
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Theme.of(context).colorScheme.error),
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                color: Theme.of(context).colorScheme.error,
+              ),
             ),
           );
         }

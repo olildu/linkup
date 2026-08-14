@@ -23,32 +23,31 @@ class ChatSocketsBloc extends Bloc<ChatSocketsEvent, ChatSocketsState> {
   ChatSocketsBloc({
     required GetUnsentMessagesUseCase getUnsentMessagesUseCase,
     required DeleteUnsentByMessageIdUseCase deleteUnsentByMessageIdUseCase,
-  })  : _getUnsent = getUnsentMessagesUseCase,
-        _deleteUnsentByMsgId = deleteUnsentByMessageIdUseCase,
-        super(ChatSocketsInitial()) {
+  }) : _getUnsent = getUnsentMessagesUseCase,
+       _deleteUnsentByMsgId = deleteUnsentByMessageIdUseCase,
+       super(ChatSocketsInitial()) {
     on<LoadChatSocketsEvent>((event, emit) async {
       emit(ChatSocketsConnecting());
       try {
         await ChatSocketServices.instance().connect();
 
         _statusSubscription?.cancel();
-        _statusSubscription = ChatSocketServices.chatsConnectionStatusStream.listen(
-          (connected) async {
-            log('WebSocket connected: $connected', name: _logTag);
-            if (!connected) return;
+        _statusSubscription = ChatSocketServices.chatsConnectionStatusStream
+            .listen((connected) async {
+              log('WebSocket connected: $connected', name: _logTag);
+              if (!connected) return;
 
-            final unsent = await _getUnsent();
-            for (final entity in unsent) {
-              try {
-                final message = _entityToModel(entity);
-                ChatSocketServices.instance().sendMessage(message.toJson());
-                await _deleteUnsentByMsgId(entity.id);
-              } catch (e) {
-                log('Failed to resend unsent message: $e', name: _logTag);
+              final unsent = await _getUnsent();
+              for (final entity in unsent) {
+                try {
+                  final message = _entityToModel(entity);
+                  ChatSocketServices.instance().sendMessage(message.toJson());
+                  await _deleteUnsentByMsgId(entity.id);
+                } catch (e) {
+                  log('Failed to resend unsent message: $e', name: _logTag);
+                }
               }
-            }
-          },
-        );
+            });
 
         emit(ChatSocketsConnected());
       } catch (e) {
@@ -59,24 +58,24 @@ class ChatSocketsBloc extends Bloc<ChatSocketsEvent, ChatSocketsState> {
   }
 
   Message _entityToModel(MessageEntity e) => Message(
-        id: e.id,
-        message: e.message,
-        to: e.to,
-        from_: e.from_,
-        chatRoomId: e.chatRoomId,
-        isSeen: e.isSeen,
-        isSent: e.isSent,
-        timestamp: e.timestamp,
-        replyID: e.replyID,
-        media: e.media == null
-            ? null
-            : MediaMessageData(
-                fileKey: e.media!.fileKey,
-                mediaType: e.media!.mediaType,
-                blurhashText: e.media!.blurhashText,
-                metadata: e.media!.metadata,
-              ),
-      );
+    id: e.id,
+    message: e.message,
+    to: e.to,
+    from_: e.from_,
+    chatRoomId: e.chatRoomId,
+    isSeen: e.isSeen,
+    isSent: e.isSent,
+    timestamp: e.timestamp,
+    replyID: e.replyID,
+    media: e.media == null
+        ? null
+        : MediaMessageData(
+            fileKey: e.media!.fileKey,
+            mediaType: e.media!.mediaType,
+            blurhashText: e.media!.blurhashText,
+            metadata: e.media!.metadata,
+          ),
+  );
 
   @override
   Future<void> close() {

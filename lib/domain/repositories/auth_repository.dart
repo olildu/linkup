@@ -6,7 +6,11 @@ abstract class AuthRepository {
   Future<void> register(String emailHash, String password);
   Future<void> resetPassword(String emailHash, String password);
   Future<int> sendEmailOTP(String email);
-  Future<Map<String, dynamic>> verifyEmailOTP(String email, int otp, EmailOTPSubject subject);
+  Future<Map<String, dynamic>> verifyEmailOTP(
+    String email,
+    int otp,
+    EmailOTPSubject subject,
+  );
   Future<bool> completeProfile(UpdateMetadataModel data);
   Future<void> logout();
   Future<void> deleteAccount();

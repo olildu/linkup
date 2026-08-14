@@ -22,24 +22,26 @@ class ChatsTable {
     chatID = chatsConnectionModel.id;
     username = chatsConnectionModel.username;
     // Handle null profile picture
-    profilePictureMetaDataJson = jsonEncode(chatsConnectionModel.profilePictureMetaData);
+    profilePictureMetaDataJson = jsonEncode(
+      chatsConnectionModel.profilePictureMetaData,
+    );
     chatRoomId = chatsConnectionModel.chatRoomId;
     unseenCounter = chatsConnectionModel.unseenCounter;
     message = chatsConnectionModel.message;
-    isDeleted = chatsConnectionModel.isDeleted; 
+    isDeleted = chatsConnectionModel.isDeleted;
   }
 
   ChatsConnectionModel toChatsConnectionModel() {
     return ChatsConnectionModel(
       id: chatID,
       username: username,
-      profilePictureMetaData: profilePictureMetaDataJson != null 
-          ? jsonDecode(profilePictureMetaDataJson!) 
+      profilePictureMetaData: profilePictureMetaDataJson != null
+          ? jsonDecode(profilePictureMetaDataJson!)
           : null,
       chatRoomId: chatRoomId,
       unseenCounter: unseenCounter,
       message: message,
-      isDeleted: isDeleted, 
+      isDeleted: isDeleted,
     );
   }
 }

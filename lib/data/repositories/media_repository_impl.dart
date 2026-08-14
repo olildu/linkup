@@ -10,12 +10,16 @@ class MediaRepositoryImpl implements MediaRepository {
   const MediaRepositoryImpl(this._datasource);
 
   @override
-  Future<Map<String, dynamic>> uploadChatMedia(File file, MessageType mediaType) =>
-      _datasource.uploadChatMedia(file, mediaType);
+  Future<Map<String, dynamic>> uploadChatMedia(
+    File file,
+    MessageType mediaType,
+  ) => _datasource.uploadChatMedia(file, mediaType);
 
   @override
-  Future<Map<String, dynamic>> uploadUserMedia(File file, MessageType mediaType) =>
-      _datasource.uploadUserMedia(file, mediaType);
+  Future<Map<String, dynamic>> uploadUserMedia(
+    File file,
+    MessageType mediaType,
+  ) => _datasource.uploadUserMedia(file, mediaType);
 
   @override
   Future<Map<String, dynamic>> uploadPfp(File file, MessageType mediaType) =>

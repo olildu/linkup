@@ -9,7 +9,12 @@ class BackgroundAnimation extends StatelessWidget {
   final Widget? child;
   final bool blur;
 
-  const BackgroundAnimation({super.key, required this.animation, this.child, this.blur = false});
+  const BackgroundAnimation({
+    super.key,
+    required this.animation,
+    this.child,
+    this.blur = false,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -24,11 +29,18 @@ class BackgroundAnimation extends StatelessWidget {
             return Stack(
               children: [
                 Container(color: Colors.black),
-                Positioned.fill(child: CustomPaint(painter: RPSCustomPainter(animation.value * 2 * math.pi))),
+                Positioned.fill(
+                  child: CustomPaint(
+                    painter: RPSCustomPainter(animation.value * 2 * math.pi),
+                  ),
+                ),
                 if (blurValue > 0)
                   Positioned.fill(
                     child: BackdropFilter(
-                      filter: ImageFilter.blur(sigmaX: blurValue, sigmaY: blurValue),
+                      filter: ImageFilter.blur(
+                        sigmaX: blurValue,
+                        sigmaY: blurValue,
+                      ),
                       child: Container(color: Colors.transparent),
                     ),
                   ),

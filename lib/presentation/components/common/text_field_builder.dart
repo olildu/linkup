@@ -16,11 +16,12 @@ class TextFieldBuilder extends StatefulWidget {
     InputBorder? border,
     this.initialValue = '',
     this.onChanged,
-  }) : border = border ??
-            OutlineInputBorder(
-              borderRadius: const BorderRadius.all(Radius.circular(10)),
-              borderSide: BorderSide(color: AppColors.notSelected),
-            );
+  }) : border =
+           border ??
+           OutlineInputBorder(
+             borderRadius: const BorderRadius.all(Radius.circular(10)),
+             borderSide: BorderSide(color: AppColors.notSelected),
+           );
 
   @override
   State<TextFieldBuilder> createState() => _TextFieldBuilderState();
@@ -48,9 +49,9 @@ class _TextFieldBuilderState extends State<TextFieldBuilder> {
       maxLines: widget.maxLines,
       onChanged: widget.onChanged,
       style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-            fontWeight: FontWeight.w600,
-            color: Theme.of(context).colorScheme.onSurface,
-          ),
+        fontWeight: FontWeight.w600,
+        color: Theme.of(context).colorScheme.onSurface,
+      ),
       decoration: InputDecoration(
         hintText: widget.hintText,
         hintStyle: AppTextStyles.hint(context)?.copyWith(fontSize: 14.sp),

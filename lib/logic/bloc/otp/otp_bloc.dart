@@ -15,9 +15,9 @@ class OtpBloc extends Bloc<OtpBlocEvent, OtpState> {
   OtpBloc({
     required SendOTPUseCase sendOTPUseCase,
     required VerifyOTPUseCase verifyOTPUseCase,
-  })  : _sendOTP = sendOTPUseCase,
-        _verifyOTP = verifyOTPUseCase,
-        super(OtpInitial()) {
+  }) : _sendOTP = sendOTPUseCase,
+       _verifyOTP = verifyOTPUseCase,
+       super(OtpInitial()) {
     on<SendOTPEvent>((event, emit) async {
       emit(OtpLoading());
       try {

@@ -5,6 +5,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import 'package:linkup/core/di/injection_container.dart';
 import 'package:linkup/logic/bloc/connections/connections_bloc.dart';
+import 'package:linkup/logic/bloc/likes/likes_bloc.dart';
 import 'package:linkup/logic/bloc/matches/matches_bloc.dart';
 import 'package:linkup/logic/bloc/post_login/post_login_bloc.dart';
 import 'package:linkup/logic/bloc/profile/own/profile_bloc.dart';
@@ -28,11 +29,14 @@ Future<void> main() async {
 
   runApp(
     MultiProvider(
-      providers: [ChangeNotifierProvider(create: (_) => DataValidatorProvider())],
+      providers: [
+        ChangeNotifierProvider(create: (_) => DataValidatorProvider()),
+      ],
       child: MultiBlocProvider(
         providers: [
           BlocProvider(create: (_) => sl<MatchesBloc>()),
           BlocProvider(create: (_) => sl<ConnectionsBloc>()),
+          BlocProvider(create: (_) => sl<LikesBloc>()),
           BlocProvider(create: (_) => sl<ProfileBloc>()),
           BlocProvider(create: (_) => WebSocketBloc()),
           BlocProvider(create: (_) => sl<ChatSocketsBloc>()),
@@ -48,6 +52,7 @@ Future<void> main() async {
               profileBloc: context.read<ProfileBloc>(),
               connectionsBloc: context.read<ConnectionsBloc>(),
               connectionsSocketBloc: context.read<ConnectionsSocketBloc>(),
+              likesBloc: context.read<LikesBloc>(),
             ),
           ),
         ],

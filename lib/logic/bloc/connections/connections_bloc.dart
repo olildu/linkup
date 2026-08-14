@@ -40,12 +40,12 @@ class ConnectionsBloc extends Bloc<ConnectionsEvent, ConnectionsState> {
     required GetCachedConnectionsUseCase getCachedConnectionsUseCase,
     required BlockUserUseCase blockUserUseCase,
     required ReportUserUseCase reportUserUseCase,
-  })  : _getConnections = getConnectionsUseCase,
-        _cacheConnections = cacheConnectionsUseCase,
-        _getCachedConnections = getCachedConnectionsUseCase,
-        _blockUser = blockUserUseCase,
-        _reportUser = reportUserUseCase,
-        super(ConnectionsInitial()) {
+  }) : _getConnections = getConnectionsUseCase,
+       _cacheConnections = cacheConnectionsUseCase,
+       _getCachedConnections = getCachedConnectionsUseCase,
+       _blockUser = blockUserUseCase,
+       _reportUser = reportUserUseCase,
+       super(ConnectionsInitial()) {
     on<LoadConnectionsEvent>(_onLoad);
     on<ReportUserEvent>(_onReport);
     on<ReloadChatConnectionsEvent>(_onReload);
@@ -57,7 +57,9 @@ class ConnectionsBloc extends Bloc<ConnectionsEvent, ConnectionsState> {
     final int currentUserId = GetIt.instance<int>(instanceName: 'user_id');
 
     _chatSocketSubscription?.cancel();
-    _chatSocketSubscription = ChatSocketServices.chatsMessageStream.listen((raw) {
+    _chatSocketSubscription = ChatSocketServices.chatsMessageStream.listen((
+      raw,
+    ) {
       final currentState = state;
       if (currentState is! ConnectionsLoaded) return;
 
@@ -67,7 +69,10 @@ class ConnectionsBloc extends Bloc<ConnectionsEvent, ConnectionsState> {
       final msg = Message.fromJson(data);
       final existingChat = currentState.chats
           .cast<ChatConnectionEntity?>()
-          .firstWhere((c) => c?.chatRoomId == msg.chatRoomId, orElse: () => null);
+          .firstWhere(
+            (c) => c?.chatRoomId == msg.chatRoomId,
+            orElse: () => null,
+          );
 
       if (existingChat == null &&
           (data['chats_type'] == 'message' || data['chats_type'] == 'typing')) {
@@ -79,58 +84,70 @@ class ConnectionsBloc extends Bloc<ConnectionsEvent, ConnectionsState> {
         _typingTimers[msg.chatRoomId]?.cancel();
         _typingTimers.remove(msg.chatRoomId);
 
-        add(ReloadChatConnectionsEvent(
-          liveChatData: LiveChatDataModel(
-            from_: msg.from_,
-            chatRoomId: msg.chatRoomId,
-            message: msg.message,
-            unseenCounterIncBy: msg.from_ == currentUserId ? 0 : 1,
-            messageType: msg.media != null ? MessageType.image : MessageType.text,
-            changeOrder: true,
-          ),
-        ));
-      } else if (data['chats_type'] == 'typing') {
-        if (msg.from_ == currentUserId) return;
-
-        add(ReloadChatConnectionsEvent(
-          liveChatData: LiveChatDataModel(
-            from_: msg.from_,
-            chatRoomId: msg.chatRoomId,
-            message: msg.message,
-            unseenCounterIncBy: 0,
-            messageType: MessageType.text,
-          ),
-        ));
-
-        _typingTimers[msg.chatRoomId]?.cancel();
-        _typingTimers[msg.chatRoomId] = Timer(const Duration(seconds: 3), () {
-          add(ReloadChatConnectionsEvent(
+        add(
+          ReloadChatConnectionsEvent(
             liveChatData: LiveChatDataModel(
               from_: msg.from_,
               chatRoomId: msg.chatRoomId,
-              message: existingChat?.message ?? '',
-              unseenCounterIncBy: 0,
-              messageType: existingChat?.messageType ?? MessageType.text,
+              message: msg.message,
+              unseenCounterIncBy: msg.from_ == currentUserId ? 0 : 1,
+              messageType: msg.media != null
+                  ? MessageType.image
+                  : MessageType.text,
+              changeOrder: true,
             ),
-          ));
+          ),
+        );
+      } else if (data['chats_type'] == 'typing') {
+        if (msg.from_ == currentUserId) return;
+
+        add(
+          ReloadChatConnectionsEvent(
+            liveChatData: LiveChatDataModel(
+              from_: msg.from_,
+              chatRoomId: msg.chatRoomId,
+              message: msg.message,
+              unseenCounterIncBy: 0,
+              messageType: MessageType.text,
+            ),
+          ),
+        );
+
+        _typingTimers[msg.chatRoomId]?.cancel();
+        _typingTimers[msg.chatRoomId] = Timer(const Duration(seconds: 3), () {
+          add(
+            ReloadChatConnectionsEvent(
+              liveChatData: LiveChatDataModel(
+                from_: msg.from_,
+                chatRoomId: msg.chatRoomId,
+                message: existingChat?.message ?? '',
+                unseenCounterIncBy: 0,
+                messageType: existingChat?.messageType ?? MessageType.text,
+              ),
+            ),
+          );
           _typingTimers.remove(msg.chatRoomId);
         });
       }
     });
 
     _connectionsSocketSubscription?.cancel();
-    _connectionsSocketSubscription =
-        ConnectionsSocketService.connectionsMessageStream.listen((raw) {
-      if (state is! ConnectionsLoaded) return;
-      final data = jsonDecode(raw);
-      log('Connections socket data: $data', name: _logTag);
-      if (data['type'] == 'connections-reload') {
-        add(LoadConnectionsEvent(showLoading: false));
-      }
-    });
+    _connectionsSocketSubscription = ConnectionsSocketService
+        .connectionsMessageStream
+        .listen((raw) {
+          if (state is! ConnectionsLoaded) return;
+          final data = jsonDecode(raw);
+          log('Connections socket data: $data', name: _logTag);
+          if (data['type'] == 'connections-reload') {
+            add(LoadConnectionsEvent(showLoading: false));
+          }
+        });
   }
 
-  Future<void> _onLoad(LoadConnectionsEvent event, Emitter<ConnectionsState> emit) async {
+  Future<void> _onLoad(
+    LoadConnectionsEvent event,
+    Emitter<ConnectionsState> emit,
+  ) async {
     if (event.showLoading != false) emit(ConnectionsLoading());
 
     try {
@@ -157,7 +174,10 @@ class ConnectionsBloc extends Bloc<ConnectionsEvent, ConnectionsState> {
     }
   }
 
-  Future<void> _onReport(ReportUserEvent event, Emitter<ConnectionsState> emit) async {
+  Future<void> _onReport(
+    ReportUserEvent event,
+    Emitter<ConnectionsState> emit,
+  ) async {
     try {
       await _reportUser(event.userIdToReport, event.reason);
     } catch (e) {
@@ -165,7 +185,10 @@ class ConnectionsBloc extends Bloc<ConnectionsEvent, ConnectionsState> {
     }
   }
 
-  Future<void> _onReload(ReloadChatConnectionsEvent event, Emitter<ConnectionsState> emit) async {
+  Future<void> _onReload(
+    ReloadChatConnectionsEvent event,
+    Emitter<ConnectionsState> emit,
+  ) async {
     final currentState = state;
     if (currentState is! ConnectionsLoaded) return;
 
@@ -173,7 +196,9 @@ class ConnectionsBloc extends Bloc<ConnectionsEvent, ConnectionsState> {
     if (liveChatData == null) return;
 
     List<ChatConnectionEntity> updatedChats = List.from(currentState.chats);
-    final index = updatedChats.indexWhere((c) => c.chatRoomId == liveChatData.chatRoomId);
+    final index = updatedChats.indexWhere(
+      (c) => c.chatRoomId == liveChatData.chatRoomId,
+    );
 
     if (index != -1) {
       final old = updatedChats[index];
@@ -192,12 +217,17 @@ class ConnectionsBloc extends Bloc<ConnectionsEvent, ConnectionsState> {
     }
   }
 
-  void _onMarkSeen(MarkMessagesSeenEvent event, Emitter<ConnectionsState> emit) {
+  void _onMarkSeen(
+    MarkMessagesSeenEvent event,
+    Emitter<ConnectionsState> emit,
+  ) {
     final currentState = state;
     if (currentState is! ConnectionsLoaded) return;
 
     final updatedChats = List<ChatConnectionEntity>.from(currentState.chats);
-    final index = updatedChats.indexWhere((c) => c.chatRoomId == event.chatRoomId);
+    final index = updatedChats.indexWhere(
+      (c) => c.chatRoomId == event.chatRoomId,
+    );
 
     if (index != -1) {
       updatedChats[index] = updatedChats[index].copyWith(
@@ -207,11 +237,16 @@ class ConnectionsBloc extends Bloc<ConnectionsEvent, ConnectionsState> {
     }
   }
 
-  Future<void> _onBlock(BlockUserEvent event, Emitter<ConnectionsState> emit) async {
+  Future<void> _onBlock(
+    BlockUserEvent event,
+    Emitter<ConnectionsState> emit,
+  ) async {
     final currentState = state;
     if (currentState is ConnectionsLoaded) {
       final updatedChats = List<ChatConnectionEntity>.from(currentState.chats);
-      final updatedMatches = List<MatchesConnectionEntity>.from(currentState.matches);
+      final updatedMatches = List<MatchesConnectionEntity>.from(
+        currentState.matches,
+      );
 
       if (event.chatRoomId != null) {
         updatedChats.removeWhere((c) => c.chatRoomId == event.chatRoomId);

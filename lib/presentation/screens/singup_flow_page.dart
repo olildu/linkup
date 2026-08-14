@@ -54,7 +54,10 @@ class _SingupFlowPageState extends State<SingupFlowPage> {
       name: _logTag,
     );
     _signupBloc = context.read<SignupBloc>();
-    _dataValidatorProvider = Provider.of<DataValidatorProvider>(context, listen: false);
+    _dataValidatorProvider = Provider.of<DataValidatorProvider>(
+      context,
+      listen: false,
+    );
     _isNextButtonEnabled = _dataValidatorProvider.allowNext;
     _dataValidatorProvider.addListener(_dataValidatorListener);
     _loadSignupFlow();
@@ -80,7 +83,10 @@ class _SingupFlowPageState extends State<SingupFlowPage> {
         initialData: widget.initialData as Map<String, dynamic>?,
       );
       _signupBloc.add(
-        SignupInit(currentIndex: widget.initialIndex, signUpPageFlow: _signUpPageFlow),
+        SignupInit(
+          currentIndex: widget.initialIndex,
+          signUpPageFlow: _signUpPageFlow,
+        ),
       );
 
       setState(() {
@@ -91,14 +97,20 @@ class _SingupFlowPageState extends State<SingupFlowPage> {
         return;
       }
 
-      log('Unexpected error while loading signup options. Using fallback config.', name: _logTag);
+      log(
+        'Unexpected error while loading signup options. Using fallback config.',
+        name: _logTag,
+      );
       _signUpPageFlow = SignUpPageFlow(
         context,
         signupOptions: SignupOptionsConfig.fallback(),
         initialData: widget.initialData as Map<String, dynamic>?,
       );
       _signupBloc.add(
-        SignupInit(currentIndex: widget.initialIndex, signUpPageFlow: _signUpPageFlow),
+        SignupInit(
+          currentIndex: widget.initialIndex,
+          signUpPageFlow: _signUpPageFlow,
+        ),
       );
 
       setState(() {
@@ -208,12 +220,18 @@ class _SingupFlowPageState extends State<SingupFlowPage> {
                   fit: BoxFit.contain,
                 ),
           iconSize: uploadComplete ? Size(400.w, 400.h) : Size(400.w, 200.h),
-          text: uploadComplete ? 'You are all set ' : 'Uploading you to the clouds',
+          text: uploadComplete
+              ? 'You are all set '
+              : 'Uploading you to the clouds',
         ),
         allowBack: true,
       );
     } else if (state is SingupUploaded) {
-      navigateWithFade(context, const LoadingScreenPostLogin(), allowBack: true);
+      navigateWithFade(
+        context,
+        const LoadingScreenPostLogin(),
+        allowBack: true,
+      );
     } else if (state is UpdateComplete) {
       Navigator.of(context).pop();
     } else if (state is SingupUploadError) {
@@ -227,7 +245,9 @@ class _SingupFlowPageState extends State<SingupFlowPage> {
     if (_isLoadingSignupOptions) {
       return Scaffold(
         body: SafeArea(
-          child: Center(child: CircularProgressIndicator(color: AppColors.primary)),
+          child: Center(
+            child: CircularProgressIndicator(color: AppColors.primary),
+          ),
         ),
       );
     }
@@ -248,27 +268,35 @@ class _SingupFlowPageState extends State<SingupFlowPage> {
                     final currentIndex = state.currentIndex;
                     final progressBarIndex = state.progessBarIndex;
                     final bool isNextButtonEnabled =
-                        _isAutoAdvanceStep(currentIndex) || _isNextButtonEnabled;
+                        _isAutoAdvanceStep(currentIndex) ||
+                        _isNextButtonEnabled;
 
                     return Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Gap(10.h),
                         widget.initialData == null &&
-                                _signUpPageFlow.flow[currentIndex]["showProgressBar"] == null
-                            ? ProgressBarComponent(currentIndex: progressBarIndex, totalSteps: 10)
+                                _signUpPageFlow
+                                        .flow[currentIndex]["showProgressBar"] ==
+                                    null
+                            ? ProgressBarComponent(
+                                currentIndex: progressBarIndex,
+                                totalSteps: 10,
+                              )
                             : const SizedBox.shrink(),
                         Gap(20.h),
                         Expanded(
                           child: PageTransitionSwitcher(
                             duration: const Duration(milliseconds: 400),
-                            transitionBuilder: (Widget child, Animation<double> animation) {
-                              return SharedAxisTransition(
-                                animation: animation,
-                                transitionType: SharedAxisTransitionType.horizontal,
-                                child: child,
-                              );
-                            },
+                            transitionBuilder:
+                                (Widget child, Animation<double> animation) {
+                                  return SharedAxisTransition(
+                                    animation: animation,
+                                    transitionType:
+                                        SharedAxisTransitionType.horizontal,
+                                    child: child,
+                                  );
+                                },
                             child: buildFlowPage(currentIndex),
                           ),
                         ),

@@ -5,5 +5,6 @@ class GetOtherProfileUseCase {
   final UserRepository _repository;
   const GetOtherProfileUseCase(this._repository);
 
-  Future<MatchCandidateEntity> call(int userId) => _repository.getOtherProfile(userId);
+  Future<MatchCandidateEntity> call(int userId) =>
+      _repository.getOtherProfile(userId);
 }

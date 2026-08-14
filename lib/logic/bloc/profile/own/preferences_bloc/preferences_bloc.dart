@@ -16,9 +16,9 @@ class PreferencesBloc extends Bloc<PreferencesEvent, PreferencesState> {
   PreferencesBloc({
     required GetPreferenceUseCase getPreferenceUseCase,
     required UpdatePreferenceUseCase updatePreferenceUseCase,
-  })  : _getPreference = getPreferenceUseCase,
-        _updatePreference = updatePreferenceUseCase,
-        super(PreferencesInitial()) {
+  }) : _getPreference = getPreferenceUseCase,
+       _updatePreference = updatePreferenceUseCase,
+       super(PreferencesInitial()) {
     on<PreferencesLoadEvent>((event, emit) async {
       emit(PreferencesLoading());
       try {

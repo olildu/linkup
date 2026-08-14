@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 
 class PageTransitionSwitcher extends StatelessWidget {
@@ -89,8 +88,4 @@ class SharedAxisTransition extends StatelessWidget {
   }
 }
 
-enum SharedAxisTransitionType {
-  horizontal,
-  vertical,
-  scaled,
-}
+enum SharedAxisTransitionType { horizontal, vertical, scaled }

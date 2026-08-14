@@ -19,14 +19,18 @@ class MeetAt8Page extends StatefulWidget {
   State<MeetAt8Page> createState() => _MeetAt8PageState();
 }
 
-class _MeetAt8PageState extends State<MeetAt8Page> with SingleTickerProviderStateMixin, WidgetsBindingObserver {
+class _MeetAt8PageState extends State<MeetAt8Page>
+    with SingleTickerProviderStateMixin, WidgetsBindingObserver {
   late AnimationController _controller;
   late LobbyBloc _lobbyBloc;
 
   @override
   void initState() {
     super.initState();
-    _controller = AnimationController(vsync: this, duration: const Duration(seconds: 4))..repeat();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 4),
+    )..repeat();
     WidgetsBinding.instance.addObserver(this);
   }
 
@@ -39,7 +43,9 @@ class _MeetAt8PageState extends State<MeetAt8Page> with SingleTickerProviderStat
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state == AppLifecycleState.paused || state == AppLifecycleState.detached || state == AppLifecycleState.inactive) {
+    if (state == AppLifecycleState.paused ||
+        state == AppLifecycleState.detached ||
+        state == AppLifecycleState.inactive) {
       _triggerDisconnect("App moved to background");
     } else if (state == AppLifecycleState.resumed) {
       log("App resumed, triggering reconnect.");
@@ -76,7 +82,9 @@ class _MeetAt8PageState extends State<MeetAt8Page> with SingleTickerProviderStat
                 return BackgroundAnimation(
                   animation: _controller,
                   child: Container(
-                    decoration: BoxDecoration(borderRadius: BorderRadius.circular(AppRadius.md)),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(AppRadius.md),
+                    ),
                     child: Center(
                       child: SizedBox(
                         width: constraints.maxWidth * 0.8,
@@ -84,14 +92,23 @@ class _MeetAt8PageState extends State<MeetAt8Page> with SingleTickerProviderStat
                           mainAxisAlignment: MainAxisAlignment.center,
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text("A little early, aren't you?", style: Theme.of(context).textTheme.displaySmall?.copyWith(color: AppColors.whiteText)),
+                            Text(
+                              "A little early, aren't you?",
+                              style: Theme.of(context).textTheme.displaySmall
+                                  ?.copyWith(color: AppColors.whiteText),
+                            ),
                             Gap(AppSpacing.sm.h),
                             Text(
                               'Come back at 8 PM',
-                              style: Theme.of(context).textTheme.displaySmall?.copyWith(color: AppColors.whiteText),
+                              style: Theme.of(context).textTheme.displaySmall
+                                  ?.copyWith(color: AppColors.whiteText),
                             ),
                             Gap(AppSpacing.sm.h),
-                            Text("That's when everything starts.", style: Theme.of(context).textTheme.displaySmall?.copyWith(color: AppColors.whiteText)),
+                            Text(
+                              "That's when everything starts.",
+                              style: Theme.of(context).textTheme.displaySmall
+                                  ?.copyWith(color: AppColors.whiteText),
+                            ),
                           ],
                         ),
                       ),
@@ -110,7 +127,9 @@ class _MeetAt8PageState extends State<MeetAt8Page> with SingleTickerProviderStat
                         return Opacity(
                           opacity: opacity,
                           child: Container(
-                            decoration: BoxDecoration(borderRadius: BorderRadius.circular(AppRadius.md)),
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(AppRadius.md),
+                            ),
                             child: Center(
                               child: SizedBox(
                                 width: constraints.maxWidth * 0.8,
@@ -118,21 +137,42 @@ class _MeetAt8PageState extends State<MeetAt8Page> with SingleTickerProviderStat
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Center(child: Lottie.asset('assets/animations/waiting-animation.json', width: 250.w, height: 250.h)),
+                                    Center(
+                                      child: Lottie.asset(
+                                        'assets/animations/waiting-animation.json',
+                                        width: 250.w,
+                                        height: 250.h,
+                                      ),
+                                    ),
 
                                     Text(
                                       "You've made it to the lobby.",
-                                      style: Theme.of(context).textTheme.titleLarge?.copyWith(color: AppColors.whiteText),
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .titleLarge
+                                          ?.copyWith(
+                                            color: AppColors.whiteText,
+                                          ),
                                     ),
                                     Gap(AppSpacing.sm.h),
                                     Text(
                                       'Matching begins at 8:05 PM',
-                                      style: Theme.of(context).textTheme.titleLarge?.copyWith(color: AppColors.whiteText),
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .titleLarge
+                                          ?.copyWith(
+                                            color: AppColors.whiteText,
+                                          ),
                                     ),
                                     Gap(AppSpacing.sm.h),
                                     Text(
                                       "Hang tight while everyone gets here.",
-                                      style: Theme.of(context).textTheme.titleLarge?.copyWith(color: AppColors.whiteText),
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .titleLarge
+                                          ?.copyWith(
+                                            color: AppColors.whiteText,
+                                          ),
                                     ),
                                   ],
                                 ),
@@ -156,7 +196,9 @@ class _MeetAt8PageState extends State<MeetAt8Page> with SingleTickerProviderStat
                         return Opacity(
                           opacity: opacity,
                           child: Container(
-                            decoration: BoxDecoration(borderRadius: BorderRadius.circular(AppRadius.md)),
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(AppRadius.md),
+                            ),
                             child: Center(
                               child: SizedBox(
                                 width: constraints.maxWidth * 0.8,
@@ -164,18 +206,42 @@ class _MeetAt8PageState extends State<MeetAt8Page> with SingleTickerProviderStat
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Center(child: Lottie.asset('assets/animations/no-match-animation.json', width: double.infinity, height: 200.h)),
+                                    Center(
+                                      child: Lottie.asset(
+                                        'assets/animations/no-match-animation.json',
+                                        width: double.infinity,
+                                        height: 200.h,
+                                      ),
+                                    ),
                                     Gap(AppSpacing.xl4.h),
-                                    Text("No match this time.", style: Theme.of(context).textTheme.titleLarge?.copyWith(color: AppColors.whiteText)),
+                                    Text(
+                                      "No match this time.",
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .titleLarge
+                                          ?.copyWith(
+                                            color: AppColors.whiteText,
+                                          ),
+                                    ),
                                     Gap(AppSpacing.sm.h),
                                     Text(
                                       "But hey, tomorrow’s another chance!",
-                                      style: Theme.of(context).textTheme.titleLarge?.copyWith(color: AppColors.whiteText),
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .titleLarge
+                                          ?.copyWith(
+                                            color: AppColors.whiteText,
+                                          ),
                                     ),
                                     Gap(AppSpacing.sm.h),
                                     Text(
                                       "Come back at 8 PM sharp. You never know who’s waiting.",
-                                      style: Theme.of(context).textTheme.titleLarge?.copyWith(color: AppColors.whiteText),
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .titleLarge
+                                          ?.copyWith(
+                                            color: AppColors.whiteText,
+                                          ),
                                     ),
                                   ],
                                 ),
@@ -197,7 +263,13 @@ class _MeetAt8PageState extends State<MeetAt8Page> with SingleTickerProviderStat
                       duration: const Duration(milliseconds: 1300),
                       curve: Curves.easeInOut,
                       builder: (context, opacity, _) {
-                        return Opacity(opacity: opacity, child: MatchedPage(matchUser: candidate, meet8State: true));
+                        return Opacity(
+                          opacity: opacity,
+                          child: MatchedPage(
+                            matchUser: candidate,
+                            meet8State: true,
+                          ),
+                        );
                       },
                     ),
                   ],
@@ -213,13 +285,15 @@ class _MeetAt8PageState extends State<MeetAt8Page> with SingleTickerProviderStat
                         children: [
                           Text(
                             "Something went wrong...",
-                            style: Theme.of(context).textTheme.headlineLarge?.copyWith(color: AppColors.whiteText),
+                            style: Theme.of(context).textTheme.headlineLarge
+                                ?.copyWith(color: AppColors.whiteText),
                           ),
                           Gap(AppSpacing.sm.h),
                           Text(
                             "We're having trouble finding your match.\nPlease try again in a moment.",
                             textAlign: TextAlign.left,
-                            style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: AppColors.whiteText),
+                            style: Theme.of(context).textTheme.bodyMedium
+                                ?.copyWith(color: AppColors.whiteText),
                           ),
                         ],
                       ),

@@ -39,7 +39,10 @@ class _LoadingScreenPostLoginState extends State<LoadingScreenPostLogin>
   void initState() {
     super.initState();
 
-    _controller = AnimationController(vsync: this, duration: const Duration(seconds: 2));
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 2),
+    );
     _animation = CurvedAnimation(parent: _controller, curve: Curves.easeInOut);
 
     // When animation finishes, execute any pending navigation immediately
@@ -122,8 +125,11 @@ class _LoadingScreenPostLoginState extends State<LoadingScreenPostLogin>
           BlocProvider(
             create: (context) => sl<AuthBloc>(),
             child: BlocProvider(
-              create: (context) => SignupBloc(uploadPfpUseCase: sl(), uploadUserMediaUseCase: sl()),
-               child: const SingupFlowPage(),
+              create: (context) => SignupBloc(
+                uploadPfpUseCase: sl(),
+                uploadUserMediaUseCase: sl(),
+              ),
+              child: const SingupFlowPage(),
             ),
           ),
           allowBack: false,
@@ -158,7 +164,10 @@ class _LoadingScreenPostLoginState extends State<LoadingScreenPostLogin>
               opacity: _animation,
               child: CustomPaint(
                 size: Size(size, size),
-                painter: DrawingPainter(_animation, isDarkMode ? Colors.white : Colors.black),
+                painter: DrawingPainter(
+                  _animation,
+                  isDarkMode ? Colors.white : Colors.black,
+                ),
               ),
             ),
           ),

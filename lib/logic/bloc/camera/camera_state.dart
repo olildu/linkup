@@ -12,7 +12,11 @@ class CameraLoaded extends CameraState {
   final List<CameraDescription> cameras;
   final int selectedIndex;
 
-  CameraLoaded({required this.controller, required this.cameras, required this.selectedIndex});
+  CameraLoaded({
+    required this.controller,
+    required this.cameras,
+    required this.selectedIndex,
+  });
 }
 
 class MediaCaptureSuccess extends CameraState {

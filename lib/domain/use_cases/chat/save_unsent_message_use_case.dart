@@ -5,5 +5,6 @@ class SaveUnsentMessageUseCase {
   final ChatRepository _repository;
   const SaveUnsentMessageUseCase(this._repository);
 
-  Future<void> call(MessageEntity message) => _repository.saveUnsentMessage(message);
+  Future<void> call(MessageEntity message) =>
+      _repository.saveUnsentMessage(message);
 }

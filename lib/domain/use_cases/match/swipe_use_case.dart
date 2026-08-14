@@ -5,6 +5,8 @@ class SwipeUseCase {
   final MatchRepository _repository;
   const SwipeUseCase(this._repository);
 
-  Future<Map<String, dynamic>> call(int likedId, CardSwiperDirection direction) =>
-      _repository.swipe(likedId, direction);
+  Future<Map<String, dynamic>> call(
+    int likedId,
+    CardSwiperDirection direction,
+  ) => _repository.swipe(likedId, direction);
 }

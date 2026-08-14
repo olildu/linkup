@@ -94,7 +94,9 @@ class SignUpDataParser {
       log("No changes detected", name: debugTag);
     } else {
       log("Changed fields model: $changedFields", name: debugTag);
-      context.read<ProfileBloc>().add(ProfileUpdateEvent(userUpdatedModel: _data));
+      context.read<ProfileBloc>().add(
+        ProfileUpdateEvent(userUpdatedModel: _data),
+      );
     }
   }
 

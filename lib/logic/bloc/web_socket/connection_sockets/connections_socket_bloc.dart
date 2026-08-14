@@ -7,7 +7,8 @@ import 'package:meta/meta.dart';
 part 'connections_socket_event.dart';
 part 'connections_socket_state.dart';
 
-class ConnectionsSocketBloc extends Bloc<ConnectionsSocketEvent, ConnectionsSocketState> {
+class ConnectionsSocketBloc
+    extends Bloc<ConnectionsSocketEvent, ConnectionsSocketState> {
   final String _logTag = "ConnectionSocketBloc";
 
   ConnectionsSocketBloc() : super(ConnectionsSocketInitial()) {

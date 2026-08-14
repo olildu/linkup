@@ -50,8 +50,9 @@ class MessageLocalDatasource {
 
   Future<void> saveUnsent(Message message) async {
     await _isar.writeTxn(() async {
-      await _isar.unsentMessagesTables
-          .put(UnsentMessagesTable.fromMessage(message));
+      await _isar.unsentMessagesTables.put(
+        UnsentMessagesTable.fromMessage(message),
+      );
     });
   }
 

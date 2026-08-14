@@ -35,14 +35,23 @@ class CameraBloc extends Bloc<CameraEvent, CameraState> {
         log('Cameras available: ${_cameras.length}', name: _logTag);
 
         _selectedIndex = 0;
-        _controller = CameraController(_cameras[_selectedIndex], ResolutionPreset.max);
+        _controller = CameraController(
+          _cameras[_selectedIndex],
+          ResolutionPreset.max,
+        );
         await _controller!.initialize();
 
         _aspectRatio = _controller!.value.aspectRatio;
         _height = _controller!.value.previewSize!.height;
         _width = _controller!.value.previewSize!.width;
 
-        emit(CameraLoaded(controller: _controller!, cameras: _cameras, selectedIndex: _selectedIndex));
+        emit(
+          CameraLoaded(
+            controller: _controller!,
+            cameras: _cameras,
+            selectedIndex: _selectedIndex,
+          ),
+        );
         log('Camera initialized successfully', name: _logTag);
       } catch (e, st) {
         log('Camera init failed: $e', name: _logTag, stackTrace: st);
@@ -57,12 +66,21 @@ class CameraBloc extends Bloc<CameraEvent, CameraState> {
         _selectedIndex = (_selectedIndex + 1) % _cameras.length;
         await _controller?.dispose();
 
-        _controller = CameraController(_cameras[_selectedIndex], ResolutionPreset.max);
+        _controller = CameraController(
+          _cameras[_selectedIndex],
+          ResolutionPreset.max,
+        );
         await _controller!.initialize();
 
         _aspectRatio = _controller!.value.aspectRatio;
 
-        emit(CameraLoaded(controller: _controller!, cameras: _cameras, selectedIndex: _selectedIndex));
+        emit(
+          CameraLoaded(
+            controller: _controller!,
+            cameras: _cameras,
+            selectedIndex: _selectedIndex,
+          ),
+        );
         log('Switched to camera index $_selectedIndex', name: _logTag);
       } catch (e, st) {
         log('Camera switch failed: $e', name: _logTag, stackTrace: st);
@@ -83,9 +101,15 @@ class CameraBloc extends Bloc<CameraEvent, CameraState> {
         }
 
         final tempDir = await getTemporaryDirectory();
-        final targetPath = '${tempDir.path}/${DateTime.now().millisecondsSinceEpoch}.jpg';
+        final targetPath =
+            '${tempDir.path}/${DateTime.now().millisecondsSinceEpoch}.jpg';
 
-        final compressedImage = await FlutterImageCompress.compressAndGetFile(imageFile.path, targetPath, quality: 50, format: CompressFormat.jpeg);
+        final compressedImage = await FlutterImageCompress.compressAndGetFile(
+          imageFile.path,
+          targetPath,
+          quality: 50,
+          format: CompressFormat.jpeg,
+        );
 
         if (compressedImage == null) {
           log('Compression failed', name: _logTag);
@@ -98,13 +122,18 @@ class CameraBloc extends Bloc<CameraEvent, CameraState> {
           MediaCaptureSuccess(
             mediaFile: XFile(compressedImage.path),
             aspectRatio: _aspectRatio,
-            takenFromFrontCamera: _cameras[_selectedIndex].lensDirection == CameraLensDirection.front,
+            takenFromFrontCamera:
+                _cameras[_selectedIndex].lensDirection ==
+                CameraLensDirection.front,
             height: _height,
             width: _width,
           ),
         );
 
-        log('Picture taken and compressed: ${compressedImage.path}', name: _logTag);
+        log(
+          'Picture taken and compressed: ${compressedImage.path}',
+          name: _logTag,
+        );
         await _controller?.dispose();
         _controller = null;
         _imageProcessing = false;
@@ -118,14 +147,25 @@ class CameraBloc extends Bloc<CameraEvent, CameraState> {
     on<CameraGalleryPictureEvent>((event, emit) async {
       try {
         final imagePicker = ImagePicker();
-        final imageFile = await imagePicker.pickImage(source: ImageSource.gallery, imageQuality: 50);
+        final imageFile = await imagePicker.pickImage(
+          source: ImageSource.gallery,
+          imageQuality: 50,
+        );
 
         if (imageFile == null) {
           log('No image selected', name: _logTag);
           return;
         }
 
-        emit(MediaCaptureSuccess(mediaFile: imageFile, aspectRatio: _aspectRatio, takenFromFrontCamera: false, height: _height, width: _width));
+        emit(
+          MediaCaptureSuccess(
+            mediaFile: imageFile,
+            aspectRatio: _aspectRatio,
+            takenFromFrontCamera: false,
+            height: _height,
+            width: _width,
+          ),
+        );
 
         log('Gallery image selected: ${imageFile.path}', name: _logTag);
         _controller?.dispose();

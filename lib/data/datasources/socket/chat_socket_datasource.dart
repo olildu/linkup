@@ -7,7 +7,10 @@ class ChatSocketDatasource extends BaseSocketService {
   factory ChatSocketDatasource.instance() => _instance;
 
   ChatSocketDatasource._()
-      : super(uri: Uri.parse('$WS_BASE_URL/chat'), logTag: 'ChatSocketDatasource');
+    : super(
+        uri: Uri.parse('$WS_BASE_URL/chat'),
+        logTag: 'ChatSocketDatasource',
+      );
 
   static Stream<String> get stream => _instance.messageStream;
   static Stream<bool> get statusStream => _instance.connectionStatusStream;

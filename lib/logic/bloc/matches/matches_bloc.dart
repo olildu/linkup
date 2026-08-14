@@ -19,9 +19,9 @@ class MatchesBloc extends Bloc<MatchesEvent, MatchesState> {
   MatchesBloc({
     required LoadMatchesUseCase loadMatchesUseCase,
     required SwipeUseCase swipeUseCase,
-  })  : _loadMatches = loadMatchesUseCase,
-        _swipe = swipeUseCase,
-        super(MatchesInitial()) {
+  }) : _loadMatches = loadMatchesUseCase,
+       _swipe = swipeUseCase,
+       super(MatchesInitial()) {
     on<LoadMatchesEvent>((event, emit) async {
       emit(MatchesLoading());
       try {
@@ -31,7 +31,12 @@ class MatchesBloc extends Bloc<MatchesEvent, MatchesState> {
           emit(MatchesEmpty());
           return;
         }
-        emit(MatchesLoaded(matches: result.matches, swipesRemaining: result.swipesRemaining));
+        emit(
+          MatchesLoaded(
+            matches: result.matches,
+            swipesRemaining: result.swipesRemaining,
+          ),
+        );
       } on Exception catch (e, st) {
         log('Error loading matches: $e', stackTrace: st);
         emit(MatchesError());
@@ -67,16 +72,28 @@ class MatchesBloc extends Bloc<MatchesEvent, MatchesState> {
         return;
       }
 
-      if (event.direction == CardSwiperDirection.right && response['match'] == true) {
-        final matchedUserJson = Map<String, dynamic>.from(response['matched_user']);
+      if (event.direction == CardSwiperDirection.right &&
+          response['match'] == true) {
+        final matchedUserJson = Map<String, dynamic>.from(
+          response['matched_user'],
+        );
         final newMatchUser = MatchesConnectionEntity(
           id: matchedUserJson['id'] as int,
           username: matchedUserJson['username'] as String,
           profilePictureMetaData: matchedUserJson['profile_picture'] as Map,
         );
-        emit(nowState.copyWith(matchUser: newMatchUser, swipesRemaining: response['swipes_remaining'] as int?));
+        emit(
+          nowState.copyWith(
+            matchUser: newMatchUser,
+            swipesRemaining: response['swipes_remaining'] as int?,
+          ),
+        );
       } else if (event.direction == CardSwiperDirection.right) {
-        emit(nowState.copyWith(swipesRemaining: response['swipes_remaining'] as int?));
+        emit(
+          nowState.copyWith(
+            swipesRemaining: response['swipes_remaining'] as int?,
+          ),
+        );
       }
 
       if (isLastCard) add(MatchesDeckCompletedEvent());

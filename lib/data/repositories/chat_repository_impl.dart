@@ -19,9 +19,9 @@ class ChatRepositoryImpl implements ChatRepository {
     required ChatRemoteDatasource chatDatasource,
     required MediaRemoteDatasource mediaDatasource,
     required MessageLocalDatasource localDatasource,
-  })  : _chatDatasource = chatDatasource,
-        _mediaDatasource = mediaDatasource,
-        _localDatasource = localDatasource;
+  }) : _chatDatasource = chatDatasource,
+       _mediaDatasource = mediaDatasource,
+       _localDatasource = localDatasource;
 
   @override
   Future<Map<String, dynamic>> startChat(int chatUserId) =>
@@ -76,46 +76,48 @@ class ChatRepositoryImpl implements ChatRepository {
       _localDatasource.deleteUnsentByMessageId(messageId);
 
   @override
-  Future<Map<String, dynamic>> uploadChatMedia(File file, MessageType mediaType) =>
-      _mediaDatasource.uploadChatMedia(file, mediaType);
+  Future<Map<String, dynamic>> uploadChatMedia(
+    File file,
+    MessageType mediaType,
+  ) => _mediaDatasource.uploadChatMedia(file, mediaType);
 
   MessageEntity _toEntity(Message m) => MessageEntity(
-        id: m.id,
-        message: m.message,
-        replyID: m.replyID,
-        to: m.to,
-        from_: m.from_,
-        chatRoomId: m.chatRoomId,
-        isSeen: m.isSeen,
-        isSent: m.isSent,
-        timestamp: m.timestamp,
-        media: m.media == null
-            ? null
-            : MediaMessageEntity(
-                fileKey: m.media!.fileKey,
-                mediaType: m.media!.mediaType,
-                blurhashText: m.media!.blurhashText,
-                metadata: m.media!.metadata,
-              ),
-      );
+    id: m.id,
+    message: m.message,
+    replyID: m.replyID,
+    to: m.to,
+    from_: m.from_,
+    chatRoomId: m.chatRoomId,
+    isSeen: m.isSeen,
+    isSent: m.isSent,
+    timestamp: m.timestamp,
+    media: m.media == null
+        ? null
+        : MediaMessageEntity(
+            fileKey: m.media!.fileKey,
+            mediaType: m.media!.mediaType,
+            blurhashText: m.media!.blurhashText,
+            metadata: m.media!.metadata,
+          ),
+  );
 
   Message _fromEntity(MessageEntity e) => Message(
-        id: e.id,
-        message: e.message,
-        replyID: e.replyID,
-        to: e.to,
-        from_: e.from_,
-        chatRoomId: e.chatRoomId,
-        isSeen: e.isSeen,
-        isSent: e.isSent,
-        timestamp: e.timestamp,
-        media: e.media == null
-            ? null
-            : MediaMessageData(
-                fileKey: e.media!.fileKey,
-                mediaType: e.media!.mediaType,
-                blurhashText: e.media!.blurhashText,
-                metadata: e.media!.metadata,
-              ),
-      );
+    id: e.id,
+    message: e.message,
+    replyID: e.replyID,
+    to: e.to,
+    from_: e.from_,
+    chatRoomId: e.chatRoomId,
+    isSeen: e.isSeen,
+    isSent: e.isSent,
+    timestamp: e.timestamp,
+    media: e.media == null
+        ? null
+        : MediaMessageData(
+            fileKey: e.media!.fileKey,
+            mediaType: e.media!.mediaType,
+            blurhashText: e.media!.blurhashText,
+            metadata: e.media!.metadata,
+          ),
+  );
 }

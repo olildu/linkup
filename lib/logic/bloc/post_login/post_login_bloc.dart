@@ -2,6 +2,7 @@ import 'dart:developer';
 
 import 'package:bloc/bloc.dart';
 import 'package:linkup/logic/bloc/connections/connections_bloc.dart';
+import 'package:linkup/logic/bloc/likes/likes_bloc.dart';
 import 'package:linkup/logic/bloc/matches/matches_bloc.dart';
 import 'package:linkup/logic/bloc/profile/own/profile_bloc.dart';
 import 'package:linkup/logic/bloc/web_socket/chat_sockets/chat_sockets_bloc.dart';
@@ -19,19 +20,30 @@ class PostLoginBloc extends Bloc<PostLoginEvent, PostLoginState> {
   final ChatSocketsBloc chatSocketsBloc;
   final ProfileBloc profileBloc;
   final ConnectionsBloc connectionsBloc;
+  final LikesBloc likesBloc;
 
-  PostLoginBloc({required this.matchesBloc, required this.webSocketBloc, required this.chatSocketsBloc, required this.connectionsSocketBloc, required this.profileBloc, required this.connectionsBloc})
-    : super(PostLoginInitial()) {
+  PostLoginBloc({
+    required this.matchesBloc,
+    required this.webSocketBloc,
+    required this.chatSocketsBloc,
+    required this.connectionsSocketBloc,
+    required this.profileBloc,
+    required this.connectionsBloc,
+    required this.likesBloc,
+  }) : super(PostLoginInitial()) {
     on<StartPostLoginEvent>((event, emit) async {
       emit(PostLoginLoading());
 
       try {
         profileBloc.add(ProfileLoadEvent());
-        await profileBloc.stream.firstWhere((state) => state is ProfileLoaded || state is ProfileError);
+        await profileBloc.stream.firstWhere(
+          (state) => state is ProfileLoaded || state is ProfileError,
+        );
 
         // We are checking if the user has completed full sign-up
         // This will return true if the user has not completed sign-up as there is no university_id = -1
-        final bool goToSignUpPage = (profileBloc.state as ProfileLoaded).user.universityId == -1;
+        final bool goToSignUpPage =
+            (profileBloc.state as ProfileLoaded).user.universityId == -1;
         log("goToSignUpPage: $goToSignUpPage");
         if (goToSignUpPage) {
           log("User has not completed sign-up. Redirecting to sign-up page.");
@@ -42,12 +54,27 @@ class PostLoginBloc extends Bloc<PostLoginEvent, PostLoginState> {
           chatSocketsBloc.add(LoadChatSocketsEvent());
           connectionsBloc.add(LoadConnectionsEvent(showLoading: true));
           connectionsSocketBloc.add(LoadConnectionSocketsEvent());
+          likesBloc.add(LoadUnseenCountEvent());
 
           await Future.wait([
-            matchesBloc.stream.firstWhere((state) => state is MatchesLoaded || state is MatchesError || state is MatchesEmpty),
-            webSocketBloc.stream.firstWhere((state) => state is WebSocketConnected || state is WebSocketError),
-            chatSocketsBloc.stream.firstWhere((state) => state is ChatSocketsConnected || state is ChatSocketsError),
-            connectionsSocketBloc.stream.firstWhere((state) => state is ConnectionsSocketsConnected || state is ConnectionsSocketsError),
+            matchesBloc.stream.firstWhere(
+              (state) =>
+                  state is MatchesLoaded ||
+                  state is MatchesError ||
+                  state is MatchesEmpty,
+            ),
+            webSocketBloc.stream.firstWhere(
+              (state) => state is WebSocketConnected || state is WebSocketError,
+            ),
+            chatSocketsBloc.stream.firstWhere(
+              (state) =>
+                  state is ChatSocketsConnected || state is ChatSocketsError,
+            ),
+            connectionsSocketBloc.stream.firstWhere(
+              (state) =>
+                  state is ConnectionsSocketsConnected ||
+                  state is ConnectionsSocketsError,
+            ),
           ]);
           log("All post-login streams loaded successfully.");
           emit(PostLoginLoaded(goToSignUpPage: goToSignUpPage));

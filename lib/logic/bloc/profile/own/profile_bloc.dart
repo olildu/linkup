@@ -26,11 +26,11 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
     required UpdateProfileUseCase updateProfileUseCase,
     required UploadUserMediaUseCase uploadUserMediaUseCase,
     required UploadPfpFromUrlUseCase uploadPfpFromUrlUseCase,
-  })  : _getProfile = getProfileUseCase,
-        _updateProfile = updateProfileUseCase,
-        _uploadUserMedia = uploadUserMediaUseCase,
-        _uploadPfpFromUrl = uploadPfpFromUrlUseCase,
-        super(ProfileInitial()) {
+  }) : _getProfile = getProfileUseCase,
+       _updateProfile = updateProfileUseCase,
+       _uploadUserMedia = uploadUserMediaUseCase,
+       _uploadPfpFromUrl = uploadPfpFromUrlUseCase,
+       super(ProfileInitial()) {
     on<ProfileLoadEvent>((event, emit) async {
       if (event.showLoading) emit(ProfileLoading());
       log('Loading profile details');
@@ -62,30 +62,45 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
 
         emit(
           uploadItems.isEmpty
-              ? ProfileUpdating(current: 0, total: 0, message: 'Saving changes...')
-              : ProfileUpdating(current: 0, total: uploadItems.length, message: 'Preparing upload...'),
+              ? ProfileUpdating(
+                  current: 0,
+                  total: 0,
+                  message: 'Saving changes...',
+                )
+              : ProfileUpdating(
+                  current: 0,
+                  total: uploadItems.length,
+                  message: 'Preparing upload...',
+                ),
         );
 
         for (final item in event.selectedImages) {
           if (item is XFile) {
             uploadedCount++;
-            emit(ProfileUpdating(
-              current: uploadedCount,
-              total: uploadItems.length,
-              message: 'Uploading photos...',
-            ));
-            final uploaded = await _uploadUserMedia(File(item.path), MessageType.image);
+            emit(
+              ProfileUpdating(
+                current: uploadedCount,
+                total: uploadItems.length,
+                message: 'Uploading photos...',
+              ),
+            );
+            final uploaded = await _uploadUserMedia(
+              File(item.path),
+              MessageType.image,
+            );
             finalImages.add(uploaded['metadata']);
           } else {
             finalImages.add(item as Map);
           }
         }
 
-        emit(ProfileUpdating(
-          current: finalImages.length,
-          total: finalImages.length,
-          message: 'Processing profile picture...',
-        ));
+        emit(
+          ProfileUpdating(
+            current: finalImages.length,
+            total: finalImages.length,
+            message: 'Processing profile picture...',
+          ),
+        );
 
         if (event.changePfp) {
           final first = finalImages.isNotEmpty ? finalImages.first : null;

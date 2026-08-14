@@ -10,7 +10,13 @@ class OtpInputField extends StatelessWidget {
   final TextEditingController controller;
   final bool hasError;
 
-  const OtpInputField({super.key, required this.label, required this.hintText, required this.controller, this.hasError = false});
+  const OtpInputField({
+    super.key,
+    required this.label,
+    required this.hintText,
+    required this.controller,
+    this.hasError = false,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -20,7 +26,10 @@ class OtpInputField extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label, style: AppTextStyles.label(context)?.copyWith(fontSize: 14.sp)),
+        Text(
+          label,
+          style: AppTextStyles.label(context)?.copyWith(fontSize: 14.sp),
+        ),
         Gap(6.h),
         TextField(
           obscureText: true,
@@ -30,22 +39,33 @@ class OtpInputField extends StatelessWidget {
           inputFormatters: [FilteringTextInputFormatter.digitsOnly],
           textAlign: TextAlign.center,
           style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                fontWeight: FontWeight.w500,
-                color: colorScheme.onSurface,
-                letterSpacing: 4.w,
-              ),
+            fontWeight: FontWeight.w500,
+            color: colorScheme.onSurface,
+            letterSpacing: 4.w,
+          ),
           decoration: InputDecoration(
             counterText: '',
             hintText: hintText,
             hintStyle: AppTextStyles.hint(context)?.copyWith(fontSize: 14.sp),
             filled: true,
             fillColor: colorScheme.surface,
-            contentPadding: EdgeInsets.symmetric(vertical: 12.h, horizontal: 14.w),
-            border: OutlineInputBorder(borderRadius: BorderRadius.circular(10.r), borderSide: BorderSide(color: borderColor)),
-            enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(10.r), borderSide: BorderSide(color: borderColor)),
+            contentPadding: EdgeInsets.symmetric(
+              vertical: 12.h,
+              horizontal: 14.w,
+            ),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10.r),
+              borderSide: BorderSide(color: borderColor),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10.r),
+              borderSide: BorderSide(color: borderColor),
+            ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(10.r),
-              borderSide: BorderSide(color: hasError ? colorScheme.error : colorScheme.primary),
+              borderSide: BorderSide(
+                color: hasError ? colorScheme.error : colorScheme.primary,
+              ),
             ),
           ),
         ),

@@ -23,14 +23,19 @@ class UserRemoteDatasource {
   }
 
   Future<MatchCandidateModel> getOtherProfile(int userId) async {
-    final response = await _client.get(Uri.parse('$BASE_URL/user/get/detail/$userId'));
+    final response = await _client.get(
+      Uri.parse('$BASE_URL/user/get/detail/$userId'),
+    );
     if (response.statusCode == 200) {
       return MatchCandidateModel.fromJson(jsonDecode(response.body));
     }
     throw Exception('Failed to fetch user $userId: ${response.statusCode}');
   }
 
-  Future<void> updateProfile(UpdateMetadataModel data, {bool updatePfp = false}) async {
+  Future<void> updateProfile(
+    UpdateMetadataModel data, {
+    bool updatePfp = false,
+  }) async {
     final response = await _client.post(
       Uri.parse('$BASE_URL/user/update/metadata?update_pfp=$updatePfp'),
       body: jsonEncode(data.toJson()),
@@ -42,7 +47,9 @@ class UserRemoteDatasource {
   }
 
   Future<UserPreferenceModel> getPreference() async {
-    final response = await _client.get(Uri.parse('$BASE_URL/user/get/preferences'));
+    final response = await _client.get(
+      Uri.parse('$BASE_URL/user/get/preferences'),
+    );
     if (response.statusCode == 200) {
       return UserPreferenceModel.fromJson(jsonDecode(response.body));
     }

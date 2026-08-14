@@ -42,7 +42,9 @@ class _RangeSliderBuilder extends State<RangeSliderBuilder> {
         thumbColor: mainColor,
         overlayColor: mainColor.withValues(alpha: 0.2),
         rangeTrackShape: const RoundedRectRangeSliderTrackShape(),
-        rangeThumbShape: const RoundRangeSliderThumbShape(enabledThumbRadius: 10),
+        rangeThumbShape: const RoundRangeSliderThumbShape(
+          enabledThumbRadius: 10,
+        ),
         rangeValueIndicatorShape: const PaddleRangeSliderValueIndicatorShape(),
         valueIndicatorColor: mainColor,
       ),
@@ -51,7 +53,12 @@ class _RangeSliderBuilder extends State<RangeSliderBuilder> {
         min: widget.min,
         max: widget.max,
         divisions: widget.divisions,
-        labels: widget.labels ?? RangeLabels(_currentValues.start.round().toString(), _currentValues.end.round().toString()),
+        labels:
+            widget.labels ??
+            RangeLabels(
+              _currentValues.start.round().toString(),
+              _currentValues.end.round().toString(),
+            ),
         onChanged: (newValues) {
           setState(() {
             _currentValues = newValues;

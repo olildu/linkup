@@ -13,9 +13,12 @@ class MatchRemoteDatasource {
 
   MatchRemoteDatasource(this._client);
 
-  Future<({List<MatchCandidateModel> matches, int? swipesRemaining})> getMatchUsers({bool refresh = false}) async {
+  Future<({List<MatchCandidateModel> matches, int? swipesRemaining})>
+  getMatchUsers({bool refresh = false}) async {
     final response = await _client.get(
-      Uri.parse('$BASE_URL/matches/get-matches${refresh ? '?refresh=true' : ''}'),
+      Uri.parse(
+        '$BASE_URL/matches/get-matches${refresh ? '?refresh=true' : ''}',
+      ),
     );
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);
@@ -30,9 +33,13 @@ class MatchRemoteDatasource {
     throw Exception('Failed to fetch matches: ${response.statusCode}');
   }
 
-  Future<({List<MatchesConnectionModel> matches, List<ChatsConnectionModel> chats})>
-      getConnections() async {
-    final response = await _client.get(Uri.parse('$BASE_URL/matches/get-connections'));
+  Future<
+    ({List<MatchesConnectionModel> matches, List<ChatsConnectionModel> chats})
+  >
+  getConnections() async {
+    final response = await _client.get(
+      Uri.parse('$BASE_URL/matches/get-connections'),
+    );
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);
       log('Connections: $data', name: _tag);

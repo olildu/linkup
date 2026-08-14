@@ -29,7 +29,12 @@ class _LoginPageState extends State<LoginPage> {
 
   void _validate() {
     setState(() {
-      _isFormValid = ValidationUtils.validateEmail(_emailController.text) && ValidationUtils.validatePassword(_passwordController.text, isLogin: true);
+      _isFormValid =
+          ValidationUtils.validateEmail(_emailController.text) &&
+          ValidationUtils.validatePassword(
+            _passwordController.text,
+            isLogin: true,
+          );
     });
   }
 
@@ -41,7 +46,9 @@ class _LoginPageState extends State<LoginPage> {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20.r))),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20.r)),
+      ),
       builder: (context) {
         return StatefulBuilder(
           builder: (context, setModalState) {
@@ -65,13 +72,20 @@ class _LoginPageState extends State<LoginPage> {
               borderRadius: BorderRadius.vertical(top: Radius.circular(20.r)),
               child: AnimatedContainer(
                 duration: const Duration(milliseconds: 100),
-                height: (MediaQuery.of(context).size.height * modalHeight) + MediaQuery.of(context).viewInsets.bottom,
+                height:
+                    (MediaQuery.of(context).size.height * modalHeight) +
+                    MediaQuery.of(context).viewInsets.bottom,
                 child: MultiBlocProvider(
                   providers: [
                     BlocProvider(create: (context) => sl<OtpBloc>()),
-                    BlocProvider.value(value: authBloc), // Pass existing AuthBloc
+                    BlocProvider.value(
+                      value: authBloc,
+                    ), // Pass existing AuthBloc
                   ],
-                  child: ForgotPasswordModalPage(tabHeightChange: onTabChange, filledEmail: _emailController.text),
+                  child: ForgotPasswordModalPage(
+                    tabHeightChange: onTabChange,
+                    filledEmail: _emailController.text,
+                  ),
                 ),
               ),
             );
@@ -82,7 +96,11 @@ class _LoginPageState extends State<LoginPage> {
       if (value is bool && value) {
         await Future.delayed(const Duration(milliseconds: 500));
         if (mounted) {
-          Navigator.of(context).push(CupertinoPageRoute(builder: (context) => const LoadingScreenPostLogin()));
+          Navigator.of(context).push(
+            CupertinoPageRoute(
+              builder: (context) => const LoadingScreenPostLogin(),
+            ),
+          );
         }
       }
     });
@@ -115,8 +133,10 @@ class _LoginPageState extends State<LoginPage> {
     return BlocConsumer<AuthBloc, AuthState>(
       listener: (context, state) {
         if (state is AuthAuthenticated) Navigator.of(context).pop(true);
-        if (state is AuthFailure) showToast(context: context, message: state.message);
-        if (state is AuthAccountNotFound) showToast(context: context, message: state.message);
+        if (state is AuthFailure)
+          showToast(context: context, message: state.message);
+        if (state is AuthAccountNotFound)
+          showToast(context: context, message: state.message);
       },
       builder: (context, state) {
         return LayoutBuilder(
@@ -147,7 +167,9 @@ class _LoginPageState extends State<LoginPage> {
                             controller: _passwordController,
                             obscureText: _obscurePassword,
                             hasError: state is AuthFailure,
-                            toggleObscure: () => setState(() => _obscurePassword = !_obscurePassword),
+                            toggleObscure: () => setState(
+                              () => _obscurePassword = !_obscurePassword,
+                            ),
                           ),
                           Gap(16.h),
                           // Restored: Forgot Password Button
@@ -158,7 +180,9 @@ class _LoginPageState extends State<LoginPage> {
                                 onPressed: _showForgotPopup,
                                 child: Text(
                                   'Forgot Password ?',
-                                  style: AppTextStyles.link(context)?.copyWith(fontSize: 14.sp),
+                                  style: AppTextStyles.link(
+                                    context,
+                                  )?.copyWith(fontSize: 14.sp),
                                 ),
                               ),
                             ],
@@ -172,7 +196,12 @@ class _LoginPageState extends State<LoginPage> {
                         child: ButtonBuilder(
                           text: 'Log In',
                           onPressed: () {
-                            context.read<AuthBloc>().add(AuthLoginRequested(email: _emailController.text.trim(), password: _passwordController.text));
+                            context.read<AuthBloc>().add(
+                              AuthLoginRequested(
+                                email: _emailController.text.trim(),
+                                password: _passwordController.text,
+                              ),
+                            );
                           },
                           isEnabled: _isFormValid && state is! AuthLoading,
                           isLoading: state is AuthLoading,

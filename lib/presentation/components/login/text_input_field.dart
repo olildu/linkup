@@ -34,16 +34,18 @@ class _TextInputFieldState extends State<TextInputField> {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    final borderColor = widget.hasError ? colorScheme.error : colorScheme.outline;
+    final borderColor = widget.hasError
+        ? colorScheme.error
+        : colorScheme.outline;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           widget.label,
-          style: Theme.of(context).textTheme.labelLarge?.copyWith(
-            color: colorScheme.onSurface,
-          ),
+          style: Theme.of(
+            context,
+          ).textTheme.labelLarge?.copyWith(color: colorScheme.onSurface),
         ),
         Gap(8.h),
         TextField(
@@ -51,9 +53,9 @@ class _TextInputFieldState extends State<TextInputField> {
           obscureText: widget.obscureText,
           keyboardType: widget.keyboardType,
           autofillHints: widget.autofillHints,
-          style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-            color: colorScheme.onSurface,
-          ),
+          style: Theme.of(
+            context,
+          ).textTheme.bodyLarge?.copyWith(color: colorScheme.onSurface),
           decoration: InputDecoration(
             hintText: widget.hintText,
             filled: true,
@@ -68,12 +70,18 @@ class _TextInputFieldState extends State<TextInputField> {
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(AppRadius.sm),
-              borderSide: BorderSide(color: widget.hasError ? colorScheme.error : colorScheme.primary),
+              borderSide: BorderSide(
+                color: widget.hasError
+                    ? colorScheme.error
+                    : colorScheme.primary,
+              ),
             ),
             suffixIcon: widget.toggleObscure != null
                 ? IconButton(
                     icon: Icon(
-                      widget.obscureText ? Icons.visibility_off : Icons.visibility,
+                      widget.obscureText
+                          ? Icons.visibility_off
+                          : Icons.visibility,
                       color: AppColors.notSelected,
                     ),
                     onPressed: widget.toggleObscure,

@@ -29,7 +29,11 @@ class SignUpPageFlow {
   final TextEditingController usernameController = TextEditingController();
   final TextEditingController aboutController = TextEditingController();
 
-  SignUpPageFlow(this.context, {required this.signupOptions, this.initialData}) {
+  SignUpPageFlow(
+    this.context, {
+    required this.signupOptions,
+    this.initialData,
+  }) {
     _selectedProgram =
         signupOptions.programForValue(initialData?['university_major']) ??
         signupOptions.defaultProgram;
@@ -50,7 +54,8 @@ class SignUpPageFlow {
 
   List<String> get _majorLabels => signupOptions.programLabels;
 
-  List<String> _yearLabels() => signupOptions.yearLabelsForProgram(_selectedProgram);
+  List<String> _yearLabels() =>
+      signupOptions.yearLabelsForProgram(_selectedProgram);
 
   Widget _buildMajorPicker() {
     return LookupPicker(
@@ -61,7 +66,8 @@ class SignUpPageFlow {
       onChanged: (val) {
         Future.delayed(const Duration(milliseconds: 200), () {
           final selectedProgram =
-              signupOptions.programForValue(val) ?? signupOptions.defaultProgram;
+              signupOptions.programForValue(val) ??
+              signupOptions.defaultProgram;
           _selectedProgram = selectedProgram;
           dataValidatorProvider.allowDisallow(true);
           SignUpDataParser.updateField(universityMajor: selectedProgram.label);
@@ -105,7 +111,8 @@ class SignUpPageFlow {
   }
 
   int _selectedYearIndex() {
-    final currentYear = SignUpDataParser.data.universityYear ?? initialData?['university_year'];
+    final currentYear =
+        SignUpDataParser.data.universityYear ?? initialData?['university_year'];
     if (currentYear is int && currentYear > 0) {
       final maxIndex = _yearLabels().length - 1;
       return currentYear - 1 > maxIndex ? maxIndex : currentYear - 1;
@@ -118,7 +125,8 @@ class SignUpPageFlow {
     flow = [
       {
         'title': PageTitle(
-          inputText: "Tell us who you are, So we know whom to link you up with later",
+          inputText:
+              "Tell us who you are, So we know whom to link you up with later",
           highlightWord: "who",
           subText: "linkup keeps your personal information safe and private",
         ),
@@ -129,7 +137,10 @@ class SignUpPageFlow {
         "showProgressBar": false,
       },
       {
-        'title': PageTitle(inputText: "Your name so others know you!", highlightWord: "name"),
+        'title': PageTitle(
+          inputText: "Your name so others know you!",
+          highlightWord: "name",
+        ),
         'action': TextInput(
           label: "Name",
           placeHolder: "Enter your name",
@@ -193,14 +204,16 @@ class SignUpPageFlow {
       },
       {
         'title': PageTitle(
-          inputText: "What's your major? Let's connect you with others in the field!",
+          inputText:
+              "What's your major? Let's connect you with others in the field!",
           highlightWord: "major",
         ),
         'index': 4,
       },
       {
         'title': PageTitle(
-          inputText: "What year are you in? We'll match you with others in your journey",
+          inputText:
+              "What year are you in? We'll match you with others in your journey",
           highlightWord: "year",
         ),
         'index': 5,
@@ -216,7 +229,9 @@ class SignUpPageFlow {
             dataValidatorProvider.allowDisallow(true);
             SignUpDataParser.updateField(currentlyStaying: val);
           },
-          currentOption: SignUpDataParser.data.currentlyStaying ?? initialData?["currently_staying"],
+          currentOption:
+              SignUpDataParser.data.currentlyStaying ??
+              initialData?["currently_staying"],
         ),
         'index': 6,
       },
@@ -236,7 +251,8 @@ class SignUpPageFlow {
       },
       {
         'title': PageTitle(
-          inputText: "Add at least 2 photos so others can see you and put face to name",
+          inputText:
+              "Add at least 2 photos so others can see you and put face to name",
           highlightWord: "photos",
         ),
         'builder': () => SingleChildScrollView(
@@ -290,7 +306,8 @@ class SignUpPageFlow {
 
       {
         'title': PageTitle(
-          inputText: "One last step\nTell us what you love, So we can match you better",
+          inputText:
+              "One last step\nTell us what you love, So we can match you better",
           highlightWord: ["love", "match"],
         ),
         'action': ImageBuilder(
@@ -307,7 +324,9 @@ class SignUpPageFlow {
         'builder': () {
           final height = SignUpDataParser.data.height ?? initialData?["height"];
           return BuildPicker(
-            controller: FixedExtentScrollController(initialItem: height != null ? height - 111 : 50),
+            controller: FixedExtentScrollController(
+              initialItem: height != null ? height - 111 : 50,
+            ),
             items: List.generate(100, (index) => "${110 + index + 1} cm"),
             onSelectedItemChanged: (index) {
               Future.delayed(const Duration(milliseconds: 500), () {
@@ -323,13 +342,16 @@ class SignUpPageFlow {
       },
       {
         'title': PageTitle(
-          inputText: "What's your weight? Totally up to you if you want to share.",
+          inputText:
+              "What's your weight? Totally up to you if you want to share.",
           highlightWord: "weight",
         ),
         'builder': () {
           final weight = SignUpDataParser.data.weight ?? initialData?["weight"];
           return BuildPicker(
-            controller: FixedExtentScrollController(initialItem: weight != null ? weight - 31 : 45),
+            controller: FixedExtentScrollController(
+              initialItem: weight != null ? weight - 31 : 45,
+            ),
             items: List.generate(90, (index) => "${30 + index + 1} kg"),
             onSelectedItemChanged: (index) {
               Future.delayed(const Duration(milliseconds: 500), () {
@@ -362,7 +384,8 @@ class SignUpPageFlow {
             dataValidatorProvider.allowDisallow(true);
             SignUpDataParser.updateField(religion: val);
           },
-          currentOption: SignUpDataParser.data.religion ?? initialData?['religion'],
+          currentOption:
+              SignUpDataParser.data.religion ?? initialData?['religion'],
         ),
         'showProgressBar': false,
       },
@@ -377,7 +400,8 @@ class SignUpPageFlow {
             dataValidatorProvider.allowDisallow(true);
             SignUpDataParser.updateField(smokingInfo: val);
           },
-          currentOption: SignUpDataParser.data.smokingInfo ?? initialData?["smoking_info"],
+          currentOption:
+              SignUpDataParser.data.smokingInfo ?? initialData?["smoking_info"],
         ),
         'showProgressBar': false,
       },
@@ -392,7 +416,9 @@ class SignUpPageFlow {
             dataValidatorProvider.allowDisallow(true);
             SignUpDataParser.updateField(drinkingInfo: val);
           },
-          currentOption: SignUpDataParser.data.drinkingInfo ?? initialData?["drinking_info"],
+          currentOption:
+              SignUpDataParser.data.drinkingInfo ??
+              initialData?["drinking_info"],
         ),
         'showProgressBar': false,
       },
@@ -402,12 +428,19 @@ class SignUpPageFlow {
           highlightWord: "connection",
         ),
         'builder': () => OptionBuilder(
-          options: ["Casual", "Open to anything", "Serious", "Friends", "Not sure yet"],
+          options: [
+            "Casual",
+            "Open to anything",
+            "Serious",
+            "Friends",
+            "Not sure yet",
+          ],
           onChanged: (val) {
             dataValidatorProvider.allowDisallow(true);
             SignUpDataParser.updateField(lookingFor: val);
           },
-          currentOption: SignUpDataParser.data.lookingFor ?? initialData?["looking_for"],
+          currentOption:
+              SignUpDataParser.data.lookingFor ?? initialData?["looking_for"],
         ),
         'showProgressBar': false,
       },
@@ -427,7 +460,9 @@ class SignUpPageFlow {
             dataValidatorProvider.allowDisallow(true);
             SignUpDataParser.updateField(currentlyStaying: val);
           },
-          currentOption: SignUpDataParser.data.currentlyStaying ?? initialData?["currently_staying"],
+          currentOption:
+              SignUpDataParser.data.currentlyStaying ??
+              initialData?["currently_staying"],
         ),
         'showProgressBar': false,
       },
@@ -453,7 +488,9 @@ class SignUpPageFlow {
         'builder': () {
           final height = SignUpDataParser.data.height ?? initialData?["height"];
           return BuildPicker(
-            controller: FixedExtentScrollController(initialItem: height != null ? height - 111 : 50),
+            controller: FixedExtentScrollController(
+              initialItem: height != null ? height - 111 : 50,
+            ),
             items: List.generate(100, (index) => "${110 + index + 1} cm"),
             onSelectedItemChanged: (index) {
               Future.delayed(const Duration(milliseconds: 500), () {
@@ -469,13 +506,16 @@ class SignUpPageFlow {
       },
       {
         'title': PageTitle(
-          inputText: "What's your weight? Totally up to you if you want to share.",
+          inputText:
+              "What's your weight? Totally up to you if you want to share.",
           highlightWord: "weight",
         ),
         'builder': () {
           final weight = SignUpDataParser.data.weight ?? initialData?["weight"];
           return BuildPicker(
-            controller: FixedExtentScrollController(initialItem: weight != null ? weight - 31 : 45),
+            controller: FixedExtentScrollController(
+              initialItem: weight != null ? weight - 31 : 45,
+            ),
             items: List.generate(90, (index) => "${30 + index + 1} kg"),
             onSelectedItemChanged: (index) {
               Future.delayed(const Duration(milliseconds: 500), () {
@@ -508,7 +548,8 @@ class SignUpPageFlow {
             dataValidatorProvider.allowDisallow(true);
             SignUpDataParser.updateField(religion: val);
           },
-          currentOption: SignUpDataParser.data.religion ?? initialData?['religion'],
+          currentOption:
+              SignUpDataParser.data.religion ?? initialData?['religion'],
         ),
         'showProgressBar': false,
       },
@@ -523,7 +564,8 @@ class SignUpPageFlow {
             dataValidatorProvider.allowDisallow(true);
             SignUpDataParser.updateField(smokingInfo: val);
           },
-          currentOption: SignUpDataParser.data.smokingInfo ?? initialData?["smoking_info"],
+          currentOption:
+              SignUpDataParser.data.smokingInfo ?? initialData?["smoking_info"],
         ),
         'showProgressBar': false,
       },
@@ -538,7 +580,9 @@ class SignUpPageFlow {
             dataValidatorProvider.allowDisallow(true);
             SignUpDataParser.updateField(drinkingInfo: val);
           },
-          currentOption: SignUpDataParser.data.drinkingInfo ?? initialData?["drinking_info"],
+          currentOption:
+              SignUpDataParser.data.drinkingInfo ??
+              initialData?["drinking_info"],
         ),
         'showProgressBar': false,
       },
@@ -548,12 +592,19 @@ class SignUpPageFlow {
           highlightWord: "connection",
         ),
         'builder': () => OptionBuilder(
-          options: ["Casual", "Open to anything", "Serious", "Friends", "Not sure yet"],
+          options: [
+            "Casual",
+            "Open to anything",
+            "Serious",
+            "Friends",
+            "Not sure yet",
+          ],
           onChanged: (val) {
             dataValidatorProvider.allowDisallow(true);
             SignUpDataParser.updateField(lookingFor: val);
           },
-          currentOption: SignUpDataParser.data.lookingFor ?? initialData?["looking_for"],
+          currentOption:
+              SignUpDataParser.data.lookingFor ?? initialData?["looking_for"],
         ),
         'showProgressBar': false,
       },

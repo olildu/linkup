@@ -5,6 +5,9 @@ class VerifyOTPUseCase {
   final AuthRepository _repository;
   const VerifyOTPUseCase(this._repository);
 
-  Future<Map<String, dynamic>> call(String email, int otp, EmailOTPSubject subject) =>
-      _repository.verifyEmailOTP(email, otp, subject);
+  Future<Map<String, dynamic>> call(
+    String email,
+    int otp,
+    EmailOTPSubject subject,
+  ) => _repository.verifyEmailOTP(email, otp, subject);
 }

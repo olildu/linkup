@@ -18,13 +18,19 @@ class ForgotPasswordModalPage extends StatefulWidget {
   final Function(String) tabHeightChange;
   final String filledEmail;
 
-  const ForgotPasswordModalPage({super.key, required this.tabHeightChange, required this.filledEmail});
+  const ForgotPasswordModalPage({
+    super.key,
+    required this.tabHeightChange,
+    required this.filledEmail,
+  });
 
   @override
-  State<ForgotPasswordModalPage> createState() => _ForgotPasswordModalPageState();
+  State<ForgotPasswordModalPage> createState() =>
+      _ForgotPasswordModalPageState();
 }
 
-class _ForgotPasswordModalPageState extends State<ForgotPasswordModalPage> with SingleTickerProviderStateMixin {
+class _ForgotPasswordModalPageState extends State<ForgotPasswordModalPage>
+    with SingleTickerProviderStateMixin {
   final _emailController = TextEditingController();
   final _otpController = TextEditingController();
   final _passwordController = TextEditingController();
@@ -79,7 +85,14 @@ class _ForgotPasswordModalPageState extends State<ForgotPasswordModalPage> with 
       _hasSpecialChar = password.contains(RegExp(r'[!@#$%^&*(),.?":{}|<>]'));
       _hasMinLength = password.length >= 8;
 
-      _isPasswordMatched = password.isNotEmpty && password == confirmPassword && _hasUppercase && _hasLowercase && _hasNumber && _hasSpecialChar && _hasMinLength;
+      _isPasswordMatched =
+          password.isNotEmpty &&
+          password == confirmPassword &&
+          _hasUppercase &&
+          _hasLowercase &&
+          _hasNumber &&
+          _hasSpecialChar &&
+          _hasMinLength;
     });
   }
 
@@ -102,7 +115,10 @@ class _ForgotPasswordModalPageState extends State<ForgotPasswordModalPage> with 
       backgroundColor: Theme.of(context).colorScheme.surface,
       body: SafeArea(
         child: Padding(
-          padding: EdgeInsets.symmetric(horizontal: AppSpacing.xl2.w, vertical: AppSpacing.lg.h),
+          padding: EdgeInsets.symmetric(
+            horizontal: AppSpacing.xl2.w,
+            vertical: AppSpacing.lg.h,
+          ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -114,13 +130,19 @@ class _ForgotPasswordModalPageState extends State<ForgotPasswordModalPage> with 
                     borderRadius: BorderRadius.circular(AppRadius.lg),
                     child: Padding(
                       padding: EdgeInsets.all(AppSpacing.sm),
-                      child: Icon(Icons.arrow_back_ios_new_rounded, size: 20.sp, color: Theme.of(context).colorScheme.onSurface),
+                      child: Icon(
+                        Icons.arrow_back_ios_new_rounded,
+                        size: 20.sp,
+                        color: Theme.of(context).colorScheme.onSurface,
+                      ),
                     ),
                   ),
                   Gap(AppSpacing.sm.w),
                   Text(
                     "Forgot Password?",
-                    style: Theme.of(context).textTheme.headlineMedium?.copyWith(color: Theme.of(context).colorScheme.onSurface),
+                    style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                      color: Theme.of(context).colorScheme.onSurface,
+                    ),
                   ),
                 ],
               ),
@@ -135,20 +157,26 @@ class _ForgotPasswordModalPageState extends State<ForgotPasswordModalPage> with 
                           _emailHash = state.emailHash;
                           _safeTabHeightChange("password-entry");
                         }
-                        if (state is OtpFailure) showToast(context: context, message: state.message);
+                        if (state is OtpFailure)
+                          showToast(context: context, message: state.message);
                       },
                     ),
                     BlocListener<AuthBloc, AuthState>(
                       listener: (context, state) {
-                        if (state is AuthAuthenticated) Navigator.pop(context, true);
-                        if (state is AuthFailure) showToast(context: context, message: state.message);
+                        if (state is AuthAuthenticated)
+                          Navigator.pop(context, true);
+                        if (state is AuthFailure)
+                          showToast(context: context, message: state.message);
                       },
                     ),
                   ],
                   child: BlocBuilder<OtpBloc, OtpState>(
                     builder: (context, otpState) {
                       if (otpState is OtpVerified) {
-                        return BlocBuilder<AuthBloc, AuthState>(builder: (context, authState) => _buildPasswordEntry(authState));
+                        return BlocBuilder<AuthBloc, AuthState>(
+                          builder: (context, authState) =>
+                              _buildPasswordEntry(authState),
+                        );
                       } else if (otpState is OtpSent) {
                         return _buildOtpVerification(otpState);
                       } else {
@@ -193,7 +221,9 @@ class _ForgotPasswordModalPageState extends State<ForgotPasswordModalPage> with 
                     padding: EdgeInsets.only(bottom: AppSpacing.sm.h),
                     child: ButtonBuilder(
                       text: 'Send OTP',
-                      onPressed: () => context.read<OtpBloc>().add(SendOTPEvent(email: _emailController.text.trim())),
+                      onPressed: () => context.read<OtpBloc>().add(
+                        SendOTPEvent(email: _emailController.text.trim()),
+                      ),
                       isLoading: state is OtpLoading,
                       isEnabled: _isEmailValid,
                     ),
@@ -220,14 +250,26 @@ class _ForgotPasswordModalPageState extends State<ForgotPasswordModalPage> with 
                 children: [
                   Column(
                     mainAxisAlignment: MainAxisAlignment.center,
-                    children: [OtpInputField(label: 'OTP Code', hintText: '••••••', controller: _otpController, hasError: state is OtpFailure)],
+                    children: [
+                      OtpInputField(
+                        label: 'OTP Code',
+                        hintText: '••••••',
+                        controller: _otpController,
+                        hasError: state is OtpFailure,
+                      ),
+                    ],
                   ),
                   Padding(
                     padding: EdgeInsets.only(bottom: AppSpacing.sm.h),
                     child: ButtonBuilder(
                       text: 'Verify OTP',
-                      onPressed: () =>
-                          context.read<OtpBloc>().add(VerifyOTPEvent(otp: int.parse(_otpController.text.trim()), email: _emailController.text.trim(), subject: EmailOTPSubject.forgotPassword)),
+                      onPressed: () => context.read<OtpBloc>().add(
+                        VerifyOTPEvent(
+                          otp: int.parse(_otpController.text.trim()),
+                          email: _emailController.text.trim(),
+                          subject: EmailOTPSubject.forgotPassword,
+                        ),
+                      ),
                       isLoading: state is OtpLoading,
                       isEnabled: _otpController.text.trim().length == 6,
                     ),
@@ -275,15 +317,29 @@ class _ForgotPasswordModalPageState extends State<ForgotPasswordModalPage> with 
                       ),
                       Gap(AppSpacing.xl.h),
                       Padding(
-                        padding: EdgeInsets.symmetric(horizontal: AppSpacing.xs.w),
+                        padding: EdgeInsets.symmetric(
+                          horizontal: AppSpacing.xs.w,
+                        ),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            _buildRequirementItem("At least 8 characters", _hasMinLength),
-                            _buildRequirementItem("One uppercase letter", _hasUppercase),
-                            _buildRequirementItem("One lowercase letter", _hasLowercase),
+                            _buildRequirementItem(
+                              "At least 8 characters",
+                              _hasMinLength,
+                            ),
+                            _buildRequirementItem(
+                              "One uppercase letter",
+                              _hasUppercase,
+                            ),
+                            _buildRequirementItem(
+                              "One lowercase letter",
+                              _hasLowercase,
+                            ),
                             _buildRequirementItem("One number", _hasNumber),
-                            _buildRequirementItem("One special character (!@#\$%^&*(),.:{}|<>)", _hasSpecialChar),
+                            _buildRequirementItem(
+                              "One special character (!@#\$%^&*(),.:{}|<>)",
+                              _hasSpecialChar,
+                            ),
                           ],
                         ),
                       ),
@@ -293,7 +349,12 @@ class _ForgotPasswordModalPageState extends State<ForgotPasswordModalPage> with 
                     padding: EdgeInsets.only(bottom: AppSpacing.sm.h),
                     child: ButtonBuilder(
                       text: 'Change Password',
-                      onPressed: () => context.read<AuthBloc>().add(AuthResetPasswordRequested(emailHash: _emailHash, password: _passwordController.text.trim())),
+                      onPressed: () => context.read<AuthBloc>().add(
+                        AuthResetPasswordRequested(
+                          emailHash: _emailHash,
+                          password: _passwordController.text.trim(),
+                        ),
+                      ),
                       isLoading: state is AuthLoading,
                       isEnabled: _isPasswordMatched,
                     ),

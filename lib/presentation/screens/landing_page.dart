@@ -23,7 +23,9 @@ class _LandingPageState extends State<LandingPage> {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20.r))),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20.r)),
+      ),
       builder: (context) {
         return Theme(
           data: AppTheme.lightTheme,
@@ -33,7 +35,9 @@ class _LandingPageState extends State<LandingPage> {
                 borderRadius: BorderRadius.vertical(top: Radius.circular(20.r)),
                 child: AnimatedContainer(
                   duration: const Duration(milliseconds: 100),
-                  height: (MediaQuery.of(context).size.height * modalHeight) + MediaQuery.of(context).viewInsets.bottom,
+                  height:
+                      (MediaQuery.of(context).size.height * modalHeight) +
+                      MediaQuery.of(context).viewInsets.bottom,
                   child: LoginSignupPage(
                     onTabChange: (int tabIndex) {
                       double newHeight;
@@ -67,7 +71,11 @@ class _LandingPageState extends State<LandingPage> {
       if (value is bool && value) {
         await Future.delayed(const Duration(milliseconds: 500));
         if (!mounted) return;
-        Navigator.of(context).push(CupertinoPageRoute(builder: (context) => const LoadingScreenPostLogin()));
+        Navigator.of(context).push(
+          CupertinoPageRoute(
+            builder: (context) => const LoadingScreenPostLogin(),
+          ),
+        );
       }
     });
   }
@@ -78,24 +86,41 @@ class _LandingPageState extends State<LandingPage> {
       body: Stack(
         children: [
           Positioned.fill(
-            child: Image.asset('assets/images/landing_page_image.jpg', width: 400.w, height: 400.h, fit: BoxFit.cover),
+            child: Image.asset(
+              'assets/images/landing_page_image.jpg',
+              width: 400.w,
+              height: 400.h,
+              fit: BoxFit.cover,
+            ),
           ),
 
           Padding(
-            padding: EdgeInsets.only(top: AppSpacing.xl4.h, left: AppSpacing.xl.w, right: AppSpacing.xl.w, bottom: AppSpacing.xl.h),
+            padding: EdgeInsets.only(
+              top: AppSpacing.xl4.h,
+              left: AppSpacing.xl.w,
+              right: AppSpacing.xl.w,
+              bottom: AppSpacing.xl.h,
+            ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
 
               children: [
                 Gap(AppSpacing.xl.h),
 
-                PageTitle(inputText: "More than just classmates", highlightWord: "classmates", fontSize: 23, textColor: AppColors.whiteText),
+                PageTitle(
+                  inputText: "More than just classmates",
+                  highlightWord: "classmates",
+                  fontSize: 23,
+                  textColor: AppColors.whiteText,
+                ),
 
                 Spacer(),
 
                 Text(
                   'linkup with your crowd',
-                  style: Theme.of(context).textTheme.headlineMedium?.copyWith(color: AppColors.whiteText),
+                  style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                    color: AppColors.whiteText,
+                  ),
                 ),
 
                 Gap(20.h),
@@ -112,7 +137,9 @@ class _LandingPageState extends State<LandingPage> {
                 Center(
                   child: Text(
                     'By continuing, you agree to our Terms of Service and Privacy Policy.',
-                    style: Theme.of(context).textTheme.labelSmall?.copyWith(color: AppColors.whiteText.withValues(alpha: 0.7)),
+                    style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                      color: AppColors.whiteText.withValues(alpha: 0.7),
+                    ),
                   ),
                 ),
               ],

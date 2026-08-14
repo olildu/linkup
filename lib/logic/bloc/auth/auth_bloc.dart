@@ -24,12 +24,12 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     required RegisterUseCase registerUseCase,
     required ResetPasswordUseCase resetPasswordUseCase,
     required DeleteAccountUseCase deleteAccountUseCase,
-  })  : _login = loginUseCase,
-        _logout = logoutUseCase,
-        _register = registerUseCase,
-        _resetPassword = resetPasswordUseCase,
-        _deleteAccount = deleteAccountUseCase,
-        super(AuthInitial()) {
+  }) : _login = loginUseCase,
+       _logout = logoutUseCase,
+       _register = registerUseCase,
+       _resetPassword = resetPasswordUseCase,
+       _deleteAccount = deleteAccountUseCase,
+       super(AuthInitial()) {
     on<AuthLoginRequested>((event, emit) async {
       emit(AuthLoading());
       try {

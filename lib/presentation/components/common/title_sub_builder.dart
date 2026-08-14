@@ -7,7 +7,11 @@ class BuildTitleSubtitle extends StatelessWidget {
   final String title;
   final String subtitle;
 
-  const BuildTitleSubtitle({required this.title, required this.subtitle, super.key});
+  const BuildTitleSubtitle({
+    required this.title,
+    required this.subtitle,
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -16,14 +20,20 @@ class BuildTitleSubtitle extends StatelessWidget {
       children: [
         Text(
           title,
-          style: Theme.of(context).textTheme.headlineMedium?.copyWith(color: Theme.of(context).colorScheme.onSurface),
+          style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+            color: Theme.of(context).colorScheme.onSurface,
+          ),
         ),
 
         Gap(AppSpacing.sm.h),
 
         Text(
           subtitle,
-          style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6)),
+          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+            color: Theme.of(
+              context,
+            ).colorScheme.onSurface.withValues(alpha: 0.6),
+          ),
         ),
       ],
     );

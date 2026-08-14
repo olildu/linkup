@@ -17,9 +17,9 @@ class AuthRepositoryImpl implements AuthRepository {
     required AuthRemoteDatasource authDatasource,
     required UserRemoteDatasource userDatasource,
     required TokenService tokenService,
-  })  : _authDatasource = authDatasource,
-        _userDatasource = userDatasource,
-        _tokenService = tokenService;
+  }) : _authDatasource = authDatasource,
+       _userDatasource = userDatasource,
+       _tokenService = tokenService;
 
   @override
   Future<void> login(String email, String password) async {
@@ -47,16 +47,14 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
-  Future<int> sendEmailOTP(String email) =>
-      _authDatasource.sendEmailOTP(email);
+  Future<int> sendEmailOTP(String email) => _authDatasource.sendEmailOTP(email);
 
   @override
   Future<Map<String, dynamic>> verifyEmailOTP(
     String email,
     int otp,
     EmailOTPSubject subject,
-  ) =>
-      _authDatasource.verifyEmailOTP(email, otp, subject);
+  ) => _authDatasource.verifyEmailOTP(email, otp, subject);
 
   @override
   Future<bool> completeProfile(UpdateMetadataModel data) =>

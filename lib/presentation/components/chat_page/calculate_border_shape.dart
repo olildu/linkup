@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:linkup/data/models/chat_models/message_group_model.dart';
 
-
 BorderRadius getBorderRadius({
   required MessageGroupModel groupInfo,
   required bool isSentByMe,
@@ -42,22 +41,60 @@ bool _shouldUseFullRadius(MessageGroupModel groupInfo) {
   return false;
 }
 
-BorderRadius _getSentMessageBorderRadius(MessageGroupModel groupInfo, Radius largeRadius, Radius smallRadius) {
+BorderRadius _getSentMessageBorderRadius(
+  MessageGroupModel groupInfo,
+  Radius largeRadius,
+  Radius smallRadius,
+) {
   if (groupInfo.isFirstInGroup) {
-    return BorderRadius.only(topLeft: largeRadius, topRight: largeRadius, bottomLeft: largeRadius, bottomRight: smallRadius);
+    return BorderRadius.only(
+      topLeft: largeRadius,
+      topRight: largeRadius,
+      bottomLeft: largeRadius,
+      bottomRight: smallRadius,
+    );
   } else if (groupInfo.isLastInGroup) {
-    return BorderRadius.only(topLeft: largeRadius, topRight: smallRadius, bottomLeft: largeRadius, bottomRight: largeRadius);
+    return BorderRadius.only(
+      topLeft: largeRadius,
+      topRight: smallRadius,
+      bottomLeft: largeRadius,
+      bottomRight: largeRadius,
+    );
   } else {
-    return BorderRadius.only(topLeft: largeRadius, topRight: smallRadius, bottomLeft: largeRadius, bottomRight: smallRadius);
+    return BorderRadius.only(
+      topLeft: largeRadius,
+      topRight: smallRadius,
+      bottomLeft: largeRadius,
+      bottomRight: smallRadius,
+    );
   }
 }
 
-BorderRadius _getReceivedMessageBorderRadius(MessageGroupModel groupInfo, Radius largeRadius, Radius smallRadius) {
+BorderRadius _getReceivedMessageBorderRadius(
+  MessageGroupModel groupInfo,
+  Radius largeRadius,
+  Radius smallRadius,
+) {
   if (groupInfo.isFirstInGroup) {
-    return BorderRadius.only(topLeft: largeRadius, topRight: largeRadius, bottomLeft: smallRadius, bottomRight: largeRadius);
+    return BorderRadius.only(
+      topLeft: largeRadius,
+      topRight: largeRadius,
+      bottomLeft: smallRadius,
+      bottomRight: largeRadius,
+    );
   } else if (groupInfo.isLastInGroup) {
-    return BorderRadius.only(topLeft: smallRadius, topRight: largeRadius, bottomLeft: largeRadius, bottomRight: largeRadius);
+    return BorderRadius.only(
+      topLeft: smallRadius,
+      topRight: largeRadius,
+      bottomLeft: largeRadius,
+      bottomRight: largeRadius,
+    );
   } else {
-    return BorderRadius.only(topLeft: smallRadius, topRight: largeRadius, bottomLeft: smallRadius, bottomRight: largeRadius);
+    return BorderRadius.only(
+      topLeft: smallRadius,
+      topRight: largeRadius,
+      bottomLeft: smallRadius,
+      bottomRight: largeRadius,
+    );
   }
 }

@@ -8,7 +8,11 @@ final class SignupInitial extends SignupState {
   final int currentIndex;
   final int progessBarIndex;
 
-  SignupInitial({this.buttonText = "Next", required this.currentIndex, required this.progessBarIndex});
+  SignupInitial({
+    this.buttonText = "Next",
+    required this.currentIndex,
+    required this.progessBarIndex,
+  });
 }
 
 // Photo Upload States

@@ -63,8 +63,10 @@ class UserRepositoryImpl implements UserRepository {
   }
 
   @override
-  Future<void> updateProfile(UpdateMetadataModel data, {bool updatePfp = false}) =>
-      _datasource.updateProfile(data, updatePfp: updatePfp);
+  Future<void> updateProfile(
+    UpdateMetadataModel data, {
+    bool updatePfp = false,
+  }) => _datasource.updateProfile(data, updatePfp: updatePfp);
 
   @override
   Future<UserPreferenceEntity> getPreference() async {
@@ -83,16 +85,18 @@ class UserRepositoryImpl implements UserRepository {
 
   @override
   Future<void> updatePreference(UserPreferenceEntity preference) =>
-      _datasource.updatePreference(UserPreferenceModel(
-        interestedGender: preference.interestedGender,
-        height: preference.height,
-        weight: preference.weight,
-        religion: preference.religion,
-        drinkingStatus: preference.drinkingStatus,
-        smokingStatus: preference.smokingStatus,
-        lookingFor: preference.lookingFor,
-        currentlyStaying: preference.currentlyStaying,
-      ));
+      _datasource.updatePreference(
+        UserPreferenceModel(
+          interestedGender: preference.interestedGender,
+          height: preference.height,
+          weight: preference.weight,
+          religion: preference.religion,
+          drinkingStatus: preference.drinkingStatus,
+          smokingStatus: preference.smokingStatus,
+          lookingFor: preference.lookingFor,
+          currentlyStaying: preference.currentlyStaying,
+        ),
+      );
 
   @override
   Future<void> deleteAccount() => _datasource.deleteAccount();

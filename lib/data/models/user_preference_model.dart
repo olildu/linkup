@@ -6,7 +6,7 @@ class UserPreferenceModel {
   final bool? drinkingStatus;
   final bool? smokingStatus;
   final String? lookingFor;
-  final String? currentlyStaying; 
+  final String? currentlyStaying;
 
   UserPreferenceModel({
     this.interestedGender,

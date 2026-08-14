@@ -19,7 +19,9 @@ class LobbyBloc extends Bloc<LobbyEvent, LobbyState> {
       log("[LobbyBloc] Connecting to lobby socket...");
       try {
         await LobbySocketService.connect();
-        _socketSubscription = LobbySocketService.lobbyMessageStream.listen((raw) {
+        _socketSubscription = LobbySocketService.lobbyMessageStream.listen((
+          raw,
+        ) {
           final data = jsonDecode(raw);
           log("[LobbyBloc] Received message: $data");
 
@@ -27,15 +29,19 @@ class LobbyBloc extends Bloc<LobbyEvent, LobbyState> {
             if (data["matched"] == true) {
               log("[LobbyBloc] Match found. Dispatching LobbyMatchFoundEvent.");
               final model = MatchesConnectionModel.fromJson(data["candidate"]);
-              add(LobbyMatchFoundEvent(
-                candidate: MatchesConnectionEntity(
-                  id: model.id,
-                  username: model.username,
-                  profilePictureMetaData: model.profilePictureMetaData,
+              add(
+                LobbyMatchFoundEvent(
+                  candidate: MatchesConnectionEntity(
+                    id: model.id,
+                    username: model.username,
+                    profilePictureMetaData: model.profilePictureMetaData,
+                  ),
                 ),
-              ));
+              );
             } else if (data["matched"] == false) {
-              log("[LobbyBloc] No match found. Dispatching LobbyMatchNotFoundEvent.");
+              log(
+                "[LobbyBloc] No match found. Dispatching LobbyMatchNotFoundEvent.",
+              );
               add(LobbyMatchNotFoundEvent());
             }
 
@@ -49,7 +55,10 @@ class LobbyBloc extends Bloc<LobbyEvent, LobbyState> {
           }
         });
       } catch (e, stackTrace) {
-        log("[LobbyBloc] Failed to connect to lobby socket: $e", stackTrace: stackTrace);
+        log(
+          "[LobbyBloc] Failed to connect to lobby socket: $e",
+          stackTrace: stackTrace,
+        );
         emit(LobbyError());
       }
     });
@@ -62,7 +71,9 @@ class LobbyBloc extends Bloc<LobbyEvent, LobbyState> {
     });
 
     on<LobbyMatchFoundEvent>((event, emit) async {
-      log("[LobbyBloc] Emitting LobbyMatchFound with candidate: ${event.candidate}");
+      log(
+        "[LobbyBloc] Emitting LobbyMatchFound with candidate: ${event.candidate}",
+      );
       emit(LobbyMatchFound(candidate: event.candidate));
     });
 

@@ -18,7 +18,11 @@ final class VerifyOTPEvent extends OtpBlocEvent {
   final String email;
   final EmailOTPSubject subject;
 
-  VerifyOTPEvent({required this.otp, required this.email, required this.subject});
+  VerifyOTPEvent({
+    required this.otp,
+    required this.email,
+    required this.subject,
+  });
 }
 
 final class ResetPasswordSubmittedEvent extends OtpBlocEvent {

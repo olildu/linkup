@@ -2,11 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_blurhash/flutter_blurhash.dart';
 import 'package:octo_image/octo_image.dart';
 
-OctoSet blurHash(
-  String hash, {
-  BoxFit? fit,
-  Text? errorMessage,
-}) {
+OctoSet blurHash(String hash, {BoxFit? fit, Text? errorMessage}) {
   return OctoSet(
     placeholderBuilder: blurHashPlaceholderBuilder(hash, fit: fit),
     errorBuilder: blurHashErrorBuilder(hash, fit: fit),
@@ -32,9 +28,6 @@ OctoErrorBuilder blurHashErrorBuilder(
 
 OctoPlaceholderBuilder blurHashPlaceholderBuilder(String hash, {BoxFit? fit}) {
   return (context) => SizedBox.expand(
-    child: Image(
-      image: BlurHashImage(hash),
-      fit: fit ?? BoxFit.cover,
-    ),
+    child: Image(image: BlurHashImage(hash), fit: fit ?? BoxFit.cover),
   );
 }

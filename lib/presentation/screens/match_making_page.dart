@@ -4,12 +4,14 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
 import 'package:linkup/logic/bloc/lobby/lobby_bloc.dart';
+import 'package:linkup/logic/bloc/likes/likes_bloc.dart';
 import 'package:linkup/logic/bloc/matches/matches_bloc.dart';
 import 'package:linkup/core/di/injection_container.dart';
 import 'package:linkup/logic/bloc/profile/own/preferences_bloc/preferences_bloc.dart';
 import 'package:linkup/presentation/constants/colors.dart';
 import 'package:linkup/presentation/theme/app_spacing.dart';
 import 'package:linkup/presentation/screens/around_you_page.dart';
+import 'package:linkup/presentation/screens/likes_you_page.dart';
 import 'package:linkup/presentation/screens/matched_page.dart';
 import 'package:linkup/presentation/screens/meet_at_8_page.dart';
 import 'package:linkup/presentation/screens/profile_settings_page.dart';
@@ -32,7 +34,9 @@ class _MatchMakingPageState extends State<MatchMakingPage> with SingleTickerProv
         if (state is MatchesLoaded && state.matchUser != null) {
           final matchUser = state.matchUser!;
 
-          await Navigator.of(context).push(MaterialPageRoute(builder: (_) => MatchedPage(matchUser: matchUser)));
+          await Navigator.of(
+            context,
+          ).push(MaterialPageRoute(builder: (_) => MatchedPage(matchUser: matchUser)));
         }
 
         if (state is MatchesLoaded && state.limitMessage != null && context.mounted) {
@@ -43,7 +47,12 @@ class _MatchMakingPageState extends State<MatchMakingPage> with SingleTickerProv
       child: Scaffold(
         body: SafeArea(
           child: Padding(
-            padding: EdgeInsets.only(left: AppSpacing.sm.w, right: AppSpacing.sm.w, top: AppSpacing.xl3.h, bottom: AppSpacing.sm.h),
+            padding: EdgeInsets.only(
+              left: AppSpacing.sm.w,
+              right: AppSpacing.sm.w,
+              top: AppSpacing.xl3.h,
+              bottom: AppSpacing.sm.h,
+            ),
 
             child: Column(
               children: [
@@ -57,7 +66,10 @@ class _MatchMakingPageState extends State<MatchMakingPage> with SingleTickerProv
                           onPressed: () async {
                             await Navigator.of(context).push(
                               CupertinoPageRoute(
-                                builder: (context) => BlocProvider(create: (context) => sl<PreferencesBloc>(), child: SetPreferencesPage()),
+                                builder: (context) => BlocProvider(
+                                  create: (context) => sl<PreferencesBloc>(),
+                                  child: SetPreferencesPage(),
+                                ),
                               ),
                             );
                             if (context.mounted) {
@@ -66,13 +78,63 @@ class _MatchMakingPageState extends State<MatchMakingPage> with SingleTickerProv
                           },
                         ),
 
-                        SizedBox(width: 48.w, height: 48.w),
+                        BlocBuilder<LikesBloc, LikesState>(
+                          builder: (context, state) {
+                            final unseenCount = state is LikesLoaded ? state.unseenCount : 0;
+                            return Stack(
+                              clipBehavior: Clip.none,
+                              children: [
+                                IconButton(
+                                  icon: Icon(
+                                    Icons.auto_awesome_rounded,
+                                    color: AppColors.primary,
+                                    size: 28.sp,
+                                  ),
+                                  onPressed: () {
+                                    Navigator.of(context).push(
+                                      CupertinoPageRoute(
+                                        builder: (context) => const LikesYouPage(),
+                                      ),
+                                    );
+                                  },
+                                ),
+                                if (unseenCount > 0)
+                                  Positioned(
+                                    right: 4,
+                                    top: 4,
+                                    child: IgnorePointer(
+                                      child: Container(
+                                        padding: EdgeInsets.all(AppSpacing.xs),
+                                        constraints: BoxConstraints(
+                                          minWidth: 16.sp,
+                                          minHeight: 16.sp,
+                                        ),
+                                        decoration: BoxDecoration(
+                                          color: AppColors.primary,
+                                          shape: BoxShape.circle,
+                                        ),
+                                        child: Text(
+                                          unseenCount > 9 ? '9+' : '$unseenCount',
+                                          textAlign: TextAlign.center,
+                                          style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                                            color: Theme.of(context).colorScheme.onPrimary,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                              ],
+                            );
+                          },
+                        ),
                       ],
                     ),
 
                     Text(
                       'linkup',
-                      style: Theme.of(context).textTheme.displayMedium?.copyWith(color: Theme.of(context).colorScheme.onSurface),
+                      style: Theme.of(context).textTheme.displayMedium?.copyWith(
+                        color: Theme.of(context).colorScheme.onSurface,
+                      ),
                     ),
 
                     Row(
@@ -81,14 +143,18 @@ class _MatchMakingPageState extends State<MatchMakingPage> with SingleTickerProv
                         IconButton(
                           icon: Icon(Icons.favorite_rounded, color: AppColors.primary, size: 28.sp),
                           onPressed: () {
-                            Navigator.of(context).push(CupertinoPageRoute(builder: (context) => const ConnectionsPage()));
+                            Navigator.of(context).push(
+                              CupertinoPageRoute(builder: (context) => const ConnectionsPage()),
+                            );
                           },
                         ),
 
                         IconButton(
                           icon: Icon(Icons.person_rounded, size: 28.sp),
                           onPressed: () {
-                            Navigator.of(context).push(CupertinoPageRoute(builder: (context) => ProfileSettingsPage()));
+                            Navigator.of(
+                              context,
+                            ).push(CupertinoPageRoute(builder: (context) => ProfileSettingsPage()));
                           },
                         ),
                       ],
@@ -111,7 +177,10 @@ class _MatchMakingPageState extends State<MatchMakingPage> with SingleTickerProv
                             unselectedLabelColor: Theme.of(context).colorScheme.onSurface,
                             overlayColor: WidgetStateProperty.all(Colors.transparent),
                             indicator: UnderlineTabIndicator(
-                              borderSide: BorderSide(width: 3.0.w, color: Theme.of(context).colorScheme.onSurface),
+                              borderSide: BorderSide(
+                                width: 3.0.w,
+                                color: Theme.of(context).colorScheme.onSurface,
+                              ),
                               insets: EdgeInsets.symmetric(horizontal: 30.0.w),
                             ),
                             physics: const NeverScrollableScrollPhysics(),
@@ -128,7 +197,10 @@ class _MatchMakingPageState extends State<MatchMakingPage> with SingleTickerProv
                             children: [
                               Center(child: AroundYouPage()),
                               Center(
-                                child: BlocProvider(create: (context) => LobbyBloc(), child: MeetAt8Page()),
+                                child: BlocProvider(
+                                  create: (context) => LobbyBloc(),
+                                  child: MeetAt8Page(),
+                                ),
                               ),
                             ],
                           ),

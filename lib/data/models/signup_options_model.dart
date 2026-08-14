@@ -3,7 +3,11 @@ class SignupProgramOption {
   final String label;
   final int years;
 
-  const SignupProgramOption({required this.id, required this.label, required this.years});
+  const SignupProgramOption({
+    required this.id,
+    required this.label,
+    required this.years,
+  });
 
   factory SignupProgramOption.fromJson(Map<String, dynamic> json) {
     return SignupProgramOption(
@@ -28,7 +32,10 @@ class SignupOptionsConfig {
     return SignupOptionsConfig(
       version: json['version'] as int? ?? 1,
       programs: (json['programs'] as List<dynamic>? ?? const [])
-          .map((program) => SignupProgramOption.fromJson(program as Map<String, dynamic>))
+          .map(
+            (program) =>
+                SignupProgramOption.fromJson(program as Map<String, dynamic>),
+          )
           .toList(),
     );
   }
@@ -43,7 +50,8 @@ class SignupOptionsConfig {
     );
   }
 
-  List<String> get programLabels => programs.map((program) => program.label).toList();
+  List<String> get programLabels =>
+      programs.map((program) => program.label).toList();
 
   SignupProgramOption? programForValue(String? value) {
     if (value == null) {
@@ -59,8 +67,9 @@ class SignupOptionsConfig {
     return null;
   }
 
-  SignupProgramOption get defaultProgram =>
-      programs.isNotEmpty ? programs.first : SignupOptionsConfig.fallback().programs.first;
+  SignupProgramOption get defaultProgram => programs.isNotEmpty
+      ? programs.first
+      : SignupOptionsConfig.fallback().programs.first;
 
   List<String> yearLabelsForProgram(SignupProgramOption? program) {
     final selectedProgram = program ?? defaultProgram;
@@ -68,6 +77,9 @@ class SignupOptionsConfig {
   }
 
   Map<String, dynamic> toJson() {
-    return {'version': version, 'programs': programs.map((program) => program.toJson()).toList()};
+    return {
+      'version': version,
+      'programs': programs.map((program) => program.toJson()).toList(),
+    };
   }
 }

@@ -12,29 +12,51 @@ class CustomHttpClient {
   final _storage = GetIt.instance<FlutterSecureStorage>();
 
   Future<http.Response> get(Uri uri, {Map<String, String>? headers}) =>
-      _execute(() => _withAuth((token) => http.get(uri, headers: _headers(token, headers))));
+      _execute(
+        () => _withAuth(
+          (token) => http.get(uri, headers: _headers(token, headers)),
+        ),
+      );
 
-  Future<http.Response> post(Uri uri, {Map<String, String>? headers, Object? body}) =>
-      _execute(() => _withAuth((token) => http.post(uri, headers: _headers(token, headers), body: body)));
+  Future<http.Response> post(
+    Uri uri, {
+    Map<String, String>? headers,
+    Object? body,
+  }) => _execute(
+    () => _withAuth(
+      (token) => http.post(uri, headers: _headers(token, headers), body: body),
+    ),
+  );
 
-  Future<http.Response> delete(Uri uri, {Map<String, String>? headers, Object? body}) =>
-      _execute(() => _withAuth((token) => http.delete(uri, headers: _headers(token, headers), body: body)));
+  Future<http.Response> delete(
+    Uri uri, {
+    Map<String, String>? headers,
+    Object? body,
+  }) => _execute(
+    () => _withAuth(
+      (token) =>
+          http.delete(uri, headers: _headers(token, headers), body: body),
+    ),
+  );
 
   Future<http.Response> postMultipart(
     Uri uri, {
     Map<String, String>? headers,
     required Map<String, String> fields,
     required Future<List<http.MultipartFile>> Function() buildFiles,
-  }) =>
-      _execute(() => _withAuth((token) async {
-            final req = http.MultipartRequest('POST', uri)
-              ..headers.addAll({'Authorization': 'Bearer $token', ...?headers})
-              ..fields.addAll(fields)
-              ..files.addAll(await buildFiles());
-            return http.Response.fromStream(await req.send());
-          }));
+  }) => _execute(
+    () => _withAuth((token) async {
+      final req = http.MultipartRequest('POST', uri)
+        ..headers.addAll({'Authorization': 'Bearer $token', ...?headers})
+        ..fields.addAll(fields)
+        ..files.addAll(await buildFiles());
+      return http.Response.fromStream(await req.send());
+    }),
+  );
 
-  Future<http.Response> _execute(Future<http.Response> Function() request) async {
+  Future<http.Response> _execute(
+    Future<http.Response> Function() request,
+  ) async {
     try {
       return handleResponse(await request());
     } on SwipeLimitException {
@@ -60,12 +82,17 @@ class CustomHttpClient {
         rawDetail: 'format_exception',
       );
     } catch (e) {
-      throw ApiException(statusCode: 0, message: friendlyErrorMessage(e), rawDetail: e.toString());
+      throw ApiException(
+        statusCode: 0,
+        message: friendlyErrorMessage(e),
+        rawDetail: e.toString(),
+      );
     }
   }
 
   http.Response handleResponse(http.Response response) {
-    if (response.statusCode >= 200 && response.statusCode < 300) return response;
+    if (response.statusCode >= 200 && response.statusCode < 300)
+      return response;
 
     String detail = '';
     try {
@@ -76,10 +103,16 @@ class CustomHttpClient {
     final message = friendlyFromResponse(response.statusCode, detail);
 
     if (response.statusCode == 429) throw SwipeLimitException(message);
-    throw ApiException(statusCode: response.statusCode, message: message, rawDetail: detail);
+    throw ApiException(
+      statusCode: response.statusCode,
+      message: message,
+      rawDetail: detail,
+    );
   }
 
-  Future<http.Response> _withAuth(Future<http.Response> Function(String) request) async {
+  Future<http.Response> _withAuth(
+    Future<http.Response> Function(String) request,
+  ) async {
     String? token = await _storage.read(key: 'access_token');
     if (token == null) throw Exception('Unauthorized. Please log in.');
 
@@ -94,10 +127,10 @@ class CustomHttpClient {
   }
 
   Map<String, String> _headers(String token, Map<String, String>? extra) => {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer $token',
-        ...?extra,
-      };
+    'Content-Type': 'application/json',
+    'Authorization': 'Bearer $token',
+    ...?extra,
+  };
 
   Future<bool> refreshToken() async {
     final refresh = await _storage.read(key: 'refresh_token');
@@ -109,7 +142,10 @@ class CustomHttpClient {
         body: jsonEncode({'refresh_token': refresh}),
       );
       if (res.statusCode == 200) {
-        await _storage.write(key: 'access_token', value: jsonDecode(res.body)['access_token']);
+        await _storage.write(
+          key: 'access_token',
+          value: jsonDecode(res.body)['access_token'],
+        );
         return true;
       }
     } catch (_) {}

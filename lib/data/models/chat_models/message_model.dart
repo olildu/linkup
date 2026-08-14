@@ -61,11 +61,15 @@ class Message {
       message: json['message'] as String,
       to: json['to'] as int,
       from_: json['from_'] as int,
-      timestamp: json['timestamp'] != null ? DateTime.parse(json['timestamp'] as String) : DateTime.now(),
+      timestamp: json['timestamp'] != null
+          ? DateTime.parse(json['timestamp'] as String)
+          : DateTime.now(),
       chatRoomId: json['chat_room_id'] as int,
       isSeen: (json['is_seen'] ?? false) as bool,
       isSent: (json['is_sent'] ?? true) as bool,
-      media: json['media'] != null ? MediaMessageData.fromJson(json['media'] as Map<String, dynamic>) : null,
+      media: json['media'] != null
+          ? MediaMessageData.fromJson(json['media'] as Map<String, dynamic>)
+          : null,
       replyID: json['reply_id'] != null ? (json['reply_id'] as String) : null,
     );
   }

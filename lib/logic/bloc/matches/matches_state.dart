@@ -17,7 +17,12 @@ final class MatchesLoaded extends MatchesState {
   final int? swipesRemaining;
   final String? limitMessage;
 
-  MatchesLoaded({required this.matches, this.matchUser, this.swipesRemaining, this.limitMessage});
+  MatchesLoaded({
+    required this.matches,
+    this.matchUser,
+    this.swipesRemaining,
+    this.limitMessage,
+  });
 
   MatchesLoaded copyWith({
     List<MatchCandidateEntity>? matches,
@@ -31,7 +36,9 @@ final class MatchesLoaded extends MatchesState {
       matches: matches ?? this.matches,
       matchUser: clearMatchUser ? null : (matchUser ?? this.matchUser),
       swipesRemaining: swipesRemaining ?? this.swipesRemaining,
-      limitMessage: clearLimitMessage ? null : (limitMessage ?? this.limitMessage),
+      limitMessage: clearLimitMessage
+          ? null
+          : (limitMessage ?? this.limitMessage),
     );
   }
 }

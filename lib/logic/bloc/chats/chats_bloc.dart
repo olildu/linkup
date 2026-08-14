@@ -52,13 +52,13 @@ class ChatsBloc extends Bloc<ChatsEvent, ChatsState> {
     required SaveUnsentMessageUseCase saveUnsentMessageUseCase,
     required UploadChatMediaUseCase uploadChatMediaUseCase,
     required PaginateMessagesUseCase paginateMessagesUseCase,
-  })  : _fetchMessages = fetchMessagesUseCase,
-        _getCachedMessages = getCachedMessagesUseCase,
-        _cacheMessage = cacheMessageUseCase,
-        _saveUnsent = saveUnsentMessageUseCase,
-        _uploadMedia = uploadChatMediaUseCase,
-        _paginate = paginateMessagesUseCase,
-        super(ChatsInitial()) {
+  }) : _fetchMessages = fetchMessagesUseCase,
+       _getCachedMessages = getCachedMessagesUseCase,
+       _cacheMessage = cacheMessageUseCase,
+       _saveUnsent = saveUnsentMessageUseCase,
+       _uploadMedia = uploadChatMediaUseCase,
+       _paginate = paginateMessagesUseCase,
+       super(ChatsInitial()) {
     on<StartChatsEvent>(_onStartChats);
     on<SendMessageEvent>(_onSendMessage);
     on<NewMessageEvent>(_onNewMessage);
@@ -75,48 +75,50 @@ class ChatsBloc extends Bloc<ChatsEvent, ChatsState> {
   // ── Helpers ──────────────────────────────────────────────────────────────
 
   MessageEntity _messageToEntity(Message m) => MessageEntity(
-        id: m.id,
-        message: m.message,
-        replyID: m.replyID,
-        to: m.to,
-        from_: m.from_,
-        chatRoomId: m.chatRoomId,
-        isSeen: m.isSeen,
-        isSent: m.isSent,
-        timestamp: m.timestamp,
-        media: m.media == null
-            ? null
-            : MediaMessageEntity(
-                fileKey: m.media!.fileKey,
-                mediaType: m.media!.mediaType,
-                blurhashText: m.media!.blurhashText,
-                metadata: m.media!.metadata,
-              ),
-      );
+    id: m.id,
+    message: m.message,
+    replyID: m.replyID,
+    to: m.to,
+    from_: m.from_,
+    chatRoomId: m.chatRoomId,
+    isSeen: m.isSeen,
+    isSent: m.isSent,
+    timestamp: m.timestamp,
+    media: m.media == null
+        ? null
+        : MediaMessageEntity(
+            fileKey: m.media!.fileKey,
+            mediaType: m.media!.mediaType,
+            blurhashText: m.media!.blurhashText,
+            metadata: m.media!.metadata,
+          ),
+  );
 
   Message _entityToMessage(MessageEntity e) => Message(
-        id: e.id,
-        message: e.message,
-        replyID: e.replyID,
-        to: e.to,
-        from_: e.from_,
-        chatRoomId: e.chatRoomId,
-        isSeen: e.isSeen,
-        isSent: e.isSent,
-        timestamp: e.timestamp,
-        media: e.media == null
-            ? null
-            : MediaMessageData(
-                fileKey: e.media!.fileKey,
-                mediaType: e.media!.mediaType,
-                blurhashText: e.media!.blurhashText,
-                metadata: e.media!.metadata,
-              ),
-      );
+    id: e.id,
+    message: e.message,
+    replyID: e.replyID,
+    to: e.to,
+    from_: e.from_,
+    chatRoomId: e.chatRoomId,
+    isSeen: e.isSeen,
+    isSent: e.isSent,
+    timestamp: e.timestamp,
+    media: e.media == null
+        ? null
+        : MediaMessageData(
+            fileKey: e.media!.fileKey,
+            mediaType: e.media!.mediaType,
+            blurhashText: e.media!.blurhashText,
+            metadata: e.media!.metadata,
+          ),
+  );
 
   void _startSocketListeners() {
     _messageSocketSubscription?.cancel();
-    _messageSocketSubscription = ChatSocketServices.chatsMessageStream.listen((raw) {
+    _messageSocketSubscription = ChatSocketServices.chatsMessageStream.listen((
+      raw,
+    ) {
       log('Raw socket data: $raw', name: _logTag);
       final data = jsonDecode(raw);
       if (data['type'] == 'chats') {
@@ -135,15 +137,20 @@ class ChatsBloc extends Bloc<ChatsEvent, ChatsState> {
     });
 
     _statusSubscription?.cancel();
-    _statusSubscription = ChatSocketServices.chatsConnectionStatusStream.listen((connected) {
-      log('Connection status: $connected', name: _logTag);
-      if (connected) add(StartChatsEvent(showLoading: false));
-    });
+    _statusSubscription = ChatSocketServices.chatsConnectionStatusStream.listen(
+      (connected) {
+        log('Connection status: $connected', name: _logTag);
+        if (connected) add(StartChatsEvent(showLoading: false));
+      },
+    );
   }
 
   // ── Event handlers ────────────────────────────────────────────────────────
 
-  Future<void> _onStartChats(StartChatsEvent event, Emitter<ChatsState> emit) async {
+  Future<void> _onStartChats(
+    StartChatsEvent event,
+    Emitter<ChatsState> emit,
+  ) async {
     if (!event.showLoading) emit(ChatsLoading());
     try {
       _startSocketListeners();
@@ -158,20 +165,31 @@ class ChatsBloc extends Bloc<ChatsEvent, ChatsState> {
 
       final messages = entities.map(_entityToMessage).toList();
 
-      final first20 = entities.sublist(0, entities.length >= 20 ? 20 : entities.length);
+      final first20 = entities.sublist(
+        0,
+        entities.length >= 20 ? 20 : entities.length,
+      );
       for (final e in first20) {
         await _cacheMessage(e);
       }
 
       log('Chat initialised', name: _logTag);
-      emit(ChatsLoaded(messages: messages, isSocketConnected: ChatSocketServices.chatsIsConnected));
+      emit(
+        ChatsLoaded(
+          messages: messages,
+          isSocketConnected: ChatSocketServices.chatsIsConnected,
+        ),
+      );
     } catch (e, st) {
       log('StartChatsEvent error', error: e, stackTrace: st, name: _logTag);
       emit(ChatsError());
     }
   }
 
-  Future<void> _onSendMessage(SendMessageEvent event, Emitter<ChatsState> emit) async {
+  Future<void> _onSendMessage(
+    SendMessageEvent event,
+    Emitter<ChatsState> emit,
+  ) async {
     try {
       final message = event.message;
       final currentState = state;
@@ -205,9 +223,13 @@ class ChatsBloc extends Bloc<ChatsEvent, ChatsState> {
       final currentState = state;
 
       if (currentState is ChatsLoaded) {
-        log('Msg: from ${message.from_} vs $currentChatUserId | to ${message.to} vs $currentUserId', name: _logTag);
+        log(
+          'Msg: from ${message.from_} vs $currentChatUserId | to ${message.to} vs $currentUserId',
+          name: _logTag,
+        );
         if (message.to == currentUserId && message.from_ == currentChatUserId) {
-          final updated = List<Message>.from(currentState.messages)..add(message);
+          final updated = List<Message>.from(currentState.messages)
+            ..add(message);
           emit(currentState.copyWith(messages: updated, isTyping: false));
         }
       } else {
@@ -223,7 +245,9 @@ class ChatsBloc extends Bloc<ChatsEvent, ChatsState> {
       final currentState = state;
       if (currentState is! ChatsLoaded) return;
 
-      final index = currentState.messages.lastIndexWhere((m) => m.id == event.messageId);
+      final index = currentState.messages.lastIndexWhere(
+        (m) => m.id == event.messageId,
+      );
       if (index == -1 || currentState.messages[index].isSeen) return;
 
       final msgs = List<Message>.from(currentState.messages);
@@ -240,7 +264,12 @@ class ChatsBloc extends Bloc<ChatsEvent, ChatsState> {
 
       emit(currentState.copyWith(messages: msgs));
     } catch (e, st) {
-      log('MarkMessageAsSeenEvent error', error: e, stackTrace: st, name: _logTag);
+      log(
+        'MarkMessageAsSeenEvent error',
+        error: e,
+        stackTrace: st,
+        name: _logTag,
+      );
     }
   }
 
@@ -275,7 +304,8 @@ class ChatsBloc extends Bloc<ChatsEvent, ChatsState> {
 
   void _onTypingTimeout(TypingTimeoutEvent event, Emitter<ChatsState> emit) {
     final currentState = state;
-    if (currentState is ChatsLoaded && currentState.typingUserId == event.userId) {
+    if (currentState is ChatsLoaded &&
+        currentState.typingUserId == event.userId) {
       emit(currentState.copyWith(isTyping: false, typingUserId: null));
     }
   }
@@ -301,7 +331,10 @@ class ChatsBloc extends Bloc<ChatsEvent, ChatsState> {
     }
   }
 
-  Future<void> _onUploadMediaChat(UploadMediaChatEvent event, Emitter<ChatsState> emit) async {
+  Future<void> _onUploadMediaChat(
+    UploadMediaChatEvent event,
+    Emitter<ChatsState> emit,
+  ) async {
     try {
       final currentState = state;
       if (currentState is! ChatsLoaded) return;
@@ -328,7 +361,12 @@ class ChatsBloc extends Bloc<ChatsEvent, ChatsState> {
       add(SendMessageEvent(message: message));
       emit(currentState);
     } catch (e, st) {
-      log('uploadMediaChatEvent error', error: e, stackTrace: st, name: _logTag);
+      log(
+        'uploadMediaChatEvent error',
+        error: e,
+        stackTrace: st,
+        name: _logTag,
+      );
       emit(ChatsError());
     }
   }
@@ -349,10 +387,12 @@ class ChatsBloc extends Bloc<ChatsEvent, ChatsState> {
     );
 
     final older = entities.map(_entityToMessage).toList();
-    emit(currentState.copyWith(
-      messages: [...older, ...currentState.messages],
-      isFetchingPaginatedMessages: false,
-    ));
+    emit(
+      currentState.copyWith(
+        messages: [...older, ...currentState.messages],
+        isFetchingPaginatedMessages: false,
+      ),
+    );
   }
 
   Future<void> _onClearSocketDisconnectedFlag(

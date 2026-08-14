@@ -34,7 +34,8 @@ class ChatConnectionEntity {
     return ChatConnectionEntity(
       id: id ?? this.id,
       username: username ?? this.username,
-      profilePictureMetaData: profilePictureMetaData ?? this.profilePictureMetaData,
+      profilePictureMetaData:
+          profilePictureMetaData ?? this.profilePictureMetaData,
       chatRoomId: chatRoomId ?? this.chatRoomId,
       unseenCounter: unseenCounter ?? this.unseenCounter,
       message: message ?? this.message,

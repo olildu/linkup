@@ -14,11 +14,15 @@ class LobbySocketService {
   static WebSocketChannel? _lobbyChannel;
   static String? _authToken;
 
-  static final StreamController<String> _lobbyMessageController = StreamController<String>.broadcast();
-  static Stream<String> get lobbyMessageStream => _lobbyMessageController.stream;
+  static final StreamController<String> _lobbyMessageController =
+      StreamController<String>.broadcast();
+  static Stream<String> get lobbyMessageStream =>
+      _lobbyMessageController.stream;
 
-  static final StreamController<String?> _lobbyDisconnectController = StreamController<String?>.broadcast();
-  static Stream<String?> get lobbyDisconnectStream => _lobbyDisconnectController.stream;
+  static final StreamController<String?> _lobbyDisconnectController =
+      StreamController<String?>.broadcast();
+  static Stream<String?> get lobbyDisconnectStream =>
+      _lobbyDisconnectController.stream;
 
   static Timer? _reconnectTimer;
   static int _reconnectAttemptCount = 0;
@@ -27,7 +31,10 @@ class LobbySocketService {
   static bool _manualDisconnect = false;
   static bool _isConnecting = false;
 
-  static bool get isConnected => _lobbyChannel != null && _lobbyChannel?.closeCode == null && !_isConnecting;
+  static bool get isConnected =>
+      _lobbyChannel != null &&
+      _lobbyChannel?.closeCode == null &&
+      !_isConnecting;
 
   static Future<void> connect({bool isRetry = false}) async {
     if (_isConnecting && !isRetry) {
@@ -54,7 +61,9 @@ class LobbySocketService {
 
     final uri = Uri.parse("$WS_BASE_URL/lobby");
 
-    log("Attempting to connect to Lobby WebSocket: $uri (Attempt: ${_reconnectAttemptCount + 1})");
+    log(
+      "Attempting to connect to Lobby WebSocket: $uri (Attempt: ${_reconnectAttemptCount + 1})",
+    );
 
     try {
       _lobbyChannel = IOWebSocketChannel.connect(
@@ -78,7 +87,9 @@ class LobbySocketService {
           _isConnecting = false;
           final closeCode = _lobbyChannel?.closeCode;
           final closeReason = _lobbyChannel?.closeReason;
-          log("Lobby WebSocket closed. Code: $closeCode, Reason: $closeReason, Manually disconnected: $_manualDisconnect");
+          log(
+            "Lobby WebSocket closed. Code: $closeCode, Reason: $closeReason, Manually disconnected: $_manualDisconnect",
+          );
           _lobbyChannel = null;
           if (!_manualDisconnect) {
             _lobbyDisconnectController.add("Closed (Done): Code $closeCode");
@@ -89,13 +100,17 @@ class LobbySocketService {
         },
         onError: (error) {
           _isConnecting = false;
-          log("Lobby WebSocket error: $error. Manually disconnected: $_manualDisconnect");
+          log(
+            "Lobby WebSocket error: $error. Manually disconnected: $_manualDisconnect",
+          );
           _lobbyChannel = null;
           if (!_manualDisconnect) {
             _lobbyDisconnectController.add("Error: $error");
             _scheduleReconnect();
           } else {
-            _lobbyDisconnectController.add("Error during manual disconnect: $error");
+            _lobbyDisconnectController.add(
+              "Error during manual disconnect: $error",
+            );
           }
         },
         cancelOnError: true,
@@ -110,7 +125,9 @@ class LobbySocketService {
         _lobbyDisconnectController.add("Connection failed: $e");
         _scheduleReconnect();
       } else {
-        _lobbyDisconnectController.add("Connection failed during manual disconnect attempt: $e");
+        _lobbyDisconnectController.add(
+          "Connection failed during manual disconnect attempt: $e",
+        );
       }
     }
   }
@@ -125,17 +142,23 @@ class LobbySocketService {
     }
 
     _reconnectAttemptCount++;
-    log("Scheduling Lobby WebSocket reconnect attempt $_reconnectAttemptCount in ${_reconnectDelay.inSeconds} seconds...");
+    log(
+      "Scheduling Lobby WebSocket reconnect attempt $_reconnectAttemptCount in ${_reconnectDelay.inSeconds} seconds...",
+    );
 
     _reconnectTimer = Timer(_reconnectDelay, () {
-      log("Retrying Lobby WebSocket connection (attempt $_reconnectAttemptCount)...");
+      log(
+        "Retrying Lobby WebSocket connection (attempt $_reconnectAttemptCount)...",
+      );
       connect(isRetry: true);
     });
   }
 
   static void sendMessage({required Map<String, dynamic> message}) {
     if (!isConnected) {
-      log("Lobby WebSocket not connected. Cannot send message. Channel: $_lobbyChannel, isConnecting: $_isConnecting");
+      log(
+        "Lobby WebSocket not connected. Cannot send message. Channel: $_lobbyChannel, isConnecting: $_isConnecting",
+      );
       return;
     }
 
@@ -144,7 +167,9 @@ class LobbySocketService {
     try {
       _lobbyChannel!.sink.add(payload);
     } catch (e) {
-      log("Failed to send message on Lobby WebSocket: $e. Disconnecting and trying reconnect.");
+      log(
+        "Failed to send message on Lobby WebSocket: $e. Disconnecting and trying reconnect.",
+      );
       _lobbyChannel = null;
       _isConnecting = false;
       if (!_manualDisconnect) {

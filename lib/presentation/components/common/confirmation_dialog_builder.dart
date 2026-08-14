@@ -77,23 +77,28 @@ class ConfirmationDialogBuilder extends StatelessWidget {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
     final Color effectiveIconColor = iconColor ?? colorScheme.error;
-    final Color effectiveIconBg = iconBackgroundColor ?? colorScheme.errorContainer;
-    final Color effectiveConfirmBg = confirmBackgroundColor ?? colorScheme.error;
+    final Color effectiveIconBg =
+        iconBackgroundColor ?? colorScheme.errorContainer;
+    final Color effectiveConfirmBg =
+        confirmBackgroundColor ?? colorScheme.error;
     final Color effectiveConfirmFg = confirmTextColor ?? colorScheme.onError;
-    final Color effectiveCancelTextColor = cancelTextColor ?? colorScheme.onSurface;
+    final Color effectiveCancelTextColor =
+        cancelTextColor ?? colorScheme.onSurface;
 
     final dialogBg = theme.dialogTheme.backgroundColor ?? colorScheme.surface;
     final borderClr = theme.dividerColor.withValues(alpha: 0.5);
-    final TextStyle? primaryButtonTextStyle = theme.textTheme.labelLarge?.copyWith(
-      letterSpacing: 1.5,
-      fontWeight: FontWeight.w700,
-      color: effectiveConfirmFg,
-    );
-    final TextStyle? cancelButtonTextStyle = theme.textTheme.labelLarge?.copyWith(
-      letterSpacing: 1.5,
-      fontWeight: FontWeight.w600,
-      color: effectiveCancelTextColor,
-    );
+    final TextStyle? primaryButtonTextStyle = theme.textTheme.labelLarge
+        ?.copyWith(
+          letterSpacing: 1.5,
+          fontWeight: FontWeight.w700,
+          color: effectiveConfirmFg,
+        );
+    final TextStyle? cancelButtonTextStyle = theme.textTheme.labelLarge
+        ?.copyWith(
+          letterSpacing: 1.5,
+          fontWeight: FontWeight.w600,
+          color: effectiveCancelTextColor,
+        );
 
     return Dialog(
       backgroundColor: dialogBg,
@@ -126,7 +131,11 @@ class ConfirmationDialogBuilder extends StatelessWidget {
               ),
             ),
             Gap(12.h),
-            content ?? Text(message ?? '', style: theme.textTheme.bodySmall?.copyWith(height: 1.4)),
+            content ??
+                Text(
+                  message ?? '',
+                  style: theme.textTheme.bodySmall?.copyWith(height: 1.4),
+                ),
             Gap(20.h),
 
             // Buttons: stacked vertical by default
@@ -140,13 +149,18 @@ class ConfirmationDialogBuilder extends StatelessWidget {
                         backgroundColor: effectiveConfirmBg,
                         foregroundColor: effectiveConfirmFg,
                         padding: EdgeInsets.symmetric(vertical: 16.h),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.r)),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8.r),
+                        ),
                       ),
                       onPressed: () {
                         Navigator.pop(context);
                         onConfirm?.call();
                       },
-                      child: Text((confirmText)!.toUpperCase(), style: primaryButtonTextStyle),
+                      child: Text(
+                        (confirmText)!.toUpperCase(),
+                        style: primaryButtonTextStyle,
+                      ),
                     ),
                   ),
                   Gap(12.h),
@@ -159,13 +173,18 @@ class ConfirmationDialogBuilder extends StatelessWidget {
                       side: BorderSide(color: borderClr),
                       foregroundColor: effectiveCancelTextColor,
                       padding: EdgeInsets.symmetric(vertical: 16.h),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.r)),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8.r),
+                      ),
                     ),
                     onPressed: () {
                       Navigator.pop(context);
                       onCancel?.call();
                     },
-                    child: Text(cancelText.toUpperCase(), style: cancelButtonTextStyle),
+                    child: Text(
+                      cancelText.toUpperCase(),
+                      style: cancelButtonTextStyle,
+                    ),
                   ),
                 ),
               ] else ...[
@@ -177,13 +196,18 @@ class ConfirmationDialogBuilder extends StatelessWidget {
                       side: BorderSide(color: borderClr),
                       foregroundColor: effectiveCancelTextColor,
                       padding: EdgeInsets.symmetric(vertical: 16.h),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.r)),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8.r),
+                      ),
                     ),
                     onPressed: () {
                       Navigator.pop(context);
                       onCancel?.call();
                     },
-                    child: Text(cancelText.toUpperCase(), style: cancelButtonTextStyle),
+                    child: Text(
+                      cancelText.toUpperCase(),
+                      style: cancelButtonTextStyle,
+                    ),
                   ),
                 ),
                 if (confirmText != null) ...[
@@ -195,13 +219,18 @@ class ConfirmationDialogBuilder extends StatelessWidget {
                         backgroundColor: effectiveConfirmBg,
                         foregroundColor: effectiveConfirmFg,
                         padding: EdgeInsets.symmetric(vertical: 16.h),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.r)),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8.r),
+                        ),
                       ),
                       onPressed: () {
                         Navigator.pop(context);
                         onConfirm?.call();
                       },
-                      child: Text((confirmText)!.toUpperCase(), style: primaryButtonTextStyle),
+                      child: Text(
+                        (confirmText)!.toUpperCase(),
+                        style: primaryButtonTextStyle,
+                      ),
                     ),
                   ),
                 ],
@@ -222,8 +251,13 @@ class ConfirmationDialogBuilder extends StatelessWidget {
                         style: FilledButton.styleFrom(
                           backgroundColor: effectiveConfirmBg,
                           foregroundColor: effectiveConfirmFg,
-                          padding: EdgeInsets.symmetric(horizontal: 18.w, vertical: 12.h),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14.r)),
+                          padding: EdgeInsets.symmetric(
+                            horizontal: 18.w,
+                            vertical: 12.h,
+                          ),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(14.r),
+                          ),
                         ),
                         onPressed: () {
                           Navigator.pop(context);

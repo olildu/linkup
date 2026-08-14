@@ -58,7 +58,9 @@ class AuthRemoteDatasource {
       );
     }
     if (response.statusCode == 404) {
-      throw AccountNotFoundException(friendlyFromResponse(404, _extractDetail(response)));
+      throw AccountNotFoundException(
+        friendlyFromResponse(404, _extractDetail(response)),
+      );
     }
     _throwFriendly(response);
   }

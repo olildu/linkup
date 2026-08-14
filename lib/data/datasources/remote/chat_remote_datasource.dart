@@ -28,7 +28,9 @@ class ChatRemoteDatasource {
     );
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);
-      return (data['messages'] as List).map((m) => Message.fromJson(m)).toList();
+      return (data['messages'] as List)
+          .map((m) => Message.fromJson(m))
+          .toList();
     }
     log('fetchMessages error: ${response.statusCode}', name: _tag);
     throw Exception('Failed to fetch messages: ${response.statusCode}');
@@ -49,7 +51,9 @@ class ChatRemoteDatasource {
     );
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);
-      return (data['messages'] as List).map((m) => Message.fromJson(m)).toList();
+      return (data['messages'] as List)
+          .map((m) => Message.fromJson(m))
+          .toList();
     }
     log('fetchPaginatedMessages error: ${response.statusCode}', name: _tag);
     throw Exception('Failed to paginate messages: ${response.statusCode}');

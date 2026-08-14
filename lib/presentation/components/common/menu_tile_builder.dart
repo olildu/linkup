@@ -39,7 +39,10 @@ class MenuTileBuilder extends StatelessWidget {
     this.trailingTextColor,
     this.showBorder = true,
     this.filledBackground = true,
-    this.padding = const EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: AppSpacing.md),
+    this.padding = const EdgeInsets.symmetric(
+      horizontal: AppSpacing.md,
+      vertical: AppSpacing.md,
+    ),
     this.margin = EdgeInsets.zero,
     this.borderRadius = 18,
     this.backgroundColor,
@@ -54,11 +57,14 @@ class MenuTileBuilder extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final Color effectiveBackgroundColor =
-        backgroundColor ?? (filledBackground ? theme.cardColor : Colors.transparent);
-    final Color effectiveBorderColor = borderColor ?? AppColors.notSelected.withValues(alpha: 0.22);
+        backgroundColor ??
+        (filledBackground ? theme.cardColor : Colors.transparent);
+    final Color effectiveBorderColor =
+        borderColor ?? AppColors.notSelected.withValues(alpha: 0.22);
     final Color effectiveIconColor = iconColor ?? theme.colorScheme.onSurface;
     final Color effectiveTitleColor = titleColor ?? theme.colorScheme.onSurface;
-    final Color effectiveTrailingTextColor = trailingTextColor ?? theme.colorScheme.onSurface;
+    final Color effectiveTrailingTextColor =
+        trailingTextColor ?? theme.colorScheme.onSurface;
 
     return Material(
       color: Colors.transparent,
@@ -71,7 +77,9 @@ class MenuTileBuilder extends StatelessWidget {
           decoration: BoxDecoration(
             color: effectiveBackgroundColor,
             borderRadius: BorderRadius.circular(borderRadius.r),
-            border: showBorder ? Border.all(color: effectiveBorderColor, width: borderWidth) : null,
+            border: showBorder
+                ? Border.all(color: effectiveBorderColor, width: borderWidth)
+                : null,
           ),
           child: Row(
             children: [
@@ -133,7 +141,8 @@ class MenuTileBuilder extends StatelessWidget {
                               style: theme.textTheme.bodyMedium?.copyWith(
                                 fontSize: 13.sp,
                                 color:
-                                    theme.textTheme.bodySmall?.color ?? theme.colorScheme.onSurface,
+                                    theme.textTheme.bodySmall?.color ??
+                                    theme.colorScheme.onSurface,
                               ),
                             ),
                           ],

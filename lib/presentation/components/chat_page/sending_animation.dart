@@ -19,13 +19,21 @@ class _SendingAnimationState extends State<SendingAnimation> {
         tween: Tween(begin: _forward ? 0.5 : 1.0, end: _forward ? 1.0 : 0.5),
         duration: const Duration(seconds: 1),
         curve: Curves.easeInOut,
-        builder: (context, value, child) => Opacity(opacity: value, child: child),
+        builder: (context, value, child) =>
+            Opacity(opacity: value, child: child),
         onEnd: () {
           setState(() {
             _forward = !_forward;
           });
         },
-        child: Container(width: 6.w, height: 6.w, decoration: BoxDecoration(color: Colors.grey.shade400, shape: BoxShape.circle)),
+        child: Container(
+          width: 6.w,
+          height: 6.w,
+          decoration: BoxDecoration(
+            color: Colors.grey.shade400,
+            shape: BoxShape.circle,
+          ),
+        ),
       ),
     );
   }

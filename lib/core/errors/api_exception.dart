@@ -8,7 +8,11 @@ class ApiException implements Exception {
   final String message;
   final String rawDetail;
 
-  ApiException({required this.statusCode, required this.message, required this.rawDetail});
+  ApiException({
+    required this.statusCode,
+    required this.message,
+    required this.rawDetail,
+  });
 
   @override
   String toString() => message;

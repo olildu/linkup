@@ -7,7 +7,10 @@ class LobbySocketDatasource extends BaseSocketService {
   factory LobbySocketDatasource.instance() => _instance;
 
   LobbySocketDatasource._()
-      : super(uri: Uri.parse('$WS_BASE_URL/lobby'), logTag: 'LobbySocketDatasource');
+    : super(
+        uri: Uri.parse('$WS_BASE_URL/lobby'),
+        logTag: 'LobbySocketDatasource',
+      );
 
   static Stream<String> get stream => _instance.messageStream;
 }

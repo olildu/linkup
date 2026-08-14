@@ -30,7 +30,20 @@ class DatePicker extends StatefulWidget {
 }
 
 class DatePickerState extends State<DatePicker> {
-  final List<String> months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+  final List<String> months = [
+    'January',
+    'February',
+    'March',
+    'April',
+    'May',
+    'June',
+    'July',
+    'August',
+    'September',
+    'October',
+    'November',
+    'December',
+  ];
 
   late Map<String, List<String>> monthDays;
   late List<String> years;
@@ -62,11 +75,17 @@ class DatePickerState extends State<DatePicker> {
   void _initializeDatePickers() {
     final minYear = 1995;
     final maxYear = _maxAllowedDate.year;
-    years = List.generate(maxYear - minYear + 1, (index) => (minYear + index).toString());
+    years = List.generate(
+      maxYear - minYear + 1,
+      (index) => (minYear + index).toString(),
+    );
 
     monthDays = {
       'January': List.generate(31, (index) => (index + 1).toString()),
-      'February': List.generate(_isLeapYear(maxYear) ? 29 : 28, (index) => (index + 1).toString()),
+      'February': List.generate(
+        _isLeapYear(maxYear) ? 29 : 28,
+        (index) => (index + 1).toString(),
+      ),
       'March': List.generate(31, (index) => (index + 1).toString()),
       'April': List.generate(30, (index) => (index + 1).toString()),
       'May': List.generate(31, (index) => (index + 1).toString()),
@@ -90,9 +109,13 @@ class DatePickerState extends State<DatePicker> {
       selectedDayIndex = 14;
     }
 
-    _monthController = FixedExtentScrollController(initialItem: selectedMonthIndex);
+    _monthController = FixedExtentScrollController(
+      initialItem: selectedMonthIndex,
+    );
     _dayController = FixedExtentScrollController(initialItem: selectedDayIndex);
-    _yearController = FixedExtentScrollController(initialItem: selectedYearIndex);
+    _yearController = FixedExtentScrollController(
+      initialItem: selectedYearIndex,
+    );
 
     _callOnChanged();
   }
@@ -102,7 +125,11 @@ class DatePickerState extends State<DatePicker> {
   }
 
   void _callOnChanged() {
-    final selectedDate = DateTime(int.parse(years[selectedYearIndex]), selectedMonthIndex + 1, selectedDayIndex + 1);
+    final selectedDate = DateTime(
+      int.parse(years[selectedYearIndex]),
+      selectedMonthIndex + 1,
+      selectedDayIndex + 1,
+    );
 
     if (_previousSelectedDate != selectedDate) {
       _previousSelectedDate = selectedDate;
@@ -113,7 +140,11 @@ class DatePickerState extends State<DatePicker> {
   }
 
   void _validateAndCorrectDate() {
-    final selectedDate = DateTime(int.parse(years[selectedYearIndex]), selectedMonthIndex + 1, selectedDayIndex + 1);
+    final selectedDate = DateTime(
+      int.parse(years[selectedYearIndex]),
+      selectedMonthIndex + 1,
+      selectedDayIndex + 1,
+    );
 
     if (selectedDate.isAfter(_maxAllowedDate)) {
       selectedYearIndex = years.indexOf(_maxAllowedDate.year.toString());
@@ -145,7 +176,8 @@ class DatePickerState extends State<DatePicker> {
   List<String> _getAllowedDays(String month, int year) {
     var days = monthDays[month]!;
 
-    if (year == _maxAllowedDate.year && months.indexOf(month) == _maxAllowedDate.month - 1) {
+    if (year == _maxAllowedDate.year &&
+        months.indexOf(month) == _maxAllowedDate.month - 1) {
       days = days.sublist(0, _maxAllowedDate.day);
     }
 
@@ -159,7 +191,11 @@ class DatePickerState extends State<DatePicker> {
     final selectedMonth = allowedMonths[selectedMonthIndex];
     final daysInMonth = _getAllowedDays(selectedMonth, selectedYear);
 
-    final selectedDate = DateTime(selectedYear, selectedMonthIndex + 1, selectedDayIndex + 1);
+    final selectedDate = DateTime(
+      selectedYear,
+      selectedMonthIndex + 1,
+      selectedDayIndex + 1,
+    );
 
     final exactAge = calculateAge(selectedDate);
 
@@ -194,7 +230,10 @@ class DatePickerState extends State<DatePicker> {
                       if (mounted) {
                         setState(() {
                           selectedMonthIndex = index;
-                          final newDays = _getAllowedDays(allowedMonths[index], selectedYear);
+                          final newDays = _getAllowedDays(
+                            allowedMonths[index],
+                            selectedYear,
+                          );
                           if (selectedDayIndex >= newDays.length) {
                             selectedDayIndex = newDays.length - 1;
                             _dayController.jumpToItem(selectedDayIndex);
@@ -239,7 +278,10 @@ class DatePickerState extends State<DatePicker> {
                           final year = int.parse(years[index]);
                           if (allowedMonths[selectedMonthIndex] == 'February') {
                             final isLeap = _isLeapYear(year);
-                            monthDays['February'] = List.generate(isLeap ? 29 : 28, (i) => (i + 1).toString());
+                            monthDays['February'] = List.generate(
+                              isLeap ? 29 : 28,
+                              (i) => (i + 1).toString(),
+                            );
                           }
                           _validateAndCorrectDate();
                         });
@@ -254,7 +296,11 @@ class DatePickerState extends State<DatePicker> {
 
         Gap(20.h),
 
-        buildDivider(height: 1.h, color: AppColors.notSelected, borderRadius: BorderRadius.circular(1.5.r)),
+        buildDivider(
+          height: 1.h,
+          color: AppColors.notSelected,
+          borderRadius: BorderRadius.circular(1.5.r),
+        ),
         Expanded(
           child: Container(
             padding: EdgeInsets.symmetric(vertical: 30.w),
@@ -264,19 +310,19 @@ class DatePickerState extends State<DatePicker> {
                   Text(
                     'Age $exactAge',
                     style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                          fontSize: 26.sp,
-                          fontWeight: FontWeight.w600,
-                          color: Theme.of(context).colorScheme.onSurface,
-                        ),
+                      fontSize: 26.sp,
+                      fontWeight: FontWeight.w600,
+                      color: Theme.of(context).colorScheme.onSurface,
+                    ),
                   ),
                   Gap(10.h),
                   Text(
                     "This cannot be changed",
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          fontSize: 14.sp,
-                          fontWeight: FontWeight.w400,
-                          color: AppColors.whiteGreyTextColor,
-                        ),
+                      fontSize: 14.sp,
+                      fontWeight: FontWeight.w400,
+                      color: AppColors.whiteGreyTextColor,
+                    ),
                   ),
                 ],
               ),

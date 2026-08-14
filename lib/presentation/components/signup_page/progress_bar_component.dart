@@ -18,7 +18,8 @@ class ProgressBarComponent extends StatefulWidget {
   State<ProgressBarComponent> createState() => _ProgressBarComponentState();
 }
 
-class _ProgressBarComponentState extends State<ProgressBarComponent> with TickerProviderStateMixin {
+class _ProgressBarComponentState extends State<ProgressBarComponent>
+    with TickerProviderStateMixin {
   late List<AnimationController> _controllers;
   late List<Animation<double>> _animations;
   // int _previousIndex = 0;
@@ -28,10 +29,14 @@ class _ProgressBarComponentState extends State<ProgressBarComponent> with Ticker
     super.initState();
     _controllers = List.generate(
       widget.totalSteps,
-      (index) => AnimationController(vsync: this, duration: widget.animationDuration),
+      (index) =>
+          AnimationController(vsync: this, duration: widget.animationDuration),
     );
     _animations = _controllers
-        .map((controller) => CurvedAnimation(parent: controller, curve: Curves.easeInOutCubic))
+        .map(
+          (controller) =>
+              CurvedAnimation(parent: controller, curve: Curves.easeInOutCubic),
+        )
         .toList();
     _animateBars();
   }
@@ -96,7 +101,11 @@ class _ProgressBarComponentState extends State<ProgressBarComponent> with Ticker
     if (index < widget.currentIndex) {
       return AppColors.primary;
     } else if (index == widget.currentIndex) {
-      return Color.lerp(AppColors.notSelected, AppColors.primary, animationValue)!;
+      return Color.lerp(
+        AppColors.notSelected,
+        AppColors.primary,
+        animationValue,
+      )!;
     } else {
       return AppColors.notSelected;
     }

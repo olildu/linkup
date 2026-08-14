@@ -13,11 +13,16 @@ class MediaRemoteDatasource {
 
   MediaRemoteDatasource(this._client);
 
-  Future<Map<String, dynamic>> uploadChatMedia(File file, MessageType mediaType) async {
+  Future<Map<String, dynamic>> uploadChatMedia(
+    File file,
+    MessageType mediaType,
+  ) async {
     final response = await _client.postMultipart(
       Uri.parse('$BASE_URL/upload/media'),
       fields: {'media_type': mediaType.name},
-      buildFiles: () async => [await http.MultipartFile.fromPath('file', file.path)],
+      buildFiles: () async => [
+        await http.MultipartFile.fromPath('file', file.path),
+      ],
     );
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);
@@ -27,21 +32,31 @@ class MediaRemoteDatasource {
     throw Exception('Chat media upload failed: ${response.statusCode}');
   }
 
-  Future<Map<String, dynamic>> uploadUserMedia(File file, MessageType mediaType) async {
+  Future<Map<String, dynamic>> uploadUserMedia(
+    File file,
+    MessageType mediaType,
+  ) async {
     final response = await _client.postMultipart(
       Uri.parse('$BASE_URL/upload/media-user'),
       fields: {'media_type': mediaType.name},
-      buildFiles: () async => [await http.MultipartFile.fromPath('file', file.path)],
+      buildFiles: () async => [
+        await http.MultipartFile.fromPath('file', file.path),
+      ],
     );
     if (response.statusCode == 200) return jsonDecode(response.body);
     throw Exception('User media upload failed: ${response.statusCode}');
   }
 
-  Future<Map<String, dynamic>> uploadPfp(File file, MessageType mediaType) async {
+  Future<Map<String, dynamic>> uploadPfp(
+    File file,
+    MessageType mediaType,
+  ) async {
     final response = await _client.postMultipart(
       Uri.parse('$BASE_URL/upload/media-user-pfp'),
       fields: {'media_type': mediaType.name},
-      buildFiles: () async => [await http.MultipartFile.fromPath('file', file.path)],
+      buildFiles: () async => [
+        await http.MultipartFile.fromPath('file', file.path),
+      ],
     );
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);

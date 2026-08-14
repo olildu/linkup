@@ -6,6 +6,8 @@ class GetConnectionsUseCase {
   final MatchRepository _repository;
   const GetConnectionsUseCase(this._repository);
 
-  Future<({List<MatchesConnectionEntity> matches, List<ChatConnectionEntity> chats})> call() =>
-      _repository.getConnections();
+  Future<
+    ({List<MatchesConnectionEntity> matches, List<ChatConnectionEntity> chats})
+  >
+  call() => _repository.getConnections();
 }

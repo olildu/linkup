@@ -10,8 +10,8 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
   final LoginUseCase _login;
 
   LoginBloc({required LoginUseCase loginUseCase})
-      : _login = loginUseCase,
-        super(LoginInitial()) {
+    : _login = loginUseCase,
+      super(LoginInitial()) {
     on<LoginSubmitted>((event, emit) async {
       emit(LoginLoading());
       try {

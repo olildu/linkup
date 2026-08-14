@@ -16,12 +16,18 @@ class CandidateDetailBuilder extends StatelessWidget {
   final double availableHeight;
   final MatchCandidateEntity candidate;
 
-  const CandidateDetailBuilder({super.key, required this.availableHeight, required this.candidate});
+  const CandidateDetailBuilder({
+    super.key,
+    required this.availableHeight,
+    required this.candidate,
+  });
 
   @override
   Widget build(BuildContext context) {
     final localCandidate = candidate;
-    final candidateInformation = CandidateInfoModel.fromMatchCandidateEntity(localCandidate);
+    final candidateInformation = CandidateInfoModel.fromMatchCandidateEntity(
+      localCandidate,
+    );
     final colorScheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
 
@@ -30,7 +36,9 @@ class CandidateDetailBuilder extends StatelessWidget {
     void showFullScreenImage(String imagePath) {
       Navigator.push(
         context,
-        CupertinoPageRoute(builder: (context) => FullScreenImageScreen(imagePath: imagePath)),
+        CupertinoPageRoute(
+          builder: (context) => FullScreenImageScreen(imagePath: imagePath),
+        ),
       );
     }
 
@@ -77,7 +85,9 @@ class CandidateDetailBuilder extends StatelessWidget {
                     children: [
                       Text(
                         '${localCandidate.username}, ${calculateAge(localCandidate.dob)}',
-                        style: textTheme.headlineLarge?.copyWith(color: colorScheme.onSurface),
+                        style: textTheme.headlineLarge?.copyWith(
+                          color: colorScheme.onSurface,
+                        ),
                         overflow: TextOverflow.ellipsis,
                         maxLines: 1,
                       ),
@@ -98,7 +108,9 @@ class CandidateDetailBuilder extends StatelessWidget {
                             child: Text(
                               '${localCandidate.universityMajor} Student',
                               style: textTheme.bodyLarge?.copyWith(
-                                color: colorScheme.onSurface.withValues(alpha: 0.7),
+                                color: colorScheme.onSurface.withValues(
+                                  alpha: 0.7,
+                                ),
                               ),
                               overflow: TextOverflow.ellipsis,
                               maxLines: 1,
@@ -120,7 +132,9 @@ class CandidateDetailBuilder extends StatelessWidget {
                           Text(
                             '${getOrdinalSuffix(localCandidate.universityYear)} Year',
                             style: textTheme.bodyLarge?.copyWith(
-                              color: colorScheme.onSurface.withValues(alpha: 0.7),
+                              color: colorScheme.onSurface.withValues(
+                                alpha: 0.7,
+                              ),
                             ),
                           ),
                         ],
@@ -142,14 +156,19 @@ class CandidateDetailBuilder extends StatelessWidget {
             color: Theme.of(context).cardColor,
             borderRadius: BorderRadius.circular(AppRadius.md),
           ),
-          padding: EdgeInsets.symmetric(vertical: AppSpacing.lg.h, horizontal: AppSpacing.lg.w),
+          padding: EdgeInsets.symmetric(
+            vertical: AppSpacing.lg.h,
+            horizontal: AppSpacing.lg.w,
+          ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
             children: [
               Text(
                 'About',
-                style: textTheme.headlineMedium?.copyWith(color: colorScheme.onSurface),
+                style: textTheme.headlineMedium?.copyWith(
+                  color: colorScheme.onSurface,
+                ),
               ),
               Gap(AppSpacing.md.h),
               Text(
@@ -162,7 +181,9 @@ class CandidateDetailBuilder extends StatelessWidget {
               Gap(AppSpacing.xl.h),
               Text(
                 "${localCandidate.username}'s Info",
-                style: textTheme.bodyLarge?.copyWith(color: colorScheme.onSurface),
+                style: textTheme.bodyLarge?.copyWith(
+                  color: colorScheme.onSurface,
+                ),
               ),
               Gap(AppSpacing.md.h),
 
@@ -215,7 +236,10 @@ class CandidateDetailBuilder extends StatelessWidget {
             color: Theme.of(context).cardColor,
             borderRadius: BorderRadius.circular(AppRadius.md),
           ),
-          padding: EdgeInsets.symmetric(vertical: AppSpacing.lg.h, horizontal: AppSpacing.lg.w),
+          padding: EdgeInsets.symmetric(
+            vertical: AppSpacing.lg.h,
+            horizontal: AppSpacing.lg.w,
+          ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
@@ -229,10 +253,15 @@ class CandidateDetailBuilder extends StatelessWidget {
               Gap(AppSpacing.xs.h),
               Text(
                 localCandidate.currentlyStaying,
-                style: textTheme.headlineMedium?.copyWith(color: colorScheme.onSurface),
+                style: textTheme.headlineMedium?.copyWith(
+                  color: colorScheme.onSurface,
+                ),
               ),
               Gap(AppSpacing.md.h),
-              InfoBuilder(text: localCandidate.hometown, icon: Icons.location_on),
+              InfoBuilder(
+                text: localCandidate.hometown,
+                icon: Icons.location_on,
+              ),
             ],
           ),
         ),

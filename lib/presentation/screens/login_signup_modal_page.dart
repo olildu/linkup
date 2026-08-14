@@ -19,7 +19,8 @@ class LoginSignupPage extends StatefulWidget {
   State<LoginSignupPage> createState() => _LoginSignupPageState();
 }
 
-class _LoginSignupPageState extends State<LoginSignupPage> with SingleTickerProviderStateMixin {
+class _LoginSignupPageState extends State<LoginSignupPage>
+    with SingleTickerProviderStateMixin {
   late TabController _tabController;
 
   @override
@@ -54,7 +55,10 @@ class _LoginSignupPageState extends State<LoginSignupPage> with SingleTickerProv
                 padding: EdgeInsets.symmetric(horizontal: 10.w),
                 child: Container(
                   height: 50.h,
-                  decoration: BoxDecoration(color: AppColors.tabBarTrack, borderRadius: BorderRadius.circular(AppRadius.sm)),
+                  decoration: BoxDecoration(
+                    color: AppColors.tabBarTrack,
+                    borderRadius: BorderRadius.circular(AppRadius.sm),
+                  ),
                   child: TabBar(
                     controller: _tabController,
                     indicatorSize: TabBarIndicatorSize.tab,
@@ -63,12 +67,20 @@ class _LoginSignupPageState extends State<LoginSignupPage> with SingleTickerProv
                     indicator: BoxDecoration(
                       color: colorScheme.surface,
                       borderRadius: BorderRadius.circular(AppRadius.sm),
-                      boxShadow: [BoxShadow(color: colorScheme.onSurface.withValues(alpha: 0.1), blurRadius: 4, offset: const Offset(0, 2))],
+                      boxShadow: [
+                        BoxShadow(
+                          color: colorScheme.onSurface.withValues(alpha: 0.1),
+                          blurRadius: 4,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
                     ),
                     labelColor: colorScheme.onSurface,
                     unselectedLabelColor: AppColors.notSelected,
                     labelStyle: Theme.of(context).textTheme.titleMedium,
-                    unselectedLabelStyle: Theme.of(context).textTheme.titleMedium,
+                    unselectedLabelStyle: Theme.of(
+                      context,
+                    ).textTheme.titleMedium,
                     tabs: const [
                       Tab(text: 'Log In'),
                       Tab(text: 'Sign Up'),
@@ -88,7 +100,9 @@ class _LoginSignupPageState extends State<LoginSignupPage> with SingleTickerProv
                       const LoginPage(),
                       BlocProvider(
                         create: (context) => sl<OtpBloc>(),
-                        child: SignUpPage(tabHeightChange: (i) => widget.onTabChange(i)),
+                        child: SignUpPage(
+                          tabHeightChange: (i) => widget.onTabChange(i),
+                        ),
                       ),
                     ],
                   ),

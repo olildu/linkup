@@ -60,7 +60,14 @@ class _SignUpPageState extends State<SignUpPage> {
       _hasSpecialChar = password.contains(RegExp(r'[!@#$%^&*(),.?":{}|<>]'));
       _hasMinLength = password.length >= 8;
 
-      _isPasswordMatched = password.isNotEmpty && password == confirmPassword && _hasUppercase && _hasLowercase && _hasNumber && _hasSpecialChar && _hasMinLength;
+      _isPasswordMatched =
+          password.isNotEmpty &&
+          password == confirmPassword &&
+          _hasUppercase &&
+          _hasLowercase &&
+          _hasNumber &&
+          _hasSpecialChar &&
+          _hasMinLength;
     });
   }
 
@@ -133,21 +140,38 @@ class _SignUpPageState extends State<SignUpPage> {
           },
           child: BlocBuilder<OtpBloc, OtpState>(
             builder: (context, otpState) {
-              if (otpState is OtpInitial || otpState is OtpLoading || otpState is OtpFailure && _emailHash.isEmpty) {
+              if (otpState is OtpInitial ||
+                  otpState is OtpLoading ||
+                  otpState is OtpFailure && _emailHash.isEmpty) {
                 if (otpState is OtpSent) {
-                  return _otpVerification(key: const ValueKey('otpView'), otpState: otpState);
+                  return _otpVerification(
+                    key: const ValueKey('otpView'),
+                    otpState: otpState,
+                  );
                 }
-                return _emailEntry(key: const ValueKey('emailView'), otpState: otpState);
+                return _emailEntry(
+                  key: const ValueKey('emailView'),
+                  otpState: otpState,
+                );
               } else if (otpState is OtpSent) {
-                return _otpVerification(key: const ValueKey('otpView'), otpState: otpState);
+                return _otpVerification(
+                  key: const ValueKey('otpView'),
+                  otpState: otpState,
+                );
               } else if (otpState is OtpVerified) {
                 return BlocBuilder<AuthBloc, AuthState>(
                   builder: (context, authState) {
-                    return _passwordEntry(key: const ValueKey('passwordView'), authState: authState);
+                    return _passwordEntry(
+                      key: const ValueKey('passwordView'),
+                      authState: authState,
+                    );
                   },
                 );
               } else {
-                return _emailEntry(key: const ValueKey('emailView'), otpState: otpState);
+                return _emailEntry(
+                  key: const ValueKey('emailView'),
+                  otpState: otpState,
+                );
               }
             },
           ),
@@ -181,10 +205,15 @@ class _SignUpPageState extends State<SignUpPage> {
                       ),
                       if (hasError)
                         Padding(
-                          padding: EdgeInsets.symmetric(vertical: 8.0.h, horizontal: 5.w),
+                          padding: EdgeInsets.symmetric(
+                            vertical: 8.0.h,
+                            horizontal: 5.w,
+                          ),
                           child: Text(
                             (otpState).message,
-                            style: AppTextStyles.error(context)?.copyWith(fontSize: 14.sp),
+                            style: AppTextStyles.error(
+                              context,
+                            )?.copyWith(fontSize: 14.sp),
                           ),
                         ),
                     ],
@@ -194,7 +223,9 @@ class _SignUpPageState extends State<SignUpPage> {
                     child: ButtonBuilder(
                       text: 'Verify with OTP',
                       onPressed: () {
-                        context.read<OtpBloc>().add(SendOTPEvent(email: _emailController.text.trim()));
+                        context.read<OtpBloc>().add(
+                          SendOTPEvent(email: _emailController.text.trim()),
+                        );
                       },
                       isLoading: otpState is OtpLoading,
                       isEnabled: _isEmailValid,
@@ -226,13 +257,23 @@ class _SignUpPageState extends State<SignUpPage> {
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      OtpInputField(label: 'OTP', hintText: '••••••', controller: _otpController, hasError: hasError),
+                      OtpInputField(
+                        label: 'OTP',
+                        hintText: '••••••',
+                        controller: _otpController,
+                        hasError: hasError,
+                      ),
                       if (hasError)
                         Padding(
-                          padding: EdgeInsets.symmetric(vertical: 8.0.h, horizontal: 0.w),
+                          padding: EdgeInsets.symmetric(
+                            vertical: 8.0.h,
+                            horizontal: 0.w,
+                          ),
                           child: Text(
                             (otpState).message,
-                            style: AppTextStyles.error(context)?.copyWith(fontSize: 14.sp),
+                            style: AppTextStyles.error(
+                              context,
+                            )?.copyWith(fontSize: 14.sp),
                           ),
                         ),
                     ],
@@ -242,7 +283,13 @@ class _SignUpPageState extends State<SignUpPage> {
                     child: ButtonBuilder(
                       text: 'Submit OTP',
                       onPressed: () {
-                        context.read<OtpBloc>().add(VerifyOTPEvent(otp: int.parse(_otpController.text.trim()), email: _emailController.text.trim(), subject: EmailOTPSubject.emailVerification));
+                        context.read<OtpBloc>().add(
+                          VerifyOTPEvent(
+                            otp: int.parse(_otpController.text.trim()),
+                            email: _emailController.text.trim(),
+                            subject: EmailOTPSubject.emailVerification,
+                          ),
+                        );
                       },
                       isLoading: otpState is OtpLoading,
                       isEnabled: _otpController.text.trim().length == 6,
@@ -297,11 +344,23 @@ class _SignUpPageState extends State<SignUpPage> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            _buildRequirementItem("At least 8 characters", _hasMinLength),
-                            _buildRequirementItem("One uppercase letter", _hasUppercase),
-                            _buildRequirementItem("One lowercase letter", _hasLowercase),
+                            _buildRequirementItem(
+                              "At least 8 characters",
+                              _hasMinLength,
+                            ),
+                            _buildRequirementItem(
+                              "One uppercase letter",
+                              _hasUppercase,
+                            ),
+                            _buildRequirementItem(
+                              "One lowercase letter",
+                              _hasLowercase,
+                            ),
                             _buildRequirementItem("One number", _hasNumber),
-                            _buildRequirementItem("One special character (!@#\$%^&*(),.:{}|<>)", _hasSpecialChar),
+                            _buildRequirementItem(
+                              "One special character (!@#\$%^&*(),.:{}|<>)",
+                              _hasSpecialChar,
+                            ),
                           ],
                         ),
                       ),
@@ -312,7 +371,12 @@ class _SignUpPageState extends State<SignUpPage> {
                     child: ButtonBuilder(
                       text: 'Save password',
                       onPressed: () {
-                        context.read<AuthBloc>().add(AuthRegisterRequested(emailHash: _emailHash, password: _passwordController.text.trim()));
+                        context.read<AuthBloc>().add(
+                          AuthRegisterRequested(
+                            emailHash: _emailHash,
+                            password: _passwordController.text.trim(),
+                          ),
+                        );
                       },
                       isLoading: authState is AuthLoading,
                       isEnabled: _isPasswordMatched,

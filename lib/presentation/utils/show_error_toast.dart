@@ -51,7 +51,8 @@ class ToastWidget extends StatefulWidget {
   State<ToastWidget> createState() => _ToastWidgetState();
 }
 
-class _ToastWidgetState extends State<ToastWidget> with SingleTickerProviderStateMixin {
+class _ToastWidgetState extends State<ToastWidget>
+    with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _fadeAnimation;
 
@@ -59,8 +60,14 @@ class _ToastWidgetState extends State<ToastWidget> with SingleTickerProviderStat
   void initState() {
     super.initState();
 
-    _controller = AnimationController(vsync: this, duration: const Duration(milliseconds: 300));
-    _fadeAnimation = CurvedAnimation(parent: _controller, curve: Curves.easeInOut);
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 300),
+    );
+    _fadeAnimation = CurvedAnimation(
+      parent: _controller,
+      curve: Curves.easeInOut,
+    );
     _controller.forward();
 
     Future.delayed(widget.duration, () async {
@@ -91,12 +98,19 @@ class _ToastWidgetState extends State<ToastWidget> with SingleTickerProviderStat
           child: Center(
             child: IntrinsicWidth(
               child: Container(
-                constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.8),
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                constraints: BoxConstraints(
+                  maxWidth: MediaQuery.of(context).size.width * 0.8,
+                ),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 12,
+                ),
                 decoration: BoxDecoration(
                   color: widget.backgroundColor,
                   borderRadius: BorderRadius.circular(12),
-                  boxShadow: const [BoxShadow(color: Colors.black26, blurRadius: 10)],
+                  boxShadow: const [
+                    BoxShadow(color: Colors.black26, blurRadius: 10),
+                  ],
                 ),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
@@ -104,14 +118,19 @@ class _ToastWidgetState extends State<ToastWidget> with SingleTickerProviderStat
                     if (widget.icon != null)
                       Padding(
                         padding: const EdgeInsets.only(right: 8),
-                        child: Icon(widget.icon, color: widget.textColor, size: 18),
+                        child: Icon(
+                          widget.icon,
+                          color: widget.textColor,
+                          size: 18,
+                        ),
                       ),
                     Flexible(
                       child: Text(
                         widget.message,
-                        style: Theme.of(
-                          context,
-                        ).textTheme.bodyMedium?.copyWith(color: widget.textColor, fontSize: 14),
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          color: widget.textColor,
+                          fontSize: 14,
+                        ),
                         textAlign: TextAlign.center,
                       ),
                     ),

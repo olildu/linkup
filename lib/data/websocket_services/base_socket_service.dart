@@ -27,17 +27,25 @@ abstract class BaseSocketService {
   bool _isConnecting = false;
   bool _currentConnectionStatusEmitted = false;
 
-  final StreamController<String> _messageController = StreamController<String>.broadcast();
-  final StreamController<String?> _disconnectController = StreamController<String?>.broadcast();
-  final StreamController<bool> _connectionStatusController = StreamController<bool>.broadcast();
+  final StreamController<String> _messageController =
+      StreamController<String>.broadcast();
+  final StreamController<String?> _disconnectController =
+      StreamController<String?>.broadcast();
+  final StreamController<bool> _connectionStatusController =
+      StreamController<bool>.broadcast();
 
   Stream<String> get messageStream => _messageController.stream;
   Stream<String?> get disconnectStream => _disconnectController.stream;
   Stream<bool> get connectionStatusStream => _connectionStatusController.stream;
 
-  bool get isConnected => _channel != null && _channel?.closeCode == null && !_isConnecting;
+  bool get isConnected =>
+      _channel != null && _channel?.closeCode == null && !_isConnecting;
 
-  BaseSocketService({required this.uri, required this.logTag, this.reconnectDelay = const Duration(seconds: 5)});
+  BaseSocketService({
+    required this.uri,
+    required this.logTag,
+    this.reconnectDelay = const Duration(seconds: 5),
+  });
 
   void _updateConnectionStatusController() {
     // Only broadcast if change is there
@@ -69,7 +77,10 @@ abstract class BaseSocketService {
       return;
     }
 
-    log("Connecting to $uri (Attempt ${_reconnectAttemptCount + 1})", name: logTag);
+    log(
+      "Connecting to $uri (Attempt ${_reconnectAttemptCount + 1})",
+      name: logTag,
+    );
 
     try {
       // FIX: Use WebSocket.connect directly to catch handshake errors (403) synchronously
@@ -87,7 +98,8 @@ abstract class BaseSocketService {
       _channel!.stream.listen(
         (data) {
           _messageController.add(data);
-          if (_reconnectAttemptCount > 0) log("Reconnected successfully.", name: logTag);
+          if (_reconnectAttemptCount > 0)
+            log("Reconnected successfully.", name: logTag);
           _reconnectAttemptCount = 0;
           _updateConnectionStatusController();
         },
@@ -134,7 +146,10 @@ abstract class BaseSocketService {
         // Check for 403/401 here to trigger token refresh
         final errorString = e.toString();
         if (errorString.contains('401') || errorString.contains('403')) {
-          log("Token expired/invalid (403/401) during handshake. Refreshing...", name: logTag);
+          log(
+            "Token expired/invalid (403/401) during handshake. Refreshing...",
+            name: logTag,
+          );
           try {
             await _client.refreshToken();
             // Update auth token for the next attempt
@@ -143,7 +158,7 @@ abstract class BaseSocketService {
             log("Token refresh failed: $refreshError", name: logTag);
           }
         }
-        
+
         _scheduleReconnect();
       }
       _updateConnectionStatusController();
@@ -154,7 +169,10 @@ abstract class BaseSocketService {
     if (_manualDisconnect || (_reconnectTimer?.isActive ?? false)) return;
 
     _reconnectAttemptCount++;
-    log("Scheduling reconnect in ${reconnectDelay.inSeconds}s (Attempt $_reconnectAttemptCount)...", name: logTag);
+    log(
+      "Scheduling reconnect in ${reconnectDelay.inSeconds}s (Attempt $_reconnectAttemptCount)...",
+      name: logTag,
+    );
 
     _reconnectTimer = Timer(reconnectDelay, () => connect(isRetry: true));
   }

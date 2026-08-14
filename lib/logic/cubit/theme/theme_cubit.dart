@@ -25,7 +25,9 @@ class ThemeCubit extends Cubit<ThemeMode> {
   }
 
   void toggleTheme() async {
-    final newTheme = state == ThemeMode.light ? ThemeMode.dark : ThemeMode.light;
+    final newTheme = state == ThemeMode.light
+        ? ThemeMode.dark
+        : ThemeMode.light;
     emit(newTheme);
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(_key, newTheme == ThemeMode.light ? 'light' : 'dark');

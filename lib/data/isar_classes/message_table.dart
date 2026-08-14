@@ -49,7 +49,9 @@ class MessageTable {
       isSeen: isSeen,
       isSent: isSent,
       timestamp: timestamp,
-      media: mediaJson != null ? MediaMessageData.fromJson(jsonDecode(mediaJson!)) : null,
+      media: mediaJson != null
+          ? MediaMessageData.fromJson(jsonDecode(mediaJson!))
+          : null,
     );
   }
 }

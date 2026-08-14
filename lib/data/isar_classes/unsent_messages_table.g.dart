@@ -23,16 +23,12 @@ const UnsentMessagesTableSchema = CollectionSchema(
       name: r'chatRoomID',
       type: IsarType.long,
     ),
-    r'message': PropertySchema(
-      id: 1,
-      name: r'message',
-      type: IsarType.string,
-    ),
+    r'message': PropertySchema(id: 1, name: r'message', type: IsarType.string),
     r'messageID': PropertySchema(
       id: 2,
       name: r'messageID',
       type: IsarType.string,
-    )
+    ),
   },
   estimateSize: _unsentMessagesTableEstimateSize,
   serialize: _unsentMessagesTableSerialize,
@@ -107,12 +103,16 @@ Id _unsentMessagesTableGetId(UnsentMessagesTable object) {
 }
 
 List<IsarLinkBase<dynamic>> _unsentMessagesTableGetLinks(
-    UnsentMessagesTable object) {
+  UnsentMessagesTable object,
+) {
   return [];
 }
 
 void _unsentMessagesTableAttach(
-    IsarCollection<dynamic> col, Id id, UnsentMessagesTable object) {
+  IsarCollection<dynamic> col,
+  Id id,
+  UnsentMessagesTable object,
+) {
   object.id = id;
 }
 
@@ -128,17 +128,14 @@ extension UnsentMessagesTableQueryWhereSort
 extension UnsentMessagesTableQueryWhere
     on QueryBuilder<UnsentMessagesTable, UnsentMessagesTable, QWhereClause> {
   QueryBuilder<UnsentMessagesTable, UnsentMessagesTable, QAfterWhereClause>
-      idEqualTo(Id id) {
+  idEqualTo(Id id) {
     return QueryBuilder.apply(this, (query) {
-      return query.addWhereClause(IdWhereClause.between(
-        lower: id,
-        upper: id,
-      ));
+      return query.addWhereClause(IdWhereClause.between(lower: id, upper: id));
     });
   }
 
   QueryBuilder<UnsentMessagesTable, UnsentMessagesTable, QAfterWhereClause>
-      idNotEqualTo(Id id) {
+  idNotEqualTo(Id id) {
     return QueryBuilder.apply(this, (query) {
       if (query.whereSort == Sort.asc) {
         return query
@@ -161,7 +158,7 @@ extension UnsentMessagesTableQueryWhere
   }
 
   QueryBuilder<UnsentMessagesTable, UnsentMessagesTable, QAfterWhereClause>
-      idGreaterThan(Id id, {bool include = false}) {
+  idGreaterThan(Id id, {bool include = false}) {
     return QueryBuilder.apply(this, (query) {
       return query.addWhereClause(
         IdWhereClause.greaterThan(lower: id, includeLower: include),
@@ -170,7 +167,7 @@ extension UnsentMessagesTableQueryWhere
   }
 
   QueryBuilder<UnsentMessagesTable, UnsentMessagesTable, QAfterWhereClause>
-      idLessThan(Id id, {bool include = false}) {
+  idLessThan(Id id, {bool include = false}) {
     return QueryBuilder.apply(this, (query) {
       return query.addWhereClause(
         IdWhereClause.lessThan(upper: id, includeUpper: include),
@@ -179,185 +176,193 @@ extension UnsentMessagesTableQueryWhere
   }
 
   QueryBuilder<UnsentMessagesTable, UnsentMessagesTable, QAfterWhereClause>
-      idBetween(
+  idBetween(
     Id lowerId,
     Id upperId, {
     bool includeLower = true,
     bool includeUpper = true,
   }) {
     return QueryBuilder.apply(this, (query) {
-      return query.addWhereClause(IdWhereClause.between(
-        lower: lowerId,
-        includeLower: includeLower,
-        upper: upperId,
-        includeUpper: includeUpper,
-      ));
+      return query.addWhereClause(
+        IdWhereClause.between(
+          lower: lowerId,
+          includeLower: includeLower,
+          upper: upperId,
+          includeUpper: includeUpper,
+        ),
+      );
     });
   }
 }
 
-extension UnsentMessagesTableQueryFilter on QueryBuilder<UnsentMessagesTable,
-    UnsentMessagesTable, QFilterCondition> {
+extension UnsentMessagesTableQueryFilter
+    on
+        QueryBuilder<
+          UnsentMessagesTable,
+          UnsentMessagesTable,
+          QFilterCondition
+        > {
   QueryBuilder<UnsentMessagesTable, UnsentMessagesTable, QAfterFilterCondition>
-      chatRoomIDEqualTo(int value) {
+  chatRoomIDEqualTo(int value) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.equalTo(
-        property: r'chatRoomID',
-        value: value,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.equalTo(property: r'chatRoomID', value: value),
+      );
     });
   }
 
   QueryBuilder<UnsentMessagesTable, UnsentMessagesTable, QAfterFilterCondition>
-      chatRoomIDGreaterThan(
-    int value, {
-    bool include = false,
-  }) {
+  chatRoomIDGreaterThan(int value, {bool include = false}) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.greaterThan(
-        include: include,
-        property: r'chatRoomID',
-        value: value,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.greaterThan(
+          include: include,
+          property: r'chatRoomID',
+          value: value,
+        ),
+      );
     });
   }
 
   QueryBuilder<UnsentMessagesTable, UnsentMessagesTable, QAfterFilterCondition>
-      chatRoomIDLessThan(
-    int value, {
-    bool include = false,
-  }) {
+  chatRoomIDLessThan(int value, {bool include = false}) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.lessThan(
-        include: include,
-        property: r'chatRoomID',
-        value: value,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.lessThan(
+          include: include,
+          property: r'chatRoomID',
+          value: value,
+        ),
+      );
     });
   }
 
   QueryBuilder<UnsentMessagesTable, UnsentMessagesTable, QAfterFilterCondition>
-      chatRoomIDBetween(
+  chatRoomIDBetween(
     int lower,
     int upper, {
     bool includeLower = true,
     bool includeUpper = true,
   }) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.between(
-        property: r'chatRoomID',
-        lower: lower,
-        includeLower: includeLower,
-        upper: upper,
-        includeUpper: includeUpper,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.between(
+          property: r'chatRoomID',
+          lower: lower,
+          includeLower: includeLower,
+          upper: upper,
+          includeUpper: includeUpper,
+        ),
+      );
     });
   }
 
   QueryBuilder<UnsentMessagesTable, UnsentMessagesTable, QAfterFilterCondition>
-      idEqualTo(Id value) {
+  idEqualTo(Id value) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.equalTo(
-        property: r'id',
-        value: value,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.equalTo(property: r'id', value: value),
+      );
     });
   }
 
   QueryBuilder<UnsentMessagesTable, UnsentMessagesTable, QAfterFilterCondition>
-      idGreaterThan(
-    Id value, {
-    bool include = false,
-  }) {
+  idGreaterThan(Id value, {bool include = false}) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.greaterThan(
-        include: include,
-        property: r'id',
-        value: value,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.greaterThan(
+          include: include,
+          property: r'id',
+          value: value,
+        ),
+      );
     });
   }
 
   QueryBuilder<UnsentMessagesTable, UnsentMessagesTable, QAfterFilterCondition>
-      idLessThan(
-    Id value, {
-    bool include = false,
-  }) {
+  idLessThan(Id value, {bool include = false}) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.lessThan(
-        include: include,
-        property: r'id',
-        value: value,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.lessThan(
+          include: include,
+          property: r'id',
+          value: value,
+        ),
+      );
     });
   }
 
   QueryBuilder<UnsentMessagesTable, UnsentMessagesTable, QAfterFilterCondition>
-      idBetween(
+  idBetween(
     Id lower,
     Id upper, {
     bool includeLower = true,
     bool includeUpper = true,
   }) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.between(
-        property: r'id',
-        lower: lower,
-        includeLower: includeLower,
-        upper: upper,
-        includeUpper: includeUpper,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.between(
+          property: r'id',
+          lower: lower,
+          includeLower: includeLower,
+          upper: upper,
+          includeUpper: includeUpper,
+        ),
+      );
     });
   }
 
   QueryBuilder<UnsentMessagesTable, UnsentMessagesTable, QAfterFilterCondition>
-      messageEqualTo(
-    String value, {
-    bool caseSensitive = true,
-  }) {
+  messageEqualTo(String value, {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.equalTo(
-        property: r'message',
-        value: value,
-        caseSensitive: caseSensitive,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.equalTo(
+          property: r'message',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
     });
   }
 
   QueryBuilder<UnsentMessagesTable, UnsentMessagesTable, QAfterFilterCondition>
-      messageGreaterThan(
-    String value, {
-    bool include = false,
-    bool caseSensitive = true,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.greaterThan(
-        include: include,
-        property: r'message',
-        value: value,
-        caseSensitive: caseSensitive,
-      ));
-    });
-  }
-
-  QueryBuilder<UnsentMessagesTable, UnsentMessagesTable, QAfterFilterCondition>
-      messageLessThan(
+  messageGreaterThan(
     String value, {
     bool include = false,
     bool caseSensitive = true,
   }) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.lessThan(
-        include: include,
-        property: r'message',
-        value: value,
-        caseSensitive: caseSensitive,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.greaterThan(
+          include: include,
+          property: r'message',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
     });
   }
 
   QueryBuilder<UnsentMessagesTable, UnsentMessagesTable, QAfterFilterCondition>
-      messageBetween(
+  messageLessThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.lessThan(
+          include: include,
+          property: r'message',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<UnsentMessagesTable, UnsentMessagesTable, QAfterFilterCondition>
+  messageBetween(
     String lower,
     String upper, {
     bool includeLower = true,
@@ -365,135 +370,140 @@ extension UnsentMessagesTableQueryFilter on QueryBuilder<UnsentMessagesTable,
     bool caseSensitive = true,
   }) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.between(
-        property: r'message',
-        lower: lower,
-        includeLower: includeLower,
-        upper: upper,
-        includeUpper: includeUpper,
-        caseSensitive: caseSensitive,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.between(
+          property: r'message',
+          lower: lower,
+          includeLower: includeLower,
+          upper: upper,
+          includeUpper: includeUpper,
+          caseSensitive: caseSensitive,
+        ),
+      );
     });
   }
 
   QueryBuilder<UnsentMessagesTable, UnsentMessagesTable, QAfterFilterCondition>
-      messageStartsWith(
-    String value, {
-    bool caseSensitive = true,
-  }) {
+  messageStartsWith(String value, {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.startsWith(
-        property: r'message',
-        value: value,
-        caseSensitive: caseSensitive,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.startsWith(
+          property: r'message',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
     });
   }
 
   QueryBuilder<UnsentMessagesTable, UnsentMessagesTable, QAfterFilterCondition>
-      messageEndsWith(
-    String value, {
-    bool caseSensitive = true,
-  }) {
+  messageEndsWith(String value, {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.endsWith(
-        property: r'message',
-        value: value,
-        caseSensitive: caseSensitive,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.endsWith(
+          property: r'message',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
     });
   }
 
   QueryBuilder<UnsentMessagesTable, UnsentMessagesTable, QAfterFilterCondition>
-      messageContains(String value, {bool caseSensitive = true}) {
+  messageContains(String value, {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.contains(
-        property: r'message',
-        value: value,
-        caseSensitive: caseSensitive,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.contains(
+          property: r'message',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
     });
   }
 
   QueryBuilder<UnsentMessagesTable, UnsentMessagesTable, QAfterFilterCondition>
-      messageMatches(String pattern, {bool caseSensitive = true}) {
+  messageMatches(String pattern, {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.matches(
-        property: r'message',
-        wildcard: pattern,
-        caseSensitive: caseSensitive,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.matches(
+          property: r'message',
+          wildcard: pattern,
+          caseSensitive: caseSensitive,
+        ),
+      );
     });
   }
 
   QueryBuilder<UnsentMessagesTable, UnsentMessagesTable, QAfterFilterCondition>
-      messageIsEmpty() {
+  messageIsEmpty() {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.equalTo(
-        property: r'message',
-        value: '',
-      ));
+      return query.addFilterCondition(
+        FilterCondition.equalTo(property: r'message', value: ''),
+      );
     });
   }
 
   QueryBuilder<UnsentMessagesTable, UnsentMessagesTable, QAfterFilterCondition>
-      messageIsNotEmpty() {
+  messageIsNotEmpty() {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.greaterThan(
-        property: r'message',
-        value: '',
-      ));
+      return query.addFilterCondition(
+        FilterCondition.greaterThan(property: r'message', value: ''),
+      );
     });
   }
 
   QueryBuilder<UnsentMessagesTable, UnsentMessagesTable, QAfterFilterCondition>
-      messageIDEqualTo(
-    String value, {
-    bool caseSensitive = true,
-  }) {
+  messageIDEqualTo(String value, {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.equalTo(
-        property: r'messageID',
-        value: value,
-        caseSensitive: caseSensitive,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.equalTo(
+          property: r'messageID',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
     });
   }
 
   QueryBuilder<UnsentMessagesTable, UnsentMessagesTable, QAfterFilterCondition>
-      messageIDGreaterThan(
-    String value, {
-    bool include = false,
-    bool caseSensitive = true,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.greaterThan(
-        include: include,
-        property: r'messageID',
-        value: value,
-        caseSensitive: caseSensitive,
-      ));
-    });
-  }
-
-  QueryBuilder<UnsentMessagesTable, UnsentMessagesTable, QAfterFilterCondition>
-      messageIDLessThan(
+  messageIDGreaterThan(
     String value, {
     bool include = false,
     bool caseSensitive = true,
   }) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.lessThan(
-        include: include,
-        property: r'messageID',
-        value: value,
-        caseSensitive: caseSensitive,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.greaterThan(
+          include: include,
+          property: r'messageID',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
     });
   }
 
   QueryBuilder<UnsentMessagesTable, UnsentMessagesTable, QAfterFilterCondition>
-      messageIDBetween(
+  messageIDLessThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.lessThan(
+          include: include,
+          property: r'messageID',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<UnsentMessagesTable, UnsentMessagesTable, QAfterFilterCondition>
+  messageIDBetween(
     String lower,
     String upper, {
     bool includeLower = true,
@@ -501,133 +511,145 @@ extension UnsentMessagesTableQueryFilter on QueryBuilder<UnsentMessagesTable,
     bool caseSensitive = true,
   }) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.between(
-        property: r'messageID',
-        lower: lower,
-        includeLower: includeLower,
-        upper: upper,
-        includeUpper: includeUpper,
-        caseSensitive: caseSensitive,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.between(
+          property: r'messageID',
+          lower: lower,
+          includeLower: includeLower,
+          upper: upper,
+          includeUpper: includeUpper,
+          caseSensitive: caseSensitive,
+        ),
+      );
     });
   }
 
   QueryBuilder<UnsentMessagesTable, UnsentMessagesTable, QAfterFilterCondition>
-      messageIDStartsWith(
-    String value, {
-    bool caseSensitive = true,
-  }) {
+  messageIDStartsWith(String value, {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.startsWith(
-        property: r'messageID',
-        value: value,
-        caseSensitive: caseSensitive,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.startsWith(
+          property: r'messageID',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
     });
   }
 
   QueryBuilder<UnsentMessagesTable, UnsentMessagesTable, QAfterFilterCondition>
-      messageIDEndsWith(
-    String value, {
-    bool caseSensitive = true,
-  }) {
+  messageIDEndsWith(String value, {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.endsWith(
-        property: r'messageID',
-        value: value,
-        caseSensitive: caseSensitive,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.endsWith(
+          property: r'messageID',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
     });
   }
 
   QueryBuilder<UnsentMessagesTable, UnsentMessagesTable, QAfterFilterCondition>
-      messageIDContains(String value, {bool caseSensitive = true}) {
+  messageIDContains(String value, {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.contains(
-        property: r'messageID',
-        value: value,
-        caseSensitive: caseSensitive,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.contains(
+          property: r'messageID',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
     });
   }
 
   QueryBuilder<UnsentMessagesTable, UnsentMessagesTable, QAfterFilterCondition>
-      messageIDMatches(String pattern, {bool caseSensitive = true}) {
+  messageIDMatches(String pattern, {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.matches(
-        property: r'messageID',
-        wildcard: pattern,
-        caseSensitive: caseSensitive,
-      ));
+      return query.addFilterCondition(
+        FilterCondition.matches(
+          property: r'messageID',
+          wildcard: pattern,
+          caseSensitive: caseSensitive,
+        ),
+      );
     });
   }
 
   QueryBuilder<UnsentMessagesTable, UnsentMessagesTable, QAfterFilterCondition>
-      messageIDIsEmpty() {
+  messageIDIsEmpty() {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.equalTo(
-        property: r'messageID',
-        value: '',
-      ));
+      return query.addFilterCondition(
+        FilterCondition.equalTo(property: r'messageID', value: ''),
+      );
     });
   }
 
   QueryBuilder<UnsentMessagesTable, UnsentMessagesTable, QAfterFilterCondition>
-      messageIDIsNotEmpty() {
+  messageIDIsNotEmpty() {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.greaterThan(
-        property: r'messageID',
-        value: '',
-      ));
+      return query.addFilterCondition(
+        FilterCondition.greaterThan(property: r'messageID', value: ''),
+      );
     });
   }
 }
 
-extension UnsentMessagesTableQueryObject on QueryBuilder<UnsentMessagesTable,
-    UnsentMessagesTable, QFilterCondition> {}
+extension UnsentMessagesTableQueryObject
+    on
+        QueryBuilder<
+          UnsentMessagesTable,
+          UnsentMessagesTable,
+          QFilterCondition
+        > {}
 
-extension UnsentMessagesTableQueryLinks on QueryBuilder<UnsentMessagesTable,
-    UnsentMessagesTable, QFilterCondition> {}
+extension UnsentMessagesTableQueryLinks
+    on
+        QueryBuilder<
+          UnsentMessagesTable,
+          UnsentMessagesTable,
+          QFilterCondition
+        > {}
 
 extension UnsentMessagesTableQuerySortBy
     on QueryBuilder<UnsentMessagesTable, UnsentMessagesTable, QSortBy> {
   QueryBuilder<UnsentMessagesTable, UnsentMessagesTable, QAfterSortBy>
-      sortByChatRoomID() {
+  sortByChatRoomID() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'chatRoomID', Sort.asc);
     });
   }
 
   QueryBuilder<UnsentMessagesTable, UnsentMessagesTable, QAfterSortBy>
-      sortByChatRoomIDDesc() {
+  sortByChatRoomIDDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'chatRoomID', Sort.desc);
     });
   }
 
   QueryBuilder<UnsentMessagesTable, UnsentMessagesTable, QAfterSortBy>
-      sortByMessage() {
+  sortByMessage() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'message', Sort.asc);
     });
   }
 
   QueryBuilder<UnsentMessagesTable, UnsentMessagesTable, QAfterSortBy>
-      sortByMessageDesc() {
+  sortByMessageDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'message', Sort.desc);
     });
   }
 
   QueryBuilder<UnsentMessagesTable, UnsentMessagesTable, QAfterSortBy>
-      sortByMessageID() {
+  sortByMessageID() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'messageID', Sort.asc);
     });
   }
 
   QueryBuilder<UnsentMessagesTable, UnsentMessagesTable, QAfterSortBy>
-      sortByMessageIDDesc() {
+  sortByMessageIDDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'messageID', Sort.desc);
     });
@@ -637,56 +659,56 @@ extension UnsentMessagesTableQuerySortBy
 extension UnsentMessagesTableQuerySortThenBy
     on QueryBuilder<UnsentMessagesTable, UnsentMessagesTable, QSortThenBy> {
   QueryBuilder<UnsentMessagesTable, UnsentMessagesTable, QAfterSortBy>
-      thenByChatRoomID() {
+  thenByChatRoomID() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'chatRoomID', Sort.asc);
     });
   }
 
   QueryBuilder<UnsentMessagesTable, UnsentMessagesTable, QAfterSortBy>
-      thenByChatRoomIDDesc() {
+  thenByChatRoomIDDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'chatRoomID', Sort.desc);
     });
   }
 
   QueryBuilder<UnsentMessagesTable, UnsentMessagesTable, QAfterSortBy>
-      thenById() {
+  thenById() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'id', Sort.asc);
     });
   }
 
   QueryBuilder<UnsentMessagesTable, UnsentMessagesTable, QAfterSortBy>
-      thenByIdDesc() {
+  thenByIdDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'id', Sort.desc);
     });
   }
 
   QueryBuilder<UnsentMessagesTable, UnsentMessagesTable, QAfterSortBy>
-      thenByMessage() {
+  thenByMessage() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'message', Sort.asc);
     });
   }
 
   QueryBuilder<UnsentMessagesTable, UnsentMessagesTable, QAfterSortBy>
-      thenByMessageDesc() {
+  thenByMessageDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'message', Sort.desc);
     });
   }
 
   QueryBuilder<UnsentMessagesTable, UnsentMessagesTable, QAfterSortBy>
-      thenByMessageID() {
+  thenByMessageID() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'messageID', Sort.asc);
     });
   }
 
   QueryBuilder<UnsentMessagesTable, UnsentMessagesTable, QAfterSortBy>
-      thenByMessageIDDesc() {
+  thenByMessageIDDesc() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'messageID', Sort.desc);
     });
@@ -696,21 +718,21 @@ extension UnsentMessagesTableQuerySortThenBy
 extension UnsentMessagesTableQueryWhereDistinct
     on QueryBuilder<UnsentMessagesTable, UnsentMessagesTable, QDistinct> {
   QueryBuilder<UnsentMessagesTable, UnsentMessagesTable, QDistinct>
-      distinctByChatRoomID() {
+  distinctByChatRoomID() {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'chatRoomID');
     });
   }
 
   QueryBuilder<UnsentMessagesTable, UnsentMessagesTable, QDistinct>
-      distinctByMessage({bool caseSensitive = true}) {
+  distinctByMessage({bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'message', caseSensitive: caseSensitive);
     });
   }
 
   QueryBuilder<UnsentMessagesTable, UnsentMessagesTable, QDistinct>
-      distinctByMessageID({bool caseSensitive = true}) {
+  distinctByMessageID({bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'messageID', caseSensitive: caseSensitive);
     });
@@ -726,21 +748,21 @@ extension UnsentMessagesTableQueryProperty
   }
 
   QueryBuilder<UnsentMessagesTable, int, QQueryOperations>
-      chatRoomIDProperty() {
+  chatRoomIDProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'chatRoomID');
     });
   }
 
   QueryBuilder<UnsentMessagesTable, String, QQueryOperations>
-      messageProperty() {
+  messageProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'message');
     });
   }
 
   QueryBuilder<UnsentMessagesTable, String, QQueryOperations>
-      messageIDProperty() {
+  messageIDProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'messageID');
     });

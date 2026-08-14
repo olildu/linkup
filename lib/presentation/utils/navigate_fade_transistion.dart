@@ -1,6 +1,10 @@
 import 'package:flutter/cupertino.dart';
 
-void navigateWithFade(BuildContext context, Widget page, {bool allowBack = true}) {
+void navigateWithFade(
+  BuildContext context,
+  Widget page, {
+  bool allowBack = true,
+}) {
   final route = PageRouteBuilder(
     pageBuilder: (context, animation, secondaryAnimation) => page,
     transitionsBuilder: (context, animation, secondaryAnimation, child) {

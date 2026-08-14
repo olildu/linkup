@@ -9,8 +9,10 @@ class BiometricLockService {
 
   Future<bool> isBiometricAvailable() async {
     try {
-      final bool canCheckBiometrics = await _localAuthentication.canCheckBiometrics;
-      final bool deviceSupported = await _localAuthentication.isDeviceSupported();
+      final bool canCheckBiometrics =
+          await _localAuthentication.canCheckBiometrics;
+      final bool deviceSupported = await _localAuthentication
+          .isDeviceSupported();
       return canCheckBiometrics || deviceSupported;
     } on PlatformException {
       return false;
@@ -21,12 +23,16 @@ class BiometricLockService {
 
   Future<bool> canUseAppLock() async {
     try {
-      final bool canCheckBiometrics = await _localAuthentication.canCheckBiometrics;
-      final bool deviceSupported = await _localAuthentication.isDeviceSupported();
+      final bool canCheckBiometrics =
+          await _localAuthentication.canCheckBiometrics;
+      final bool deviceSupported = await _localAuthentication
+          .isDeviceSupported();
       final List<BiometricType> availableBiometrics = await _localAuthentication
           .getAvailableBiometrics();
 
-      return canCheckBiometrics || deviceSupported || availableBiometrics.isNotEmpty;
+      return canCheckBiometrics ||
+          deviceSupported ||
+          availableBiometrics.isNotEmpty;
     } on PlatformException {
       return false;
     } on MissingPluginException {

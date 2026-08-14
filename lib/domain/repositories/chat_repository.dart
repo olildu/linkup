@@ -17,5 +17,8 @@ abstract class ChatRepository {
   Future<List<MessageEntity>> getUnsentMessages();
   Future<void> deleteUnsentMessage(int isarId);
   Future<void> deleteUnsentMessageByMsgId(String messageId);
-  Future<Map<String, dynamic>> uploadChatMedia(File file, MessageType mediaType);
+  Future<Map<String, dynamic>> uploadChatMedia(
+    File file,
+    MessageType mediaType,
+  );
 }

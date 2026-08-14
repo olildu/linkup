@@ -44,7 +44,11 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
 
   void _openProfilePreview(UserEntity user) {
     final int currentUserId = GetIt.I<int>(instanceName: 'user_id');
-    showBottomSheetUserProfile(context: context, userId: currentUserId, showChatButton: false);
+    showBottomSheetUserProfile(
+      context: context,
+      userId: currentUserId,
+      showChatButton: false,
+    );
   }
 
   void _openEditFlow(int index, dynamic optionsData) {
@@ -54,8 +58,15 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
         builder: (context) => BlocProvider(
           create: (context) => sl<AuthBloc>(),
           child: BlocProvider(
-            create: (context) => SignupBloc(uploadPfpUseCase: sl(), uploadUserMediaUseCase: sl(), isSigningUp: false),
-            child: SingupFlowPage(initialIndex: index, initialData: optionsData.toJson()),
+            create: (context) => SignupBloc(
+              uploadPfpUseCase: sl(),
+              uploadUserMediaUseCase: sl(),
+              isSigningUp: false,
+            ),
+            child: SingupFlowPage(
+              initialIndex: index,
+              initialData: optionsData.toJson(),
+            ),
           ),
         ),
       ),
@@ -70,7 +81,9 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
         scrolledUnderElevation: 0,
         title: Text(
           'Profile Settings',
-          style: Theme.of(context).textTheme.headlineMedium?.copyWith(color: Theme.of(context).colorScheme.onSurface),
+          style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+            color: Theme.of(context).colorScheme.onSurface,
+          ),
         ),
         centerTitle: true,
         backgroundColor: Colors.transparent,
@@ -82,7 +95,10 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
           ),
           onPressed: () {
             if (state is ProfileUpdating) {
-              showToast(context: context, message: "Please wait until the upload is complete.");
+              showToast(
+                context: context,
+                message: "Please wait until the upload is complete.",
+              );
               return;
             }
             Navigator.pop(context);
@@ -97,14 +113,19 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
             ),
             onPressed: () {
               if (state is ProfileUpdating) {
-                showToast(context: context, message: "Please wait until the upload is complete.");
+                showToast(
+                  context: context,
+                  message: "Please wait until the upload is complete.",
+                );
                 return;
               }
 
               Navigator.of(context).push(
                 CupertinoPageRoute(
-                  builder: (context) =>
-                      BlocProvider(create: (context) => sl<AuthBloc>(), child: const SettingsPage()),
+                  builder: (context) => BlocProvider(
+                    create: (context) => sl<AuthBloc>(),
+                    child: const SettingsPage(),
+                  ),
                 ),
               );
             },
@@ -116,19 +137,27 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
         canPop: state is! ProfileUpdating,
         onPopInvokedWithResult: (bool didPop, _) {
           if (!didPop && state is ProfileUpdating) {
-            showToast(context: context, message: "Please wait until the upload is complete.");
+            showToast(
+              context: context,
+              message: "Please wait until the upload is complete.",
+            );
           }
         },
         child: SafeArea(
           child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: AppSpacing.xl.w, vertical: AppSpacing.xl.h),
+            padding: EdgeInsets.symmetric(
+              horizontal: AppSpacing.xl.w,
+              vertical: AppSpacing.xl.h,
+            ),
             child: Builder(
               builder: (context) {
                 if (state is ProfileError) {
                   return Center(
                     child: Text(
                       'Error loading profile settings',
-                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Theme.of(context).colorScheme.error),
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        color: Theme.of(context).colorScheme.error,
+                      ),
                     ),
                   );
                 } else if (state is ProfileLoaded || state is ProfileUpdating) {
@@ -136,7 +165,8 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
                     cachedUser = state.user;
                   }
                   final UserEntity user = cachedUser!;
-                  final candidateInformation = CandidateInfoModel.fromUserEntity(user);
+                  final candidateInformation =
+                      CandidateInfoModel.fromUserEntity(user);
                   aboutMeContent = user.about!;
 
                   return SingleChildScrollView(
@@ -178,7 +208,9 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
 
                                   return Positioned(
                                     child: Padding(
-                                      padding: EdgeInsets.symmetric(horizontal: 20.w),
+                                      padding: EdgeInsets.symmetric(
+                                        horizontal: 20.w,
+                                      ),
                                       child: UploadProgressOverlayBuilder(
                                         current: uploadingState.current,
                                         total: uploadingState.total,
@@ -199,15 +231,23 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
                           onTap: () => _openProfilePreview(user),
                           showBorder: true,
                           filledBackground: true,
-                          borderColor: AppColors.notSelected.withValues(alpha: 0.22),
+                          borderColor: AppColors.notSelected.withValues(
+                            alpha: 0.22,
+                          ),
                           margin: EdgeInsets.only(bottom: 20.h),
-                          padding: EdgeInsets.symmetric(horizontal: AppSpacing.md.w, vertical: AppSpacing.md.h),
+                          padding: EdgeInsets.symmetric(
+                            horizontal: AppSpacing.md.w,
+                            vertical: AppSpacing.md.h,
+                          ),
                           borderRadius: AppRadius.md,
                           iconSize: 20.sp,
                           arrowSize: 20.sp,
                         ),
 
-                        BuildTitleSubtitle(title: 'About Me', subtitle: 'Tell us about yourself'),
+                        BuildTitleSubtitle(
+                          title: 'About Me',
+                          subtitle: 'Tell us about yourself',
+                        ),
                         Gap(20.h),
                         StatefulBuilder(
                           builder: (context, internalSetState) {
@@ -219,12 +259,17 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
                                   initialValue: aboutMeContent,
                                   maxLines: 3,
                                   border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.all(Radius.circular(AppRadius.sm)),
-                                    borderSide: BorderSide(color: AppColors.notSelected),
+                                    borderRadius: BorderRadius.all(
+                                      Radius.circular(AppRadius.sm),
+                                    ),
+                                    borderSide: BorderSide(
+                                      color: AppColors.notSelected,
+                                    ),
                                   ),
                                   onChanged: (value) {
                                     internalSetState(() {
-                                      aboutMeChanged = value.trim() != user.about?.trim();
+                                      aboutMeChanged =
+                                          value.trim() != user.about?.trim();
                                       aboutMeContent = value;
                                     });
                                   },
@@ -241,9 +286,10 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
                                         FocusScope.of(context).unfocus();
                                         context.read<ProfileBloc>().add(
                                           ProfileUpdateEvent(
-                                            userUpdatedModel: UpdateMetadataModel(
-                                              about: aboutMeContent,
-                                            ),
+                                            userUpdatedModel:
+                                                UpdateMetadataModel(
+                                                  about: aboutMeContent,
+                                                ),
                                           ),
                                         );
                                         setState(() {
@@ -265,27 +311,32 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
                         ),
                         Gap(20.h),
                         Column(
-                          children: candidateInformation.asIconMap(showGender: false).entries.map((
-                            entry,
-                          ) {
-                            final icon = entry.value['icon'] as IconData;
-                            final value = entry.value['value'];
-                            final title = entry.value['title'] as String;
-                            final index = entry.value['index'] as int;
+                          children: candidateInformation
+                              .asIconMap(showGender: false)
+                              .entries
+                              .map((entry) {
+                                final icon = entry.value['icon'] as IconData;
+                                final value = entry.value['value'];
+                                final title = entry.value['title'] as String;
+                                final index = entry.value['index'] as int;
 
-                            return MenuTileBuilder(
-                              icon: icon,
-                              title: title,
-                              trailingText: value?.toString(),
-                              onTap: () => _openEditFlow(index, candidateInformation),
-                              showBorder: false,
-                              filledBackground: false,
-                              padding: EdgeInsets.zero,
-                              margin: EdgeInsets.only(bottom: 30.h),
-                              iconSize: 20.sp,
-                              arrowSize: 20.sp,
-                            );
-                          }).toList(),
+                                return MenuTileBuilder(
+                                  icon: icon,
+                                  title: title,
+                                  trailingText: value?.toString(),
+                                  onTap: () => _openEditFlow(
+                                    index,
+                                    candidateInformation,
+                                  ),
+                                  showBorder: false,
+                                  filledBackground: false,
+                                  padding: EdgeInsets.zero,
+                                  margin: EdgeInsets.only(bottom: 30.h),
+                                  iconSize: 20.sp,
+                                  arrowSize: 20.sp,
+                                );
+                              })
+                              .toList(),
                         ),
 
                         Gap(20.h),
@@ -294,7 +345,9 @@ class _ProfileSettingsPageState extends State<ProfileSettingsPage> {
                   );
                 } else {
                   return Center(
-                    child: CircularProgressIndicator(color: Theme.of(context).colorScheme.primary),
+                    child: CircularProgressIndicator(
+                      color: Theme.of(context).colorScheme.primary,
+                    ),
                   );
                 }
               },

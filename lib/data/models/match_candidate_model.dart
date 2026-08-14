@@ -57,7 +57,9 @@ class MatchCandidateModel {
       dob: DateTime.parse(json['dob'] as String),
       universityMajor: json['university_major'] as String,
       universityYear: json['university_year'] as int,
-      photos: List<Map<String, dynamic>>.from((json['photos'] ?? []).map((e) => Map<String, dynamic>.from(e))),
+      photos: List<Map<String, dynamic>>.from(
+        (json['photos'] ?? []).map((e) => Map<String, dynamic>.from(e)),
+      ),
       about: json['about'] as String,
       currentlyStaying: json['currently_staying'] as String,
       hometown: json['hometown'] as String,

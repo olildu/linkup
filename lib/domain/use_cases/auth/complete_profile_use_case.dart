@@ -5,5 +5,6 @@ class CompleteProfileUseCase {
   final AuthRepository _repository;
   const CompleteProfileUseCase(this._repository);
 
-  Future<bool> call(UpdateMetadataModel data) => _repository.completeProfile(data);
+  Future<bool> call(UpdateMetadataModel data) =>
+      _repository.completeProfile(data);
 }

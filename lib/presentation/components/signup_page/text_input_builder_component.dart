@@ -30,7 +30,8 @@ class _TextInputState extends State<TextInput> {
   void initState() {
     super.initState();
     _internalController =
-        widget.controller ?? TextEditingController(text: widget.initialValue ?? '');
+        widget.controller ??
+        TextEditingController(text: widget.initialValue ?? '');
   }
 
   @override
@@ -48,7 +49,10 @@ class _TextInputState extends State<TextInput> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(widget.label, style: AppTextStyles.subtitle(context)?.copyWith(fontSize: 18.sp)),
+        Text(
+          widget.label,
+          style: AppTextStyles.subtitle(context)?.copyWith(fontSize: 18.sp),
+        ),
         Gap(10.h),
         TextField(
           controller: _internalController,
@@ -64,7 +68,9 @@ class _TextInputState extends State<TextInput> {
             enabledBorder: UnderlineInputBorder(
               borderSide: BorderSide(color: AppColors.notSelected),
             ),
-            focusedBorder: UnderlineInputBorder(borderSide: BorderSide(color: colorScheme.primary)),
+            focusedBorder: UnderlineInputBorder(
+              borderSide: BorderSide(color: colorScheme.primary),
+            ),
             border: const UnderlineInputBorder(),
           ),
           onChanged: widget.onChanged,

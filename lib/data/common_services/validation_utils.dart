@@ -1,6 +1,8 @@
 class ValidationUtils {
   static bool validateEmail(String email) {
-    final isEmailValid = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(email);
+    final isEmailValid = RegExp(
+      r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$',
+    ).hasMatch(email);
     return isEmailValid;
   }
 

@@ -9,10 +9,9 @@ class PaginateMessagesUseCase {
     required int chatRoomId,
     required String lastMessageId,
     required DateTime lastMessageTimeStamp,
-  }) =>
-      _repository.fetchPaginatedMessages(
-        chatRoomId: chatRoomId,
-        lastMessageId: lastMessageId,
-        lastMessageTimeStamp: lastMessageTimeStamp,
-      );
+  }) => _repository.fetchPaginatedMessages(
+    chatRoomId: chatRoomId,
+    lastMessageId: lastMessageId,
+    lastMessageTimeStamp: lastMessageTimeStamp,
+  );
 }

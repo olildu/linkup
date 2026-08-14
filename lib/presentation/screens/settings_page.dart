@@ -22,11 +22,15 @@ class SettingsPage extends StatelessWidget {
   static const String _termsUrl = 'https://linkup.olildu.dpdns.org/terms';
   static const String _privacyUrl = 'https://linkup.olildu.dpdns.org/privacy';
   static const String _supportEmail = 'ebinsanthosh06@gmail.com';
-  static final BiometricLockService _biometricLockService = BiometricLockService();
+  static final BiometricLockService _biometricLockService =
+      BiometricLockService();
 
   Future<void> _openExternal(BuildContext context, Uri uri) async {
     try {
-      final bool launched = await launchUrl(uri, mode: LaunchMode.externalApplication);
+      final bool launched = await launchUrl(
+        uri,
+        mode: LaunchMode.externalApplication,
+      );
       if (!launched && context.mounted) {
         showToast(context: context, message: 'Could not open this link.');
       }
@@ -37,18 +41,24 @@ class SettingsPage extends StatelessWidget {
     }
   }
 
-  Future<void> _openPrivacy(BuildContext context) => _openExternal(context, Uri.parse(_privacyUrl));
+  Future<void> _openPrivacy(BuildContext context) =>
+      _openExternal(context, Uri.parse(_privacyUrl));
 
-  Future<void> _openTerms(BuildContext context) => _openExternal(context, Uri.parse(_termsUrl));
+  Future<void> _openTerms(BuildContext context) =>
+      _openExternal(context, Uri.parse(_termsUrl));
 
-  Future<void> _contactSupport(BuildContext context) =>
-      _openExternal(context, Uri.parse('mailto:$_supportEmail?subject=linkup%20Support'));
+  Future<void> _contactSupport(BuildContext context) => _openExternal(
+    context,
+    Uri.parse('mailto:$_supportEmail?subject=linkup%20Support'),
+  );
 
   Future<void> _logout(BuildContext context) async {
     await context.read<AuthBloc>().logout();
     if (context.mounted) {
       Navigator.of(context).pushAndRemoveUntil(
-        CupertinoPageRoute(builder: (context) => const LoadingScreenPostLogin()),
+        CupertinoPageRoute(
+          builder: (context) => const LoadingScreenPostLogin(),
+        ),
         (Route<dynamic> route) => false,
       );
     }
@@ -67,7 +77,9 @@ class SettingsPage extends StatelessWidget {
         confirmText: 'Delete',
         cancelText: 'Cancel',
         iconColor: Theme.of(context).colorScheme.error,
-        iconBackgroundColor: Theme.of(context).colorScheme.error.withValues(alpha: 0.12),
+        iconBackgroundColor: Theme.of(
+          context,
+        ).colorScheme.error.withValues(alpha: 0.12),
         confirmBackgroundColor: Theme.of(context).colorScheme.error,
         confirmTextColor: Theme.of(context).colorScheme.onError,
         verticalButtons: true,
@@ -79,13 +91,18 @@ class SettingsPage extends StatelessWidget {
               await authBloc.deleteAccount();
               if (context.mounted) {
                 Navigator.of(context).pushAndRemoveUntil(
-                  CupertinoPageRoute(builder: (context) => const LoadingScreenPostLogin()),
+                  CupertinoPageRoute(
+                    builder: (context) => const LoadingScreenPostLogin(),
+                  ),
                   (Route<dynamic> route) => false,
                 );
               }
             } catch (_) {
               if (context.mounted) {
-                showToast(context: context, message: 'Failed to delete account');
+                showToast(
+                  context: context,
+                  message: 'Failed to delete account',
+                );
               }
             }
           });
@@ -105,7 +122,9 @@ class SettingsPage extends StatelessWidget {
         message: 'Set up a device lock or biometrics first to enable App Lock.',
         cancelText: 'Okay',
         iconColor: Theme.of(context).colorScheme.primary,
-        iconBackgroundColor: Theme.of(context).colorScheme.primary.withValues(alpha: 0.12),
+        iconBackgroundColor: Theme.of(
+          context,
+        ).colorScheme.primary.withValues(alpha: 0.12),
         confirmBackgroundColor: Theme.of(context).colorScheme.primary,
         confirmTextColor: Theme.of(context).colorScheme.onPrimary,
         cancelTextColor: Theme.of(context).colorScheme.onSurface,
@@ -124,7 +143,9 @@ class SettingsPage extends StatelessWidget {
       children: [
         Text(
           title,
-          style: Theme.of(context).textTheme.headlineMedium?.copyWith(color: Theme.of(context).colorScheme.onSurface),
+          style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+            color: Theme.of(context).colorScheme.onSurface,
+          ),
         ),
         Gap(AppSpacing.xs.h),
         Text(subtitle, style: AppTextStyles.subtitle(context)),
@@ -132,12 +153,12 @@ class SettingsPage extends StatelessWidget {
     );
   }
 
-  Widget _dangerAction(BuildContext context, {required String title, required VoidCallback onTap}) {
-    return ButtonBuilder(
-      text: title,
-      onPressed: onTap,
-      isDestructive: true,
-    );
+  Widget _dangerAction(
+    BuildContext context, {
+    required String title,
+    required VoidCallback onTap,
+  }) {
+    return ButtonBuilder(text: title, onPressed: onTap, isDestructive: true);
   }
 
   Future<void> _toggleAppLock(BuildContext context, bool enabled) async {
@@ -169,18 +190,27 @@ class SettingsPage extends StatelessWidget {
         scrolledUnderElevation: 0,
         title: Text(
           'Settings',
-          style: Theme.of(context).textTheme.headlineMedium?.copyWith(color: Theme.of(context).colorScheme.onSurface),
+          style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+            color: Theme.of(context).colorScheme.onSurface,
+          ),
         ),
         centerTitle: true,
         backgroundColor: Colors.transparent,
       ),
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: EdgeInsets.symmetric(horizontal: AppSpacing.xl.w, vertical: AppSpacing.lg.h),
+          padding: EdgeInsets.symmetric(
+            horizontal: AppSpacing.xl.w,
+            vertical: AppSpacing.lg.h,
+          ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _sectionTitle(context, 'Account', 'Secure actions for your profile and session'),
+              _sectionTitle(
+                context,
+                'Account',
+                'Secure actions for your profile and session',
+              ),
               Gap(AppSpacing.md.h),
               MenuTileBuilder(
                 icon: Icons.logout_rounded,
@@ -189,13 +219,20 @@ class SettingsPage extends StatelessWidget {
                 showBorder: true,
                 filledBackground: true,
                 borderColor: AppColors.notSelected.withValues(alpha: 0.22),
-                padding: EdgeInsets.symmetric(horizontal: AppSpacing.md.w, vertical: AppSpacing.md.h),
+                padding: EdgeInsets.symmetric(
+                  horizontal: AppSpacing.md.w,
+                  vertical: AppSpacing.md.h,
+                ),
                 borderRadius: AppRadius.md,
                 iconSize: 20.sp,
                 arrowSize: 16.sp,
               ),
               Gap(AppSpacing.md.h),
-              _dangerAction(context, title: 'Delete Account', onTap: () => _deleteAccount(context)),
+              _dangerAction(
+                context,
+                title: 'Delete Account',
+                onTap: () => _deleteAccount(context),
+              ),
               Gap(AppSpacing.xl2.h),
               _sectionTitle(
                 context,
@@ -225,7 +262,10 @@ class SettingsPage extends StatelessWidget {
                     showBorder: true,
                     filledBackground: true,
                     borderColor: AppColors.notSelected.withValues(alpha: 0.22),
-                    padding: EdgeInsets.symmetric(horizontal: AppSpacing.md.w, vertical: AppSpacing.md.h),
+                    padding: EdgeInsets.symmetric(
+                      horizontal: AppSpacing.md.w,
+                      vertical: AppSpacing.md.h,
+                    ),
                     borderRadius: AppRadius.md,
                     iconSize: 20.sp,
                   );
@@ -245,7 +285,10 @@ class SettingsPage extends StatelessWidget {
                 showBorder: true,
                 filledBackground: true,
                 borderColor: AppColors.notSelected.withValues(alpha: 0.22),
-                padding: EdgeInsets.symmetric(horizontal: AppSpacing.md.w, vertical: AppSpacing.md.h),
+                padding: EdgeInsets.symmetric(
+                  horizontal: AppSpacing.md.w,
+                  vertical: AppSpacing.md.h,
+                ),
                 borderRadius: AppRadius.md,
                 iconSize: 20.sp,
                 arrowSize: 16.sp,
@@ -258,13 +301,20 @@ class SettingsPage extends StatelessWidget {
                 showBorder: true,
                 filledBackground: true,
                 borderColor: AppColors.notSelected.withValues(alpha: 0.22),
-                padding: EdgeInsets.symmetric(horizontal: AppSpacing.md.w, vertical: AppSpacing.md.h),
+                padding: EdgeInsets.symmetric(
+                  horizontal: AppSpacing.md.w,
+                  vertical: AppSpacing.md.h,
+                ),
                 borderRadius: AppRadius.md,
                 iconSize: 20.sp,
                 arrowSize: 16.sp,
               ),
               Gap(AppSpacing.xl2.h),
-              _sectionTitle(context, 'Support', 'Ways to get help or share feedback'),
+              _sectionTitle(
+                context,
+                'Support',
+                'Ways to get help or share feedback',
+              ),
               Gap(AppSpacing.md.h),
               MenuTileBuilder(
                 icon: Icons.mail_outline_rounded,
@@ -273,7 +323,10 @@ class SettingsPage extends StatelessWidget {
                 showBorder: true,
                 filledBackground: true,
                 borderColor: AppColors.notSelected.withValues(alpha: 0.22),
-                padding: EdgeInsets.symmetric(horizontal: AppSpacing.md.w, vertical: AppSpacing.md.h),
+                padding: EdgeInsets.symmetric(
+                  horizontal: AppSpacing.md.w,
+                  vertical: AppSpacing.md.h,
+                ),
                 borderRadius: AppRadius.md,
                 iconSize: 20.sp,
                 arrowSize: 16.sp,

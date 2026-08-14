@@ -18,9 +18,12 @@ class SignupOptionsService {
 
   final http.Client _client;
 
-  SignupOptionsService({http.Client? client}) : _client = client ?? http.Client();
+  SignupOptionsService({http.Client? client})
+    : _client = client ?? http.Client();
 
-  Future<SignupOptionsConfig> loadSignupOptions({bool forceRefresh = false}) async {
+  Future<SignupOptionsConfig> loadSignupOptions({
+    bool forceRefresh = false,
+  }) async {
     final prefs = await SharedPreferences.getInstance();
     final cachedJson = prefs.getString(_cacheJsonKey);
     final cachedEtag = prefs.getString(_cacheEtagKey);
@@ -34,11 +37,16 @@ class SignupOptionsService {
     final hasFreshCache =
         cachedJson != null &&
         cachedFetchedAt != null &&
-        DateTime.now().difference(DateTime.fromMillisecondsSinceEpoch(cachedFetchedAt)) < _cacheTtl;
+        DateTime.now().difference(
+              DateTime.fromMillisecondsSinceEpoch(cachedFetchedAt),
+            ) <
+            _cacheTtl;
 
     if (cachedJson != null && hasFreshCache && !forceRefresh) {
       log('Using fresh local cache. Skipping GitHub fetch.', name: _logTag);
-      return SignupOptionsConfig.fromJson(jsonDecode(cachedJson) as Map<String, dynamic>);
+      return SignupOptionsConfig.fromJson(
+        jsonDecode(cachedJson) as Map<String, dynamic>,
+      );
     }
 
     try {
@@ -50,14 +58,25 @@ class SignupOptionsService {
 
       log('Fetching signup options from GitHub.', name: _logTag);
 
-      final response = await _client.get(Uri.parse(_remoteUrl), headers: headers);
+      final response = await _client.get(
+        Uri.parse(_remoteUrl),
+        headers: headers,
+      );
 
       log('GitHub response status: ${response.statusCode}', name: _logTag);
 
       if (response.statusCode == 304 && cachedJson != null) {
-        await prefs.setInt(_cacheFetchedAtKey, DateTime.now().millisecondsSinceEpoch);
-        log('GitHub reported no content change (304). Reusing cached JSON.', name: _logTag);
-        return SignupOptionsConfig.fromJson(jsonDecode(cachedJson) as Map<String, dynamic>);
+        await prefs.setInt(
+          _cacheFetchedAtKey,
+          DateTime.now().millisecondsSinceEpoch,
+        );
+        log(
+          'GitHub reported no content change (304). Reusing cached JSON.',
+          name: _logTag,
+        );
+        return SignupOptionsConfig.fromJson(
+          jsonDecode(cachedJson) as Map<String, dynamic>,
+        );
       }
 
       if (response.statusCode == 200) {
@@ -65,7 +84,9 @@ class SignupOptionsService {
         final options = SignupOptionsConfig.fromJson(decoded);
         final remoteVersion = options.version;
         final cachedVersion = cachedJson != null
-            ? SignupOptionsConfig.fromJson(jsonDecode(cachedJson) as Map<String, dynamic>).version
+            ? SignupOptionsConfig.fromJson(
+                jsonDecode(cachedJson) as Map<String, dynamic>,
+              ).version
             : null;
 
         if (cachedVersion == null) {
@@ -74,14 +95,23 @@ class SignupOptionsService {
             name: _logTag,
           );
         } else if (cachedVersion != remoteVersion) {
-          log('GitHub config version changed: $cachedVersion -> $remoteVersion.', name: _logTag);
+          log(
+            'GitHub config version changed: $cachedVersion -> $remoteVersion.',
+            name: _logTag,
+          );
         } else {
-          log('GitHub config version unchanged at $remoteVersion.', name: _logTag);
+          log(
+            'GitHub config version unchanged at $remoteVersion.',
+            name: _logTag,
+          );
         }
 
         await prefs.setString(_cacheJsonKey, response.body);
         await prefs.setString(_cacheEtagKey, response.headers['etag'] ?? '');
-        await prefs.setInt(_cacheFetchedAtKey, DateTime.now().millisecondsSinceEpoch);
+        await prefs.setInt(
+          _cacheFetchedAtKey,
+          DateTime.now().millisecondsSinceEpoch,
+        );
 
         log('Cached the latest GitHub config locally.', name: _logTag);
 
@@ -100,15 +130,25 @@ class SignupOptionsService {
     }
 
     if (cachedJson != null) {
-      log('Using cached local signup options after GitHub failure.', name: _logTag);
-      return SignupOptionsConfig.fromJson(jsonDecode(cachedJson) as Map<String, dynamic>);
+      log(
+        'Using cached local signup options after GitHub failure.',
+        name: _logTag,
+      );
+      return SignupOptionsConfig.fromJson(
+        jsonDecode(cachedJson) as Map<String, dynamic>,
+      );
     }
 
     try {
-      log('No cache available. Loading bundled local signup options asset.', name: _logTag);
+      log(
+        'No cache available. Loading bundled local signup options asset.',
+        name: _logTag,
+      );
       final assetJson = await rootBundle.loadString(_assetFallbackPath);
       log('Loaded bundled local signup options asset.', name: _logTag);
-      return SignupOptionsConfig.fromJson(jsonDecode(assetJson) as Map<String, dynamic>);
+      return SignupOptionsConfig.fromJson(
+        jsonDecode(assetJson) as Map<String, dynamic>,
+      );
     } catch (_) {
       log(
         'Bundled asset unavailable. Defaulting to hardcoded local fallback config.',

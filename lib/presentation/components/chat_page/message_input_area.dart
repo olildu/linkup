@@ -38,18 +38,38 @@ class MessageInputArea extends StatelessWidget {
       padding: EdgeInsets.symmetric(vertical: AppSpacing.sm.h),
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.surface,
-        boxShadow: [BoxShadow(offset: const Offset(0, -2), blurRadius: 5, spreadRadius: -1, color: const Color.fromARGB(255, 26, 26, 26).withValues(alpha: 0.08))],
+        boxShadow: [
+          BoxShadow(
+            offset: const Offset(0, -2),
+            blurRadius: 5,
+            spreadRadius: -1,
+            color: const Color.fromARGB(
+              255,
+              26,
+              26,
+              26,
+            ).withValues(alpha: 0.08),
+          ),
+        ],
       ),
       child: SafeArea(
         child: Column(
           children: [
             replyPayload != null
                 ? Container(
-                    padding: EdgeInsets.symmetric(horizontal: AppSpacing.md.w, vertical: AppSpacing.md.h),
+                    padding: EdgeInsets.symmetric(
+                      horizontal: AppSpacing.md.w,
+                      vertical: AppSpacing.md.h,
+                    ),
                     width: maxWidth,
                     decoration: BoxDecoration(
                       color: Theme.of(context).colorScheme.surface,
-                      border: Border(top: BorderSide(color: Theme.of(context).colorScheme.outline, width: 2)),
+                      border: Border(
+                        top: BorderSide(
+                          color: Theme.of(context).colorScheme.outline,
+                          width: 2,
+                        ),
+                      ),
                     ),
 
                     child: Column(
@@ -69,15 +89,29 @@ class MessageInputArea extends StatelessWidget {
                                       "Replying to ${replyPayload?.userName}",
                                       overflow: TextOverflow.ellipsis,
                                       maxLines: 1,
-                                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(fontSize: 16.sp, fontWeight: FontWeight.w300),
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .bodyMedium
+                                          ?.copyWith(
+                                            fontSize: 16.sp,
+                                            fontWeight: FontWeight.w300,
+                                          ),
                                     ),
                                     Text(
                                       replyPayload!.message,
                                       overflow: TextOverflow.ellipsis,
                                       maxLines: 1,
-                                      style: Theme.of(
-                                        context,
-                                      ).textTheme.bodySmall?.copyWith(fontSize: 14.sp, fontWeight: FontWeight.w300, color: Theme.of(context).colorScheme.onPrimary.withValues(alpha: 0.7)),
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .bodySmall
+                                          ?.copyWith(
+                                            fontSize: 14.sp,
+                                            fontWeight: FontWeight.w300,
+                                            color: Theme.of(context)
+                                                .colorScheme
+                                                .onPrimary
+                                                .withValues(alpha: 0.7),
+                                          ),
                                     ),
                                   ],
                                 ),
@@ -87,18 +121,27 @@ class MessageInputArea extends StatelessWidget {
                                 width: 36.w,
                                 height: 36.h,
                                 child: IconButton(
-                                  icon: Icon(Icons.close, size: 18.sp, color: Theme.of(context).colorScheme.onSurface),
+                                  icon: Icon(
+                                    Icons.close,
+                                    size: 18.sp,
+                                    color: Theme.of(
+                                      context,
+                                    ).colorScheme.onSurface,
+                                  ),
                                   onPressed: () {
                                     removeReplyPayload();
                                   },
                                   tooltip: 'Close reply',
                                   padding: EdgeInsets.zero,
                                   style: IconButton.styleFrom(
-                                    backgroundColor: Theme.of(context).colorScheme.outline,
+                                    backgroundColor: Theme.of(
+                                      context,
+                                    ).colorScheme.outline,
                                     shape: CircleBorder(),
                                     padding: EdgeInsets.zero,
                                     minimumSize: Size.zero,
-                                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                                    tapTargetSize:
+                                        MaterialTapTargetSize.shrinkWrap,
                                   ),
                                 ),
                               ),
@@ -111,7 +154,11 @@ class MessageInputArea extends StatelessWidget {
                 : SizedBox.shrink(),
 
             Padding(
-              padding: EdgeInsets.only(left: AppSpacing.md.w, right: AppSpacing.md.w, bottom: AppSpacing.xs.w),
+              padding: EdgeInsets.only(
+                left: AppSpacing.md.w,
+                right: AppSpacing.md.w,
+                bottom: AppSpacing.xs.w,
+              ),
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
@@ -123,21 +170,41 @@ class MessageInputArea extends StatelessWidget {
                         maxLines: null,
                         keyboardType: TextInputType.multiline,
                         textCapitalization: TextCapitalization.sentences,
-                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(fontSize: 15.sp, color: Theme.of(context).colorScheme.onSurface),
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          fontSize: 15.sp,
+                          color: Theme.of(context).colorScheme.onSurface,
+                        ),
                         decoration: InputDecoration(
                           hintText: 'Message...',
-                          hintStyle: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5)),
+                          hintStyle: Theme.of(context).textTheme.bodyMedium
+                              ?.copyWith(
+                                color: Theme.of(
+                                  context,
+                                ).colorScheme.onSurface.withValues(alpha: 0.5),
+                              ),
                           filled: true,
                           fillColor: Theme.of(context).colorScheme.outline,
-                          contentPadding: EdgeInsets.symmetric(horizontal: AppSpacing.lg.w, vertical: AppSpacing.md.h),
-                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(25.r), borderSide: BorderSide.none),
+                          contentPadding: EdgeInsets.symmetric(
+                            horizontal: AppSpacing.lg.w,
+                            vertical: AppSpacing.md.h,
+                          ),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(25.r),
+                            borderSide: BorderSide.none,
+                          ),
                           enabledBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(25.r),
-                            borderSide: BorderSide(color: Theme.of(context).colorScheme.outline, width: 1.2),
+                            borderSide: BorderSide(
+                              color: Theme.of(context).colorScheme.outline,
+                              width: 1.2,
+                            ),
                           ),
                           focusedBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(25.r),
-                            borderSide: BorderSide(color: Theme.of(context).colorScheme.outline, width: 1.5),
+                            borderSide: BorderSide(
+                              color: Theme.of(context).colorScheme.outline,
+                              width: 1.5,
+                            ),
                           ),
                         ),
                       ),
@@ -148,12 +215,16 @@ class MessageInputArea extends StatelessWidget {
                     duration: const Duration(milliseconds: 200),
                     switchInCurve: Curves.easeInOut,
                     switchOutCurve: Curves.easeInOut,
-                    transitionBuilder: (Widget child, Animation<double> animation) {
-                      return ScaleTransition(
-                        scale: animation,
-                        child: FadeTransition(opacity: animation, child: child),
-                      );
-                    },
+                    transitionBuilder:
+                        (Widget child, Animation<double> animation) {
+                          return ScaleTransition(
+                            scale: animation,
+                            child: FadeTransition(
+                              opacity: animation,
+                              child: child,
+                            ),
+                          );
+                        },
                     child: isTyping
                         ? Material(
                             key: const ValueKey('send_button'),
@@ -164,12 +235,21 @@ class MessageInputArea extends StatelessWidget {
                               onTap: sendMessage,
                               child: Padding(
                                 padding: EdgeInsets.all(10.r),
-                                child: Icon(Icons.send_rounded, color: Theme.of(context).colorScheme.onPrimary, size: 22.sp),
+                                child: Icon(
+                                  Icons.send_rounded,
+                                  color: Theme.of(
+                                    context,
+                                  ).colorScheme.onPrimary,
+                                  size: 22.sp,
+                                ),
                               ),
                             ),
                           )
                         : Container(
-                            decoration: BoxDecoration(color: Theme.of(context).colorScheme.outline, borderRadius: BorderRadius.circular(50.r)),
+                            decoration: BoxDecoration(
+                              color: Theme.of(context).colorScheme.outline,
+                              borderRadius: BorderRadius.circular(50.r),
+                            ),
                             child: Row(
                               key: const ValueKey('camera_icons'),
                               mainAxisSize: MainAxisSize.min,
@@ -177,16 +257,31 @@ class MessageInputArea extends StatelessWidget {
                                 Hero(
                                   tag: 'camera-hero',
                                   child: IconButton(
-                                    icon: Icon(Icons.camera_alt_outlined, color: Theme.of(context).colorScheme.primary, size: 24.sp),
+                                    icon: Icon(
+                                      Icons.camera_alt_outlined,
+                                      color: Theme.of(
+                                        context,
+                                      ).colorScheme.primary,
+                                      size: 24.sp,
+                                    ),
                                     onPressed: () {
                                       Navigator.of(context)
                                           .push(
                                             PageRouteBuilder(
-                                              transitionDuration: Duration(milliseconds: 500),
-                                              pageBuilder: (_, __, ___) => BlocProvider(
-                                                create: (context) => CameraBloc()..add(CameraInitEvent()),
-                                                child: MediaPickerPage(userImageMetaData: userImageMetaData),
+                                              transitionDuration: Duration(
+                                                milliseconds: 500,
                                               ),
+                                              pageBuilder: (_, __, ___) =>
+                                                  BlocProvider(
+                                                    create: (context) =>
+                                                        CameraBloc()..add(
+                                                          CameraInitEvent(),
+                                                        ),
+                                                    child: MediaPickerPage(
+                                                      userImageMetaData:
+                                                          userImageMetaData,
+                                                    ),
+                                                  ),
                                             ),
                                           )
                                           .then((imageFile) {

@@ -4,13 +4,18 @@ class EventIntroAnimation extends StatefulWidget {
   final Widget child;
   final AlignmentGeometry alignment;
 
-  const EventIntroAnimation({super.key, required this.child, this.alignment = Alignment.center});
+  const EventIntroAnimation({
+    super.key,
+    required this.child,
+    this.alignment = Alignment.center,
+  });
 
   @override
   State<EventIntroAnimation> createState() => _EventIntroAnimationState();
 }
 
-class _EventIntroAnimationState extends State<EventIntroAnimation> with SingleTickerProviderStateMixin {
+class _EventIntroAnimationState extends State<EventIntroAnimation>
+    with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<Offset> _slideAnimation;
   late Animation<double> _fadeAnimation;
@@ -18,7 +23,10 @@ class _EventIntroAnimationState extends State<EventIntroAnimation> with SingleTi
   @override
   void initState() {
     super.initState();
-    _controller = AnimationController(vsync: this, duration: const Duration(milliseconds: 400));
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 400),
+    );
 
     double startDx;
     if (widget.alignment is Alignment) {
@@ -39,7 +47,10 @@ class _EventIntroAnimationState extends State<EventIntroAnimation> with SingleTi
       end: Offset.zero,
     ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOutCubic));
 
-    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(CurvedAnimation(parent: _controller, curve: Curves.easeIn));
+    _fadeAnimation = Tween<double>(
+      begin: 0.0,
+      end: 1.0,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeIn));
 
     _controller.forward();
   }
@@ -54,7 +65,10 @@ class _EventIntroAnimationState extends State<EventIntroAnimation> with SingleTi
   Widget build(BuildContext context) {
     return Align(
       alignment: widget.alignment,
-      child: SlideTransition(position: _slideAnimation, child: FadeTransition(opacity: _fadeAnimation, child: widget.child)),
+      child: SlideTransition(
+        position: _slideAnimation,
+        child: FadeTransition(opacity: _fadeAnimation, child: widget.child),
+      ),
     );
   }
 }

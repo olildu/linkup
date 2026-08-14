@@ -12,15 +12,19 @@ class RPSCustomPainter extends CustomPainter {
     }
 
     // First shape
-    Paint paintFill0 =
-        Paint()
-          ..color = const Color.fromARGB(255, 0, 214, 207)
-          ..style = PaintingStyle.fill;
+    Paint paintFill0 = Paint()
+      ..color = const Color.fromARGB(255, 0, 214, 207)
+      ..style = PaintingStyle.fill;
 
     Path path_0 = Path();
     path_0.moveTo(0, 0);
 
-    path_0.quadraticBezierTo(size.width * 0.3307116, ripple(size.height * 0.0356541, 1), size.width * 0.3285401, ripple(size.height * 0.1445626, 2));
+    path_0.quadraticBezierTo(
+      size.width * 0.3307116,
+      ripple(size.height * 0.0356541, 1),
+      size.width * 0.3285401,
+      ripple(size.height * 0.1445626, 2),
+    );
 
     path_0.cubicTo(
       size.width * 0.3245802,
@@ -40,7 +44,12 @@ class RPSCustomPainter extends CustomPainter {
       ripple(size.height * 0.4323117, 8),
     );
 
-    path_0.quadraticBezierTo(size.width * 0.7456787, ripple(size.height * 0.5768743, 9), size.width, ripple(size.height * 0.5517843, 10));
+    path_0.quadraticBezierTo(
+      size.width * 0.7456787,
+      ripple(size.height * 0.5768743, 9),
+      size.width,
+      ripple(size.height * 0.5517843, 10),
+    );
 
     path_0.lineTo(size.width, 0);
     path_0.close();
@@ -48,10 +57,9 @@ class RPSCustomPainter extends CustomPainter {
     canvas.drawPath(path_0, paintFill0);
 
     // Second shape
-    Paint paintFill1 =
-        Paint()
-          ..color = const Color.fromARGB(255, 0, 214, 207)
-          ..style = PaintingStyle.fill;
+    Paint paintFill1 = Paint()
+      ..color = const Color.fromARGB(255, 0, 214, 207)
+      ..style = PaintingStyle.fill;
 
     Path path_1 = Path();
     path_1.moveTo(0, ripple(size.height * 0.3557908, 11));

@@ -1,4 +1,4 @@
-import json
+import ast
 
 from app.models.match_canidate_model import build_candidate_model
 from app.utilities.common.common_utilites import get_signed_imagekit
@@ -69,7 +69,8 @@ def build_full_profile(user_id: int, cursor) -> dict:
     return build_candidate_model(user_metadata, core_data).model_dump()
 
 
-def build_first_photo(user_id: int, cursor) -> dict:
-    cursor.execute("SELECT profile_picture::text FROM users WHERE id = %s;", (user_id,))
-    profile_picture = cursor.fetchone()[0]
-    return get_signed_imagekit(json.loads(profile_picture))
+def build_first_photo(user_id: int, cursor) -> dict | None:
+    cursor.execute("SELECT value FROM user_metadata WHERE user_id = %s AND key = 'photos';", (user_id,))
+    row = cursor.fetchone()
+    photos = ast.literal_eval(row[0]) if row and row[0] else []
+    return get_signed_imagekit(photos[0]) if photos else None

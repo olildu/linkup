@@ -143,13 +143,43 @@ async def block_user(body: BlockUserRequest, token: str = Depends(oauth2_scheme)
 @user_router.get("/get/detail/{user_id}")
 async def get_user_data(user_id: int, token: str = Depends(oauth2_scheme)):
     try:
-        jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
     except PyJWTError:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid or expired token",
-            headers={"WWW-Authenticate": "Bearer"} 
+            headers={"WWW-Authenticate": "Bearer"}
         )
+
+    requesting_user_id = payload.get("id")
+
+    if requesting_user_id != user_id:
+        conn = db_pool.getconn()
+        try:
+            cursor = conn.cursor()
+            cursor.execute("""
+                SELECT EXISTS (
+                    SELECT 1 FROM matches
+                    WHERE (user1_id = %s AND user2_id = %s)
+                       OR (user1_id = %s AND user2_id = %s)
+                ) OR EXISTS (
+                    SELECT 1
+                    FROM chat_participants cp1
+                    JOIN chat_participants cp2 ON cp1.chat_id = cp2.chat_id
+                    WHERE cp1.user_id = %s AND cp2.user_id = %s
+                );
+            """, (requesting_user_id, user_id, user_id, requesting_user_id, requesting_user_id, user_id))
+            is_connected = cursor.fetchone()[0]
+        finally:
+            if 'cursor' in locals():
+                cursor.close()
+            db_pool.putconn(conn)
+
+        if not is_connected:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Not authorized to view this user's details"
+            )
 
     try:
        return get_user_details(user_id)

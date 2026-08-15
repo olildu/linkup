@@ -98,8 +98,9 @@ abstract class BaseSocketService {
       _channel!.stream.listen(
         (data) {
           _messageController.add(data);
-          if (_reconnectAttemptCount > 0)
+          if (_reconnectAttemptCount > 0) {
             log("Reconnected successfully.", name: logTag);
+          }
           _reconnectAttemptCount = 0;
           _updateConnectionStatusController();
         },

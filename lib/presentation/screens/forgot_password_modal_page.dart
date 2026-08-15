@@ -157,16 +157,19 @@ class _ForgotPasswordModalPageState extends State<ForgotPasswordModalPage>
                           _emailHash = state.emailHash;
                           _safeTabHeightChange("password-entry");
                         }
-                        if (state is OtpFailure)
+                        if (state is OtpFailure) {
                           showToast(context: context, message: state.message);
+                        }
                       },
                     ),
                     BlocListener<AuthBloc, AuthState>(
                       listener: (context, state) {
-                        if (state is AuthAuthenticated)
+                        if (state is AuthAuthenticated) {
                           Navigator.pop(context, true);
-                        if (state is AuthFailure)
+                        }
+                        if (state is AuthFailure) {
                           showToast(context: context, message: state.message);
+                        }
                       },
                     ),
                   ],

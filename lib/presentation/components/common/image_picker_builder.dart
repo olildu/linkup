@@ -83,8 +83,9 @@ class _ImagePickerBuilderState extends State<ImagePickerBuilder> {
 
   Future<void> _pickImages() async {
     if (_displayedItems.where((item) => item != null).length >=
-        widget.maxImages)
+        widget.maxImages) {
       return;
+    }
 
     try {
       final List<XFile> pickedImages = widget.allowMultipleSelection

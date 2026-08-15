@@ -91,8 +91,9 @@ class CustomHttpClient {
   }
 
   http.Response handleResponse(http.Response response) {
-    if (response.statusCode >= 200 && response.statusCode < 300)
+    if (response.statusCode >= 200 && response.statusCode < 300) {
       return response;
+    }
 
     String detail = '';
     try {

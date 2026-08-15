@@ -133,10 +133,12 @@ class _LoginPageState extends State<LoginPage> {
     return BlocConsumer<AuthBloc, AuthState>(
       listener: (context, state) {
         if (state is AuthAuthenticated) Navigator.of(context).pop(true);
-        if (state is AuthFailure)
+        if (state is AuthFailure) {
           showToast(context: context, message: state.message);
-        if (state is AuthAccountNotFound)
+        }
+        if (state is AuthAccountNotFound) {
           showToast(context: context, message: state.message);
+        }
       },
       builder: (context, state) {
         return LayoutBuilder(

@@ -22,11 +22,23 @@ class LikesYouPage extends StatefulWidget {
   State<LikesYouPage> createState() => _LikesYouPageState();
 }
 
-class _LikesYouPageState extends State<LikesYouPage> {
+class _LikesYouPageState extends State<LikesYouPage> with SingleTickerProviderStateMixin {
+  late final AnimationController _shimmerController;
+
   @override
   void initState() {
     super.initState();
+    _shimmerController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1400),
+    )..repeat();
     context.read<LikesBloc>().add(LoadReceivedLikesEvent(refresh: true));
+  }
+
+  @override
+  void dispose() {
+    _shimmerController.dispose();
+    super.dispose();
   }
 
   @override
@@ -75,8 +87,9 @@ class _LikesYouPageState extends State<LikesYouPage> {
                 );
               }
 
-              if (state is! LikesLoaded) {
-                return const Center(child: CircularProgressIndicator());
+              if (state is! LikesLoaded ||
+                  (state.loadingEntries && state.entries.isEmpty)) {
+                return _buildLoadingGrid(context);
               }
 
               if (state.entries.isEmpty && state.totalCount == 0 && !state.loadingEntries) {
@@ -105,6 +118,20 @@ class _LikesYouPageState extends State<LikesYouPage> {
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildLoadingGrid(BuildContext context) {
+    return GridView.builder(
+      padding: EdgeInsets.symmetric(horizontal: AppSpacing.xl.w, vertical: AppSpacing.md.h),
+      itemCount: 6,
+      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 2,
+        mainAxisSpacing: AppSpacing.md.w,
+        crossAxisSpacing: AppSpacing.md.w,
+        childAspectRatio: 0.75,
+      ),
+      itemBuilder: (context, index) => _ShimmerCard(animation: _shimmerController),
     );
   }
 
@@ -262,5 +289,50 @@ class _EntryImage extends StatelessWidget {
 
     if (!blurred) return image;
     return ImageFiltered(imageFilter: ImageFilter.blur(sigmaX: 18, sigmaY: 18), child: image);
+  }
+}
+
+class _ShimmerCard extends StatelessWidget {
+  final Animation<double> animation;
+
+  const _ShimmerCard({required this.animation});
+
+  @override
+  Widget build(BuildContext context) {
+    final baseColor = Theme.of(context).colorScheme.surfaceContainerHighest;
+    final highlightColor = Theme.of(context).colorScheme.surface;
+
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(AppRadius.md),
+      child: Stack(
+        fit: StackFit.expand,
+        children: [
+          Container(color: baseColor),
+          Center(
+            child: Icon(
+              Icons.favorite_rounded,
+              color: AppColors.primary.withValues(alpha: 0.15),
+              size: 32.sp,
+            ),
+          ),
+          AnimatedBuilder(
+            animation: animation,
+            builder: (context, child) {
+              return ShaderMask(
+                blendMode: BlendMode.srcATop,
+                shaderCallback: (bounds) {
+                  final dx = lerpDouble(-bounds.width, bounds.width, animation.value)!;
+                  return LinearGradient(
+                    colors: [baseColor.withValues(alpha: 0), highlightColor, baseColor.withValues(alpha: 0)],
+                    stops: const [0.35, 0.5, 0.65],
+                  ).createShader(Rect.fromLTWH(dx, 0, bounds.width, bounds.height));
+                },
+                child: Container(color: baseColor.withValues(alpha: 0.4)),
+              );
+            },
+          ),
+        ],
+      ),
+    );
   }
 }

@@ -37,6 +37,36 @@ def get_pending_liker_ids(user_id: int, cursor) -> list[int]:
     return [row[0] for row in cursor.fetchall()]
 
 
+def get_pending_likes_count(user_id: int, cursor) -> int:
+    """
+    Lightweight count-only version of get_pending_liker_ids — same
+    eligibility filters, no row data, for cheap badge polling.
+    """
+    cursor.execute("""
+        SELECT COUNT(*)
+        FROM likes
+        JOIN users ON users.id = likes.liker_id
+        WHERE likes.liked_id = %(me)s
+          AND likes.liked = TRUE
+          AND users.is_deleted = FALSE
+          AND NOT EXISTS (
+              SELECT 1 FROM likes AS reverse
+              WHERE reverse.liker_id = %(me)s AND reverse.liked_id = likes.liker_id
+          )
+          AND NOT EXISTS (
+              SELECT 1 FROM blocked_users b
+              WHERE (b.blocker_id = %(me)s AND b.blocked_id = likes.liker_id)
+                 OR (b.blocker_id = likes.liker_id AND b.blocked_id = %(me)s)
+          )
+          AND NOT EXISTS (
+              SELECT 1 FROM matches m
+              WHERE (m.user1_id = %(me)s AND m.user2_id = likes.liker_id)
+                 OR (m.user1_id = likes.liker_id AND m.user2_id = %(me)s)
+          );
+    """, {"me": user_id})
+    return cursor.fetchone()[0]
+
+
 def get_unseen_likes_count(user_id: int, cursor) -> int:
     cursor.execute("""
         SELECT COUNT(*) FROM likes

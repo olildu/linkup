@@ -13,6 +13,7 @@ from app.utilities.likes.likes_utilities import (
     build_first_photo,
     build_full_profile,
     get_pending_liker_ids,
+    get_pending_likes_count,
     get_unseen_likes_count,
     mark_likes_seen,
 )
@@ -67,16 +68,20 @@ async def get_received_likes(offset: int = 0, token: str = Depends(oauth2_scheme
         db_pool.putconn(conn)
 
 
-@likes_route.get("/unseen-count")
+@likes_route.get("/count")
 @handle_db_errors
-async def get_unseen_count(token: str = Depends(oauth2_scheme)):
+async def get_likes_count(token: str = Depends(oauth2_scheme)):
+    """
+    Lightweight, count-only endpoint for badge polling — no profile
+    lookups, no seen-state mutation.
+    """
     user_id = decode_token(token)
 
     conn = db_pool.getconn()
     try:
         with conn.cursor() as cursor:
-            unseen_count = get_unseen_likes_count(user_id, cursor)
-        return {"unseen_count": unseen_count}
+            total_count = get_pending_likes_count(user_id, cursor)
+        return {"total_count": total_count}
     finally:
         db_pool.putconn(conn)
 

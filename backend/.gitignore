@@ -1,0 +1,8 @@
+**/__pycache__
+**/*.pyc
+.env
+.env.prod
+app.log
+/venv
+/.vscode
+.coverage

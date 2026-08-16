@@ -1,0 +1,68 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: linkup
+      POSTGRES_USER: linkup
+      POSTGRES_PASSWORD: linkup
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+      - ./schema.sql:/docker-entrypoint-initdb.d/schema.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U linkup -d linkup"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    ports:
+      - "5432:5432"
+
+  redis:
+    image: redis:7-alpine
+
+  seaweedfs:
+    image: chrislusf/seaweedfs
+    command: server -dir=/data -s3 -s3.port=8333 -ip=seaweedfs
+    volumes:
+      - seaweedfs_data:/data
+
+  imgproxy:
+    image: darthsim/imgproxy
+    env_file: .env
+    environment:
+      IMGPROXY_USE_S3: "true"
+      IMGPROXY_S3_ENDPOINT: http://seaweedfs:8333
+      IMGPROXY_S3_REGION: us-east-1
+      # imgproxy's S3 client uses the standard AWS SDK credential chain, not
+      # custom var names - reuse the SeaweedFS creds from .env here.
+      AWS_ACCESS_KEY_ID: ${SEAWEEDFS_ACCESS_KEY}
+      AWS_SECRET_ACCESS_KEY: ${SEAWEEDFS_SECRET_KEY}
+    depends_on:
+      - seaweedfs
+    ports:
+      - "8006:8080"
+
+  backend:
+    build: .
+    env_file: .env
+    environment:
+      DATABASE_HOST: postgres
+      DATABASE_PORT: 5432
+      DATABASE_NAME: linkup
+      DATABASE_USER: linkup
+      DATABASE_PASSWORD: linkup
+      REDIS_URL: redis://redis:6379
+      SEAWEEDFS_S3_ENDPOINT: http://seaweedfs:8333
+    command: sh -c "python migrate.py && uvicorn app.main:app --host 0.0.0.0 --port 8002"
+    ports:
+      - "8002:8002"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_started
+      seaweedfs:
+        condition: service_started
+
+volumes:
+  pg_data:
+  seaweedfs_data:

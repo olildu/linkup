@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>linkup - Status</title>
+    <style>
+        body {
+            font-family: 'SF Mono', 'Consolas', 'Menlo', monospace;
+            background-color: #0d1117;
+            color: #c9d1d9;
+            margin: 0;
+            padding: 20px;
+        }
+        h1 {
+            font-size: 1.2rem;
+            margin: 0 0 16px;
+        }
+        .token-bar {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+        input, button {
+            font-family: inherit;
+            font-size: 0.9rem;
+            padding: 8px 10px;
+            background: #161b22;
+            border: 1px solid #30363d;
+            color: #c9d1d9;
+            border-radius: 6px;
+        }
+        input {
+            flex: 1;
+        }
+        button {
+            cursor: pointer;
+        }
+        button:hover {
+            background: #21262d;
+        }
+        .cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+        .card {
+            background: #161b22;
+            border: 1px solid #30363d;
+            border-radius: 6px;
+            padding: 10px 12px;
+        }
+        .card .label {
+            font-size: 0.75rem;
+            color: #8b949e;
+        }
+        .card .value {
+            font-size: 1.1rem;
+            margin-top: 4px;
+        }
+        .ok { color: #3fb950; }
+        .error { color: #f85149; }
+        pre {
+            background: #010409;
+            border: 1px solid #30363d;
+            border-radius: 6px;
+            padding: 12px;
+            height: 60vh;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            word-break: break-all;
+            font-size: 0.8rem;
+            line-height: 1.4;
+        }
+        .status-line {
+            font-size: 0.8rem;
+            color: #8b949e;
+            margin-bottom: 8px;
+        }
+    </style>
+</head>
+<body>
+    <h1>linkup backend status</h1>
+
+    <div class="token-bar">
+        <input id="token" type="password" placeholder="Status token">
+        <button onclick="saveTokenAndRefresh()">Connect</button>
+        <button onclick="refresh()">Refresh</button>
+    </div>
+
+    <div class="status-line" id="statusLine">Not connected.</div>
+
+    <div class="cards" id="cards"></div>
+
+    <pre id="logs">Enter your token and click Connect.</pre>
+
+    <script>
+        const TOKEN_KEY = 'linkup_status_token';
+        let intervalId = null;
+
+        function saveTokenAndRefresh() {
+            const token = document.getElementById('token').value.trim();
+            if (token) sessionStorage.setItem(TOKEN_KEY, token);
+            refresh();
+            if (intervalId) clearInterval(intervalId);
+            intervalId = setInterval(refresh, 15000);
+        }
+
+        async function refresh() {
+            const token = sessionStorage.getItem(TOKEN_KEY) || document.getElementById('token').value.trim();
+            if (!token) {
+                document.getElementById('statusLine').textContent = 'No token set.';
+                return;
+            }
+
+            try {
+                const res = await fetch('/api/v1/internal/status', {
+                    headers: { 'X-Status-Token': token }
+                });
+
+                if (res.status === 401) {
+                    document.getElementById('statusLine').textContent = 'Invalid token.';
+                    document.getElementById('cards').innerHTML = '';
+                    document.getElementById('logs').textContent = '';
+                    return;
+                }
+
+                const data = await res.json();
+
+                document.getElementById('statusLine').textContent =
+                    'Last updated: ' + new Date().toLocaleTimeString();
+
+                document.getElementById('cards').innerHTML = `
+                    <div class="card"><div class="label">Status</div><div class="value ok">${data.status}</div></div>
+                    <div class="card"><div class="label">Version</div><div class="value">${data.version}</div></div>
+                    <div class="card"><div class="label">Uptime</div><div class="value">${formatUptime(data.uptime_seconds)}</div></div>
+                    <div class="card"><div class="label">Database</div><div class="value ${data.database === 'ok' ? 'ok' : 'error'}">${data.database}</div></div>
+                    <div class="card"><div class="label">Redis</div><div class="value ${data.redis === 'ok' ? 'ok' : 'error'}">${data.redis}</div></div>
+                `;
+
+                document.getElementById('logs').textContent = (data.recent_logs || []).join('\n');
+                document.getElementById('logs').scrollTop = document.getElementById('logs').scrollHeight;
+            } catch (e) {
+                document.getElementById('statusLine').textContent = 'Request failed: ' + e;
+            }
+        }
+
+        function formatUptime(seconds) {
+            if (seconds == null) return 'unknown';
+            const h = Math.floor(seconds / 3600);
+            const m = Math.floor((seconds % 3600) / 60);
+            return `${h}h ${m}m`;
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            const saved = sessionStorage.getItem(TOKEN_KEY);
+            if (saved) {
+                document.getElementById('token').value = saved;
+                saveTokenAndRefresh();
+            }
+        });
+    </script>
+</body>
+</html>

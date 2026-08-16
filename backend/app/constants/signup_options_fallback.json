@@ -1,0 +1,31 @@
+{
+  "version": 3,
+  "programs": [
+    { "id": "btech", "label": "BTech", "years": 4 },
+    { "id": "bsc", "label": "BSc", "years": 3 },
+    { "id": "ba", "label": "BA", "years": 4 },
+    { "id": "bfa-applied-arts", "label": "Bachelor of Fine Arts", "years": 4 },
+    { "id": "bca", "label": "BCA", "years": 3 },
+    { "id": "bba", "label": "BBA", "years": 3 },
+    { "id": "integrated-mba", "label": "Integrated MBA", "years": 5 },
+    { "id": "bcom", "label": "BCom", "years": 4 },
+    { "id": "bhm", "label": "Bachelor of Hotel Management", "years": 4 },
+    { "id": "mbbs", "label": "MBBS", "years": 5 },
+    { "id": "bds", "label": "BDS", "years": 5 },
+    { "id": "bpharm", "label": "BPharm", "years": 4 },
+    { "id": "bsc-nursing", "label": "BSc Nursing", "years": 4 },
+    { "id": "bpt", "label": "Bachelor of Physiotherapy", "years": 4 },
+    { "id": "barch", "label": "BArch", "years": 5 },
+    { "id": "ba-llb", "label": "BA LLB", "years": 5 },
+    { "id": "bba-llb", "label": "BBA LLB", "years": 5 },
+    { "id": "llb", "label": "LLB", "years": 3 },
+    { "id": "ma", "label": "MA", "years": 2 },
+    { "id": "mba", "label": "MBA", "years": 2 },
+    { "id": "mcom", "label": "MCom", "years": 2 },
+    { "id": "mtech", "label": "MTech", "years": 2 },
+    { "id": "march", "label": "MArch", "years": 2 },
+    { "id": "mca", "label": "MCA", "years": 2 },
+    { "id": "msc", "label": "MSc", "years": 2 },
+    { "id": "llm", "label": "LLM", "years": 1 }
+  ]
+}

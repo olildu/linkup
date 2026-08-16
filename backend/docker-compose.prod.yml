@@ -1,0 +1,93 @@
+# Run on the prod host with: docker compose -f docker-compose.prod.yml up -d
+# Requires a real .env on the host (gitignored, not committed) with prod secrets.
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      POSTGRES_DB: ${DATABASE_NAME}
+      POSTGRES_USER: ${DATABASE_USER}
+      POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
+    volumes:
+      - pg_data_prod:/var/lib/postgresql/data
+      - ./schema.sql:/docker-entrypoint-initdb.d/schema.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${DATABASE_USER} -d $${DATABASE_NAME}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+
+  seaweedfs:
+    image: chrislusf/seaweedfs
+    restart: unless-stopped
+    command: server -dir=/data -s3 -s3.port=8333 -ip=seaweedfs
+    volumes:
+      - seaweedfs_data:/data
+    # Not published to the host - only reachable by sibling containers
+    # (backend, imgproxy) on the compose network as seaweedfs:8333.
+
+  imgproxy:
+    image: darthsim/imgproxy
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      IMGPROXY_USE_S3: "true"
+      IMGPROXY_S3_ENDPOINT: http://seaweedfs:8333
+      IMGPROXY_S3_REGION: us-east-1
+      # imgproxy's S3 client uses the standard AWS SDK credential chain, not
+      # custom var names - reuse the SeaweedFS creds from .env here.
+      AWS_ACCESS_KEY_ID: ${SEAWEEDFS_ACCESS_KEY}
+      AWS_SECRET_ACCESS_KEY: ${SEAWEEDFS_SECRET_KEY}
+    depends_on:
+      - seaweedfs
+    ports:
+      # Host 8006 is what the Cloudflare Tunnel routes
+      # media.olildu.dpdns.org to (added via the dashboard as a Public
+      # Hostname - a two-level subdomain would need Advanced Certificate
+      # Manager for edge TLS, so this stays single-level like the other
+      # hostnames on this tunnel).
+      - "8006:8080"
+
+  backend:
+    image: ghcr.io/olildu/linkup-backend:latest
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      DATABASE_HOST: postgres
+      REDIS_URL: redis://redis:6379
+      SEAWEEDFS_S3_ENDPOINT: http://seaweedfs:8333
+    command: sh -c "python migrate.py && uvicorn app.main:app --host 0.0.0.0 --port 8002"
+    ports:
+      # Host 8000 matches what the existing Cloudflare Tunnel already routes
+      # linkup.olildu.dpdns.org to; 8002 is taken by an unrelated project on
+      # this shared host.
+      - "8000:8002"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_started
+      seaweedfs:
+        condition: service_started
+    labels:
+      - "com.centurylinklabs.watchtower.enable=true"
+
+  watchtower:
+    image: containrrr/watchtower
+    restart: unless-stopped
+    environment:
+      # containrrr/watchtower's bundled Docker client negotiates down to an
+      # old API version that newer Docker Engines (this host: 1.54) reject.
+      DOCKER_API_VERSION: "1.44"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    command: --label-enable --interval 60 --cleanup
+
+volumes:
+  pg_data_prod:
+  seaweedfs_data:

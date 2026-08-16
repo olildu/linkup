@@ -54,7 +54,7 @@ class PostLoginBloc extends Bloc<PostLoginEvent, PostLoginState> {
           chatSocketsBloc.add(LoadChatSocketsEvent());
           connectionsBloc.add(LoadConnectionsEvent(showLoading: true));
           connectionsSocketBloc.add(LoadConnectionSocketsEvent());
-          likesBloc.add(LoadUnseenCountEvent());
+          likesBloc.add(LoadLikesCountEvent());
 
           await Future.wait([
             matchesBloc.stream.firstWhere(

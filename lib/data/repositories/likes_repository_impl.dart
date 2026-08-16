@@ -22,7 +22,7 @@ class LikesRepositoryImpl implements LikesRepository {
   }
 
   @override
-  Future<int> getUnseenCount() => _likesDatasource.getUnseenCount();
+  Future<int> getLikesCount() => _likesDatasource.getLikesCount();
 
   @override
   Future<Map<String, dynamic>> likeBack(int likerId) =>

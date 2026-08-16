@@ -58,8 +58,8 @@ import 'package:linkup/domain/use_cases/chat/save_unsent_message_use_case.dart';
 import 'package:linkup/domain/use_cases/chat/start_chat_use_case.dart';
 import 'package:linkup/domain/use_cases/chat/upload_chat_media_use_case.dart';
 
+import 'package:linkup/domain/use_cases/likes/get_likes_count_use_case.dart';
 import 'package:linkup/domain/use_cases/likes/get_received_likes_use_case.dart';
-import 'package:linkup/domain/use_cases/likes/get_unseen_likes_count_use_case.dart';
 import 'package:linkup/domain/use_cases/likes/like_back_use_case.dart';
 import 'package:linkup/domain/use_cases/likes/pass_like_use_case.dart';
 
@@ -231,7 +231,7 @@ Future<void> initDependencies() async {
   // ── Use cases — likes ─────────────────────────────────────────────────────
 
   sl.registerFactory(() => GetReceivedLikesUseCase(sl()));
-  sl.registerFactory(() => GetUnseenLikesCountUseCase(sl()));
+  sl.registerFactory(() => GetLikesCountUseCase(sl()));
   sl.registerFactory(() => LikeBackUseCase(sl()));
   sl.registerFactory(() => PassLikeUseCase(sl()));
 
@@ -264,7 +264,7 @@ Future<void> initDependencies() async {
   sl.registerLazySingleton<LikesBloc>(
     () => LikesBloc(
       getReceivedLikesUseCase: sl(),
-      getUnseenLikesCountUseCase: sl(),
+      getLikesCountUseCase: sl(),
       likeBackUseCase: sl(),
       passLikeUseCase: sl(),
     ),

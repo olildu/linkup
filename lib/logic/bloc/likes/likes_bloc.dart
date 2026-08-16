@@ -6,8 +6,8 @@ import 'package:bloc/bloc.dart';
 import 'package:linkup/data/websocket_services/connections_socket_services/connections_socket_services.dart';
 import 'package:linkup/domain/entities/likes_you_entry_entity.dart';
 import 'package:linkup/domain/entities/matches_connection_entity.dart';
+import 'package:linkup/domain/use_cases/likes/get_likes_count_use_case.dart';
 import 'package:linkup/domain/use_cases/likes/get_received_likes_use_case.dart';
-import 'package:linkup/domain/use_cases/likes/get_unseen_likes_count_use_case.dart';
 import 'package:linkup/domain/use_cases/likes/like_back_use_case.dart';
 import 'package:linkup/domain/use_cases/likes/pass_like_use_case.dart';
 import 'package:meta/meta.dart';
@@ -21,21 +21,21 @@ class LikesBloc extends Bloc<LikesEvent, LikesState> {
   final String _logTag = 'LikesBloc';
 
   final GetReceivedLikesUseCase _getReceivedLikes;
-  final GetUnseenLikesCountUseCase _getUnseenCount;
+  final GetLikesCountUseCase _getLikesCount;
   final LikeBackUseCase _likeBack;
   final PassLikeUseCase _passLike;
 
   LikesBloc({
     required GetReceivedLikesUseCase getReceivedLikesUseCase,
-    required GetUnseenLikesCountUseCase getUnseenLikesCountUseCase,
+    required GetLikesCountUseCase getLikesCountUseCase,
     required LikeBackUseCase likeBackUseCase,
     required PassLikeUseCase passLikeUseCase,
   }) : _getReceivedLikes = getReceivedLikesUseCase,
-       _getUnseenCount = getUnseenLikesCountUseCase,
+       _getLikesCount = getLikesCountUseCase,
        _likeBack = likeBackUseCase,
        _passLike = passLikeUseCase,
        super(LikesInitial()) {
-    on<LoadUnseenCountEvent>(_onLoadUnseenCount);
+    on<LoadLikesCountEvent>(_onLoadLikesCount);
     on<LoadReceivedLikesEvent>(_onLoadReceivedLikes);
     on<LikeBackEvent>(_onLikeBack);
     on<PassLikeEvent>(_onPassLike);
@@ -54,32 +54,28 @@ class LikesBloc extends Bloc<LikesEvent, LikesState> {
           log('Likes socket data: $data', name: _logTag);
           if (data['type'] == 'connections-reload' &&
               data['sub_type'] == 'like') {
-            add(LoadUnseenCountEvent());
+            add(LoadLikesCountEvent());
           }
         });
   }
 
-  Future<void> _onLoadUnseenCount(
-    LoadUnseenCountEvent event,
+  Future<void> _onLoadLikesCount(
+    LoadLikesCountEvent event,
     Emitter<LikesState> emit,
   ) async {
     try {
-      final unseenCount = await _getUnseenCount();
+      final totalCount = await _getLikesCount();
       final currentState = state;
       if (currentState is LikesLoaded) {
-        emit(currentState.copyWith(unseenCount: unseenCount));
+        emit(currentState.copyWith(totalCount: totalCount));
       } else {
         emit(
-          LikesLoaded(
-            entries: const [],
-            totalCount: 0,
-            unseenCount: unseenCount,
-          ),
+          LikesLoaded(entries: const [], totalCount: totalCount, unseenCount: 0),
         );
       }
       _socketInit();
     } catch (e) {
-      log('Error loading unseen likes count: $e', name: _logTag);
+      log('Error loading likes count: $e', name: _logTag);
     }
   }
 
@@ -155,6 +151,7 @@ class LikesBloc extends Bloc<LikesEvent, LikesState> {
           ),
         );
       }
+      add(LoadReceivedLikesEvent(refresh: true));
     } catch (e) {
       log('Error liking back: $e', name: _logTag);
     }
@@ -178,6 +175,7 @@ class LikesBloc extends Bloc<LikesEvent, LikesState> {
           totalCount: currentState.totalCount - 1,
         ),
       );
+      add(LoadReceivedLikesEvent(refresh: true));
     } catch (e) {
       log('Error passing like: $e', name: _logTag);
     }

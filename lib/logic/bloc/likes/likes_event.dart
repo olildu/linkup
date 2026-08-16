@@ -3,7 +3,7 @@ part of 'likes_bloc.dart';
 @immutable
 sealed class LikesEvent {}
 
-class LoadUnseenCountEvent extends LikesEvent {}
+class LoadLikesCountEvent extends LikesEvent {}
 
 class LoadReceivedLikesEvent extends LikesEvent {
   final bool refresh;

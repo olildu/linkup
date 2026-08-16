@@ -28,6 +28,12 @@ class MatchMakingPage extends StatefulWidget {
 
 class _MatchMakingPageState extends State<MatchMakingPage> with SingleTickerProviderStateMixin {
   @override
+  void initState() {
+    super.initState();
+    context.read<LikesBloc>().add(LoadLikesCountEvent());
+  }
+
+  @override
   Widget build(BuildContext context) {
     return BlocListener<MatchesBloc, MatchesState>(
       listener: (context, state) async {
@@ -80,7 +86,7 @@ class _MatchMakingPageState extends State<MatchMakingPage> with SingleTickerProv
 
                         BlocBuilder<LikesBloc, LikesState>(
                           builder: (context, state) {
-                            final unseenCount = state is LikesLoaded ? state.unseenCount : 0;
+                            final likesCount = state is LikesLoaded ? state.totalCount : 0;
                             return Stack(
                               clipBehavior: Clip.none,
                               children: [
@@ -98,7 +104,7 @@ class _MatchMakingPageState extends State<MatchMakingPage> with SingleTickerProv
                                     );
                                   },
                                 ),
-                                if (unseenCount > 0)
+                                if (likesCount > 0)
                                   Positioned(
                                     right: 4,
                                     top: 4,
@@ -114,7 +120,7 @@ class _MatchMakingPageState extends State<MatchMakingPage> with SingleTickerProv
                                           shape: BoxShape.circle,
                                         ),
                                         child: Text(
-                                          unseenCount > 9 ? '9+' : '$unseenCount',
+                                          likesCount > 9 ? '9+' : '$likesCount',
                                           textAlign: TextAlign.center,
                                           style: Theme.of(context).textTheme.labelSmall?.copyWith(
                                             color: Theme.of(context).colorScheme.onPrimary,

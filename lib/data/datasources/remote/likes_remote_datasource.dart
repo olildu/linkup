@@ -22,17 +22,13 @@ class LikesRemoteDatasource {
     throw Exception('Failed to fetch received likes: ${response.statusCode}');
   }
 
-  Future<int> getUnseenCount() async {
-    final response = await _client.get(
-      Uri.parse('$BASE_URL/likes/unseen-count'),
-    );
+  Future<int> getLikesCount() async {
+    final response = await _client.get(Uri.parse('$BASE_URL/likes/count'));
     if (response.statusCode == 200) {
-      return jsonDecode(response.body)['unseen_count'] as int;
+      return jsonDecode(response.body)['total_count'] as int;
     }
-    log('getUnseenCount error: ${response.statusCode}', name: _tag);
-    throw Exception(
-      'Failed to fetch unseen likes count: ${response.statusCode}',
-    );
+    log('getLikesCount error: ${response.statusCode}', name: _tag);
+    throw Exception('Failed to fetch likes count: ${response.statusCode}');
   }
 
   Future<Map<String, dynamic>> likeBack(int likerId) async {

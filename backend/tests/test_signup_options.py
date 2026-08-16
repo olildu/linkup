@@ -4,8 +4,8 @@ import json
 
 import pytest
 
-import app.utilities.signup.signup_options_utilities as signup_options_module
-from app.controllers.redis_controller import redis_client
+import app.features.auth.signup_options_utilities as signup_options_module
+from app.core.controllers.redis_controller import redis_client
 
 CACHE_KEY = "signup_options:labels"
 

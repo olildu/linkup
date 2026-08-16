@@ -1,5 +1,5 @@
 """Unit tests for the SSRF guard used by /upload/media-user-pfp-from-url."""
-from app.utilities.common.url_safety import is_safe_url
+from app.features.media.url_safety import is_safe_url
 
 
 def test_rejects_non_http_scheme():

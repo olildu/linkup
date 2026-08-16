@@ -9,12 +9,12 @@ import uuid
 import pytest
 from psycopg2.extras import Json
 
-from app.models.match_canidate_model import build_candidate_model
-from app.models.messages.message_model import ChatMessage, MediaMessageData
-from app.models.user_model import build_user_model
-from app.utilities.chat import chat_utilities
-from app.utilities.likes.likes_utilities import build_first_photo, build_full_profile
-from app.utilities.swipe.swipe_utilities import process_like
+from app.features.discovery.models.match_canidate_model import build_candidate_model
+from app.features.chat.models.message_model import ChatMessage, MediaMessageData
+from app.features.user.models.user_model import build_user_model
+from app.features.chat import chat_utilities
+from app.features.likes.likes_utilities import build_first_photo, build_full_profile
+from app.features.discovery.swipe_utilities import process_like
 
 SW_PROFILE_PICTURE = {"file_key": "sw/profile_pictures/1/pfp.webp"}
 LEGACY_PROFILE_PICTURE = {"file_key": "profile_pictures/1/pfp.webp"}
@@ -40,7 +40,7 @@ def test_build_user_model_signs_sw_profile_picture_and_photos():
 
 
 def test_build_user_model_signs_legacy_profile_picture(monkeypatch):
-    from app.utilities.common import common_utilites
+    from app.core import common_utilites
 
     monkeypatch.setattr(common_utilites.imagekit, "url", lambda opts: "https://imagekit/legacy")
 

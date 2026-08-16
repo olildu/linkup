@@ -4,8 +4,8 @@ success/failure, and the redis-key-not-found OTP branch)."""
 import pytest
 from fastapi import HTTPException
 
-import app.utilities.auth.auth_utilities as auth_utilities_module
-from app.utilities.auth.auth_utilities import EmailOTPData, retrieve_otp_email, send_otp_email
+import app.features.auth.auth_utilities as auth_utilities_module
+from app.features.auth.auth_utilities import EmailOTPData, retrieve_otp_email, send_otp_email
 
 
 def test_send_otp_email_success(monkeypatch):

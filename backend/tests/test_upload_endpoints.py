@@ -110,7 +110,7 @@ def test_upload_media_user_rejects_oversized_converted_output(client, make_user,
     """Force the post-conversion size check to trip, without needing an
     adversarial image that survives webp compression above 5MB.
     """
-    import app.routes.common.common_endpoints as endpoints_module
+    import app.features.media.media_endpoints as endpoints_module
 
     def fake_process(content):
         return "/tmp/fake.webp", b"x" * (endpoints_module.MAX_FILE_SIZE_BYTES + 1), 100, 100
@@ -154,7 +154,7 @@ def test_upload_media_user_rejects_corrupt_file(client, make_user, auth_header):
 
 
 def test_upload_media_chat_rejects_oversized_converted_output(client, make_user, auth_header, monkeypatch):
-    import app.routes.common.common_endpoints as endpoints_module
+    import app.features.media.media_endpoints as endpoints_module
 
     def fake_process(content):
         return b"x" * (endpoints_module.MAX_FILE_SIZE_BYTES + 1), 100, 100
@@ -172,7 +172,7 @@ def test_upload_media_chat_rejects_oversized_converted_output(client, make_user,
 
 
 def test_upload_media_user_generic_exception_500(client, make_user, auth_header, monkeypatch):
-    import app.routes.common.common_endpoints as endpoints_module
+    import app.features.media.media_endpoints as endpoints_module
 
     def _raise(content):
         raise RuntimeError("simulated unexpected failure")
@@ -276,7 +276,7 @@ def test_upload_media_user_pfp_rejects_oversized_converted_output(client, make_u
     # before the return statement), so the original upload made just before
     # the size check trips is left in SeaweedFS - acceptable for a local dev
     # bucket, not worth threading the key through just to clean it up here.
-    import app.routes.common.common_endpoints as endpoints_module
+    import app.features.media.media_endpoints as endpoints_module
 
     def fake_process(content):
         return "/tmp/fake.webp", b"x" * (endpoints_module.MAX_FILE_SIZE_BYTES + 1), 100, 100
@@ -294,7 +294,7 @@ def test_upload_media_user_pfp_rejects_oversized_converted_output(client, make_u
 
 
 def test_upload_media_user_pfp_generic_exception_500(client, make_user, auth_header, monkeypatch):
-    import app.routes.common.common_endpoints as endpoints_module
+    import app.features.media.media_endpoints as endpoints_module
 
     def _raise(*a, **kw):
         raise RuntimeError("simulated unexpected failure")
@@ -312,7 +312,7 @@ def test_upload_media_user_pfp_generic_exception_500(client, make_user, auth_hea
 
 
 def test_upload_media_user_pfp_from_url(client, make_user, auth_header, seaweed_object, monkeypatch):
-    import app.routes.common.common_endpoints as endpoints_module
+    import app.features.media.media_endpoints as endpoints_module
 
     class FakeResponse:
         status_code = 200
@@ -335,7 +335,7 @@ def test_upload_media_user_pfp_from_url(client, make_user, auth_header, seaweed_
 
 
 def test_upload_media_user_pfp_from_url_unreachable(client, make_user, auth_header, monkeypatch):
-    import app.routes.common.common_endpoints as endpoints_module
+    import app.features.media.media_endpoints as endpoints_module
 
     class FakeResponse:
         status_code = 404
@@ -353,7 +353,7 @@ def test_upload_media_user_pfp_from_url_unreachable(client, make_user, auth_head
 
 
 def test_upload_media_user_pfp_from_url_no_face(client, make_user, auth_header, monkeypatch):
-    import app.routes.common.common_endpoints as endpoints_module
+    import app.features.media.media_endpoints as endpoints_module
 
     class FakeResponse:
         status_code = 200
@@ -371,7 +371,7 @@ def test_upload_media_user_pfp_from_url_no_face(client, make_user, auth_header, 
 
 
 def test_upload_media_user_pfp_from_url_ssrf_blocked(client, make_user, auth_header, monkeypatch):
-    import app.routes.common.common_endpoints as endpoints_module
+    import app.features.media.media_endpoints as endpoints_module
 
     def _fail(*a, **kw):
         raise AssertionError("should never fetch an unsafe URL")
@@ -388,7 +388,7 @@ def test_upload_media_user_pfp_from_url_ssrf_blocked(client, make_user, auth_hea
 
 
 def test_upload_media_user_pfp_from_url_invalid_image_content(client, make_user, auth_header, monkeypatch):
-    import app.routes.common.common_endpoints as endpoints_module
+    import app.features.media.media_endpoints as endpoints_module
 
     class FakeResponse:
         status_code = 200
@@ -406,7 +406,7 @@ def test_upload_media_user_pfp_from_url_invalid_image_content(client, make_user,
 
 
 def test_upload_media_user_pfp_from_url_rejects_oversized_converted_output(client, make_user, auth_header, monkeypatch):
-    import app.routes.common.common_endpoints as endpoints_module
+    import app.features.media.media_endpoints as endpoints_module
 
     class FakeResponse:
         status_code = 200
@@ -428,7 +428,7 @@ def test_upload_media_user_pfp_from_url_rejects_oversized_converted_output(clien
 
 
 def test_upload_media_user_pfp_from_url_generic_exception_500(client, make_user, auth_header, monkeypatch):
-    import app.routes.common.common_endpoints as endpoints_module
+    import app.features.media.media_endpoints as endpoints_module
 
     class FakeResponse:
         status_code = 200

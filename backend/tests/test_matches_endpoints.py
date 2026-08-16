@@ -2,7 +2,7 @@
 import pytest
 import uuid
 
-from app.utilities.matches.matches_utilities import MatchUserModel, get_matches_by_preference
+from app.features.discovery.matches_utilities import MatchUserModel, get_matches_by_preference
 
 GET_MATCHES = "/api/v1/matches/get-matches"
 GET_CONNECTIONS = "/api/v1/matches/get-connections"

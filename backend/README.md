@@ -31,19 +31,19 @@ This project demonstrates expertise in asynchronous Python development, complex 
 
 ## 🧱 Architecture Overview: Asynchronous Micro-services
 
-The backend is structured to handle high-frequency swiping and messaging through a modern, modular design.
+The backend is organized feature-first: `app/features/<name>/` holds each product feature's endpoints, utilities, and models together (mirroring the frontend's `frontend/lib/features/<name>/` convention), while `app/core/` holds infrastructure shared by 3+ features — controllers (DB, Redis, S3, etc.), constants, token decoding, and generic exception handling.
 
 ### **API Entry & Middleware (`app/main.py`)**
 - Orchestrates the app lifecycle, managing the database pool and background schedulers.
 - Implements versioned routing (`/api/v1`) for seamless future updates.
 - Serves static assets for legal and safety documentation.
 
-### **Websocket Layer (`app/routes/chats`, `app/routes/matches`)**
+### **Websocket Layer (`app/features/chat`, `app/features/connections`, `app/features/lobby`)**
 - **Chat Socket** — Manages persistent bi-directional connections for messaging, supporting text content, media metadata, and delivery states.
 - **Lobby Socket** — Powers the synchronous matchmaking lobby with automated waiting periods.
 
-### **Utility & Logic Layer (`app/utilities`)**
-- **Security** — Implements JWT-based authentication and secure password hashing.
+### **Feature Layer (`app/features/`)**
+- **Security** — Implements JWT-based authentication and secure password hashing (`app/features/auth/`).
 - **Data Validation** — Leverages Pydantic for strict schema enforcement across all REST and WebSocket payloads.
 
 ## ⚙️ Core Modules & Components

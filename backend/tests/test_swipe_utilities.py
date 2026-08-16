@@ -3,7 +3,7 @@ reachable through the /swipe or /likes HTTP routes."""
 import psycopg2
 import pytest
 
-from app.utilities.swipe.swipe_utilities import exists_in_queue, handle_post_action
+from app.features.discovery.swipe_utilities import exists_in_queue, handle_post_action
 
 
 def test_exists_in_queue_true(db_cursor, make_user):

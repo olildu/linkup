@@ -9,8 +9,8 @@ import httpx
 import pytest
 
 import image_factory as imf
-from app.constants.global_constants import IMGPROXY_PUBLIC_URL, SEAWEEDFS_BUCKET
-from app.utilities.media.imgproxy_utilities import build_signed_url
+from app.core.constants.global_constants import IMGPROXY_PUBLIC_URL, SEAWEEDFS_BUCKET
+from app.features.media.imgproxy_utilities import build_signed_url
 
 UPLOAD_MEDIA_USER = "/api/v1/upload/media-user"
 

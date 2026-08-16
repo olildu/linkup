@@ -6,10 +6,10 @@ from datetime import timedelta
 import pytest
 from starlette.websockets import WebSocketDisconnect
 
-import app.routes.chats.chat_websocket_endpoints as chat_ws_module
-import app.routes.matches.connections_websocket_endpoints as connections_ws_module
-import app.routes.matches.lobby.lobby_websocket_endpoints as lobby_module
-from app.utilities.token.token_utilities import create_access_token
+import app.features.chat.chat_websocket_endpoints as chat_ws_module
+import app.features.connections.connections_websocket_endpoints as connections_ws_module
+import app.features.lobby.lobby_websocket_endpoints as lobby_module
+from app.core.token_utilities import create_access_token
 
 CHAT_WS = "/api/v1/ws/chat"
 CONNECTIONS_WS = "/api/v1/ws/connections"
@@ -70,7 +70,7 @@ async def test_send_event_to_user_chat_relays_to_connected_recipient(make_user, 
         (message_id, chat_id, sender_id, "hi"),
     )
 
-    from app.models.messages.message_model import ChatMessage
+    from app.features.chat.models.message_model import ChatMessage
 
     receiver_ws = FakeWebSocket()
     chat_ws_module.active_connections_chats[receiver_id] = receiver_ws
@@ -95,7 +95,7 @@ async def test_send_event_to_user_chat_relays_to_connected_recipient(make_user, 
 
 @pytest.mark.asyncio
 async def test_send_event_to_user_chat_swallows_send_failure(make_user):
-    from app.models.messages.event_models import SeenEvent
+    from app.features.chat.models.event_models import SeenEvent
 
     receiver_id = make_user()
     receiver_ws = FakeWebSocket(fail_send=True)
@@ -184,7 +184,7 @@ def test_ws_chat_message_persists_and_bumps_unseen_for_offline_receiver(client, 
 
 
 def test_add_to_unseen_and_last_message_picks_up_media_type(make_user, db_cursor):
-    import app.utilities.chat.chat_utilities as chat_utilities_module
+    import app.features.chat.chat_utilities as chat_utilities_module
 
     sender_id = make_user()
     receiver_id = make_user()
@@ -221,7 +221,7 @@ def test_add_to_unseen_and_last_message_picks_up_media_type(make_user, db_cursor
 
 
 def test_add_to_unseen_and_last_message_rolls_back_on_error(monkeypatch):
-    import app.utilities.chat.chat_utilities as chat_utilities_module
+    import app.features.chat.chat_utilities as chat_utilities_module
 
     class FailingCursor:
         def execute(self, *a, **kw):
@@ -277,7 +277,7 @@ def test_ws_connections_auth_via_bearer_header(client, make_user):
 
 @pytest.mark.asyncio
 async def test_send_event_to_user_connection_swallows_send_failure(make_user):
-    from app.routes.matches.connections_websocket_endpoints import DataModel
+    from app.features.connections.connections_websocket_endpoints import DataModel
 
     user_id = make_user()
     ws = FakeWebSocket(fail_send=True)

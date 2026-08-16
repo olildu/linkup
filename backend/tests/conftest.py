@@ -8,15 +8,15 @@ import pytest
 from fastapi.testclient import TestClient
 from psycopg2.extras import Json
 
-from app.constants.db_constants import DB_HOST, DB_NAME, DB_PASSWORD, DB_PORT, DB_USER
-from app.constants.global_constants import (
+from app.core.constants.db_constants import DB_HOST, DB_NAME, DB_PASSWORD, DB_PORT, DB_USER
+from app.core.constants.global_constants import (
     SEAWEEDFS_ACCESS_KEY,
     SEAWEEDFS_BUCKET,
     SEAWEEDFS_S3_ENDPOINT,
     SEAWEEDFS_SECRET_KEY,
 )
 from app.main import app
-from app.utilities.token.token_utilities import create_access_token
+from app.core.token_utilities import create_access_token
 
 
 @pytest.fixture(scope="session")

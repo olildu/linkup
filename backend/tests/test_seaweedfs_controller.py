@@ -4,7 +4,7 @@ app/controllers/seaweedfs_controller.py, which only runs once per process
 the test bucket already exists by the time the suite runs."""
 from botocore.exceptions import ClientError
 
-import app.controllers.seaweedfs_controller as seaweedfs_module
+import app.core.controllers.seaweedfs_controller as seaweedfs_module
 
 
 def test_ensure_bucket_creates_when_missing(monkeypatch):

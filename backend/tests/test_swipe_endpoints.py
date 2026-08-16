@@ -1,7 +1,7 @@
 """Covers /swipe/right and /swipe/left."""
 import pytest
 
-from app.constants.global_constants import DAILY_LIKE_LIMIT
+from app.core.constants.global_constants import DAILY_LIKE_LIMIT
 
 SWIPE_RIGHT = "/api/v1/swipe/right"
 SWIPE_LEFT = "/api/v1/swipe/left"

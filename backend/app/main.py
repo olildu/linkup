@@ -8,20 +8,21 @@ from pytz import timezone
 from contextlib import asynccontextmanager
 import os
 
-from app.controllers.db_controller import create_pool
-from app.routes.chats.chats_endpoints import chats_router
-from app.routes.actions.swipe_endpoint import swipe_route
-from app.routes.actions.likes_endpoint import likes_route
-from app.routes.matches.matches_endpoint import matches_router
-from app.routes.user.get_user_data import user_router
-from app.routes.auth.auth_endpoints import auth_router
-from app.routes.common.common_endpoints import common_router
-from app.routes.cities.cities_endpoints import location_router
-from app.routes.internal.status_endpoints import status_router
+from app.core.controllers.db_controller import create_pool
+from app.features.chat.chats_endpoints import chats_router
+from app.features.discovery.swipe_endpoint import swipe_route
+from app.features.likes.likes_endpoint import likes_route
+from app.features.discovery.matches_endpoint import matches_router
+from app.features.connections.connections_endpoint import connections_router
+from app.features.user.get_user_data import user_router
+from app.features.auth.auth_endpoints import auth_router
+from app.features.media.media_endpoints import common_router
+from app.features.cities.cities_endpoints import location_router
+from app.core.status_endpoints import status_router
 
-from app.routes.chats.chat_websocket_endpoints import chatsocket_router
-from app.routes.matches.connections_websocket_endpoints import connectionsocket_router
-from app.routes.matches.lobby.lobby_websocket_endpoints import lobbysocket_router, start_waiting_period
+from app.features.chat.chat_websocket_endpoints import chatsocket_router
+from app.features.connections.connections_websocket_endpoints import connectionsocket_router
+from app.features.lobby.lobby_websocket_endpoints import lobbysocket_router, start_waiting_period
 
 ist = timezone("Asia/Kolkata")
 scheduler = BackgroundScheduler(timezone=ist)
@@ -58,6 +59,7 @@ app.include_router(user_router, prefix=api_v1_prefix)
 app.include_router(swipe_route, prefix=api_v1_prefix)
 app.include_router(likes_route, prefix=api_v1_prefix)
 app.include_router(matches_router, prefix=api_v1_prefix)
+app.include_router(connections_router, prefix=api_v1_prefix)
 app.include_router(chats_router, prefix=api_v1_prefix)
 app.include_router(common_router, prefix=api_v1_prefix)
 app.include_router(location_router, prefix=api_v1_prefix)

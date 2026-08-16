@@ -6,10 +6,10 @@ from datetime import timedelta
 
 import pytest
 
-from app.constants.global_constants import MAX_LOGIN_ATTEMPTS
-from app.controllers.redis_controller import redis_client
-from app.utilities.password.password_utilities import hash_password
-from app.utilities.token.token_utilities import create_access_token, create_email_token, create_refresh_token
+from app.core.constants.global_constants import MAX_LOGIN_ATTEMPTS
+from app.core.controllers.redis_controller import redis_client
+from app.features.auth.password_utilities import hash_password
+from app.core.token_utilities import create_access_token, create_email_token, create_refresh_token
 
 SIGNUP = "/api/v1/signup"
 REGISTER = "/api/v1/register"
@@ -275,7 +275,7 @@ def test_verify_otp_wrong_code_rejected(client):
 def test_verify_email_stores_otp(client, monkeypatch):
     sent = {}
     monkeypatch.setattr(
-        "app.routes.auth.auth_endpoints.send_otp_email",
+        "app.features.auth.auth_endpoints.send_otp_email",
         lambda to_email, otp: sent.update(email=to_email, otp=otp),
     )
     email = _unique_email()

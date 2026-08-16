@@ -1,10 +1,10 @@
 """Covers /internal/status."""
 import pytest
 
-import app.routes.internal.status_endpoints as status_module
-from app.constants.global_constants import STATUS_PAGE_TOKEN
-from app.controllers.db_controller import db_pool
-from app.controllers.redis_controller import redis_client
+import app.core.status_endpoints as status_module
+from app.core.constants.global_constants import STATUS_PAGE_TOKEN
+from app.core.controllers.db_controller import db_pool
+from app.core.controllers.redis_controller import redis_client
 
 STATUS = "/api/v1/internal/status"
 

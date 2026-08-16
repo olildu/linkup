@@ -1,4 +1,4 @@
-"""Forces the sync `db_pool` (app.controllers.db_controller.db_pool) to fail
+"""Forces the sync `db_pool` (app.core.controllers.db_controller.db_pool) to fail
 on every query, to exercise the except-branches that catch psycopg2.Error /
 generic DB failures across route handlers. These branches can't be reached
 through normal request flows - only by breaking the DB mid-request.
@@ -9,9 +9,9 @@ import psycopg2
 import pytest
 from fastapi import HTTPException
 
-from app.controllers.db_controller import db_pool
-from app.utilities.token.token_utilities import create_email_token
-from app.utilities.user.user_db_utilities import get_user_from_db
+from app.core.controllers.db_controller import db_pool
+from app.core.token_utilities import create_email_token
+from app.features.user.user_db_utilities import get_user_from_db
 
 REPORT = "/api/v1/user/report"
 DELETE = "/api/v1/user/delete"

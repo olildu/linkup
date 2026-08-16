@@ -2,8 +2,8 @@
 signed-URL functions, so both the new and old code paths stay wired up
 correctly regardless of live external credentials.
 """
-from app.utilities.common import common_utilites
-from app.utilities.media import media_utilities
+from app.core import common_utilites
+from app.features.media import media_utilities
 
 
 def test_generate_signed_url_dispatches_new_keys_to_imgproxy(monkeypatch):

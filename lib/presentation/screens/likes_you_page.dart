@@ -22,7 +22,8 @@ class LikesYouPage extends StatefulWidget {
   State<LikesYouPage> createState() => _LikesYouPageState();
 }
 
-class _LikesYouPageState extends State<LikesYouPage> with SingleTickerProviderStateMixin {
+class _LikesYouPageState extends State<LikesYouPage>
+    with SingleTickerProviderStateMixin {
   late final AnimationController _shimmerController;
 
   @override
@@ -47,9 +48,11 @@ class _LikesYouPageState extends State<LikesYouPage> with SingleTickerProviderSt
       listener: (context, state) async {
         if (state is LikesLoaded && state.matchUser != null) {
           final matchUser = state.matchUser!;
-          await Navigator.of(
-            context,
-          ).push(MaterialPageRoute(builder: (_) => MatchedPage(matchUser: matchUser)));
+          await Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (_) => MatchedPage(matchUser: matchUser),
+            ),
+          );
           if (context.mounted) {
             context.read<LikesBloc>().add(ClearLikesMatchUserEvent());
           }
@@ -60,9 +63,9 @@ class _LikesYouPageState extends State<LikesYouPage> with SingleTickerProviderSt
           scrolledUnderElevation: 0,
           title: Text(
             'Likes You',
-            style: Theme.of(
-              context,
-            ).textTheme.headlineMedium?.copyWith(color: Theme.of(context).colorScheme.onSurface),
+            style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+              color: Theme.of(context).colorScheme.onSurface,
+            ),
           ),
           centerTitle: true,
           backgroundColor: Colors.transparent,
@@ -92,7 +95,9 @@ class _LikesYouPageState extends State<LikesYouPage> with SingleTickerProviderSt
                 return _buildLoadingGrid(context);
               }
 
-              if (state.entries.isEmpty && state.totalCount == 0 && !state.loadingEntries) {
+              if (state.entries.isEmpty &&
+                  state.totalCount == 0 &&
+                  !state.loadingEntries) {
                 return _buildEmptyState(
                   context,
                   title: 'No likes yet',
@@ -112,7 +117,8 @@ class _LikesYouPageState extends State<LikesYouPage> with SingleTickerProviderSt
                   crossAxisSpacing: AppSpacing.md.w,
                   childAspectRatio: 0.75,
                 ),
-                itemBuilder: (context, index) => _buildEntryCard(context, state.entries[index]),
+                itemBuilder: (context, index) =>
+                    _buildEntryCard(context, state.entries[index]),
               );
             },
           ),
@@ -122,40 +128,61 @@ class _LikesYouPageState extends State<LikesYouPage> with SingleTickerProviderSt
   }
 
   Widget _buildLoadingGrid(BuildContext context) {
+    final state = context.read<LikesBloc>().state;
+    final knownCount = state is LikesLoaded ? state.totalCount : 0;
+    final likesCount = knownCount > 0 ? knownCount : 1;
     return GridView.builder(
-      padding: EdgeInsets.symmetric(horizontal: AppSpacing.xl.w, vertical: AppSpacing.md.h),
-      itemCount: 6,
+      padding: EdgeInsets.symmetric(
+        horizontal: AppSpacing.xl.w,
+        vertical: AppSpacing.md.h,
+      ),
+      itemCount: likesCount,
       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 2,
         mainAxisSpacing: AppSpacing.md.w,
         crossAxisSpacing: AppSpacing.md.w,
         childAspectRatio: 0.75,
       ),
-      itemBuilder: (context, index) => _ShimmerCard(animation: _shimmerController),
+      itemBuilder: (context, index) =>
+          _ShimmerCard(animation: _shimmerController),
     );
   }
 
   Widget _buildEntryCard(BuildContext context, LikesYouEntryEntity entry) {
-    final imageMeta = entry.revealed ? entry.profile!.photos.first : entry.firstPhoto;
+    final imageMeta = entry.revealed
+        ? entry.profile!.photos.first
+        : entry.firstPhoto;
     final url = imageMeta?['url'] as String?;
     final fileKey = imageMeta?['file_key'] as String?;
     final blurhash = imageMeta?['blurhash'] as String?;
 
     return GestureDetector(
-      onTap: () => entry.revealed ? _showRevealedProfileSheet(context, entry) : () {},
+      onTap: () =>
+          entry.revealed ? _showRevealedProfileSheet(context, entry) : () {},
       child: ClipRRect(
         borderRadius: BorderRadius.circular(AppRadius.md),
         child: Stack(
           fit: StackFit.expand,
           children: [
             if (url != null)
-              _EntryImage(url: url, fileKey: fileKey, blurhash: blurhash, blurred: !entry.revealed)
+              _EntryImage(
+                url: url,
+                fileKey: fileKey,
+                blurhash: blurhash,
+                blurred: !entry.revealed,
+              )
             else
-              Container(color: Theme.of(context).colorScheme.surfaceContainerHighest),
+              Container(
+                color: Theme.of(context).colorScheme.surfaceContainerHighest,
+              ),
             if (!entry.revealed) ...[
               Container(color: Colors.black.withValues(alpha: 0.15)),
               Center(
-                child: Icon(Icons.favorite_rounded, color: AppColors.whiteText, size: 32.sp),
+                child: Icon(
+                  Icons.favorite_rounded,
+                  color: AppColors.whiteText,
+                  size: 32.sp,
+                ),
               ),
             ],
           ],
@@ -164,7 +191,10 @@ class _LikesYouPageState extends State<LikesYouPage> with SingleTickerProviderSt
     );
   }
 
-  void _showRevealedProfileSheet(BuildContext context, LikesYouEntryEntity entry) {
+  void _showRevealedProfileSheet(
+    BuildContext context,
+    LikesYouEntryEntity entry,
+  ) {
     final likesBloc = context.read<LikesBloc>();
     final height = MediaQuery.of(context).size.height * 0.8;
     final availableHeight = height - 100.h;
@@ -182,7 +212,9 @@ class _LikesYouPageState extends State<LikesYouPage> with SingleTickerProviderSt
             return Container(
               decoration: BoxDecoration(
                 color: Theme.of(sheetContext).scaffoldBackgroundColor,
-                borderRadius: BorderRadius.vertical(top: Radius.circular(AppRadius.lg)),
+                borderRadius: BorderRadius.vertical(
+                  top: Radius.circular(AppRadius.lg),
+                ),
               ),
               child: Column(
                 children: [
@@ -191,7 +223,9 @@ class _LikesYouPageState extends State<LikesYouPage> with SingleTickerProviderSt
                     width: 40.w,
                     height: 4.h,
                     decoration: BoxDecoration(
-                      color: Theme.of(sheetContext).colorScheme.onSurface.withValues(alpha: 0.2),
+                      color: Theme.of(
+                        sheetContext,
+                      ).colorScheme.onSurface.withValues(alpha: 0.2),
                       borderRadius: BorderRadius.circular(AppRadius.full),
                     ),
                   ),
@@ -220,7 +254,9 @@ class _LikesYouPageState extends State<LikesYouPage> with SingleTickerProviderSt
                         Gap(AppSpacing.md.w),
                         Expanded(
                           child: FilledButton(
-                            style: FilledButton.styleFrom(backgroundColor: AppColors.primary),
+                            style: FilledButton.styleFrom(
+                              backgroundColor: AppColors.primary,
+                            ),
                             onPressed: () {
                               likesBloc.add(LikeBackEvent(likerId: entry.id));
                               Navigator.pop(sheetContext);
@@ -240,19 +276,27 @@ class _LikesYouPageState extends State<LikesYouPage> with SingleTickerProviderSt
     );
   }
 
-  Widget _buildEmptyState(BuildContext context, {required String title, required String subtitle}) {
+  Widget _buildEmptyState(
+    BuildContext context, {
+    required String title,
+    required String subtitle,
+  }) {
     return Center(
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(Icons.favorite_border_rounded, size: 72.sp, color: AppColors.primary),
+          Icon(
+            Icons.favorite_border_rounded,
+            size: 72.sp,
+            color: AppColors.primary,
+          ),
           Gap(AppSpacing.lg.h),
           Text(
             title,
             textAlign: TextAlign.center,
-            style: Theme.of(
-              context,
-            ).textTheme.headlineMedium?.copyWith(color: Theme.of(context).colorScheme.onSurface),
+            style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+              color: Theme.of(context).colorScheme.onSurface,
+            ),
           ),
           Gap(AppSpacing.sm.h),
           Padding(
@@ -261,7 +305,9 @@ class _LikesYouPageState extends State<LikesYouPage> with SingleTickerProviderSt
               subtitle,
               textAlign: TextAlign.center,
               style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
+                color: Theme.of(
+                  context,
+                ).colorScheme.onSurface.withValues(alpha: 0.7),
               ),
             ),
           ),
@@ -277,18 +323,28 @@ class _EntryImage extends StatelessWidget {
   final String? blurhash;
   final bool blurred;
 
-  const _EntryImage({required this.url, this.fileKey, this.blurhash, required this.blurred});
+  const _EntryImage({
+    required this.url,
+    this.fileKey,
+    this.blurhash,
+    required this.blurred,
+  });
 
   @override
   Widget build(BuildContext context) {
     final image = OctoImage(
       image: CachedNetworkImageProvider(url, cacheKey: fileKey),
-      placeholderBuilder: blurhash != null ? blurHash(blurhash!).placeholderBuilder : null,
+      placeholderBuilder: blurhash != null
+          ? blurHash(blurhash!).placeholderBuilder
+          : null,
       fit: BoxFit.cover,
     );
 
     if (!blurred) return image;
-    return ImageFiltered(imageFilter: ImageFilter.blur(sigmaX: 18, sigmaY: 18), child: image);
+    return ImageFiltered(
+      imageFilter: ImageFilter.blur(sigmaX: 18, sigmaY: 18),
+      child: image,
+    );
   }
 }
 
@@ -321,11 +377,21 @@ class _ShimmerCard extends StatelessWidget {
               return ShaderMask(
                 blendMode: BlendMode.srcATop,
                 shaderCallback: (bounds) {
-                  final dx = lerpDouble(-bounds.width, bounds.width, animation.value)!;
+                  final dx = lerpDouble(
+                    -bounds.width,
+                    bounds.width,
+                    animation.value,
+                  )!;
                   return LinearGradient(
-                    colors: [baseColor.withValues(alpha: 0), highlightColor, baseColor.withValues(alpha: 0)],
+                    colors: [
+                      baseColor.withValues(alpha: 0),
+                      highlightColor,
+                      baseColor.withValues(alpha: 0),
+                    ],
                     stops: const [0.35, 0.5, 0.65],
-                  ).createShader(Rect.fromLTWH(dx, 0, bounds.width, bounds.height));
+                  ).createShader(
+                    Rect.fromLTWH(dx, 0, bounds.width, bounds.height),
+                  );
                 },
                 child: Container(color: baseColor.withValues(alpha: 0.4)),
               );

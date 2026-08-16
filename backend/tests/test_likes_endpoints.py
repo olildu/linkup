@@ -1,10 +1,11 @@
-"""Covers /likes/received, /likes/{id}/like-back, /likes/{id}/pass.
+"""Covers /likes/received, /likes/count, /likes/{id}/like-back, /likes/{id}/pass.
 """
 import pytest
 
 from app.features.likes.likes_utilities import get_unseen_likes_count, mark_likes_seen
 
 RECEIVED = "/api/v1/likes/received"
+COUNT = "/api/v1/likes/count"
 LIKE_BACK = "/api/v1/likes/{}/like-back"
 PASS = "/api/v1/likes/{}/pass"
 
@@ -76,6 +77,89 @@ def test_received_empty_when_no_likes(client, make_user, auth_header):
     assert body["entries"] == []
     assert body["total_count"] == 0
     assert body["unseen_count"] == 0
+
+
+def test_count_no_token_401(client):
+    resp = client.get(COUNT)
+    assert resp.status_code == 401
+
+
+def test_count_empty_when_no_likes(client, make_user, auth_header):
+    target_id = make_user()
+    resp = client.get(COUNT, headers=auth_header(target_id))
+
+    assert resp.status_code == 200, resp.text
+    assert resp.json() == {"total_count": 0}
+
+
+def test_count_reflects_pending_likes(client, make_user, auth_header, db_cursor):
+    target_id = make_user()
+    liker_0 = make_user()
+    liker_1 = make_user()
+    _like(db_cursor, liker_0, target_id, "2024-01-01 00:00:00")
+    _like(db_cursor, liker_1, target_id, "2024-01-02 00:00:00")
+
+    resp = client.get(COUNT, headers=auth_header(target_id))
+
+    assert resp.status_code == 200, resp.text
+    assert resp.json() == {"total_count": 2}
+
+
+def test_count_unaffected_by_received_seen_state(client, make_user, auth_header, db_cursor):
+    # /count is deliberately independent of the seen/unseen tracking that
+    # /received mutates - a like stays "pending" (not yet responded to)
+    # regardless of whether it's been viewed.
+    target_id = make_user()
+    liker_id = make_user()
+    _like(db_cursor, liker_id, target_id, "2024-01-01 00:00:00")
+
+    client.get(RECEIVED, headers=auth_header(target_id))  # marks it seen
+
+    resp = client.get(COUNT, headers=auth_header(target_id))
+    assert resp.json() == {"total_count": 1}
+
+
+def test_count_excludes_already_reciprocated_like(client, make_user, auth_header, db_cursor):
+    target_id = make_user()
+    liker_id = make_user()
+    _like(db_cursor, liker_id, target_id, "2024-01-01 00:00:00")
+    # target_id already liked liker_id back - no longer "pending".
+    _like(db_cursor, target_id, liker_id, "2024-01-01 00:00:01")
+
+    resp = client.get(COUNT, headers=auth_header(target_id))
+    assert resp.json() == {"total_count": 0}
+
+
+def test_count_excludes_already_matched_user(client, make_user, auth_header, db_cursor):
+    target_id = make_user()
+    liker_id = make_user()
+    _like(db_cursor, liker_id, target_id, "2024-01-01 00:00:00")
+    db_cursor.execute(
+        "INSERT INTO matches (user1_id, user2_id) VALUES (%s, %s);", (target_id, liker_id)
+    )
+
+    resp = client.get(COUNT, headers=auth_header(target_id))
+    assert resp.json() == {"total_count": 0}
+
+    db_cursor.execute(
+        "DELETE FROM matches WHERE user1_id = %s AND user2_id = %s;", (target_id, liker_id)
+    )
+
+
+def test_count_excludes_blocked_user(client, make_user, auth_header, db_cursor):
+    target_id = make_user()
+    liker_id = make_user()
+    _like(db_cursor, liker_id, target_id, "2024-01-01 00:00:00")
+    db_cursor.execute(
+        "INSERT INTO blocked_users (blocker_id, blocked_id) VALUES (%s, %s);", (target_id, liker_id)
+    )
+
+    resp = client.get(COUNT, headers=auth_header(target_id))
+    assert resp.json() == {"total_count": 0}
+
+    db_cursor.execute(
+        "DELETE FROM blocked_users WHERE blocker_id = %s AND blocked_id = %s;", (target_id, liker_id)
+    )
 
 
 def test_like_back_success_creates_match(client, make_user, auth_header, db_cursor):

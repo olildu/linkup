@@ -6,7 +6,6 @@ both new (sw/) and legacy keys.
 import json
 import uuid
 
-import pytest
 from psycopg2.extras import Json
 
 from app.features.discovery.models.match_canidate_model import build_candidate_model
@@ -88,18 +87,18 @@ def test_build_full_profile_end_to_end_via_real_db_row(db_cursor, make_user):
 
 
 def test_build_first_photo_sw(db_cursor, make_user):
-    user_id = make_user(profile_picture=SW_PROFILE_PICTURE)
+    # build_first_photo reads the "photos" metadata key, not profile_picture.
+    user_id = make_user(photos=SW_PHOTOS)
     photo = build_first_photo(user_id, db_cursor)
     assert photo["url"].startswith("http")
 
 
-def test_build_first_photo_raises_on_null_profile_picture(db_cursor, make_user):
-    """Documented current behavior: no null-guard, so this raises rather
-    than returning None. Not fixed here - just pinned so a future change is
-    deliberate."""
-    user_id = make_user()  # no profile_picture -> NULL column
-    with pytest.raises(Exception):
-        build_first_photo(user_id, db_cursor)
+def test_build_first_photo_returns_none_when_no_photos(db_cursor, make_user):
+    # build_first_photo has a null-guard (`if photos else None`) - a user
+    # with no "photos" metadata row returns None gracefully rather than
+    # raising, matching how LikesYouEntryModel.first_photo is optional.
+    user_id = make_user()  # no photos metadata at all
+    assert build_first_photo(user_id, db_cursor) is None
 
 
 # ---------------------------------------------------------------------------

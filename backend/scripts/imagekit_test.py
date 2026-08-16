@@ -13,7 +13,7 @@ expire_seconds = 600  # 10 minutes
 options = UploadFileRequestOptions(folder='test', is_private_file=True)
 
 upload = imagekit.upload(
-    file=open('test/face.webp', "rb"), file_name='face.webp', options=options
+    file=open('face.webp', "rb"), file_name='face.webp', options=options
 )
 
 # # Generate signed URL

@@ -1,17 +1,17 @@
 """In-memory test image generation - avoids committing binary fixtures for
 the format/mode/size matrix. The two real photographic fixtures that need
 actual detectable faces (test-face.jpg for success, an existing subject-less
-render for failure) live in app/test/ and are reused as-is.
+render for failure) live alongside this file and are reused as-is.
 """
 import io
 from pathlib import Path
 
 from PIL import Image, ImageDraw
 
-APP_TEST_DIR = Path(__file__).resolve().parent.parent / "app" / "test"
+FIXTURES_DIR = Path(__file__).resolve().parent
 
-FACE_IMAGE_PATH = APP_TEST_DIR / "test-face.jpg"
-OVERSIZED_IMAGE_PATH = APP_TEST_DIR / "test2.jpg"  # ~10MB, 7724x5148
+FACE_IMAGE_PATH = FIXTURES_DIR / "test-face.jpg"
+OVERSIZED_IMAGE_PATH = FIXTURES_DIR / "test2.jpg"  # ~10MB, 7724x5148
 
 
 def make_image_bytes(

@@ -1,10 +1,10 @@
-"""Covers /likes/received, /likes/unseen-count, /likes/{id}/like-back,
-/likes/{id}/pass.
+"""Covers /likes/received, /likes/{id}/like-back, /likes/{id}/pass.
 """
 import pytest
 
+from app.features.likes.likes_utilities import get_unseen_likes_count, mark_likes_seen
+
 RECEIVED = "/api/v1/likes/received"
-UNSEEN_COUNT = "/api/v1/likes/unseen-count"
 LIKE_BACK = "/api/v1/likes/{}/like-back"
 PASS = "/api/v1/likes/{}/pass"
 
@@ -40,17 +40,26 @@ def test_received_first_entry_revealed_others_teaser(client, make_user, auth_hea
 
 
 def test_received_marks_seen_and_updates_unseen_count(client, make_user, auth_header, db_cursor):
+    # The old dedicated /likes/unseen-count endpoint was removed in favor of
+    # unseen_count living in /received's own response - and /received marks
+    # likes seen as part of the same request that reports the count, so an
+    # HTTP-level "before/after" observation isn't possible anymore. Exercise
+    # the underlying mark_likes_seen/get_unseen_likes_count functions
+    # directly instead, same as /received does internally.
     target_id = make_user()
     liker_id = make_user(profile_picture=PFP)
     _like(db_cursor, liker_id, target_id, "2024-01-01 00:00:00")
 
-    unseen_before = client.get(UNSEEN_COUNT, headers=auth_header(target_id))
-    assert unseen_before.json()["unseen_count"] == 1
+    assert get_unseen_likes_count(target_id, db_cursor) == 1
 
-    client.get(RECEIVED, headers=auth_header(target_id))
+    mark_likes_seen(target_id, [liker_id], db_cursor)
+    db_cursor.connection.commit()
 
-    unseen_after = client.get(UNSEEN_COUNT, headers=auth_header(target_id))
-    assert unseen_after.json()["unseen_count"] == 0
+    assert get_unseen_likes_count(target_id, db_cursor) == 0
+
+    # /received still reports the now-0 count in its response body.
+    resp = client.get(RECEIVED, headers=auth_header(target_id))
+    assert resp.json()["unseen_count"] == 0
 
 
 def test_received_no_token_401(client):

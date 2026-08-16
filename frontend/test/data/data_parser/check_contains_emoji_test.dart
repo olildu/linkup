@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:linkup/data/data_parser/common/check_contains_emoji.dart';
+import 'package:linkup/core/utils/check_contains_emoji.dart';
 
 void main() {
   group('containsOnlyEmojis', () {

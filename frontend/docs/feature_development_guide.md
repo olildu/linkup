@@ -8,6 +8,8 @@
 
 Every feature in this app is built the same way, layer by layer, starting from the bottom. Think of it like building a water pipe: you lay the pipe from the source (API) to the tap (UI), and water only flows in one direction.
 
+The codebase is organized **feature-first**: each feature owns a `lib/features/<feature>/` folder containing its own `data/`, `domain/`, and `presentation/` subfolders — the layer boundaries below still apply, they're just scoped per-feature instead of being top-level folders shared by all features. Cross-feature infrastructure (HTTP client, DI, entities used by 3+ features) lives in `lib/core/`; cross-feature widgets/theme live in `lib/shared_ui/`. See `docs/ARCHITECTURE.md`.
+
 ```
 API (server)
   → Datasource (fetch + parse JSON)
@@ -33,7 +35,7 @@ We'll add a notifications endpoint that fetches a list of notifications for the 
 The entity is a pure Dart class. No JSON, no database annotations, no Flutter imports. Just the fields the UI will care about.
 
 ```dart
-// lib/domain/entities/notification_entity.dart
+// lib/features/notifications/domain/notification_entity.dart
 class NotificationEntity {
   final String id;
   final String title;
@@ -60,7 +62,7 @@ Keep entities immutable (`const`, no setters). If the UI needs a modified versio
 The model knows about JSON. It lives in `data/models/`.
 
 ```dart
-// lib/data/models/notification_model.dart
+// lib/features/notifications/data/notification_model.dart
 class NotificationModel {
   final String id;
   final String title;
@@ -100,11 +102,11 @@ The model has `fromJson`. The entity doesn't. That's the split.
 Makes the HTTP call. Returns a model (not an entity). Lives in `data/datasources/remote/`.
 
 ```dart
-// lib/data/datasources/remote/notifications_remote_datasource.dart
+// lib/features/notifications/data/notifications_remote_datasource.dart
 import 'dart:convert';
 import 'package:linkup/core/constants/app_constants.dart';
 import 'package:linkup/core/network/custom_http_client.dart';
-import 'package:linkup/data/models/notification_model.dart';
+import 'package:linkup/features/notifications/data/notification_model.dart';
 
 class NotificationsRemoteDatasource {
   final CustomHttpClient _client;
@@ -127,7 +129,7 @@ Never use `http.get` directly. Always go through `CustomHttpClient` — it handl
 This is the contract. The `domain/` layer defines what it wants. The `data/` layer fulfills it.
 
 ```dart
-// lib/domain/repositories/notifications_repository.dart
+// lib/features/notifications/domain/notifications_repository.dart
 abstract class NotificationsRepository {
   Future<List<NotificationEntity>> getNotifications();
 }
@@ -142,10 +144,10 @@ Notice: it returns `NotificationEntity`, not `NotificationModel`. The domain lay
 Implements the interface. Calls the datasource. Converts models to entities.
 
 ```dart
-// lib/data/repositories/notifications_repository_impl.dart
-import 'package:linkup/data/datasources/remote/notifications_remote_datasource.dart';
-import 'package:linkup/domain/entities/notification_entity.dart';
-import 'package:linkup/domain/repositories/notifications_repository.dart';
+// lib/features/notifications/data/notifications_repository_impl.dart
+import 'package:linkup/features/notifications/data/notifications_remote_datasource.dart';
+import 'package:linkup/features/notifications/domain/notification_entity.dart';
+import 'package:linkup/features/notifications/domain/notifications_repository.dart';
 
 class NotificationsRepositoryImpl implements NotificationsRepository {
   final NotificationsRemoteDatasource _datasource;
@@ -166,9 +168,9 @@ class NotificationsRepositoryImpl implements NotificationsRepository {
 One class, one action. Takes the repository, calls the method.
 
 ```dart
-// lib/domain/use_cases/notifications/get_notifications_use_case.dart
-import 'package:linkup/domain/repositories/notifications_repository.dart';
-import 'package:linkup/domain/entities/notification_entity.dart';
+// lib/features/notifications/domain/get_notifications_use_case.dart
+import 'package:linkup/features/notifications/domain/notifications_repository.dart';
+import 'package:linkup/features/notifications/domain/notification_entity.dart';
 
 class GetNotificationsUseCase {
   final NotificationsRepository _repository;
@@ -187,7 +189,7 @@ The `call()` method lets you invoke it like a function: `await _getNotifications
 Three files: bloc, event, state.
 
 ```dart
-// lib/logic/bloc/notifications/notifications_state.dart
+// lib/features/notifications/presentation/bloc/notifications_state.dart
 part of 'notifications_bloc.dart';
 
 @immutable
@@ -206,7 +208,7 @@ final class NotificationsFailure extends NotificationsState {
 ```
 
 ```dart
-// lib/logic/bloc/notifications/notifications_event.dart
+// lib/features/notifications/presentation/bloc/notifications_event.dart
 part of 'notifications_bloc.dart';
 
 @immutable
@@ -216,11 +218,11 @@ final class LoadNotificationsEvent extends NotificationsEvent {}
 ```
 
 ```dart
-// lib/logic/bloc/notifications/notifications_bloc.dart
+// lib/features/notifications/presentation/bloc/notifications_bloc.dart
 import 'package:bloc/bloc.dart';
 import 'package:meta/meta.dart';
-import 'package:linkup/domain/entities/notification_entity.dart';
-import 'package:linkup/domain/use_cases/notifications/get_notifications_use_case.dart';
+import 'package:linkup/features/notifications/domain/notification_entity.dart';
+import 'package:linkup/features/notifications/domain/get_notifications_use_case.dart';
 
 part 'notifications_event.dart';
 part 'notifications_state.dart';
@@ -275,7 +277,7 @@ sl.registerLazySingleton<NotificationsBloc>(
 ### Step 9 — The screen
 
 ```dart
-// lib/presentation/screens/notifications_page.dart
+// lib/features/notifications/presentation/screens/notifications_page.dart
 class NotificationsPage extends StatefulWidget {
   const NotificationsPage({super.key});
   @override
@@ -326,13 +328,13 @@ class _NotificationsPageState extends State<NotificationsPage> {
 
 ## Checklist — before you call a feature done
 
-- [ ] Entity in `domain/entities/`
-- [ ] Model in `data/models/` with `fromJson` and `toEntity()`
-- [ ] Datasource in `data/datasources/remote/` using `CustomHttpClient`
-- [ ] Repository interface in `domain/repositories/`
-- [ ] Repository implementation in `data/repositories/` implementing the interface
-- [ ] Use case(s) in `domain/use_cases/[domain]/`
-- [ ] Bloc in `logic/bloc/[feature]/` — event, state, bloc (3 files)
+- [ ] Entity in `features/[feature]/domain/`
+- [ ] Model in `features/[feature]/data/` with `fromJson` and `toEntity()`
+- [ ] Datasource in `features/[feature]/data/` using `CustomHttpClient`
+- [ ] Repository interface in `features/[feature]/domain/`
+- [ ] Repository implementation in `features/[feature]/data/` implementing the interface
+- [ ] Use case(s) in `features/[feature]/domain/`
+- [ ] Bloc in `features/[feature]/presentation/bloc/` — event, state, bloc (3 files)
 - [ ] Registered in `injection_container.dart` — datasource → repository → use case → bloc
 - [ ] Provided via `BlocProvider` in the screen (factory blocs) or app root (singleton blocs)
 - [ ] Screen uses only `Theme.of(context)` tokens — no raw colors, sizes, or font styles

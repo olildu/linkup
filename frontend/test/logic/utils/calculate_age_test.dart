@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:linkup/logic/utils/calculate_age.dart';
+import 'package:linkup/core/utils/calculate_age.dart';
 
 void main() {
   group('calculateAge', () {

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:linkup/data/models/reply_model.dart';
-import 'package:linkup/presentation/components/chat_page/message_input_area.dart';
+import 'package:linkup/features/messaging/data/models/reply_model.dart';
+import 'package:linkup/features/messaging/presentation/components/message_input_area.dart';
 import '../../../test_helper.dart';
 
 void main() {
@@ -13,7 +13,15 @@ void main() {
     testWidgets('shows camera icon when not typing', (tester) async {
       await tester.pumpWidget(
         buildTestWidget(
-          MessageInputArea(messageController: controller, isTyping: false, replyPayload: null, sendMessage: () {}, handleMedia: (_) {}, removeReplyPayload: () {}, userImageMetaData: {}),
+          MessageInputArea(
+            messageController: controller,
+            isTyping: false,
+            replyPayload: null,
+            sendMessage: () {},
+            handleMedia: (_) {},
+            removeReplyPayload: () {},
+            userImageMetaData: {},
+          ),
         ),
       );
       await tester.pumpAndSettle();
@@ -25,7 +33,17 @@ void main() {
 
     testWidgets('shows send button when typing', (tester) async {
       await tester.pumpWidget(
-        buildTestWidget(MessageInputArea(messageController: controller, isTyping: true, replyPayload: null, sendMessage: () {}, handleMedia: (_) {}, removeReplyPayload: () {}, userImageMetaData: {})),
+        buildTestWidget(
+          MessageInputArea(
+            messageController: controller,
+            isTyping: true,
+            replyPayload: null,
+            sendMessage: () {},
+            handleMedia: (_) {},
+            removeReplyPayload: () {},
+            userImageMetaData: {},
+          ),
+        ),
       );
       await tester.pumpAndSettle();
 
@@ -34,9 +52,15 @@ void main() {
       expect(find.byIcon(Icons.camera_alt_outlined), findsNothing);
     });
 
-    testWidgets('renders reply payload when provided and removes it on tap', (tester) async {
+    testWidgets('renders reply payload when provided and removes it on tap', (
+      tester,
+    ) async {
       bool removed = false;
-      final replyPayload = ReplyModel(messageID: '1', message: 'Original msg', userName: 'UserX');
+      final replyPayload = ReplyModel(
+        messageID: '1',
+        message: 'Original msg',
+        userName: 'UserX',
+      );
 
       await tester.pumpWidget(
         buildTestWidget(

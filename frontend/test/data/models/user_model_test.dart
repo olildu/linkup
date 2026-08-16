@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:linkup/data/models/user_model.dart';
+import 'package:linkup/features/profile/data/models/user_model.dart';
 
 void main() {
   group('UserModel', () {
@@ -8,7 +8,10 @@ void main() {
       'username': 'Test User',
       'gender': 'Male',
       'university_id': 456,
-      'profile_picture': {'url': 'http://example.com/pic.jpg', 'blurhash': 'LEHV6n'},
+      'profile_picture': {
+        'url': 'http://example.com/pic.jpg',
+        'blurhash': 'LEHV6n',
+      },
       'dob': '2000-01-01T00:00:00.000',
       'university_major': 'CS',
       'university_year': 3,
@@ -21,7 +24,7 @@ void main() {
       'religion': 'Other',
       'smoking_info': 'No',
       'drinking_info': 'No',
-      'looking_for': 'Friends'
+      'looking_for': 'Friends',
     };
 
     test('fromJson creates a valid UserModel', () {
@@ -41,7 +44,7 @@ void main() {
       expect(json['username'], 'Test User');
       expect(json['university_id'], 456);
       // Ensure DOB was converted back to string ISO
-      expect(json['dob'], contains('2000-01-01')); 
+      expect(json['dob'], contains('2000-01-01'));
     });
   });
 }

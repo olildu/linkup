@@ -136,12 +136,12 @@ You almost never call `sl<T>()` directly inside widgets. The bloc is provided vi
 
 **Scenario: you're adding a `NotificationsFeature`** with a datasource, repository, use case, and bloc.
 
-**1. Create the files** following the existing pattern:
-- `lib/data/datasources/remote/notifications_remote_datasource.dart`
-- `lib/data/repositories/notifications_repository_impl.dart`
-- `lib/domain/repositories/notifications_repository.dart` (abstract)
-- `lib/domain/use_cases/notifications/get_notifications_use_case.dart`
-- `lib/logic/bloc/notifications/notifications_bloc.dart`
+**1. Create the files** following the existing pattern, grouped under the feature's own folder:
+- `lib/features/notifications/data/notifications_remote_datasource.dart`
+- `lib/features/notifications/data/notifications_repository_impl.dart`
+- `lib/features/notifications/domain/notifications_repository.dart` (abstract)
+- `lib/features/notifications/domain/get_notifications_use_case.dart`
+- `lib/features/notifications/presentation/bloc/notifications_bloc.dart`
 
 **2. Register in `injection_container.dart`** in the correct section and order:
 

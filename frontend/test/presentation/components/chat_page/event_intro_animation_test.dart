@@ -1,23 +1,36 @@
 // Fixed: Used descendant finders to avoid 'Too many elements' error from AnimatedSwitcher.
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:linkup/presentation/components/chat_page/event_intro_animation.dart';
+import 'package:linkup/features/messaging/presentation/components/event_intro_animation.dart';
 import '../../../test_helper.dart';
 
 void main() {
   group('EventIntroAnimation', () {
-    testWidgets('starts animation and applies Slide/Fade transitions', (tester) async {
-      await tester.pumpWidget(buildTestWidget(
-        const EventIntroAnimation(child: Text('Event')),
-      ));
+    testWidgets('starts animation and applies Slide/Fade transitions', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        buildTestWidget(const EventIntroAnimation(child: Text('Event'))),
+      );
 
       // Use descendant finder to target the transitions applied to the child Text widget
       final textFinder = find.text('Event');
-      final fadeTransitionFinder = find.ancestor(of: textFinder, matching: find.byType(FadeTransition)).first;
-      final slideTransitionFinder = find.ancestor(of: fadeTransitionFinder, matching: find.byType(SlideTransition)).first;
+      final fadeTransitionFinder = find
+          .ancestor(of: textFinder, matching: find.byType(FadeTransition))
+          .first;
+      final slideTransitionFinder = find
+          .ancestor(
+            of: fadeTransitionFinder,
+            matching: find.byType(SlideTransition),
+          )
+          .first;
 
-      final slideTransition = tester.widget<SlideTransition>(slideTransitionFinder);
-      final fadeTransition = tester.widget<FadeTransition>(fadeTransitionFinder);
+      final slideTransition = tester.widget<SlideTransition>(
+        slideTransitionFinder,
+      );
+      final fadeTransition = tester.widget<FadeTransition>(
+        fadeTransitionFinder,
+      );
 
       // Initial state (t=0)
       expect(fadeTransition.opacity.value, closeTo(0.0, 0.01));

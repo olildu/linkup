@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:linkup/presentation/constants/colors.dart';
+import 'package:linkup/shared_ui/constants/colors.dart';
 
 void main() {
   group('AppTheme Coverage', () {
-
     test('lightTheme initialization covers all lines', () {
       final theme = AppTheme.lightTheme;
 

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:linkup/presentation/components/common/title_sub_builder.dart';
+import 'package:linkup/shared_ui/components/common/title_sub_builder.dart';
 import '../../../test_helper.dart';
 
 void main() {
@@ -9,9 +9,11 @@ void main() {
       const title = 'Main Title';
       const subtitle = 'Supporting Subtitle';
 
-      await tester.pumpWidget(buildTestWidget(
-        const BuildTitleSubtitle(title: title, subtitle: subtitle),
-      ));
+      await tester.pumpWidget(
+        buildTestWidget(
+          const BuildTitleSubtitle(title: title, subtitle: subtitle),
+        ),
+      );
 
       expect(find.text(title), findsOneWidget);
       expect(find.text(subtitle), findsOneWidget);
@@ -23,7 +25,9 @@ void main() {
       await tester.pumpWidget(
         Theme(
           data: ThemeData.dark(),
-          child: buildTestWidget(const BuildTitleSubtitle(title: 'T', subtitle: subtitle)),
+          child: buildTestWidget(
+            const BuildTitleSubtitle(title: 'T', subtitle: subtitle),
+          ),
         ),
       );
       await tester.pumpAndSettle();

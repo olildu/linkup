@@ -12,19 +12,30 @@ void main() {
         message: 'Our servers are having a moment. Please try again shortly.',
         rawDetail: 'boom',
       );
-      expect(friendlyErrorMessage(e), 'Our servers are having a moment. Please try again shortly.');
+      expect(
+        friendlyErrorMessage(e),
+        'Our servers are having a moment. Please try again shortly.',
+      );
     });
 
     test('unwraps SwipeLimitException to its message', () {
-      final e = SwipeLimitException("You've hit your daily like limit. Try again tomorrow.");
-      expect(friendlyErrorMessage(e), "You've hit your daily like limit. Try again tomorrow.");
+      final e = SwipeLimitException(
+        "You've hit your daily like limit. Try again tomorrow.",
+      );
+      expect(
+        friendlyErrorMessage(e),
+        "You've hit your daily like limit. Try again tomorrow.",
+      );
     });
 
     test('maps a raw duplicate-email exception string to a friendly message', () {
       final e = Exception(
         'Signup failed: duplicate key value violates unique constraint "users_email_key"',
       );
-      expect(friendlyErrorMessage(e), 'This email is already registered. Please log in.');
+      expect(
+        friendlyErrorMessage(e),
+        'This email is already registered. Please log in.',
+      );
     });
 
     test('maps SocketException to a network message', () {
@@ -34,28 +45,49 @@ void main() {
       );
     });
 
-    test('maps a raw database/stacktrace-looking string to the generic fallback', () {
-      final e = Exception(
-        'psycopg2.errors.UndefinedTable: relation "foo" does not exist\nTraceback (most recent call last):',
-      );
-      expect(friendlyErrorMessage(e), 'Something went wrong. Please try again.');
-    });
+    test(
+      'maps a raw database/stacktrace-looking string to the generic fallback',
+      () {
+        final e = Exception(
+          'psycopg2.errors.UndefinedTable: relation "foo" does not exist\nTraceback (most recent call last):',
+        );
+        expect(
+          friendlyErrorMessage(e),
+          'Something went wrong. Please try again.',
+        );
+      },
+    );
 
     test('passes through a short, already-human message unchanged', () {
-      expect(friendlyErrorMessage(Exception('Failed to send OTP')), 'Failed to send OTP');
+      expect(
+        friendlyErrorMessage(Exception('Failed to send OTP')),
+        'Failed to send OTP',
+      );
     });
 
     test('returns the generic fallback for null', () {
-      expect(friendlyErrorMessage(null), 'Something went wrong. Please try again.');
+      expect(
+        friendlyErrorMessage(null),
+        'Something went wrong. Please try again.',
+      );
     });
   });
 
   group('friendlyFromResponse', () {
-    test('maps a raw 500 database detail to the generic server message, never the raw text', () {
-      final message = friendlyFromResponse(500, 'Database error: relation "users" does not exist');
-      expect(message, 'Our servers are having a moment. Please try again shortly.');
-      expect(message.contains('relation'), isFalse);
-    });
+    test(
+      'maps a raw 500 database detail to the generic server message, never the raw text',
+      () {
+        final message = friendlyFromResponse(
+          500,
+          'Database error: relation "users" does not exist',
+        );
+        expect(
+          message,
+          'Our servers are having a moment. Please try again shortly.',
+        );
+        expect(message.contains('relation'), isFalse);
+      },
+    );
 
     test('maps 429 to a rate-limit message', () {
       expect(
@@ -73,7 +105,10 @@ void main() {
 
     test('detail substring match wins over generic status mapping', () {
       expect(
-        friendlyFromResponse(500, 'duplicate key value violates unique constraint users_email_key'),
+        friendlyFromResponse(
+          500,
+          'duplicate key value violates unique constraint users_email_key',
+        ),
         'This email is already registered. Please log in.',
       );
     });
@@ -81,11 +116,17 @@ void main() {
 
   group('sanitizeDisplayMessage', () {
     test('leaves an intentional friendly literal untouched', () {
-      expect(sanitizeDisplayMessage('User blocked successfully'), 'User blocked successfully');
+      expect(
+        sanitizeDisplayMessage('User blocked successfully'),
+        'User blocked successfully',
+      );
     });
 
     test('strips a leading Exception: prefix', () {
-      expect(sanitizeDisplayMessage('Exception: Failed to send OTP'), 'Failed to send OTP');
+      expect(
+        sanitizeDisplayMessage('Exception: Failed to send OTP'),
+        'Failed to send OTP',
+      );
     });
 
     test('replaces raw-looking text with the generic fallback', () {

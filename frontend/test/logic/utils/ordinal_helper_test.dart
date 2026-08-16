@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:linkup/logic/utils/ordinal_helper.dart';
+import 'package:linkup/core/utils/ordinal_helper.dart';
 
 void main() {
   group('getOrdinalSuffix', () {
@@ -29,7 +29,7 @@ void main() {
       expect(getOrdinalSuffix(21), '21st');
       expect(getOrdinalSuffix(22), '22nd');
     });
-    
+
     test('handles negative or zero gracefully', () {
       expect(getOrdinalSuffix(0), '0');
       expect(getOrdinalSuffix(-5), '-5');

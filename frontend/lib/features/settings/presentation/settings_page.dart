@@ -22,8 +22,9 @@ class SettingsPage extends StatelessWidget {
   static const String _termsUrl = 'https://linkup.olildu.dpdns.org/terms';
   static const String _privacyUrl = 'https://linkup.olildu.dpdns.org/privacy';
   static const String _supportEmail = 'ebinsanthosh06@gmail.com';
-  static final BiometricLockService _biometricLockService =
-      BiometricLockService();
+  /// Overridable in tests; defaults to the real plugin-backed service.
+  @visibleForTesting
+  static BiometricLockService biometricLockService = BiometricLockService();
 
   Future<void> _openExternal(BuildContext context, Uri uri) async {
     try {
@@ -169,7 +170,7 @@ class SettingsPage extends StatelessWidget {
       return;
     }
 
-    final bool canUseAppLock = await _biometricLockService.canUseAppLock();
+    final bool canUseAppLock = await biometricLockService.canUseAppLock();
 
     if (!context.mounted) {
       return;

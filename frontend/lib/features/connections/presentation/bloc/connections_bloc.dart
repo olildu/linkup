@@ -33,6 +33,9 @@ class ConnectionsBloc extends Bloc<ConnectionsEvent, ConnectionsState> {
   final GetCachedConnectionsUseCase _getCachedConnections;
   final BlockUserUseCase _blockUser;
   final ReportUserUseCase _reportUser;
+  final ChatSocketServices _chatSocket;
+  final ConnectionsSocketService _connectionsSocket;
+  final int Function() _resolveCurrentUserId;
 
   ConnectionsBloc({
     required GetConnectionsUseCase getConnectionsUseCase,
@@ -40,11 +43,20 @@ class ConnectionsBloc extends Bloc<ConnectionsEvent, ConnectionsState> {
     required GetCachedConnectionsUseCase getCachedConnectionsUseCase,
     required BlockUserUseCase blockUserUseCase,
     required ReportUserUseCase reportUserUseCase,
+    ChatSocketServices? chatSocket,
+    ConnectionsSocketService? connectionsSocket,
+    int Function()? resolveCurrentUserId,
   }) : _getConnections = getConnectionsUseCase,
        _cacheConnections = cacheConnectionsUseCase,
        _getCachedConnections = getCachedConnectionsUseCase,
        _blockUser = blockUserUseCase,
        _reportUser = reportUserUseCase,
+       _chatSocket = chatSocket ?? ChatSocketServices.instance(),
+       _connectionsSocket =
+           connectionsSocket ?? ConnectionsSocketService.instance(),
+       _resolveCurrentUserId =
+           resolveCurrentUserId ??
+           (() => GetIt.instance<int>(instanceName: 'user_id')),
        super(ConnectionsInitial()) {
     on<LoadConnectionsEvent>(_onLoad);
     on<ReportUserEvent>(_onReport);
@@ -54,12 +66,10 @@ class ConnectionsBloc extends Bloc<ConnectionsEvent, ConnectionsState> {
   }
 
   void _socketInit() {
-    final int currentUserId = GetIt.instance<int>(instanceName: 'user_id');
+    final int currentUserId = _resolveCurrentUserId();
 
     _chatSocketSubscription?.cancel();
-    _chatSocketSubscription = ChatSocketServices.chatsMessageStream.listen((
-      raw,
-    ) {
+    _chatSocketSubscription = _chatSocket.messageStream.listen((raw) {
       final currentState = state;
       if (currentState is! ConnectionsLoaded) return;
 
@@ -132,9 +142,9 @@ class ConnectionsBloc extends Bloc<ConnectionsEvent, ConnectionsState> {
     });
 
     _connectionsSocketSubscription?.cancel();
-    _connectionsSocketSubscription = ConnectionsSocketService
-        .connectionsMessageStream
-        .listen((raw) {
+    _connectionsSocketSubscription = _connectionsSocket.messageStream.listen((
+      raw,
+    ) {
           if (state is! ConnectionsLoaded) return;
           final data = jsonDecode(raw);
           log('Connections socket data: $data', name: _logTag);

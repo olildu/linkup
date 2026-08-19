@@ -10,12 +10,16 @@ part 'connections_socket_state.dart';
 class ConnectionsSocketBloc
     extends Bloc<ConnectionsSocketEvent, ConnectionsSocketState> {
   final String _logTag = "ConnectionSocketBloc";
+  final ConnectionsSocketService _connectionsSocket;
 
-  ConnectionsSocketBloc() : super(ConnectionsSocketInitial()) {
+  ConnectionsSocketBloc({ConnectionsSocketService? connectionsSocket})
+    : _connectionsSocket =
+          connectionsSocket ?? ConnectionsSocketService.instance(),
+      super(ConnectionsSocketInitial()) {
     on<LoadConnectionSocketsEvent>((event, emit) async {
       emit(ConnectionsSocketsConnecting());
       try {
-        await ConnectionsSocketService.instance().connect();
+        await _connectionsSocket.connect();
         emit(ConnectionsSocketsConnected());
       } catch (e) {
         log("Failed : $e", name: _logTag);

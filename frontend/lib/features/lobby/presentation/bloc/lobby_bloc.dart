@@ -13,13 +13,16 @@ part 'lobby_state.dart';
 
 class LobbyBloc extends Bloc<LobbyEvent, LobbyState> {
   StreamSubscription<String>? _socketSubscription;
+  final LobbySocketService _lobbySocket;
 
-  LobbyBloc() : super(LobbyBefore8()) {
+  LobbyBloc({LobbySocketService? lobbySocket})
+    : _lobbySocket = lobbySocket ?? LobbySocketService.instance(),
+      super(LobbyBefore8()) {
     on<ConnectLobbyEvent>((event, emit) async {
       log("[LobbyBloc] Connecting to lobby socket...");
       try {
-        await LobbySocketService.connect();
-        _socketSubscription = LobbySocketService.lobbyMessageStream.listen((
+        await _lobbySocket.connect();
+        _socketSubscription = _lobbySocket.messageStream.listen((
           raw,
         ) {
           final data = jsonDecode(raw);
@@ -66,7 +69,7 @@ class LobbyBloc extends Bloc<LobbyEvent, LobbyState> {
     on<DisconnectLobbyEvent>((event, emit) async {
       log("[LobbyBloc] Disconnecting from lobby socket...");
       _socketSubscription?.cancel();
-      LobbySocketService.disconnect();
+      _lobbySocket.disconnect();
       emit(LobbyBefore8());
     });
 

@@ -9,12 +9,17 @@ import 'package:linkup/core/errors/api_exception.dart';
 import 'package:linkup/core/errors/error_message_mapper.dart';
 
 class CustomHttpClient {
-  final _storage = GetIt.instance<FlutterSecureStorage>();
+  final http.Client _http;
+  final FlutterSecureStorage _storage;
+
+  CustomHttpClient({http.Client? httpClient, FlutterSecureStorage? storage})
+    : _http = httpClient ?? http.Client(),
+      _storage = storage ?? GetIt.instance<FlutterSecureStorage>();
 
   Future<http.Response> get(Uri uri, {Map<String, String>? headers}) =>
       _execute(
         () => _withAuth(
-          (token) => http.get(uri, headers: _headers(token, headers)),
+          (token) => _http.get(uri, headers: _headers(token, headers)),
         ),
       );
 
@@ -24,7 +29,7 @@ class CustomHttpClient {
     Object? body,
   }) => _execute(
     () => _withAuth(
-      (token) => http.post(uri, headers: _headers(token, headers), body: body),
+      (token) => _http.post(uri, headers: _headers(token, headers), body: body),
     ),
   );
 
@@ -35,7 +40,7 @@ class CustomHttpClient {
   }) => _execute(
     () => _withAuth(
       (token) =>
-          http.delete(uri, headers: _headers(token, headers), body: body),
+          _http.delete(uri, headers: _headers(token, headers), body: body),
     ),
   );
 
@@ -50,7 +55,7 @@ class CustomHttpClient {
         ..headers.addAll({'Authorization': 'Bearer $token', ...?headers})
         ..fields.addAll(fields)
         ..files.addAll(await buildFiles());
-      return http.Response.fromStream(await req.send());
+      return http.Response.fromStream(await _http.send(req));
     }),
   );
 
@@ -137,7 +142,7 @@ class CustomHttpClient {
     final refresh = await _storage.read(key: 'refresh_token');
     if (refresh == null) return false;
     try {
-      final res = await http.post(
+      final res = await _http.post(
         Uri.parse('$BASE_URL/refresh'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({'refresh_token': refresh}),

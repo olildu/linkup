@@ -10,9 +10,32 @@ import 'package:web_socket_channel/web_socket_channel.dart';
 import 'package:web_socket_channel/io.dart';
 import 'package:web_socket_channel/status.dart' as status;
 
+/// Opens the socket connection. Injectable so tests can supply a fake
+/// channel or throw to exercise the failure/refresh paths.
+typedef SocketChannelConnector =
+    Future<WebSocketChannel> Function(Uri uri, Map<String, String> headers);
+
+Future<WebSocketChannel> _defaultConnector(
+  Uri uri,
+  Map<String, String> headers,
+) async {
+  // Use WebSocket.connect directly to catch handshake errors (403)
+  // synchronously, and to set the ping interval on the raw socket.
+  final WebSocket ws = await WebSocket.connect(
+    uri.toString(),
+    headers: headers,
+  ).timeout(const Duration(seconds: 5));
+  ws.pingInterval = const Duration(seconds: 6);
+  return IOWebSocketChannel(ws);
+}
+
 abstract class BaseSocketService {
-  final FlutterSecureStorage _secureStorage = const FlutterSecureStorage();
-  final CustomHttpClient _client = GetIt.instance<CustomHttpClient>();
+  final FlutterSecureStorage _secureStorage;
+  final CustomHttpClient? _httpClient;
+  final SocketChannelConnector _connector;
+
+  CustomHttpClient get _client =>
+      _httpClient ?? GetIt.instance<CustomHttpClient>();
 
   WebSocketChannel? _channel;
   String? _authToken;
@@ -45,7 +68,12 @@ abstract class BaseSocketService {
     required this.uri,
     required this.logTag,
     this.reconnectDelay = const Duration(seconds: 5),
-  });
+    FlutterSecureStorage? secureStorage,
+    CustomHttpClient? httpClient,
+    SocketChannelConnector? connector,
+  }) : _secureStorage = secureStorage ?? const FlutterSecureStorage(),
+       _httpClient = httpClient,
+       _connector = connector ?? _defaultConnector;
 
   void _updateConnectionStatusController() {
     // Only broadcast if change is there
@@ -83,17 +111,9 @@ abstract class BaseSocketService {
     );
 
     try {
-      // FIX: Use WebSocket.connect directly to catch handshake errors (403) synchronously
-      final WebSocket ws = await WebSocket.connect(
-        uri.toString(),
-        headers: {'Authorization': 'Bearer $_authToken'},
-      ).timeout(const Duration(seconds: 5));
-
-      // Set ping interval directly on the raw socket
-      ws.pingInterval = const Duration(seconds: 6);
-
-      // Wrap the raw socket in the channel
-      _channel = IOWebSocketChannel(ws);
+      _channel = await _connector(uri, {
+        'Authorization': 'Bearer $_authToken',
+      });
 
       _channel!.stream.listen(
         (data) {

@@ -24,16 +24,20 @@ class LikesBloc extends Bloc<LikesEvent, LikesState> {
   final GetLikesCountUseCase _getLikesCount;
   final LikeBackUseCase _likeBack;
   final PassLikeUseCase _passLike;
+  final ConnectionsSocketService _connectionsSocket;
 
   LikesBloc({
     required GetReceivedLikesUseCase getReceivedLikesUseCase,
     required GetLikesCountUseCase getLikesCountUseCase,
     required LikeBackUseCase likeBackUseCase,
     required PassLikeUseCase passLikeUseCase,
+    ConnectionsSocketService? connectionsSocket,
   }) : _getReceivedLikes = getReceivedLikesUseCase,
        _getLikesCount = getLikesCountUseCase,
        _likeBack = likeBackUseCase,
        _passLike = passLikeUseCase,
+       _connectionsSocket =
+           connectionsSocket ?? ConnectionsSocketService.instance(),
        super(LikesInitial()) {
     on<LoadLikesCountEvent>(_onLoadLikesCount);
     on<LoadReceivedLikesEvent>(_onLoadReceivedLikes);
@@ -47,9 +51,9 @@ class LikesBloc extends Bloc<LikesEvent, LikesState> {
     _socketInitialized = true;
 
     _connectionsSocketSubscription?.cancel();
-    _connectionsSocketSubscription = ConnectionsSocketService
-        .connectionsMessageStream
-        .listen((raw) {
+    _connectionsSocketSubscription = _connectionsSocket.messageStream.listen((
+      raw,
+    ) {
           final data = jsonDecode(raw);
           log('Likes socket data: $data', name: _logTag);
           if (data['type'] == 'connections-reload' &&

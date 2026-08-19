@@ -5,7 +5,7 @@ import 'package:linkup/features/messaging/data/models/message_model.dart';
 import 'package:linkup/features/messaging/presentation/components/message_renderer.dart';
 import 'package:linkup/features/messaging/presentation/components/reply_renderer.dart';
 import 'package:get_it/get_it.dart';
-import '../../../test_helper.dart';
+import '../../../../helpers/test_helper.dart';
 
 void main() {
   setUpAll(() {

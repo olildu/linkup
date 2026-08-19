@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:linkup/features/messaging/presentation/components/reply_renderer.dart';
-import '../../../test_helper.dart';
+import '../../../../helpers/test_helper.dart';
 
 void main() {
   group('ReplyRenderer', () {

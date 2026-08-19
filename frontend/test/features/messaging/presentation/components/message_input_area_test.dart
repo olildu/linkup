@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:linkup/features/messaging/data/models/reply_model.dart';
 import 'package:linkup/features/messaging/presentation/components/message_input_area.dart';
-import '../../../test_helper.dart';
+import '../../../../helpers/test_helper.dart';
 
 void main() {
   group('MessageInputArea', () {

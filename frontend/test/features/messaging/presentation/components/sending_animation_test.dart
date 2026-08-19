@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:linkup/features/messaging/presentation/components/sending_animation.dart';
-import '../../../test_helper.dart';
+import '../../../../helpers/test_helper.dart';
 
 void main() {
   testWidgets('SendingAnimation cycles opacity and continues animating', (
@@ -30,6 +30,12 @@ void main() {
     await tester.pump(
       const Duration(milliseconds: 100),
     ); // Total 1000ms. onEnd fires. Value is 1.0.
+
+    // Rebuild with the reversed tween, then tick once so the new animation's
+    // ticker establishes its start time; the reversed cycle only begins
+    // advancing on the frame after that.
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 16));
 
     // 5. Pump into the next cycle (reverse: 1.0 -> 0.5)
     // Advance 500ms into the new animation

@@ -2,7 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:linkup/features/messaging/presentation/components/event_intro_animation.dart';
-import '../../../test_helper.dart';
+import '../../../../helpers/test_helper.dart';
 
 void main() {
   group('EventIntroAnimation', () {

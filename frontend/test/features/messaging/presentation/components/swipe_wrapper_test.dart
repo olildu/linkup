@@ -4,7 +4,7 @@ import 'package:linkup/features/messaging/data/models/message_model.dart';
 import 'package:linkup/features/messaging/presentation/components/swipe_wrapper.dart';
 import 'package:get_it/get_it.dart';
 import 'package:material_symbols_icons/symbols.dart';
-import '../../../test_helper.dart';
+import '../../../../helpers/test_helper.dart';
 
 void main() {
   setUpAll(() {

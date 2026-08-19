@@ -25,17 +25,50 @@ class CameraBloc extends Bloc<CameraEvent, CameraState> {
 
   bool _imageProcessing = false;
 
-  CameraBloc() : super(CameraInitial()) {
+  // Plugin seams, injectable for tests; defaults hit the real plugins.
+  final Future<List<CameraDescription>> Function() _availableCameras;
+  final CameraController Function(CameraDescription, ResolutionPreset)
+  _buildController;
+  final ImagePicker _picker;
+  final Future<XFile?> Function(String sourcePath, String targetPath) _compress;
+  final Future<void> Function(String path) _saveToGallery;
+  final Future<Directory> Function() _tempDir;
+
+  static Future<XFile?> _defaultCompress(
+    String sourcePath,
+    String targetPath,
+  ) => FlutterImageCompress.compressAndGetFile(
+    sourcePath,
+    targetPath,
+    quality: 50,
+    format: CompressFormat.jpeg,
+  );
+
+  CameraBloc({
+    Future<List<CameraDescription>> Function()? availableCamerasFn,
+    CameraController Function(CameraDescription, ResolutionPreset)?
+    controllerFactory,
+    ImagePicker? picker,
+    Future<XFile?> Function(String sourcePath, String targetPath)? compressFn,
+    Future<void> Function(String path)? saveToGalleryFn,
+    Future<Directory> Function()? tempDirFn,
+  }) : _availableCameras = availableCamerasFn ?? availableCameras,
+       _buildController = controllerFactory ?? CameraController.new,
+       _picker = picker ?? ImagePicker(),
+       _compress = compressFn ?? _defaultCompress,
+       _saveToGallery = saveToGalleryFn ?? Gal.putImage,
+       _tempDir = tempDirFn ?? getTemporaryDirectory,
+       super(CameraInitial()) {
     on<CameraInitEvent>((event, emit) async {
       emit(CameraLoading());
       try {
-        _cameras = await availableCameras();
+        _cameras = await _availableCameras();
         _imageProcessing = false;
 
         log('Cameras available: ${_cameras.length}', name: _logTag);
 
         _selectedIndex = 0;
-        _controller = CameraController(
+        _controller = _buildController(
           _cameras[_selectedIndex],
           ResolutionPreset.max,
         );
@@ -66,7 +99,7 @@ class CameraBloc extends Bloc<CameraEvent, CameraState> {
         _selectedIndex = (_selectedIndex + 1) % _cameras.length;
         await _controller?.dispose();
 
-        _controller = CameraController(
+        _controller = _buildController(
           _cameras[_selectedIndex],
           ResolutionPreset.max,
         );
@@ -100,16 +133,11 @@ class CameraBloc extends Bloc<CameraEvent, CameraState> {
           return;
         }
 
-        final tempDir = await getTemporaryDirectory();
+        final tempDir = await _tempDir();
         final targetPath =
             '${tempDir.path}/${DateTime.now().millisecondsSinceEpoch}.jpg';
 
-        final compressedImage = await FlutterImageCompress.compressAndGetFile(
-          imageFile.path,
-          targetPath,
-          quality: 50,
-          format: CompressFormat.jpeg,
-        );
+        final compressedImage = await _compress(imageFile.path, targetPath);
 
         if (compressedImage == null) {
           log('Compression failed', name: _logTag);
@@ -146,8 +174,7 @@ class CameraBloc extends Bloc<CameraEvent, CameraState> {
 
     on<CameraGalleryPictureEvent>((event, emit) async {
       try {
-        final imagePicker = ImagePicker();
-        final imageFile = await imagePicker.pickImage(
+        final imageFile = await _picker.pickImage(
           source: ImageSource.gallery,
           imageQuality: 50,
         );
@@ -180,7 +207,7 @@ class CameraBloc extends Bloc<CameraEvent, CameraState> {
       try {
         final file = File(event.imageFile.path);
         if (await file.exists()) {
-          await Gal.putImage(file.path);
+          await _saveToGallery(file.path);
           log('Saved image to gallery: ${file.path}', name: _logTag);
         } else {
           log('File does not exist: ${file.path}', name: _logTag);

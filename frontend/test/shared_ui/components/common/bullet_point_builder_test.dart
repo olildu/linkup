@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:linkup/shared_ui/components/common/bullet_point_builder.dart';
-import '../../../test_helper.dart';
+import '../../../helpers/test_helper.dart';
 
 void main() {
   group('BulletPointBuilder', () {

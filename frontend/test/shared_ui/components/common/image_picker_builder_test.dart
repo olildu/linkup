@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:linkup/shared_ui/components/common/image_picker_builder.dart';
 import 'package:octo_image/octo_image.dart';
-import '../../../test_helper.dart';
+import '../../../helpers/test_helper.dart';
 
 void main() {
   // Corrected mock data with valid 6-char blurhash strings (required by flutter_blurhash)

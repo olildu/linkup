@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:linkup/features/auth/presentation/components/text_input_field.dart';
-import '../../../test_helper.dart'; // Assume test_helper.dart defines buildTestWidget
+import '../../../../helpers/test_helper.dart'; // Assume test_helper.dart defines buildTestWidget
 
 void main() {
   group('TextInputField (Login)', () {

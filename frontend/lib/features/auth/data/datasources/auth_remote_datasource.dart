@@ -11,9 +11,11 @@ import 'package:linkup/core/entities/update_metadata_model.dart';
 
 class AuthRemoteDatasource {
   final CustomHttpClient _client;
+  final http.Client _http;
   static const _tag = 'AuthRemoteDatasource';
 
-  AuthRemoteDatasource(this._client);
+  AuthRemoteDatasource(this._client, {http.Client? httpClient})
+    : _http = httpClient ?? http.Client();
 
   String _extractDetail(http.Response response) {
     try {
@@ -41,7 +43,7 @@ class AuthRemoteDatasource {
     String email,
     String password,
   ) async {
-    final response = await http.post(
+    final response = await _http.post(
       Uri.parse('$BASE_URL/token'),
       body: {'username': email, 'password': password},
       headers: {'Content-Type': 'application/x-www-form-urlencoded'},
@@ -67,7 +69,7 @@ class AuthRemoteDatasource {
 
   Future<int> sendEmailOTP(String email) async {
     try {
-      final response = await http.get(
+      final response = await _http.get(
         Uri.parse('$BASE_URL/verify-email?email=$email'),
         headers: {'Content-Type': 'application/json'},
       );
@@ -84,7 +86,7 @@ class AuthRemoteDatasource {
     int otp,
     EmailOTPSubject subject,
   ) async {
-    final response = await http.post(
+    final response = await _http.post(
       Uri.parse('$BASE_URL/verify-otp'),
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode({'email': email, 'otp': otp, 'subject': subject.value}),
@@ -97,7 +99,7 @@ class AuthRemoteDatasource {
     String emailHash,
     String password,
   ) async {
-    final response = await http.post(
+    final response = await _http.post(
       Uri.parse('$BASE_URL/signup'),
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode({'email_hash': emailHash, 'password': password}),
@@ -116,7 +118,7 @@ class AuthRemoteDatasource {
   }
 
   Future<bool> resetPassword(String emailHash, String password) async {
-    final response = await http.post(
+    final response = await _http.post(
       Uri.parse('$BASE_URL/reset-password'),
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode({'email_hash': emailHash, 'password': password}),

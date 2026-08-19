@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:linkup/features/onboarding/presentation/components/progress_bar_component.dart';
 import 'package:linkup/shared_ui/constants/colors.dart';
-import '../../../test_helper.dart';
+import '../../../../helpers/test_helper.dart';
 
 void main() {
   group('ProgressBarComponent Widget Tests', () {

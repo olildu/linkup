@@ -19,20 +19,23 @@ class ChatSocketsBloc extends Bloc<ChatSocketsEvent, ChatSocketsState> {
 
   final GetUnsentMessagesUseCase _getUnsent;
   final DeleteUnsentByMessageIdUseCase _deleteUnsentByMsgId;
+  final ChatSocketServices _chatSocket;
 
   ChatSocketsBloc({
     required GetUnsentMessagesUseCase getUnsentMessagesUseCase,
     required DeleteUnsentByMessageIdUseCase deleteUnsentByMessageIdUseCase,
+    ChatSocketServices? chatSocket,
   }) : _getUnsent = getUnsentMessagesUseCase,
        _deleteUnsentByMsgId = deleteUnsentByMessageIdUseCase,
+       _chatSocket = chatSocket ?? ChatSocketServices.instance(),
        super(ChatSocketsInitial()) {
     on<LoadChatSocketsEvent>((event, emit) async {
       emit(ChatSocketsConnecting());
       try {
-        await ChatSocketServices.instance().connect();
+        await _chatSocket.connect();
 
         _statusSubscription?.cancel();
-        _statusSubscription = ChatSocketServices.chatsConnectionStatusStream
+        _statusSubscription = _chatSocket.connectionStatusStream
             .listen((connected) async {
               log('WebSocket connected: $connected', name: _logTag);
               if (!connected) return;
@@ -41,7 +44,7 @@ class ChatSocketsBloc extends Bloc<ChatSocketsEvent, ChatSocketsState> {
               for (final entity in unsent) {
                 try {
                   final message = _entityToModel(entity);
-                  ChatSocketServices.instance().sendMessage(message.toJson());
+                  _chatSocket.sendMessage(message.toJson());
                   await _deleteUnsentByMsgId(entity.id);
                 } catch (e) {
                   log('Failed to resend unsent message: $e', name: _logTag);
